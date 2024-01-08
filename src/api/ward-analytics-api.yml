@@ -63,7 +63,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
-# TODO - Create endpoint to get tags of a specific address (Gabriel)
 
 components:
   schemas:
