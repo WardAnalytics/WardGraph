@@ -46,6 +46,12 @@ TODO
 
 ## How to run this project
 
+### 1. Yarn
+
+Yarn is recommended to run this project. If you don't have it installed, you can install it with `npm install -g yarn`.
+
+### 2. Environment Variables
+
 The `.env` file should look like this:
 
 ```shell
@@ -55,8 +61,13 @@ VITE_WARD_API_KEY=[Your Ward Analytics API Key] # If you are interested in contr
 
 For a template, simply go to `.env.example` and copy it to `.env`.
 
-¡
-TODO - Make sure to be complete and thorough
+### 3. Install Dependencies
+
+Run `yarn install` to install all dependencies.
+
+### 4. Run the project
+
+Run `yarn dev` to start the development server.
 
 ## How to contribute
 
