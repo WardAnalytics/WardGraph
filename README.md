@@ -6,6 +6,18 @@ The graph tool is based on an API provided by Ward Analytics. This API calculate
 
 You can try it out here: https://www.wardanalyticsapp.com
 
+## Features
+- Current Blockchains: Ethereum
+- 
+
+## Roadmap
+- New blockchains: Bitcoin, Tron, Polygon, XRP.
+- Improvements to the UIUX
+- 
+
+## Dataset
+- We will make most of our dataset used in the Graph completely public on Hugging Face in the near future, while updating it regularly.
+
 ## General Information
 - Source Code:
 - Issue Tracker:
@@ -19,6 +31,8 @@ TODO - Make sure to be complete and thorough
 
 ## How to contribute
 TODO - Make sure to mention users can request an API key if they want to contribute or try it out and we'll invite them to the private beta for free.
+
+
 
 ## Additional Channels
 - Discord: 
