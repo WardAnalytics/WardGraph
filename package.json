@@ -1,0 +1,61 @@
+{
+  "name": "graph",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "build:dev": "env-cmd -f .env.development yarn build && firebase deploy -P dev",
+    "build:prod": "env-cmd -f .env.production yarn build && firebase deploy -P prod",
+    "deploy": "yarn install && yarn build",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "preview": "vite preview",
+    "generate-api": "orval --config ./src/api/orval.config.cjs"
+  },
+  "dependencies": {
+    "@dagrejs/dagre": "^1.0.4",
+    "@headlessui/react": "^1.7.17",
+    "@heroicons/react": "^2.1.1",
+    "axios": "^1.6.2",
+    "clsx": "^2.0.0",
+    "dotenv": "^16.3.1",
+    "firebase": "^10.7.1",
+    "framer-motion": "^10.17.9",
+    "orval": "^6.23.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-query": "^3.39.3",
+    "reactflow": "^11.10.1",
+    "vite-plugin-environment": "^1.1.3",
+    "yarn": "^1.22.21"
+  },
+  "devDependencies": {
+    "@tailwindcss/forms": "^0.5.7",
+    "@types/dotenv": "^8.2.0",
+    "@types/react": "^18.2.45",
+    "@types/react-dom": "^18.2.15",
+    "@typescript-eslint/eslint-plugin": "^6.14.0",
+    "@typescript-eslint/parser": "^6.14.0",
+    "@vitejs/plugin-react": "^4.2.0",
+    "autoprefixer": "^10.4.16",
+    "env-cmd": "^10.1.0",
+    "eslint": "^8.55.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.0.1",
+    "eslint-plugin-react": "^7.33.2",
+    "postcss": "^8.4.32",
+    "prettier": "^3.1.1",
+    "prettier-plugin-tailwindcss": "^0.5.9",
+    "react-router-dom": "^6.20.1",
+    "tailwindcss": "^3.3.6",
+    "typescript": "^5.2.2",
+    "vite": "^5.0.10"
+  },
+  "packageManager": "yarn@4.0.0",
+  "prettier": {
+    "plugins": [
+      "prettier-plugin-tailwindcss"
+    ]
+  }
+}
