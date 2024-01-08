@@ -1,0 +1,175 @@
+# This is the yml file that defines the API endpoints
+#
+# To add a new endpoint, add a new path under paths
+# To add a new response object, add a new object under components/schemas
+# To add a new tag, add a new tag under tags
+#
+# For more information about the OpenAPI Specification, see https://swagger.io/specification/
+# To debug your yml code, you can use https://editor.swagger.io/
+
+openapi: 3.0.3
+info:
+  title: compliance-queries-api
+  version: "1.0"
+  description: The ward's compliance queires endpoints
+paths:
+  /compliance/analyze-address:
+    get:
+      operationId: analysis-address-data
+      description: Analyze address
+      tags:
+        - compliance
+      parameters:
+        - name: api
+          in: header
+          description: The api key
+          required: true
+          schema:
+            type: string
+        - name: address
+          in: query
+          description: The address to analyze
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AddressAnalysis"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "429":
+          description: Too Many Requests
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+# TODO - Create endpoint to get tags of a specific address (Gabriel)
+
+components:
+  schemas:
+    # Address Analysis
+    AddressAnalysis:
+      type: object
+      properties:
+        address:
+          type: string
+        blockchain:
+          type: string
+        risk:
+          type: number
+        labels:
+          type: array
+          items:
+            type: string
+        timestampScanned:
+          type: string
+          format: number
+        incomingDirectExposure:
+          $ref: "#/components/schemas/Exposure"
+        incomingIndirectExposure:
+          $ref: "#/components/schemas/Exposure"
+        outgoingDirectExposure:
+          $ref: "#/components/schemas/Exposure"
+        outgoingIndirectExposure:
+          $ref: "#/components/schemas/Exposure"
+      required:
+        - address
+        - blockchain
+        - risk
+        - labels
+        - timestampScanned
+        - incomingDirectExposure
+        - incomingIndirectExposure
+        - outgoingDirectExposure
+        - outgoingIndirectExposure
+    Exposure:
+      type: object
+      properties:
+        categories:
+          type: array
+          items:
+            $ref: "#/components/schemas/Category"
+        total:
+          type: number
+      required:
+        - categories
+        - total
+    Category:
+      type: object
+      properties:
+        entities:
+          type: array
+          items:
+            $ref: "#/components/schemas/Entity"
+        name:
+          type: string
+        total:
+          type: number
+      required:
+        - entities
+        - name
+        - total
+    Entity:
+      type: object
+      properties:
+        addresses:
+          type: array
+          items:
+            $ref: "#/components/schemas/Address"
+        name:
+          type: string
+        quantity:
+          type: number
+      required:
+        - addresses
+        - name
+        - quantity
+    Address:
+      type: object
+      properties:
+        hash:
+          type: string
+        quantity:
+          type: number
+        paths:
+          type: array
+          items:
+            type: array
+            items:
+              type: string
+      required:
+        - hash
+        - quantity
+
+    # Error
+    ErrorResponse:
+      type: object
+      properties:
+        msg:
+          type: string
+
+tags:
+  - name: compliance
+    description: The compliance queires endpoints
+  - name: errors
+    description: The error responses
