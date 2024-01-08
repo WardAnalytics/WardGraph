@@ -46,6 +46,16 @@ TODO
 
 ## How to run this project
 
+The `.env` file should look like this:
+
+```shell
+VITE_WARD_API_BASE_URL=https://wardanalyticsapi.com
+VITE_WARD_API_KEY=[Your Ward Analytics API Key] # If you are interested in contributing, simply shoot us a message and we will promptly provide you with a free API key ;)
+```
+
+For a template, simply go to `.env.example` and copy it to `.env`.
+
+¡
 TODO - Make sure to be complete and thorough
 
 ## How to contribute
