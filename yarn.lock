@@ -4206,7 +4206,7 @@ optionator@^0.9.3:
 
 orval@^6.23.0:
   version "6.23.0"
-  resolved "https://registry.npmjs.org/orval/-/orval-6.23.0.tgz"
+  resolved "https://registry.yarnpkg.com/orval/-/orval-6.23.0.tgz#cbeaf7276ab6852fd65f352b829431b02b134101"
   integrity sha512-elAyEIIpf/1kydP5V33UtONfkuN3v7L8ogzF/eJNzhvv4zsq8TwEADiY8GAw5EyzOiFFF07SSJxtoY4ez1FmFg==
   dependencies:
     "@apidevtools/swagger-parser" "^10.1.0"
