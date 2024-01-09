@@ -10,12 +10,11 @@ import ReactFlow, {
   Controls,
   Background,
   ReactFlowProvider,
-  Panel,
   SelectionMode,
   ReactFlowInstance,
   useReactFlow,
+  useOnSelectionChange,
 } from "reactflow";
-
 import getLayoutedElements from "./layout";
 
 import {
@@ -39,6 +38,7 @@ const g = new Dagre.graphlib.Graph().setDefaultEdgeLabel(() => ({}));
 /* Context for variable handling */
 interface GraphContextProps {
   addAddressPaths: (paths: string[][], incoming: boolean) => void;
+  focusOnAddress: (address: string) => void;
 }
 
 export const GraphContext = createContext<GraphContextProps>({
@@ -65,7 +65,10 @@ const initialTestNode = createAddressNode(
 const GraphProvided: FC = () => {
   const [nodes, setNodes, onNodesChange] = useNodesState([initialTestNode]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+  const [selectedNodes, setSelectedNodes] = useState<string[]>([]);
   const reactFlowInstance: ReactFlowInstance = useReactFlow();
+
+  const { setViewport } = useReactFlow();
 
   /* Callback to automatically layout the full graph */
   const onLayout = useCallback(() => {
@@ -96,13 +99,26 @@ const GraphProvided: FC = () => {
     setEdges((oldEdges) => addEdge(newEdge, oldEdges));
   }
 
-  /** Deletes a node and all edges connected to it
-   * @param id the id of the node to delete
+  /** Deletes multiple nodes and all edges connected to them
+   * @param ids the ids of the nodes to delete
    */
-  function deleteNode(id: string) {
-    setNodes((nodes) => nodes.filter((node) => node.id !== id));
-    setEdges((edges) => edges.filter((edge) => edge.source !== id));
-    setEdges((edges) => edges.filter((edge) => edge.target !== id));
+  function deleteNodes(ids: string[]) {
+    setNodes((nodes) => nodes.filter((node) => !ids.includes(node.id)));
+    setEdges((edges) => edges.filter((edge) => !ids.includes(edge.source)));
+    setEdges((edges) => edges.filter((edge) => !ids.includes(edge.target)));
+  }
+
+  /** Updates selected nodes whenever a new selection is made */
+  useOnSelectionChange({
+    onChange: ({ nodes }) => {
+      setSelectedNodes(nodes.map((node) => node.id));
+    },
+  });
+
+  /** Deletes all selected nodes */
+  function deleteSelectedNodes() {
+    deleteNodes(selectedNodes);
+    setSelectedNodes([]);
   }
 
   /** Adds a new address to the graph.
@@ -121,10 +137,49 @@ const GraphProvided: FC = () => {
     addNewNode(newNode);
   }
 
+  /** Pans to a specific address node.
+   * @param address the address to pan to
+   */
+  function panToAddress(address: string) {
+    const node = nodes.find((node) => node.id === address);
+    if (node) {
+      const x = -node.position.x + window.innerWidth / 3;
+      const y = -node.position.y + window.innerHeight / 3 - 100;
+
+      setViewport({ x, y, zoom: 1 }, { duration: 300 });
+    }
+  }
+
+  /** Focuses on a specific address node, setting it to EXPANDED and everything else to MINIMIZED.
+   * Also pans the graph to the node.
+   * @param address the address to focus on
+   */
+  function focusOnAddress(address: string) {
+    // Iterate over all nodes and set them to MINIMIZED except the one we want to focus on
+    const newNodes = nodes.map((node) => {
+      if (node.id === address) {
+        return {
+          ...node,
+          data: { ...node.data, state: AddressNodeState.EXPANDED },
+        };
+      } else {
+        return {
+          ...node,
+          data: { ...node.data, state: AddressNodeState.MINIMIZED },
+        };
+      }
+    });
+
+    // Update state
+    setNodes(newNodes);
+
+    // Slowly the graph to the node
+    panToAddress(address);
+  }
+
   /** Adds a path of addresses to the graph. The first address is guaranteed to be in the graph already.
    * There is also an 'incoming' boolean to indicate whether the path is incoming or
    * outgoing and add the edges in the correct direction.
-   *
    * @param paths the paths to add
    * @param incoming whether the path is incoming or outgoing
    */
@@ -188,6 +243,7 @@ const GraphProvided: FC = () => {
   // Set up the context
   const graphContext = {
     addAddressPaths,
+    focusOnAddress,
   };
 
   return (
@@ -205,6 +261,12 @@ const GraphProvided: FC = () => {
           selectionOnDrag
           panOnDrag={panOnDrag}
           selectionMode={SelectionMode.Partial}
+          zoomOnDoubleClick={true}
+          onKeyDown={(event) => {
+            if (event.key === "Delete" || event.key === "Backspace") {
+              deleteSelectedNodes();
+            }
+          }}
         >
           <Background />
           <Controls position="bottom-right" showInteractive={false} />

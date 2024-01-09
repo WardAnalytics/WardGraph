@@ -41,13 +41,13 @@ const RiskIndicator: FC<RiskIndicatorProps> = ({
   return (
     <span
       className={clsx(
-        "text-s mx-auto my-1 flex h-9 w-9 items-center justify-center rounded-md font-semibold ring-1",
+        " mx-auto my-1 flex h-11 w-11 items-center justify-center rounded-md text-lg font-semibold ring-1",
         text,
         background,
         ring,
       )}
     >
-      {isLoading ? <LoadingCircle /> : displayedRisk}
+      {isLoading ? <LoadingCircle className="p-3" /> : displayedRisk}
     </span>
   );
 };

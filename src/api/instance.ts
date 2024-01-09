@@ -1,7 +1,4 @@
 import Axios, { AxiosRequestConfig } from "axios";
-//import { Cookies } from 'react-cookie'
-
-//const cookies = new Cookies();
 
 export const AXIOS_INSTANCE = Axios.create({
   baseURL: process.env.VITE_WARD_API_BASE_URL,
@@ -9,8 +6,6 @@ export const AXIOS_INSTANCE = Axios.create({
 });
 
 AXIOS_INSTANCE.interceptors.request.use((config) => {
-  // TODO : rewrite this to store the api key in a cookie
-
   const api_key = process.env.VITE_WARD_API_KEY;
 
   if (api_key && config?.headers) {

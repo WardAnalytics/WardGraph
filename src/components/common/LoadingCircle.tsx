@@ -1,10 +1,18 @@
-import React from "react";
+import { FC } from "react";
+import clsx from "clsx";
 
-const LoadingCircle: React.FC = () => {
+interface LoadingCircleProps {
+  className?: string;
+}
+
+const LoadingCircle: FC<LoadingCircleProps> = ({ className }) => {
   return (
     <svg
       aria-hidden="true"
-      className="h-full w-full animate-spin fill-blue-600 text-gray-200 dark:text-gray-600"
+      className={clsx(
+        "h-full w-full animate-spin fill-blue-600 text-gray-200 dark:text-gray-600",
+        className,
+      )}
       viewBox="0 0 100 101"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"

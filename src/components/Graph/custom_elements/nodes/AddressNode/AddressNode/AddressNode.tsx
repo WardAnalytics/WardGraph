@@ -1,12 +1,14 @@
-import { FC, createContext, useState, useEffect } from "react";
+import { FC, createContext, useContext, useState, useEffect } from "react";
 import { Transition } from "@headlessui/react";
 
 import { AddressAnalysis } from "../../../../../../api/model";
 import { useAnalysisAddressData } from "../../../../../../api/compliance/compliance";
 
+import { GraphContext } from "../../../../Graph";
+
 import AddressNodeStates from "../states";
 import Header from "./Header";
-import Content from "./Content";
+// import Content from "./Content";
 
 /** Context data for the AddressNode */
 
@@ -29,6 +31,8 @@ interface AddressNodeProps {
 }
 
 const AddressNode: FC<AddressNodeProps> = ({ data: { address, state } }) => {
+  const { focusOnAddress } = useContext(GraphContext);
+
   // Analysis data is fetched into a useState hook from the Ward API using the Orval Hook and then passed into the context
   const [analysisData, setAnalysisData] = useState<AddressAnalysis | null>(
     null,
@@ -68,11 +72,16 @@ const AddressNode: FC<AddressNodeProps> = ({ data: { address, state } }) => {
 
   return (
     <AnalysisContext.Provider value={contextData}>
-      <div className="w-full divide-y divide-dashed divide-gray-200 rounded-lg bg-white shadow">
+      <div
+        className="w-full divide-y divide-dashed divide-gray-200 rounded-lg bg-white shadow"
+        onClick={() => {
+          focusOnAddress(address);
+        }}
+      >
         <div className="px-4 py-5">
           <Header state={state} />
         </div>
-        <Transition
+        {/* <Transition
           appear={true}
           show={state === AddressNodeStates.EXPANDED}
           enter="transition-all ease-in-out duration-250"
@@ -82,7 +91,7 @@ const AddressNode: FC<AddressNodeProps> = ({ data: { address, state } }) => {
           className="px-4 py-5"
         >
           <Content />
-        </Transition>
+        </Transition> */}
       </div>
     </AnalysisContext.Provider>
   );

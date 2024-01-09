@@ -1,4 +1,5 @@
 import { FC, useContext } from "react";
+import { Transition } from "@headlessui/react";
 
 import LabelList from "./components/LabelList";
 import CopyToClipboardIcon from "./components/CopyToClipboardIcon";
@@ -38,28 +39,40 @@ const Header: FC<HeaderProps> = ({ state }) => {
           </h1>
 
           {/* Clipboard and Block Explorer icons - only shown in expanded mode */}
-          {state === AddressNodeStates.EXPANDED && (
-            <>
-              <CopyToClipboardIcon address={address} />
-              {analysisData && (
-                <BlockExplorerAddressIcon
-                  blockchain={analysisData.blockchain}
-                  address={address}
-                />
-              )}
-            </>
-          )}
+          <Transition
+            show={state === AddressNodeStates.EXPANDED}
+            enter="transition-all duration-500"
+            enterFrom="opacity-0 -translate-x-2"
+            enterTo="opacity-100 translate-x-0"
+            leave="transition-all duration-500"
+            leaveFrom="opacity-100 translate-x-0"
+            leaveTo="opacity-0 -translate-x-2"
+            className="flex flex-row items-center gap-x-0.5"
+          >
+            <CopyToClipboardIcon address={address} />
+            {analysisData && (
+              <BlockExplorerAddressIcon
+                blockchain={analysisData.blockchain}
+                address={address}
+              />
+            )}
+          </Transition>
         </span>
-
-        {/* Address blockchain - only shown in expanded mode */}
-        {state === AddressNodeStates.EXPANDED && analysisData && (
-          <p className="text-xs font-normal uppercase text-gray-500">
-            {analysisData.blockchain}
-          </p>
-        )}
-
-        {/* List of labels using Badges shown underneath the address. */}
-        {analysisData && <LabelList labels={analysisData.labels} />}
+        <span className="flex flex-row items-center gap-x-1.5">
+          {/* List of labels using Badges shown underneath the address. */}
+          <Transition
+            show={analysisData !== null}
+            enter="transition-all duration-500"
+            enterFrom="opacity-0 -translate-x-2"
+            enterTo="opacity-100 translate-x-0"
+            leave="transition-all duration-500"
+            leaveFrom="opacity-100 translate-x-0"
+            leaveTo="opacity-0 -translate-x-2"
+            className="flex flex-row items-center gap-x-0.5"
+          >
+            {analysisData && <LabelList labels={analysisData.labels} />}
+          </Transition>
+        </span>
       </div>
     </span>
   );
