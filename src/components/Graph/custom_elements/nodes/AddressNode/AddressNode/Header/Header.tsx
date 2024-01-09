@@ -26,7 +26,7 @@ const Header: FC<HeaderProps> = ({ state }) => {
   const risk = analysisData ? analysisData.risk : undefined;
 
   return (
-    <span className="flex items-center space-x-2">
+    <span className="flex flex-row items-center space-x-2">
       {/* Address Risk inside a badge */}
       <RiskIndicator risk={risk} isLoading={isLoading} />
 

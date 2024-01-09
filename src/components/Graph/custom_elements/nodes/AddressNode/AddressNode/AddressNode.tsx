@@ -75,11 +75,17 @@ const AddressNode: FC<AddressNodeProps> = ({ data: { address, state } }) => {
     <AnalysisContext.Provider value={contextData}>
       <div
         className={clsx(
+          "rounded-lg bg-white transition-all duration-200",
           state === AddressNodeStates.EXPANDED &&
-            "divide-y divide-dashed divide-gray-200 rounded-lg bg-white shadow",
+            "divide-y divide-dashed divide-gray-200 overflow-hidden shadow",
           state === AddressNodeStates.MINIMIZED &&
-            "rounded-lg bg-white shadow-md ring-1 ring-gray-300  transition-all hover:bg-gray-50",
+            "shadow-md ring-1 ring-gray-300  hover:bg-gray-50",
         )}
+        style={{
+          minWidth: state === AddressNodeStates.EXPANDED ? "50rem" : "10rem",
+          marginLeft: state === AddressNodeStates.EXPANDED ? "-10rem" : "0rem",
+          transition: "all 0.3s ease-in-out",
+        }}
         onClick={() => {
           focusOnAddress(address);
         }}

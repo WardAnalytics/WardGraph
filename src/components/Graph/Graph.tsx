@@ -268,6 +268,11 @@ const GraphProvided: FC = () => {
             }
           }}
         >
+          <img
+            className="-z-10 m-auto w-full scale-150 pt-20 opacity-40 lg:pl-44"
+            aria-hidden="true"
+            src="https://tailwindui.com/img/beams-home@95.jpg"
+          />
           <Background />
           <Controls position="bottom-right" showInteractive={false} />
           <MiniMap position="top-right" pannable zoomable />
