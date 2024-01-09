@@ -1,9 +1,9 @@
-import { FC, useContext } from "react";
 import { Transition } from "@headlessui/react";
+import { FC, useContext } from "react";
 
-import LabelList from "./components/LabelList";
-import CopyToClipboardIcon from "./components/CopyToClipboardIcon";
 import BlockExplorerAddressIcon from "./components/BlockExplorerAddressIcon";
+import CopyToClipboardIcon from "./components/CopyToClipboardIcon";
+import LabelList from "./components/LabelList";
 import RiskIndicator from "./components/RiskIndicator";
 
 import AddressNodeStates from "../../states";

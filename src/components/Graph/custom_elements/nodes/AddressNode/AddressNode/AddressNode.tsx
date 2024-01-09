@@ -1,9 +1,8 @@
-import { FC, createContext, useContext, useState, useEffect } from "react";
 import clsx from "clsx";
-import { Transition } from "@headlessui/react";
+import { FC, createContext, useContext, useEffect, useState } from "react";
 
-import { AddressAnalysis } from "../../../../../../api/model";
 import { useAnalysisAddressData } from "../../../../../../api/compliance/compliance";
+import { AddressAnalysis } from "../../../../../../api/model";
 
 import { GraphContext } from "../../../../Graph";
 
@@ -54,6 +53,7 @@ const AddressNode: FC<AddressNodeProps> = ({ data: { address, state } }) => {
 
           onSuccess: (data) => {
             setAnalysisData(data);
+            console.log("Address Analysis Data: ", data);
           },
         },
       },
@@ -76,9 +76,9 @@ const AddressNode: FC<AddressNodeProps> = ({ data: { address, state } }) => {
       <div
         className={clsx(
           state === AddressNodeStates.EXPANDED &&
-            "divide-y divide-dashed divide-gray-200 rounded-lg bg-white shadow",
+          "divide-y divide-dashed divide-gray-200 rounded-lg bg-white shadow",
           state === AddressNodeStates.MINIMIZED &&
-            "rounded-lg bg-white shadow-md ring-1 ring-gray-300  transition-all hover:bg-gray-50",
+          "rounded-lg bg-white shadow-md ring-1 ring-gray-300  transition-all hover:bg-gray-50",
         )}
         onClick={() => {
           focusOnAddress(address);
