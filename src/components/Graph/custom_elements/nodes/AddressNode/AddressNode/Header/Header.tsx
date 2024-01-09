@@ -33,7 +33,7 @@ const Header: FC<HeaderProps> = ({ state }) => {
       <div className="flex flex-col gap-y-0.5">
         <span className="flex flex-row items-center gap-x-1 gap-y-1">
           {/* Address Hash - Sliced when in non-expanded mode*/}
-          <h1 className="hidden font-mono font-semibold tracking-tight text-gray-800 lg:block">
+          <h1 className="font-mono font-semibold tracking-tight text-gray-800">
             {displayedAddress}
           </h1>
 

@@ -1,4 +1,5 @@
 import { FC, createContext, useState, useEffect } from "react";
+import { Transition } from "@headlessui/react";
 
 import { AddressAnalysis } from "../../../../../../api/model";
 import { useAnalysisAddressData } from "../../../../../../api/compliance/compliance";
@@ -71,8 +72,17 @@ const AddressNode: FC<AddressNodeProps> = ({ data: { address, state } }) => {
         <div className="px-4 py-5">
           <Header state={state} />
         </div>
-
-        <div className="px-4 py-5">{/*<Content />*/}</div>
+        <Transition
+          appear={true}
+          show={state === AddressNodeStates.EXPANDED}
+          enter="transition-all ease-in-out duration-250"
+          enterFrom="-translate-x-10 opacity-5"
+          enterTo="translate-x-0 opacity-100"
+          leave="duration-0 hidden"
+          className="px-4 py-5"
+        >
+          <Content />
+        </Transition>
       </div>
     </AnalysisContext.Provider>
   );
