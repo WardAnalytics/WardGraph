@@ -1,4 +1,5 @@
 import { FC, createContext, useContext, useState, useEffect } from "react";
+import clsx from "clsx";
 import { Transition } from "@headlessui/react";
 
 import { AddressAnalysis } from "../../../../../../api/model";
@@ -73,7 +74,12 @@ const AddressNode: FC<AddressNodeProps> = ({ data: { address, state } }) => {
   return (
     <AnalysisContext.Provider value={contextData}>
       <div
-        className="w-full divide-y divide-dashed divide-gray-200 rounded-lg bg-white shadow"
+        className={clsx(
+          state === AddressNodeStates.EXPANDED &&
+            "divide-y divide-dashed divide-gray-200 rounded-lg bg-white shadow",
+          state === AddressNodeStates.MINIMIZED &&
+            "rounded-lg bg-white shadow-md ring-1 ring-gray-300  transition-all hover:bg-gray-50",
+        )}
         onClick={() => {
           focusOnAddress(address);
         }}
