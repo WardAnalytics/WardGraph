@@ -1,17 +1,19 @@
-import { FC, useContext } from "react";
+import { FC, useContext, useState, useMemo } from "react";
 import { Transition } from "@headlessui/react";
 import { HashtagIcon } from "@heroicons/react/20/solid";
 
-import { ArrowsUpDownIcon, ShareIcon } from "@heroicons/react/24/solid";
+import { ShareIcon } from "@heroicons/react/24/solid";
 
-import { Address } from "../../../../../../api/model";
-import formatNumber from "../../../../../../utils/number_conversion";
+import { Address } from "../../../../../../../../../api/model";
+import formatNumber from "../../../../../../../../../utils/formatNumber";
+import Delayed from "../../../../../../../../common/Delayed";
 
-import Delayed from "../../../../../_common/component_utils/Delayed";
-
-import { ButtonGroup, ButtonProps } from "../../../../component_utils/Button";
-import { AnalysisContext } from "../../../AnalysisWindow";
+import BigButton from "../../../../../../../../common/BigButton";
+import { AnalysisContext } from "../../../AddressNode";
+import { GraphContext } from "../../../../../../../Graph";
 import { ExposureTabContext } from "./ExposureTabGeneric";
+
+import Pagination from "../../../../../../../../common/Pagination";
 
 // Address Row _________________________________________________________________
 
@@ -27,34 +29,17 @@ interface AddressRowProps {
  */
 
 const AddressRow: FC<AddressRowProps> = ({ address }) => {
-  const { onExpandPaths, analysisData, transactionsEnabled, onExit } =
-    useContext(AnalysisContext);
-  const { setFocusedAddress, focusedEntity } = useContext(ExposureTabContext)!;
+  const { address: targetAddress } = useContext(AnalysisContext)!;
+  const { focusedEntity } = useContext(ExposureTabContext)!;
+  const { addAddressPaths } = useContext(GraphContext);
 
-  let buttons: ButtonProps[] = [];
+  function expand() {
+    const paths: string[][] = address.paths
+      ? address.paths
+      : [[targetAddress, address.hash]];
 
-  if (transactionsEnabled)
-    buttons.push({
-      text: "Transactions",
-      Icon: ArrowsUpDownIcon,
-      onClick: () => {
-        setFocusedAddress(address);
-      },
-    });
-
-  if (onExpandPaths)
-    buttons.push({
-      text: "Expand",
-      Icon: ShareIcon,
-      onClick: () => {
-        const paths: string[][] = address.paths
-          ? address.paths
-          : [[analysisData.address, address.hash]];
-
-        onExit!();
-        onExpandPaths(paths, focusedEntity!.incoming);
-      },
-    });
+    addAddressPaths(paths, focusedEntity!.incoming);
+  }
 
   return (
     <li className="flex w-full items-center space-x-3" key={address.hash}>
@@ -70,7 +55,7 @@ const AddressRow: FC<AddressRowProps> = ({ address }) => {
             </p>
           </span>
         </div>
-        {buttons.length > 0 && <ButtonGroup buttons={buttons} />}
+        <BigButton text="Expand" Icon={ShareIcon} onClick={expand} />
       </div>
     </li>
   );
@@ -81,10 +66,24 @@ const AddressRow: FC<AddressRowProps> = ({ address }) => {
 const EntityView: FC = () => {
   const { focusedEntity } = useContext(ExposureTabContext)!;
 
+  const addresses = focusedEntity!.entity.addresses;
+
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 6;
+  const currentTableData = useMemo(() => {
+    const firstPageIndex = (currentPage - 1) * pageSize;
+    const lastPageIndex = firstPageIndex + pageSize;
+    return addresses.slice(firstPageIndex, lastPageIndex);
+  }, [currentPage, addresses]);
+
   return (
     <div className="w-auto flex-grow flex-col space-y-2">
-      {focusedEntity!.entity.addresses.map((address, index) => (
-        <Delayed waitBeforeShow={index * (50 - index / 3)} key={address.hash}>
+      {currentTableData.map((address, index) => (
+        <Delayed
+          waitBeforeShow={currentPage === 1 ? index * (50 - index / 3) : 0}
+          key={address.hash}
+        >
           <Transition
             appear={true}
             show={true}
@@ -97,6 +96,12 @@ const EntityView: FC = () => {
           </Transition>
         </Delayed>
       ))}
+      <Pagination
+        currentPage={currentPage}
+        totalCount={focusedEntity!.entity.addresses.length}
+        pageSize={pageSize}
+        onPageChange={(page: number) => setCurrentPage(page)}
+      />
     </div>
   );
 };

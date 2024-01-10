@@ -6,13 +6,17 @@ import {
   ArrowUpRightIcon,
 } from "@heroicons/react/20/solid";
 
-import { Exposure, Category, Entity } from "../../../../../../api/model";
+import {
+  Exposure,
+  Category,
+  Entity,
+} from "../../../../../../../../../api/model";
 
-import formatNumber from "../../../../../../utils/number_conversion";
-import COLORS from "../../../../../_common/enums/colors";
-import CATEGORY_INFO from "../../../../../_common/enums/categories";
+import formatNumber from "../../../../../../../../../utils/formatNumber";
+import { Colors } from "../../../../../../../../../utils/colors";
+import { CategoryClasses } from "../../../../../../../../../utils/categories";
 
-import Badge from "../../../../../_common/visuals/badges/Badge";
+import Badge from "../../../../../../../../common/Badge";
 
 import { ExposureTabContext } from "./ExposureTabGeneric";
 
@@ -90,24 +94,24 @@ const EntityRow: FC<EntityRowProps> = ({ entity, total, isLast, incoming }) => {
 
 const RiskBadge: FC<{ category: string }> = ({ category }) => {
   // Get the risk level of the category
-  const risk = CATEGORY_INFO[category]?.risk ?? 0;
+  const risk = CategoryClasses[category]?.risk ?? 0;
 
   // Now pick a color and risk level for the badge based on the risk
-  let color: COLORS = COLORS.Green;
+  let color: Colors = Colors.GREEN;
   let riskName: string = "Low";
 
   if (risk >= 2.5) {
-    color = COLORS.Yellow;
+    color = Colors.YELLOW;
     riskName = "Medium";
   }
 
   if (risk >= 7) {
-    color = COLORS.Red;
+    color = Colors.RED;
     riskName = "High";
   }
 
   if (risk >= 9) {
-    color = COLORS.Purple;
+    color = Colors.PURPLE;
     riskName = "Severe";
   }
 
@@ -121,7 +125,7 @@ const RiskBadge: FC<{ category: string }> = ({ category }) => {
  */
 
 const CategoryIcon: FC<{ category: string }> = ({ category }) => {
-  const Icon = CATEGORY_INFO[category]?.icon ?? UserIcon;
+  const Icon = CategoryClasses[category]?.icon ?? UserIcon;
   return <Icon />;
 };
 
@@ -313,7 +317,7 @@ const ExposureView: FC = () => {
     useContext(ExposureTabContext)!;
 
   return (
-    <div className="flex w-full flex-col gap-x-4 gap-y-16 divide-gray-300 lg:flex-row">
+    <div className="w-fulls flex flex-row gap-x-4 gap-y-16 divide-gray-300">
       <ExposureColumn exposure={incomingExposure} incoming={true} />
       <ExposureColumn exposure={outgoingExposure} incoming={false} />
     </div>

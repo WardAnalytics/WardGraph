@@ -4,8 +4,9 @@ import { Transition } from "@headlessui/react";
 import { BLOCKCHAIN_TABS, Tab } from "./Tab";
 
 import Navbar from "./Navbar";
+import LoadingPulseMock from "./PulseMock";
 
-import { AnalysisContext } from "../AnalysisWindow";
+import { AnalysisContext } from "../AddressNode";
 
 interface AllContentComponentsProps {
   tabs: Tab[];
@@ -53,13 +54,17 @@ const AllContentComponents: FC<AllContentComponentsProps> = ({
 const Content: FC = () => {
   const { analysisData } = useContext(AnalysisContext)!;
 
+  if (!analysisData) {
+    return <LoadingPulseMock />;
+  }
+
   // Currently selected. When a tab is clicked, this is set to the index of the tab
   const tabs = BLOCKCHAIN_TABS[analysisData.blockchain];
   const [selectedTab, setSelectedStep] = useState(0);
 
   return (
     <div className="nodrag flex divide-x divide-dashed divide-gray-200">
-      <div className="lg:w-1/5">
+      <div className="w-1/5">
         <div className="pr-3">
           <Navbar
             selectedTab={selectedTab}

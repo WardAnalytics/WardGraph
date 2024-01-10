@@ -1,6 +1,6 @@
 import clsx from "clsx";
 import { FC } from "react";
-import { LockClosedIcon } from "@heroicons/react/24/outline";
+import { LockClosedIcon } from "@heroicons/react/20/solid";
 
 import { Tab } from "./Tab";
 
@@ -20,7 +20,7 @@ const TabButtonNoComponent: FC<TabButtonNoComponentProps> = ({ tab }) => {
         aria-current={"page"}
       >
         <LockClosedIcon className="h-5 w-5 text-gray-200" aria-hidden="true" />
-        <span className="hidden lg:block">{tab.name}</span>
+        {tab.name}
       </a>
     </div>
   );
@@ -74,9 +74,7 @@ const TabButton: FC<TabButtonProps> = ({
               )}
               aria-hidden="true"
             />
-            {isCollapsed ? null : (
-              <span className="hidden lg:block">{tab.name}</span>
-            )}
+            {isCollapsed ? null : <span>{tab.name}</span>}
           </>
         </a>
       ) : (

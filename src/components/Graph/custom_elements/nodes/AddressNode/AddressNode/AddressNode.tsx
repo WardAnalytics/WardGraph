@@ -1,5 +1,6 @@
 import { FC, createContext, useContext, useState, useEffect } from "react";
 import clsx from "clsx";
+import { Position, Handle } from "reactflow";
 import { Transition } from "@headlessui/react";
 
 import { AddressAnalysis } from "../../../../../../api/model";
@@ -9,7 +10,7 @@ import { GraphContext } from "../../../../Graph";
 
 import AddressNodeStates from "../states";
 import Header from "./Header";
-// import Content from "./Content";
+import Content from "./Content";
 
 /** Context data for the AddressNode */
 
@@ -73,27 +74,33 @@ const AddressNode: FC<AddressNodeProps> = ({ data: { address, state } }) => {
 
   return (
     <AnalysisContext.Provider value={contextData}>
+      <Handle type="target" position={Position.Left} className="opacity-0" />
+      <Handle type="source" position={Position.Right} className="opacity-0" />
+
       <div
         className={clsx(
-          "rounded-lg bg-white transition-all duration-200",
+          "rounded-lg bg-white transition-all duration-300",
           state === AddressNodeStates.EXPANDED &&
             "divide-y divide-dashed divide-gray-200 overflow-hidden shadow",
           state === AddressNodeStates.MINIMIZED &&
             "shadow-md ring-1 ring-gray-300  hover:bg-gray-50",
         )}
         style={{
-          minWidth: state === AddressNodeStates.EXPANDED ? "50rem" : "10rem",
-          marginLeft: state === AddressNodeStates.EXPANDED ? "-10rem" : "0rem",
-          transition: "all 0.3s ease-in-out",
+          minWidth: state === AddressNodeStates.EXPANDED ? "68rem" : "15rem",
+          maxWidth: state === AddressNodeStates.EXPANDED ? "68rem" : "30rem",
+          minHeight: state === AddressNodeStates.EXPANDED ? "10rem" : "0rem",
+          maxHeight: state === AddressNodeStates.EXPANDED ? "150rem" : "10rem",
+          marginLeft: state === AddressNodeStates.EXPANDED ? "-17rem" : "0rem",
+          transition: "all 0.5s ease-in-out",
         }}
         onClick={() => {
-          focusOnAddress(address);
+          if (state === AddressNodeStates.MINIMIZED) focusOnAddress(address);
         }}
       >
         <div className="px-4 py-5">
           <Header state={state} />
         </div>
-        {/* <Transition
+        <Transition
           appear={true}
           show={state === AddressNodeStates.EXPANDED}
           enter="transition-all ease-in-out duration-250"
@@ -103,7 +110,7 @@ const AddressNode: FC<AddressNodeProps> = ({ data: { address, state } }) => {
           className="px-4 py-5"
         >
           <Content />
-        </Transition> */}
+        </Transition>
       </div>
     </AnalysisContext.Provider>
   );

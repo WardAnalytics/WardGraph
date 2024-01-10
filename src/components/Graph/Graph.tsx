@@ -1,4 +1,4 @@
-import { createContext, useCallback, useState, useEffect, FC } from "react";
+import { createContext, useEffect, useCallback, useState, FC } from "react";
 import Dagre from "@dagrejs/dagre";
 import ReactFlow, {
   addEdge,
@@ -23,6 +23,16 @@ import {
   AddressNode,
 } from "./custom_elements/nodes/AddressNode";
 
+import {
+  createTransfershipEdge,
+  TransfershipEdge,
+} from "./custom_elements/edges/TransfershipEdge";
+
+import {
+  calculateNewAddressPath,
+  calculatedNewFocusedAddress,
+} from "./graph_calculations";
+
 import "reactflow/dist/style.css";
 
 /* Pan on drag settings */
@@ -30,7 +40,7 @@ const panOnDrag = [1, 2];
 
 /* Custom Nodes & Edges */
 const nodeTypes = { AddressNode: AddressNode };
-const edgeTypes = {};
+const edgeTypes = { TransfershipEdge: TransfershipEdge };
 
 /* Automatic Layout Setup */
 const g = new Dagre.graphlib.Graph().setDefaultEdgeLabel(() => ({}));
@@ -43,6 +53,7 @@ interface GraphContextProps {
 
 export const GraphContext = createContext<GraphContextProps>({
   addAddressPaths: () => {},
+  focusOnAddress: () => {},
 });
 
 /* The ReactFlowProvider must be above the GraphProvided component in the tree for ReactFlow's internal context to work
@@ -55,18 +66,33 @@ const Graph: FC = () => {
   );
 };
 
-const initialTestNode = createAddressNode(
+const initialTestNode1 = createAddressNode(
   "0xdac17f958d2ee523a2206206994597c13d831ec7",
+  AddressNodeState.MINIMIZED,
+  0,
+  150,
+);
+
+const initialTestNode2 = createAddressNode(
+  "0x6b175474e89094c44da98b954eedeac495271d0f",
   AddressNodeState.MINIMIZED,
   0,
   0,
 );
 
+const initialTestEdge = createTransfershipEdge(
+  "0xdac17f958d2ee523a2206206994597c13d831ec7",
+  "0x6b175474e89094c44da98b954eedeac495271d0f",
+  100,
+);
+
 const GraphProvided: FC = () => {
-  const [nodes, setNodes, onNodesChange] = useNodesState([initialTestNode]);
-  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+  const [nodes, setNodes, onNodesChange] = useNodesState([
+    initialTestNode1,
+    initialTestNode2,
+  ]);
+  const [edges, setEdges, onEdgesChange] = useEdgesState([initialTestEdge]);
   const [selectedNodes, setSelectedNodes] = useState<string[]>([]);
-  const reactFlowInstance: ReactFlowInstance = useReactFlow();
 
   const { setViewport } = useReactFlow();
 
@@ -86,7 +112,6 @@ const GraphProvided: FC = () => {
   function addNewNode(newNode: Node) {
     // If node with same id already exists, don't add it
     if (nodes.find((node) => node.id === newNode.id)) {
-      console.log("Attempted to add a node that already exists: " + newNode.id);
       return;
     }
     setNodes((nodes) => [...nodes, newNode]);
@@ -121,13 +146,13 @@ const GraphProvided: FC = () => {
     setSelectedNodes([]);
   }
 
-  /** Adds a new address to the graph.
+  /** Adds a single new address to the graph. This function **SHOULD NOT BE USED** to add multiple addresses at once in any way, shape, or form.
    * @param address the address to add
    * @param state the state of the address (either MINIMIZED or EXPANDED)
    * @param x the x position of the node
    * @param y the y position of the node
    */
-  function addNewAddress(
+  function addIndividualAddress(
     address: string,
     state: AddressNodeState,
     x: number,
@@ -146,7 +171,7 @@ const GraphProvided: FC = () => {
       const x = -node.position.x + window.innerWidth / 3;
       const y = -node.position.y + window.innerHeight / 3 - 100;
 
-      setViewport({ x, y, zoom: 1 }, { duration: 300 });
+      setViewport({ x, y, zoom: 1.2 }, { duration: 300 });
     }
   }
 
@@ -155,89 +180,50 @@ const GraphProvided: FC = () => {
    * @param address the address to focus on
    */
   function focusOnAddress(address: string) {
-    // Iterate over all nodes and set them to MINIMIZED except the one we want to focus on
-    const newNodes = nodes.map((node) => {
-      if (node.id === address) {
-        return {
-          ...node,
-          data: { ...node.data, state: AddressNodeState.EXPANDED },
-        };
-      } else {
-        return {
-          ...node,
-          data: { ...node.data, state: AddressNodeState.MINIMIZED },
-        };
-      }
-    });
-
-    // Update state
+    // Calculate and set the new nodes
+    const newNodes = calculatedNewFocusedAddress(nodes, address);
     setNodes(newNodes);
-
-    // Slowly the graph to the node
-    panToAddress(address);
   }
 
-  /** Adds a path of addresses to the graph. The first address is guaranteed to be in the graph already.
-   * There is also an 'incoming' boolean to indicate whether the path is incoming or
-   * outgoing and add the edges in the correct direction.
-   * @param paths the paths to add
-   * @param incoming whether the path is incoming or outgoing
+  function addAddressPaths(paths: string[][], incoming: boolean) {
+    // 1 - Calculate result of adding path to the graph
+    const {
+      nodes: newNodes,
+      edges: newEdges,
+      finalNode,
+    } = calculateNewAddressPath(nodes, edges, paths, incoming);
+
+    // 2 - Calculate result of focusing on a node
+    const focusedNodes = calculatedNewFocusedAddress(newNodes, finalNode.id);
+
+    // 3 - Set the new nodes and edges
+    setNodes(focusedNodes);
+    setEdges(newEdges);
+  }
+
+  /**
    */
-  /*
-  function addAddressPaths(paths: string[][], incoming: boolean) {
-    // Get coordinates of first node and start from there
-    const firstNode = nodes.find((node) => node.id === paths[0][0]);
-    if (!firstNode) {
-      console.error(
-        "Attempted to add paths to a node that doesn't exist: " + paths[0][0],
-      );
-      return { nodes: [], edges: [] };
-    }
 
-    // For each path and then each address inside that
-    paths.forEach((addresses, p) => {
-      let x = firstNode.position.x + 50;
-      const y = firstNode.position.y - p * 75;
-
-      addresses.forEach((address, a) => {
-        // Calculate which x position to spawn the node at. Incoming goes left, outgoing goes right. The first and last nodes to be added must be at an extra distance. The rest are evenly spaced.
-        const isLast = a === addresses.length - 1;
-        const incomingMultiplier = incoming ? -1 : 1;
-
-        // Skip first address. Can't just exclude it from the array cause it's still needed in the edge
-        if (a !== 0) {
-          if (incoming && isLast) {
-            x += 1200 * incomingMultiplier;
-          } else {
-            x += 350 * incomingMultiplier;
-          }
-
-          // If it's in any of the previous paths at the same position, don't add it either.
-          const alreadyAdded = paths
-            .slice(0, p)
-            .some((path) => path[a] === address);
-
-          if (!alreadyAdded) {
-            console.log(
-              "Creating address " + address.slice(0, 10) + " at x " + x,
-            );
-            addNewAddress(address, isLast, x, y);
-          }
-
-          // Create a new edge connecting the new node to the previous one
-          const newEdge = incoming
-            ? createEdge(address, paths[p][a - 1])
-            : createEdge(paths[p][a - 1], address);
-
-          addNewEdge(newEdge);
-        }
-      });
-    });
+  // State to store stack of previous states for undo
+  interface FlowState {
+    nodes: Node[];
+    edges: Edge[];
   }
-    */
 
-  function addAddressPaths(paths: string[][], incoming: boolean) {
-    return;
+  // Whenever the number of nodes changes, add the new state to the stack
+  const [flowStates, setFlowStates] = useState<FlowState[]>([]);
+  useEffect(() => {
+    setFlowStates([...flowStates, { nodes: nodes, edges: edges }]);
+  }, [nodes.length, edges.length]);
+
+  function undoState() {
+    if (flowStates.length > 1) {
+      const previousState = flowStates[flowStates.length - 2];
+      setNodes(previousState.nodes);
+      setEdges(previousState.edges);
+      setFlowStates(flowStates.slice(0, flowStates.length - 2));
+      return;
+    }
   }
 
   // Set up the context
@@ -247,7 +233,28 @@ const GraphProvided: FC = () => {
   };
 
   return (
-    <div style={{ height: "100%" }}>
+    <div
+      style={{ height: "100%" }}
+      onKeyDown={(event) => {
+        if (event.key === "Delete" || event.key === "Backspace") {
+          // Delete all selected nodes
+          deleteSelectedNodes();
+        }
+        if (event.key === "Escape") {
+          // Onfocus all nodes
+          setNodes((nodes) =>
+            nodes.map((node) => ({
+              ...node,
+              data: { ...node.data, state: AddressNodeState.MINIMIZED },
+            })),
+          );
+        }
+        if (event.key === "z") {
+          // Undo
+          undoState();
+        }
+      }}
+    >
       <GraphContext.Provider value={graphContext}>
         <ReactFlow
           nodes={nodes}
@@ -262,14 +269,9 @@ const GraphProvided: FC = () => {
           panOnDrag={panOnDrag}
           selectionMode={SelectionMode.Partial}
           zoomOnDoubleClick={true}
-          onKeyDown={(event) => {
-            if (event.key === "Delete" || event.key === "Backspace") {
-              deleteSelectedNodes();
-            }
-          }}
         >
           <img
-            className="-z-10 m-auto w-full scale-150 pt-20 opacity-40 lg:pl-44"
+            className="-z-10 m-auto w-full scale-150 pt-20 opacity-40"
             aria-hidden="true"
             src="https://tailwindui.com/img/beams-home@95.jpg"
           />

@@ -1,10 +1,8 @@
 import { FC } from "react";
 import {
   ChevronDoubleDownIcon,
-  ArrowsRightLeftIcon,
   ArrowsPointingInIcon,
-  BoltIcon,
-} from "@heroicons/react/24/outline";
+} from "@heroicons/react/16/solid";
 
 import { DirectExposure, IndirectExposure } from "./tabs";
 
@@ -42,31 +40,14 @@ const IndirectExposureTab: Tab = {
   component: IndirectExposure,
 };
 
-const TransactionsTab: Tab = {
-  name: "Transactions",
-  Icon: ArrowsRightLeftIcon,
-  component: undefined,
-};
-
-const TriggersTab: Tab = {
-  name: "Triggers",
-  Icon: BoltIcon,
-  component: undefined,
-};
-
 /* Tabs for each blockchain: Not all blockchains support the same tabs.
-    Ethereum: Direct Exposure, Indirect Exposure, Transactions, Triggers
-    Bitcoin: Direct Exposure, Transactions, Triggers
+    Ethereum: Direct Exposure, Indirect Exposure
+    Bitcoin: Direct Exposure
 */
 
-const EthereumTabs: Tab[] = [
-  DirectExposureTab,
-  IndirectExposureTab,
-  // TransactionsTab,
-  TriggersTab,
-];
+const EthereumTabs: Tab[] = [DirectExposureTab, IndirectExposureTab];
 
-const BitcoinTabs: Tab[] = [DirectExposureTab, TransactionsTab, TriggersTab];
+const BitcoinTabs: Tab[] = [DirectExposureTab];
 
 export const BLOCKCHAIN_TABS: Record<string, Tab[]> = {
   Ethereum: EthereumTabs,
