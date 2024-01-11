@@ -38,7 +38,7 @@ const AddressRow: FC<AddressRowProps> = ({ address }) => {
       ? address.paths
       : [[targetAddress, address.hash]];
 
-    addAddressPaths(paths, focusedEntity!.incoming);
+    addAddressPaths(paths, focusedEntity!.incoming, address.quantity);
   }
 
   return (

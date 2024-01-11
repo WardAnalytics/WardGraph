@@ -26,11 +26,15 @@ import {
 import {
   createTransfershipEdge,
   TransfershipEdge,
+  TransfershipEdgeStates,
 } from "./custom_elements/edges/TransfershipEdge";
 
 import {
+  convertEdgeListToRecord,
+  convertNodeListToRecord,
   calculateNewAddressPath,
   calculatedNewFocusedAddress,
+  calculateAddTransfershipEdges,
 } from "./graph_calculations";
 
 import "reactflow/dist/style.css";
@@ -47,13 +51,23 @@ const g = new Dagre.graphlib.Graph().setDefaultEdgeLabel(() => ({}));
 
 /* Context for variable handling */
 interface GraphContextProps {
-  addAddressPaths: (paths: string[][], incoming: boolean) => void;
+  addAddressPaths: (
+    paths: string[][],
+    incoming: boolean,
+    volume: number,
+  ) => void;
   focusOnAddress: (address: string) => void;
+  addEdges: (newEdges: Edge[]) => void;
+  isAddressFocused: (address: string) => boolean;
+  setEdgeState: (edgeID: string, state: TransfershipEdgeStates) => void;
 }
 
 export const GraphContext = createContext<GraphContextProps>({
   addAddressPaths: () => {},
   focusOnAddress: () => {},
+  addEdges: () => {},
+  isAddressFocused: () => false,
+  setEdgeState: () => {},
 });
 
 /* The ReactFlowProvider must be above the GraphProvided component in the tree for ReactFlow's internal context to work
@@ -67,23 +81,17 @@ const Graph: FC = () => {
 };
 
 const initialTestNode1 = createAddressNode(
-  "0xdac17f958d2ee523a2206206994597c13d831ec7",
+  "0xe71472c7bcd57bfefab8bf7de4a7a9021d99e43b",
   AddressNodeState.MINIMIZED,
   0,
   150,
 );
 
 const initialTestNode2 = createAddressNode(
-  "0x6b175474e89094c44da98b954eedeac495271d0f",
+  "0x07840b4825b74cc6ce264bf2743dee647194f49b",
   AddressNodeState.MINIMIZED,
   0,
   0,
-);
-
-const initialTestEdge = createTransfershipEdge(
-  "0xdac17f958d2ee523a2206206994597c13d831ec7",
-  "0x6b175474e89094c44da98b954eedeac495271d0f",
-  100,
 );
 
 const GraphProvided: FC = () => {
@@ -91,8 +99,20 @@ const GraphProvided: FC = () => {
     initialTestNode1,
     initialTestNode2,
   ]);
-  const [edges, setEdges, onEdgesChange] = useEdgesState([initialTestEdge]);
+  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [selectedNodes, setSelectedNodes] = useState<string[]>([]);
+  const [nodesRecord, setNodesRecord] = useState<Record<string, Node>>({});
+  const [edgesRecord, setEdgesRecord] = useState<Record<string, Edge>>({});
+
+  // Whenever nodes and edges change, update the records. This is done for performance reasons
+  useEffect(() => {
+    const newNodesRecord = convertNodeListToRecord(nodes);
+    setNodesRecord(newNodesRecord);
+  }, [nodes]);
+  useEffect(() => {
+    const newEdgesRecord = convertEdgeListToRecord(edges);
+    setEdgesRecord(newEdgesRecord);
+  }, [edges]);
 
   const { setViewport } = useReactFlow();
 
@@ -185,13 +205,40 @@ const GraphProvided: FC = () => {
     setNodes(newNodes);
   }
 
-  function addAddressPaths(paths: string[][], incoming: boolean) {
+  function isAddressFocused(address: string): boolean {
+    const node = nodesRecord[address];
+    if (node) {
+      return node.data.state === AddressNodeState.EXPANDED;
+    }
+    return false;
+  }
+
+  function setEdgeState(edgeID: string, state: TransfershipEdgeStates) {
+    const edge = edgesRecord[edgeID];
+    if (edge) {
+      const newEdge: Edge = {
+        ...edge,
+        data: { ...edge.data, state },
+      };
+      setEdges((edges) => {
+        const newEdges = edges.filter((edge) => edge.id !== edgeID);
+        newEdges.push(newEdge);
+        return newEdges;
+      });
+    }
+  }
+
+  function addAddressPaths(
+    paths: string[][],
+    incoming: boolean,
+    volume: number,
+  ) {
     // 1 - Calculate result of adding path to the graph
     const {
       nodes: newNodes,
       edges: newEdges,
       finalNode,
-    } = calculateNewAddressPath(nodes, edges, paths, incoming);
+    } = calculateNewAddressPath(nodes, edges, paths, incoming, volume);
 
     // 2 - Calculate result of focusing on a node
     const focusedNodes = calculatedNewFocusedAddress(newNodes, finalNode.id);
@@ -199,6 +246,11 @@ const GraphProvided: FC = () => {
     // 3 - Set the new nodes and edges
     setNodes(focusedNodes);
     setEdges(newEdges);
+  }
+
+  function addEdges(newEdges: Edge[]) {
+    const newStateEdges = calculateAddTransfershipEdges(edges, newEdges);
+    setEdges(newStateEdges);
   }
 
   /**
@@ -230,6 +282,9 @@ const GraphProvided: FC = () => {
   const graphContext = {
     addAddressPaths,
     focusOnAddress,
+    addEdges,
+    isAddressFocused,
+    setEdgeState,
   };
 
   return (

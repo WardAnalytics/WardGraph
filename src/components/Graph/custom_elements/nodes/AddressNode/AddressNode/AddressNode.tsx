@@ -1,6 +1,6 @@
 import { FC, createContext, useContext, useState, useEffect } from "react";
 import clsx from "clsx";
-import { Position, Handle } from "reactflow";
+import { Position, Handle, Edge } from "reactflow";
 import { Transition } from "@headlessui/react";
 
 import { AddressAnalysis } from "../../../../../../api/model";
@@ -11,6 +11,11 @@ import { GraphContext } from "../../../../Graph";
 import AddressNodeStates from "../states";
 import Header from "./Header";
 import Content from "./Content";
+
+import {
+  createTransfershipEdge,
+  TransfershipEdgeStates,
+} from "../../../edges/TransfershipEdge";
 
 /** Context data for the AddressNode */
 
@@ -33,7 +38,7 @@ interface AddressNodeProps {
 }
 
 const AddressNode: FC<AddressNodeProps> = ({ data: { address, state } }) => {
-  const { focusOnAddress } = useContext(GraphContext);
+  const { focusOnAddress, addEdges } = useContext(GraphContext);
 
   // Analysis data is fetched into a useState hook from the Ward API using the Orval Hook and then passed into the context
   const [analysisData, setAnalysisData] = useState<AddressAnalysis | null>(
@@ -55,6 +60,43 @@ const AddressNode: FC<AddressNodeProps> = ({ data: { address, state } }) => {
 
           onSuccess: (data) => {
             setAnalysisData(data);
+
+            let newEdges: Edge[] = [];
+            for (const c in data.incomingDirectExposure.categories) {
+              const category = data.incomingDirectExposure.categories[c];
+              for (const e in category.entities) {
+                const entity = category.entities[e];
+                for (const a in entity.addresses) {
+                  const incomingAddress = entity.addresses[a];
+                  newEdges.push(
+                    createTransfershipEdge(
+                      incomingAddress.hash,
+                      address,
+                      TransfershipEdgeStates.HIDDEN,
+                      incomingAddress.quantity,
+                    ),
+                  );
+                }
+              }
+            }
+            for (const c in data.outgoingDirectExposure.categories) {
+              const category = data.outgoingDirectExposure.categories[c];
+              for (const e in category.entities) {
+                const entity = category.entities[e];
+                for (const a in entity.addresses) {
+                  const outgoingAddress = entity.addresses[a];
+                  newEdges.push(
+                    createTransfershipEdge(
+                      address,
+                      outgoingAddress.hash,
+                      TransfershipEdgeStates.HIDDEN,
+                      outgoingAddress.quantity,
+                    ),
+                  );
+                }
+              }
+            }
+            addEdges(newEdges);
           },
         },
       },
@@ -90,7 +132,6 @@ const AddressNode: FC<AddressNodeProps> = ({ data: { address, state } }) => {
           maxWidth: state === AddressNodeStates.EXPANDED ? "68rem" : "30rem",
           minHeight: state === AddressNodeStates.EXPANDED ? "10rem" : "0rem",
           maxHeight: state === AddressNodeStates.EXPANDED ? "150rem" : "10rem",
-          marginLeft: state === AddressNodeStates.EXPANDED ? "-17rem" : "0rem",
           transition: "all 0.5s ease-in-out",
         }}
         onClick={() => {

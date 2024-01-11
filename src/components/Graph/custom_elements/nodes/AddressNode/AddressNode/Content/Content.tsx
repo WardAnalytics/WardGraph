@@ -53,6 +53,7 @@ const AllContentComponents: FC<AllContentComponentsProps> = ({
 
 const Content: FC = () => {
   const { analysisData } = useContext(AnalysisContext)!;
+  const [selectedTab, setSelectedStep] = useState(0);
 
   if (!analysisData) {
     return <LoadingPulseMock />;
@@ -60,7 +61,6 @@ const Content: FC = () => {
 
   // Currently selected. When a tab is clicked, this is set to the index of the tab
   const tabs = BLOCKCHAIN_TABS[analysisData.blockchain];
-  const [selectedTab, setSelectedStep] = useState(0);
 
   return (
     <div className="nodrag flex divide-x divide-dashed divide-gray-200">

@@ -1,12 +1,14 @@
 import { Edge, MarkerType } from "reactflow";
+import TransfershipEdgeStates from "./states";
 
 export default function createTransfershipEdge(
   source: string,
   target: string,
+  state: TransfershipEdgeStates = TransfershipEdgeStates.HIDDEN,
   volume: number,
 ): Edge {
   const id = `${source}-${target}`;
-  const data = { volume };
+  const data = { volume, state };
 
   return {
     id,
