@@ -34,20 +34,20 @@ const Searchbar: FC = () => {
                         {
                             query.length > 0 ?
                                 <XMarkIcon className="w-4 h-4 text-gray-400 hover:cursor-pointer" aria-hidden="true" onClick={resetQuery} /> :
-                                <CiSearch className="w-4 h-4 text-gray-400" aria-hidden="true" />
+                                <CiSearch className="w-4 h-4 text-gray-500" aria-hidden="true" />
                         }
                     </span>
                 </div>
             </div>
             <div className="flex justify-center">
                 <div className="flex flex-col justify-center w-full lg:w-2/3 sm:flex-row text-sm xl:text-base">
-                    <Button type="submit" className="sm:w-1/2 p-1 mb-2 sm:mb-0 sm:mr-4 bg-ward-blue text-white">
+                    <Button type="submit" className="sm:w-1/2 p-1 mb-2 sm:mb-0 sm:mr-2 bg-ward-blue text-white">
                         <div className="flex justify-center items-center">
                             <MdArrowOutward className="mr-1" />
-                            <span>Analyze</span>
+                            <span>Analyze Address</span>
                         </div>
                     </Button>
-                    <Button type="submit" className="sm:w-1/2 p-1 sm:ml-4 border ring-1 ring-ward-blue/50 bg-white text-ward-blue  dark:bg-neutral-700 dark:text-white dark:hover:bg-neutral-600">
+                    <Button type="submit" className="sm:w-1/2 p-1 sm:ml-2 border ring-1 ring-ward-blue/50 bg-white text-ward-blue  dark:bg-neutral-700 dark:text-white dark:hover:bg-neutral-600">
                         <div className="flex justify-center items-center">
                             <LuClover className="mr-1" />
                             <span>I'm Feeling Lucky</span>
