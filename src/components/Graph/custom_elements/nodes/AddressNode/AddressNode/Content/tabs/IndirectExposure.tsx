@@ -1,16 +1,16 @@
-import { useContext } from "react";
+import { useContext, FC } from "react";
 
 import ExposureTab from "./ExposureTab";
 
-import { AnalysisContext } from "../../AnalysisWindow";
+import { AnalysisContext } from "../../AddressNode";
 
-const IndirectExposure = () => {
+const IndirectExposure: FC = () => {
   const { analysisData } = useContext(AnalysisContext)!;
 
   return (
     <ExposureTab
-      incomingExposure={analysisData.incomingIndirectExposure}
-      outgoingExposure={analysisData.outgoingIndirectExposure}
+      incomingExposure={analysisData!.incomingIndirectExposure}
+      outgoingExposure={analysisData!.outgoingIndirectExposure}
     />
   );
 };
