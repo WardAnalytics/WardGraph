@@ -41,7 +41,7 @@ const RiskIndicator: FC<RiskIndicatorProps> = ({
   return (
     <span
       className={clsx(
-        " mx-auto my-1 flex h-11 w-11 items-center justify-center rounded-md text-lg font-semibold ring-1",
+        "my-1 flex h-11 w-11 items-center justify-center rounded-md text-lg font-semibold ring-1",
         text,
         background,
         ring,
