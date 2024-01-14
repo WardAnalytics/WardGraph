@@ -2,7 +2,7 @@ import { useContext, FC } from "react";
 
 import ExposureTab from "./ExposureTab";
 
-import { AnalysisContext } from "../../AddressNode";
+import { AnalysisContext } from "../../AnalysisWindow";
 
 const DirectExposure: FC = () => {
   const { analysisData } = useContext(AnalysisContext)!;

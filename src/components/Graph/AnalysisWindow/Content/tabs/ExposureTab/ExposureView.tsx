@@ -6,17 +6,13 @@ import {
   ArrowUpRightIcon,
 } from "@heroicons/react/20/solid";
 
-import {
-  Exposure,
-  Category,
-  Entity,
-} from "../../../../../../../../../api/model";
+import { Exposure, Category, Entity } from "../../../../../../api/model";
 
-import formatNumber from "../../../../../../../../../utils/formatNumber";
-import { Colors } from "../../../../../../../../../utils/colors";
-import { CategoryClasses } from "../../../../../../../../../utils/categories";
+import formatNumber from "../../../../../../utils/formatNumber";
+import { Colors } from "../../../../../../utils/colors";
+import { CategoryClasses } from "../../../../../../utils/categories";
 
-import Badge from "../../../../../../../../common/Badge";
+import Badge from "../../../../../common/Badge";
 
 import { ExposureTabContext } from "./ExposureTabGeneric";
 

@@ -1,7 +1,7 @@
 import { FC } from "react";
 
-import Badge from "../../../../../../../common/Badge";
-import { Colors } from "../../../../../../../../utils/colors";
+import Badge from "../../../../common/Badge";
+import { Colors } from "../../../../../utils/colors";
 
 interface LabelListProps {
   labels: string[];

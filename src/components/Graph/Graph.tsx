@@ -47,9 +47,12 @@ import {
 } from "./graph_calculations";
 
 import "reactflow/dist/style.css";
-import DraggableWindow from "./AnalysisWindow";
+import DraggableWindow from "./AnalysisWindow/AnalysisWindow";
 import Legend from "./Legend";
 import { AddressAnalysis } from "../../api/model";
+import TransactionTooltip, {
+  TransactionTooltipProps,
+} from "./TransactionTooltip";
 
 /* Pan on drag settings */
 const panOnDrag = [1, 2];
@@ -75,26 +78,23 @@ interface GraphContextProps {
   getEdgeVolumeScale: (volume: number) => number;
   getEdgeHandleID: (edgeID: string) => string;
   setFocusedAddressData: (data: AddressAnalysis | null) => void;
+  setHoveredTransferData: (data: TransactionTooltipProps | null) => void;
+  focusedAddressData: AddressAnalysis | null;
 }
 
-export const GraphContext = createContext<GraphContextProps>({
-  addAddressPaths: () => {},
-  focusOnAddress: () => {},
-  addEdges: () => {},
-  isAddressFocused: () => false,
-  setEdgeState: () => {},
-  getEdgeVolumeScale: () => 0,
-  getEdgeHandleID: () => "",
-  setFocusedAddressData: () => {},
-});
+export const GraphContext = createContext<GraphContextProps>(
+  {} as GraphContextProps,
+);
 
 /* The ReactFlowProvider must be above the GraphProvided component in the tree for ReactFlow's internal context to work
    Reference: https://reactflow.dev/api-reference/react-flow-provider#notes */
 const Graph: FC = () => {
   return (
-    <ReactFlowProvider>
-      <GraphProvided />
-    </ReactFlowProvider>
+    <div style={{ height: "100%" }}>
+      <ReactFlowProvider>
+        <GraphProvided />
+      </ReactFlowProvider>
+    </div>
   );
 };
 
@@ -336,6 +336,9 @@ const GraphProvided: FC = () => {
   const [focusedAddressData, setFocusedAddressData] =
     useState<AddressAnalysis | null>(null);
 
+  const [hoveredTransferData, setHoveredTransferData] =
+    useState<TransactionTooltipProps | null>(null);
+
   // Set up the context
   const graphContext: GraphContextProps = {
     addAddressPaths,
@@ -346,56 +349,67 @@ const GraphProvided: FC = () => {
     getEdgeVolumeScale,
     getEdgeHandleID,
     setFocusedAddressData,
+    setHoveredTransferData,
+    focusedAddressData,
   };
 
   return (
-    <div
-      style={{ height: "100%" }}
-      onKeyDown={(event) => {
-        if (event.key === "Delete" || event.key === "Backspace") {
-          // Delete all selected nodes
-          deleteSelectedNodes();
-        }
-        if (event.key === "Escape") {
-          // Onfocus all nodes
-          setNodes((nodes) =>
-            nodes.map((node) => ({
-              ...node,
-              data: { ...node.data, state: AddressNodeState.MINIMIZED },
-            })),
-          );
-        }
-      }}
-    >
-      <GraphContext.Provider value={graphContext}>
-        {/* <DraggableWindow /> */}
-        <ReactFlow
-          nodes={nodes}
-          onNodesChange={onNodesChange}
-          edges={edges}
-          onEdgesChange={onEdgesChange}
-          fitView
-          nodeTypes={nodeTypes}
-          edgeTypes={edgeTypes}
-          panOnScroll
-          selectionOnDrag
-          panOnDrag={panOnDrag}
-          selectionMode={SelectionMode.Partial}
-          zoomOnDoubleClick={true}
-        >
-          <img
-            className="-z-10 m-auto w-full scale-150 pt-20 opacity-40"
-            aria-hidden="true"
-            src="https://tailwindui.com/img/beams-home@95.jpg"
+    <>
+      <div
+        style={{ height: "100%" }}
+        onKeyDown={(event) => {
+          if (event.key === "Delete" || event.key === "Backspace") {
+            // Delete all selected nodes
+            deleteSelectedNodes();
+          }
+          if (event.key === "Escape") {
+            setFocusedAddressData(null);
+          }
+        }}
+      >
+        <GraphContext.Provider value={graphContext}>
+          <DraggableWindow
+            analysisData={focusedAddressData}
+            setFocusedAddressData={setFocusedAddressData}
           />
-          <Background />
-          <Panel position="top-left">
-            <Legend />
-          </Panel>
-          <Controls position="bottom-right" showInteractive={false} />
-        </ReactFlow>
-      </GraphContext.Provider>
-    </div>
+          <ReactFlow
+            nodes={nodes}
+            onNodesChange={onNodesChange}
+            edges={edges}
+            onEdgesChange={onEdgesChange}
+            fitView
+            nodeTypes={nodeTypes}
+            edgeTypes={edgeTypes}
+            panOnScroll
+            selectionOnDrag
+            panOnDrag={panOnDrag}
+            selectionMode={SelectionMode.Partial}
+            zoomOnDoubleClick={true}
+          >
+            <img
+              className="-z-10 m-auto w-full scale-150 opacity-40"
+              aria-hidden="true"
+              src="https://tailwindui.com/img/beams-home@95.jpg"
+            />
+
+            <Background />
+            <Panel position="top-left">
+              <Legend />
+            </Panel>
+            <Panel position="top-right">
+              {hoveredTransferData && (
+                <TransactionTooltip
+                  source={hoveredTransferData.source}
+                  target={hoveredTransferData.target}
+                  volume={hoveredTransferData.volume ?? 0}
+                />
+              )}
+            </Panel>
+            <Controls position="bottom-right" showInteractive={false} />
+          </ReactFlow>
+        </GraphContext.Provider>
+      </div>
+    </>
   );
 };
 

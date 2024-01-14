@@ -4,7 +4,7 @@ import "./LegendPath.css";
 
 const Legend: FC = () => {
   return (
-    <div className="flex h-fit w-32 flex-col gap-y-3 bg-white/50 p-3 backdrop-blur-sm">
+    <div className="flex h-fit w-32 flex-col gap-y-3 bg-white/10 p-3 backdrop-blur-sm">
       <span className="flex flex-row items-center gap-x-1.5">
         <svg className="h-5" viewBox="0 0 50 20">
           <path
