@@ -1,6 +1,4 @@
-import { FC, createContext, useRef, useContext } from "react";
-
-import { GraphContext } from "../Graph";
+import { FC, createContext, useRef } from "react";
 
 import Draggable from "react-draggable";
 import Header from "./Header";

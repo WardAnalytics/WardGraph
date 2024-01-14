@@ -165,7 +165,6 @@ export function calculateNewAddressPath(
   edges: Edge[],
   addresses: string[][],
   incoming: boolean,
-  volume: number,
 ): CalculateNewAddressPathsReturnType {
   /* Addresses are currently a list of parallel paths. We need to convert them to a list of 
   path positions, each having a list of addresses at that position. We also need to make 
