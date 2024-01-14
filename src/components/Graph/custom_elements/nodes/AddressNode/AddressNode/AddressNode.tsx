@@ -116,8 +116,32 @@ const AddressNode: FC<AddressNodeProps> = ({ data: { address, state } }) => {
 
   return (
     <AnalysisContext.Provider value={contextData}>
-      <Handle type="target" position={Position.Left} className="opacity-0" />
-      <Handle type="source" position={Position.Right} className="opacity-0" />
+      {/* Handle A - The edge flows from the left of a node to the right of another */}
+      <Handle
+        type="target"
+        position={Position.Left}
+        className="mb-2 opacity-0"
+        id="a"
+      />
+      <Handle
+        type="source"
+        position={Position.Right}
+        className="mb-2 opacity-0"
+        id="a"
+      />
+      {/* Handle B - The edge flows from the right of a node to the left of another */}
+      <Handle
+        type="target"
+        position={Position.Right}
+        className="mt-2 opacity-0"
+        id="b"
+      />
+      <Handle
+        type="source"
+        position={Position.Left}
+        className="mt-2 opacity-0"
+        id="b"
+      />
 
       <div
         className={clsx(
@@ -125,13 +149,14 @@ const AddressNode: FC<AddressNodeProps> = ({ data: { address, state } }) => {
           state === AddressNodeStates.EXPANDED &&
             "divide-y divide-dashed divide-gray-200 overflow-hidden shadow",
           state === AddressNodeStates.MINIMIZED &&
-            "shadow-md ring-1 ring-gray-300  hover:bg-gray-50",
+            "shadow-md ring-1  ring-gray-300 hover:bg-gray-50",
         )}
         style={{
           minWidth: state === AddressNodeStates.EXPANDED ? "68rem" : "15rem",
           maxWidth: state === AddressNodeStates.EXPANDED ? "68rem" : "30rem",
           minHeight: state === AddressNodeStates.EXPANDED ? "10rem" : "0rem",
           maxHeight: state === AddressNodeStates.EXPANDED ? "150rem" : "10rem",
+          marginLeft: state === AddressNodeStates.EXPANDED ? "-25rem" : "0rem",
           transition: "all 0.5s ease-in-out",
         }}
         onClick={() => {

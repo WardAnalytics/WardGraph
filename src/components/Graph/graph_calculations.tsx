@@ -197,7 +197,6 @@ export function calculateNewAddressPath(
     for (let i = 0; i < pathAddresses.length - 1; i++) {
       const fromAddress = incoming ? pathAddresses[i + 1] : pathAddresses[i];
       const toAddress = incoming ? pathAddresses[i] : pathAddresses[i + 1];
-      console.log("Adding edge from " + fromAddress + " to " + toAddress);
       const edge: Edge = createTransfershipEdge(
         fromAddress,
         toAddress,

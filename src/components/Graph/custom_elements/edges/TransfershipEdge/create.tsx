@@ -16,11 +16,13 @@ export default function createTransfershipEdge(
     target,
     data,
     type: "TransfershipEdge",
-    animated: true,
-    markerEnd: {
-      type: MarkerType.ArrowClosed,
-      width: 20,
-      height: 20,
-    },
+    animated: false,
+    sourceHandle: "a",
+    targetHandle: "a",
+    // markerEnd: {
+    //   type: MarkerType.ArrowClosed,
+    //   width: 20,
+    //   height: 20,
+    // },
   };
 }
