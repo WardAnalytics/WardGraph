@@ -7,24 +7,19 @@ import {
   useMemo,
   FC,
 } from "react";
-import Dagre from "@dagrejs/dagre";
 import ReactFlow, {
-  addEdge,
   Node,
   Edge,
   useNodesState,
   useEdgesState,
-  MiniMap,
   Controls,
   Background,
   ReactFlowProvider,
   SelectionMode,
-  ReactFlowInstance,
-  useReactFlow,
   useOnSelectionChange,
   Panel,
 } from "reactflow";
-import getLayoutedElements from "./layout";
+import LandingPage from "./LandingPage/LandingPage";
 
 import {
   createAddressNode,
@@ -85,11 +80,11 @@ export const GraphContext = createContext<GraphContextProps>(
 
 /* The ReactFlowProvider must be above the GraphProvided component in the tree for ReactFlow's internal context to work
    Reference: https://reactflow.dev/api-reference/react-flow-provider#notes */
-interface GraphProps {
+interface GraphProviderProps {
   initialAddresses: string[];
 }
 
-const Graph: FC<GraphProps> = ({ initialAddresses }) => {
+const GraphProvider: FC<GraphProviderProps> = ({ initialAddresses }) => {
   // Grab all initial addresses and create nodes for them
   const initialNodes = useMemo(() => {
     const nodes: Node[] = [];
@@ -406,6 +401,20 @@ const GraphProvided: FC<GraphProvidedProps> = ({ initialNodes }) => {
           </ReactFlow>
         </GraphContext.Provider>
       </div>
+    </>
+  );
+};
+
+const Graph: FC = () => {
+  const [searchedAddress, setSearchedAddress] = useState<string | null>(null);
+
+  return (
+    <>
+      {searchedAddress ? (
+        <GraphProvider initialAddresses={[searchedAddress]} />
+      ) : (
+        <LandingPage setSearchedAddress={setSearchedAddress} />
+      )}
     </>
   );
 };

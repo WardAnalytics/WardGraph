@@ -1,7 +1,7 @@
 import { FC } from "react";
-import { Transition } from "@headlessui/react";
 import { SparklesIcon } from "@heroicons/react/20/solid";
 
+import logo from "../../assets/ward-logo-blue-full.svg";
 import Searchbar from "./SearchBar";
 
 interface LandingPageProps {
@@ -22,3 +22,5 @@ const LandingPage: FC<LandingPageProps> = ({ setSearchedAddress }) => {
     </div>
   );
 };
+
+export default LandingPage;
