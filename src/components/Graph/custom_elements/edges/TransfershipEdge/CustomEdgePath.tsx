@@ -1,6 +1,5 @@
-import { CSSProperties, FC } from "react";
-import { MarkerType } from "reactflow";
 import clsx from "clsx";
+import { CSSProperties } from "react";
 
 import "./CustomEdgePath.css";
 

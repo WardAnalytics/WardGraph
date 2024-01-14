@@ -1,55 +1,48 @@
 import {
   createContext,
-  useEffect,
-  useRef,
-  useCallback,
-  useState,
-  useMemo,
   FC,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
 } from "react";
-import Dagre from "@dagrejs/dagre";
 import ReactFlow, {
-  addEdge,
-  Node,
-  Edge,
-  useNodesState,
-  useEdgesState,
-  MiniMap,
-  Controls,
   Background,
+  Controls,
+  Edge,
+  Node,
+  Panel,
   ReactFlowProvider,
   SelectionMode,
-  ReactFlowInstance,
-  useReactFlow,
-  useOnSelectionChange,
-  Panel,
+  useEdgesState,
+  useNodesState,
+  useOnSelectionChange
 } from "reactflow";
-import getLayoutedElements from "./layout";
 
 import {
-  createAddressNode,
-  AddressNodeState,
   AddressNode,
+  AddressNodeState,
+  createAddressNode,
 } from "./custom_elements/nodes/AddressNode";
 
 import {
-  createTransfershipEdge,
   TransfershipEdge,
-  TransfershipEdgeStates,
+  TransfershipEdgeStates
 } from "./custom_elements/edges/TransfershipEdge";
 
 import {
+  calculateAddTransfershipEdges,
+  calculatedNewFocusedAddress,
+  calculateNewAddressPath,
   convertEdgeListToRecord,
   convertNodeListToRecord,
-  calculateNewAddressPath,
-  calculatedNewFocusedAddress,
-  calculateAddTransfershipEdges,
 } from "./graph_calculations";
 
 import "reactflow/dist/style.css";
+import { AddressAnalysis } from "../../api/model";
 import DraggableWindow from "./AnalysisWindow/AnalysisWindow";
 import Legend from "./Legend";
-import { AddressAnalysis } from "../../api/model";
 import TransactionTooltip, {
   TransactionTooltipProps,
 } from "./TransactionTooltip";
@@ -237,13 +230,13 @@ const GraphProvided: FC<GraphProvidedProps> = ({ initialNodes }) => {
   /** Adds a node to the graph. If the node already exists, it is not added.
    * @param newNode the node to add
    */
-  function addNewNode(newNode: Node) {
+  /* function addNewNode(newNode: Node) {
     // If node with same id already exists, don't add it
     if (nodes.find((node) => node.id === newNode.id)) {
       return;
     }
     setNodes((nodes) => [...nodes, newNode]);
-  }
+  } */
 
   /** Deletes multiple nodes and all edges connected to them
    * @param ids the ids of the nodes to delete
@@ -309,7 +302,7 @@ const GraphProvided: FC<GraphProvidedProps> = ({ initialNodes }) => {
     const {
       nodes: newNodes,
       edges: newEdges,
-      finalNode,
+      //finalNode,
     } = calculateNewAddressPath(nodes, edges, paths, incoming, volume);
 
     // 2 - Calculate result of focusing on a node

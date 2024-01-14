@@ -1,17 +1,12 @@
-import { FC, useContext, useCallback } from "react";
+import { FC, useContext } from "react";
 import {
-  BaseEdge,
-  EdgeLabelRenderer,
   EdgeProps,
-  useStore,
-  getBezierPath,
+  getBezierPath
 } from "reactflow";
-import { MinusIcon, PlusIcon } from "@heroicons/react/16/solid";
 
+import { GraphContext } from "../../../Graph";
 import CustomEdgePath from "./CustomEdgePath";
 import TransfershipEdgeStates from "./states";
-import { GraphContext } from "../../../Graph";
-import { Colors, ColorMap } from "../../../../../utils/colors";
 
 const TransfershipEdge: FC<EdgeProps> = ({
   id,
@@ -24,12 +19,12 @@ const TransfershipEdge: FC<EdgeProps> = ({
   targetPosition,
   target,
   data,
-  markerEnd,
+  //markerEnd,
 }: EdgeProps) => {
   // Whether the edge is hidden or revealded ------------------------------
 
   const {
-    isAddressFocused,
+    //isAddressFocused,
     setEdgeState,
     getEdgeVolumeScale,
     getEdgeHandleID,
@@ -49,8 +44,8 @@ const TransfershipEdge: FC<EdgeProps> = ({
 
   // Pick a color and icon - Either it's infrared and can be revealed or it's gray and should be hidden
   const volume: number = data?.volume ?? 0;
-  const ColorInfo = ColorMap[isHidden ? Colors.RED : Colors.GRAY];
-  const Icon = isHidden ? PlusIcon : MinusIcon;
+  /* const ColorInfo = ColorMap[isHidden ? Colors.RED : Colors.GRAY];
+  const Icon = isHidden ? PlusIcon : MinusIcon; */
 
   // Width starts at 1 and goes up to 9 based on the volume transfered
   const volumeScale: number = getEdgeVolumeScale(volume);

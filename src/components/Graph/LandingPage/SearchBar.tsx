@@ -38,9 +38,9 @@ interface SearchbarProps {
 const Searchbar: FC<SearchbarProps> = ({ className, onSearchAddress }) => {
   const [query, setQuery] = useState<string>("");
 
-  const resetQuery = () => {
+  /* const resetQuery = () => {
     setQuery("");
-  };
+  }; */
 
   const isAddressValid = useMemo(() => isValidAddress(query), [query]);
 

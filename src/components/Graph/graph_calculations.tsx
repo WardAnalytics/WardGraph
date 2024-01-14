@@ -1,12 +1,12 @@
-import { Node, Edge, XYPosition } from "reactflow";
+import { Edge, Node, XYPosition } from "reactflow";
 import {
-  createAddressNode,
-  AddressNodeState,
-} from "./custom_elements/nodes/AddressNode";
-import {
-  createTransfershipEdge,
   TransfershipEdgeStates,
+  createTransfershipEdge,
 } from "./custom_elements/edges/TransfershipEdge";
+import {
+  AddressNodeState,
+  createAddressNode,
+} from "./custom_elements/nodes/AddressNode";
 
 // How much distance there should be between two nodes when calculating new address nodes positions
 const INTERSECTING_NODE_X_OFFSET = 300;
@@ -167,6 +167,7 @@ export function calculateNewAddressPath(
   incoming: boolean,
   volume: number,
 ): CalculateNewAddressPathsReturnType {
+  console.log(volume)
   /* Addresses are currently a list of parallel paths. We need to convert them to a list of 
   path positions, each having a list of addresses at that position. We also need to make 
   sure there are no duplicate addresses per path */
