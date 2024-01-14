@@ -61,9 +61,6 @@ const panOnDrag = [1, 2];
 const nodeTypes = { AddressNode: AddressNode };
 const edgeTypes = { TransfershipEdge: TransfershipEdge };
 
-/* Automatic Layout Setup */
-const g = new Dagre.graphlib.Graph().setDefaultEdgeLabel(() => ({}));
-
 /* Context for variable handling */
 interface GraphContextProps {
   addAddressPaths: (
@@ -88,35 +85,35 @@ export const GraphContext = createContext<GraphContextProps>(
 
 /* The ReactFlowProvider must be above the GraphProvided component in the tree for ReactFlow's internal context to work
    Reference: https://reactflow.dev/api-reference/react-flow-provider#notes */
-const Graph: FC = () => {
+interface GraphProps {
+  initialAddresses: string[];
+}
+
+const Graph: FC<GraphProps> = ({ initialAddresses }) => {
+  // Grab all initial addresses and create nodes for them
+  const initialNodes = useMemo(() => {
+    const nodes: Node[] = [];
+    initialAddresses.forEach((address) => {
+      nodes.push(createAddressNode(address, AddressNodeState.MINIMIZED, 0, 0));
+    });
+    return nodes;
+  }, [initialAddresses]);
+
   return (
     <div style={{ height: "100%" }}>
       <ReactFlowProvider>
-        <GraphProvided />
+        <GraphProvided initialNodes={initialNodes} />
       </ReactFlowProvider>
     </div>
   );
 };
 
-const initialTestNode1 = createAddressNode(
-  "0xe71472c7bcd57bfefab8bf7de4a7a9021d99e43b",
-  AddressNodeState.MINIMIZED,
-  0,
-  150,
-);
+interface GraphProvidedProps {
+  initialNodes: Node[];
+}
 
-const initialTestNode2 = createAddressNode(
-  "0x07840b4825b74cc6ce264bf2743dee647194f49b",
-  AddressNodeState.MINIMIZED,
-  0,
-  0,
-);
-
-const GraphProvided: FC = () => {
-  const [nodes, setNodes, onNodesChange] = useNodesState([
-    initialTestNode1,
-    initialTestNode2,
-  ]);
+const GraphProvided: FC<GraphProvidedProps> = ({ initialNodes }) => {
+  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [selectedNodes, setSelectedNodes] = useState<string[]>([]);
 
