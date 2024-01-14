@@ -1,7 +1,7 @@
 import { GlobeAltIcon } from "@heroicons/react/24/outline";
 import { FC } from "react";
 
-import { getAddressLink } from "../../../../../../../../utils/explorer_links";
+import { getAddressLink } from "../../../../../utils/explorer_links";
 
 interface BlockExplorerIconProps {
   blockchain: string;

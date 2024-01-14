@@ -1,4 +1,4 @@
-import { FC, useState, useContext } from "react";
+import { FC, useState, useContext, useEffect } from "react";
 import { Transition } from "@headlessui/react";
 
 import { BLOCKCHAIN_TABS, Tab } from "./Tab";
@@ -6,7 +6,7 @@ import { BLOCKCHAIN_TABS, Tab } from "./Tab";
 import Navbar from "./Navbar";
 import LoadingPulseMock from "./PulseMock";
 
-import { AnalysisContext } from "../AddressNode";
+import { AnalysisContext } from "../AnalysisWindow";
 
 interface AllContentComponentsProps {
   tabs: Tab[];
@@ -53,17 +53,22 @@ const AllContentComponents: FC<AllContentComponentsProps> = ({
 
 const Content: FC = () => {
   const { analysisData } = useContext(AnalysisContext)!;
+  const [selectedTab, setSelectedStep] = useState(0);
 
   if (!analysisData) {
     return <LoadingPulseMock />;
   }
 
+  // Use Effect: When analysisData changes, reset the selected tab to 0
+  useEffect(() => {
+    setSelectedStep(0);
+  }, [analysisData]);
+
   // Currently selected. When a tab is clicked, this is set to the index of the tab
   const tabs = BLOCKCHAIN_TABS[analysisData.blockchain];
-  const [selectedTab, setSelectedStep] = useState(0);
 
   return (
-    <div className="nodrag flex divide-x divide-dashed divide-gray-200">
+    <div className="flex divide-x divide-dashed divide-gray-200">
       <div className="w-1/5">
         <div className="pr-3">
           <Navbar

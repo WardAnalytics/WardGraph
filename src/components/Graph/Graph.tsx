@@ -1,4 +1,12 @@
-import { createContext, useEffect, useCallback, useState, FC } from "react";
+import {
+  createContext,
+  useEffect,
+  useRef,
+  useCallback,
+  useState,
+  useMemo,
+  FC,
+} from "react";
 import Dagre from "@dagrejs/dagre";
 import ReactFlow, {
   addEdge,
@@ -14,6 +22,7 @@ import ReactFlow, {
   ReactFlowInstance,
   useReactFlow,
   useOnSelectionChange,
+  Panel,
 } from "reactflow";
 import getLayoutedElements from "./layout";
 
@@ -26,14 +35,24 @@ import {
 import {
   createTransfershipEdge,
   TransfershipEdge,
+  TransfershipEdgeStates,
 } from "./custom_elements/edges/TransfershipEdge";
 
 import {
+  convertEdgeListToRecord,
+  convertNodeListToRecord,
   calculateNewAddressPath,
   calculatedNewFocusedAddress,
+  calculateAddTransfershipEdges,
 } from "./graph_calculations";
 
 import "reactflow/dist/style.css";
+import DraggableWindow from "./AnalysisWindow/AnalysisWindow";
+import Legend from "./Legend";
+import { AddressAnalysis } from "../../api/model";
+import TransactionTooltip, {
+  TransactionTooltipProps,
+} from "./TransactionTooltip";
 
 /* Pan on drag settings */
 const panOnDrag = [1, 2];
@@ -42,67 +61,176 @@ const panOnDrag = [1, 2];
 const nodeTypes = { AddressNode: AddressNode };
 const edgeTypes = { TransfershipEdge: TransfershipEdge };
 
-/* Automatic Layout Setup */
-const g = new Dagre.graphlib.Graph().setDefaultEdgeLabel(() => ({}));
-
 /* Context for variable handling */
 interface GraphContextProps {
-  addAddressPaths: (paths: string[][], incoming: boolean) => void;
+  addAddressPaths: (
+    paths: string[][],
+    incoming: boolean,
+    volume: number,
+  ) => void;
   focusOnAddress: (address: string) => void;
+  addEdges: (newEdges: Edge[]) => void;
+  isAddressFocused: (address: string) => boolean;
+  setEdgeState: (edgeID: string, state: TransfershipEdgeStates) => void;
+  getEdgeVolumeScale: (volume: number) => number;
+  getEdgeHandleID: (edgeID: string) => string;
+  setFocusedAddressData: (data: AddressAnalysis | null) => void;
+  setHoveredTransferData: (data: TransactionTooltipProps | null) => void;
+  focusedAddressData: AddressAnalysis | null;
 }
 
-export const GraphContext = createContext<GraphContextProps>({
-  addAddressPaths: () => {},
-  focusOnAddress: () => {},
-});
+export const GraphContext = createContext<GraphContextProps>(
+  {} as GraphContextProps,
+);
 
 /* The ReactFlowProvider must be above the GraphProvided component in the tree for ReactFlow's internal context to work
    Reference: https://reactflow.dev/api-reference/react-flow-provider#notes */
-const Graph: FC = () => {
+interface GraphProps {
+  initialAddresses: string[];
+}
+
+const Graph: FC<GraphProps> = ({ initialAddresses }) => {
+  // Grab all initial addresses and create nodes for them
+  const initialNodes = useMemo(() => {
+    const nodes: Node[] = [];
+    initialAddresses.forEach((address) => {
+      nodes.push(createAddressNode(address, AddressNodeState.MINIMIZED, 0, 0));
+    });
+    return nodes;
+  }, [initialAddresses]);
+
   return (
-    <ReactFlowProvider>
-      <GraphProvided />
-    </ReactFlowProvider>
+    <div style={{ height: "100%" }}>
+      <ReactFlowProvider>
+        <GraphProvided initialNodes={initialNodes} />
+      </ReactFlowProvider>
+    </div>
   );
 };
 
-const initialTestNode1 = createAddressNode(
-  "0xdac17f958d2ee523a2206206994597c13d831ec7",
-  AddressNodeState.MINIMIZED,
-  0,
-  150,
-);
+interface GraphProvidedProps {
+  initialNodes: Node[];
+}
 
-const initialTestNode2 = createAddressNode(
-  "0x6b175474e89094c44da98b954eedeac495271d0f",
-  AddressNodeState.MINIMIZED,
-  0,
-  0,
-);
-
-const initialTestEdge = createTransfershipEdge(
-  "0xdac17f958d2ee523a2206206994597c13d831ec7",
-  "0x6b175474e89094c44da98b954eedeac495271d0f",
-  100,
-);
-
-const GraphProvided: FC = () => {
-  const [nodes, setNodes, onNodesChange] = useNodesState([
-    initialTestNode1,
-    initialTestNode2,
-  ]);
-  const [edges, setEdges, onEdgesChange] = useEdgesState([initialTestEdge]);
+const GraphProvided: FC<GraphProvidedProps> = ({ initialNodes }) => {
+  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
+  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [selectedNodes, setSelectedNodes] = useState<string[]>([]);
 
-  const { setViewport } = useReactFlow();
+  /* For performance reasons, we store the edges and nodes
+   * in a ref so lookups are O(1) instead of O(n) */
+  const { nodesRecord } = useMemo(() => {
+    return {
+      nodesRecord: convertNodeListToRecord(nodes),
+    };
+  }, [nodes]);
+  const { edgesRecord } = useMemo(() => {
+    return {
+      edgesRecord: convertEdgeListToRecord(edges),
+    };
+  }, [edges]);
 
-  /* Callback to automatically layout the full graph */
-  const onLayout = useCallback(() => {
-    const layouted = getLayoutedElements(g, nodes, edges);
+  /* We want the edge handles to change dynamically depending on the position
+   * of their source and target. Whenever a node's position changes:
+   * - Get all the edges connected to that node
+   * - Based on the node's position and the other node's position,
+   * re-recalculate the handle type for the edge to connect to (A or B) */
+  const prevNodePositions = useRef<Map<string, number>>(new Map());
+  useEffect(() => {
+    // New edges to be set
+    const newEdgesRecord = edgesRecord;
+    let updateEdges: boolean = false;
+    let updateNodeRefs: boolean = false;
 
-    setNodes([...layouted.nodes]);
-    setEdges([...layouted.edges]);
-  }, [nodes, edges]);
+    nodes.forEach((node) => {
+      const prevPos = prevNodePositions.current.get(node.id);
+      if (prevPos !== node.position.x) {
+        updateNodeRefs = true;
+
+        // Get all the edges that are connected to this node
+        const connectedEdges: Edge[] = edges.filter(
+          (edge) => edge.source === node.id || edge.target === node.id,
+        );
+
+        // For each edge, compare the source and target position node center X
+        for (const edge of connectedEdges) {
+          // Get the source and target nodes
+          const sourceNode = nodesRecord[edge.source];
+          const targetNode = nodesRecord[edge.target];
+
+          if (!sourceNode || !targetNode) continue;
+
+          // If the source node is to the right of the target node, the edge should flow from the right of the source node to the left of the target node
+          const newHandleType =
+            sourceNode.position.x > targetNode.position.x ? "b" : "a";
+
+          // Compare the new handle type to the old handle type
+          if (newHandleType !== edge.sourceHandle) {
+            updateEdges = true;
+            const newEdge: Edge = {
+              ...edge,
+              sourceHandle: newHandleType,
+              targetHandle: newHandleType,
+            };
+
+            // Update the record
+            newEdgesRecord[edge.id] = newEdge;
+          }
+        }
+      }
+    });
+
+    if (updateNodeRefs) {
+      if (updateEdges) setEdges(Object.values(newEdgesRecord));
+      const newPositions = new Map(prevNodePositions.current);
+      nodes.forEach((node) => {
+        newPositions.set(node.id, node.position.x);
+      });
+      prevNodePositions.current = newPositions;
+    }
+  }, [nodes]);
+
+  function getEdgeHandleID(edgeID: string): string {
+    const edge = edgesRecord[edgeID];
+
+    if (edge && edge.sourceHandle) {
+      return edge.sourceHandle;
+    }
+
+    return "";
+  }
+
+  /* Edges each have a volume associated and we want to scale their width
+   * based on that. As such, we calculate the max and min volume of all visible
+   * edges and get a function to scale the volume of an edge between 0 and 1. */
+  const { minEdgeVolume, maxEdgeVolume } = useMemo(() => {
+    let newMinEdgeVolume = Infinity;
+    let newMaxEdgeVolume = -Infinity;
+
+    edges.forEach((edge) => {
+      if (edge.data.state === TransfershipEdgeStates.REVEALED) {
+        newMinEdgeVolume = Math.min(newMinEdgeVolume, edge.data.volume);
+        newMaxEdgeVolume = Math.max(newMaxEdgeVolume, edge.data.volume);
+      }
+    });
+
+    return {
+      minEdgeVolume: newMinEdgeVolume,
+      maxEdgeVolume: newMaxEdgeVolume,
+    };
+  }, [edges]);
+
+  /** Returns the scaled volume of an edge between 0 and 1
+   * @param volume the volume of the edge
+   * @returns the scaled volume of the edge
+   */
+  const getEdgeVolumeScale = useCallback(
+    (volume: number): number => {
+      const range = maxEdgeVolume - minEdgeVolume;
+      return range === 0 ? 0 : (volume - minEdgeVolume) / range;
+    },
+    [maxEdgeVolume, minEdgeVolume],
+  );
 
   // Node & Edge Manipulation Functions ---
 
@@ -115,13 +243,6 @@ const GraphProvided: FC = () => {
       return;
     }
     setNodes((nodes) => [...nodes, newNode]);
-  }
-
-  /** Adds an edge to the graph. If the edge already exists, it is not added.
-   * @param newEdge the edge to add
-   */
-  function addNewEdge(newEdge: Edge) {
-    setEdges((oldEdges) => addEdge(newEdge, oldEdges));
   }
 
   /** Deletes multiple nodes and all edges connected to them
@@ -146,35 +267,6 @@ const GraphProvided: FC = () => {
     setSelectedNodes([]);
   }
 
-  /** Adds a single new address to the graph. This function **SHOULD NOT BE USED** to add multiple addresses at once in any way, shape, or form.
-   * @param address the address to add
-   * @param state the state of the address (either MINIMIZED or EXPANDED)
-   * @param x the x position of the node
-   * @param y the y position of the node
-   */
-  function addIndividualAddress(
-    address: string,
-    state: AddressNodeState,
-    x: number,
-    y: number,
-  ) {
-    const newNode: Node = createAddressNode(address, state, x, y);
-    addNewNode(newNode);
-  }
-
-  /** Pans to a specific address node.
-   * @param address the address to pan to
-   */
-  function panToAddress(address: string) {
-    const node = nodes.find((node) => node.id === address);
-    if (node) {
-      const x = -node.position.x + window.innerWidth / 3;
-      const y = -node.position.y + window.innerHeight / 3 - 100;
-
-      setViewport({ x, y, zoom: 1.2 }, { duration: 300 });
-    }
-  }
-
   /** Focuses on a specific address node, setting it to EXPANDED and everything else to MINIMIZED.
    * Also pans the graph to the node.
    * @param address the address to focus on
@@ -185,102 +277,136 @@ const GraphProvided: FC = () => {
     setNodes(newNodes);
   }
 
-  function addAddressPaths(paths: string[][], incoming: boolean) {
+  function isAddressFocused(address: string): boolean {
+    const node = nodesRecord[address];
+    if (node) {
+      return node.data.state === AddressNodeState.EXPANDED;
+    }
+    return false;
+  }
+
+  function setEdgeState(edgeID: string, state: TransfershipEdgeStates) {
+    const edge = edgesRecord[edgeID];
+    if (edge) {
+      const newEdge: Edge = {
+        ...edge,
+        data: { ...edge.data, state },
+      };
+      setEdges((edges) => {
+        const newEdges = edges.filter((edge) => edge.id !== edgeID);
+        newEdges.push(newEdge);
+        return newEdges;
+      });
+    }
+  }
+
+  function addAddressPaths(
+    paths: string[][],
+    incoming: boolean,
+    volume: number,
+  ) {
     // 1 - Calculate result of adding path to the graph
     const {
       nodes: newNodes,
       edges: newEdges,
       finalNode,
-    } = calculateNewAddressPath(nodes, edges, paths, incoming);
+    } = calculateNewAddressPath(nodes, edges, paths, incoming, volume);
 
     // 2 - Calculate result of focusing on a node
-    const focusedNodes = calculatedNewFocusedAddress(newNodes, finalNode.id);
+    // const focusedNodes = calculatedNewFocusedAddress(newNodes, finalNode.id);
 
     // 3 - Set the new nodes and edges
-    setNodes(focusedNodes);
+    setNodes(newNodes);
     setEdges(newEdges);
   }
 
-  /**
+  function addEdges(newEdges: Edge[]) {
+    const newStateEdges = calculateAddTransfershipEdges(edges, newEdges);
+    setEdges(newStateEdges);
+  }
+
+  /* One address can be focused at a time. This is tracked using a useState.
+   * When an address is focused, it shows up on the AnalysisWindow overlaid
+   * on top of the graph.
    */
+  //
+  const [focusedAddressData, setFocusedAddressData] =
+    useState<AddressAnalysis | null>(null);
 
-  // State to store stack of previous states for undo
-  interface FlowState {
-    nodes: Node[];
-    edges: Edge[];
-  }
-
-  // Whenever the number of nodes changes, add the new state to the stack
-  const [flowStates, setFlowStates] = useState<FlowState[]>([]);
-  useEffect(() => {
-    setFlowStates([...flowStates, { nodes: nodes, edges: edges }]);
-  }, [nodes.length, edges.length]);
-
-  function undoState() {
-    if (flowStates.length > 1) {
-      const previousState = flowStates[flowStates.length - 2];
-      setNodes(previousState.nodes);
-      setEdges(previousState.edges);
-      setFlowStates(flowStates.slice(0, flowStates.length - 2));
-      return;
-    }
-  }
+  const [hoveredTransferData, setHoveredTransferData] =
+    useState<TransactionTooltipProps | null>(null);
 
   // Set up the context
-  const graphContext = {
+  const graphContext: GraphContextProps = {
     addAddressPaths,
     focusOnAddress,
+    addEdges,
+    isAddressFocused,
+    setEdgeState,
+    getEdgeVolumeScale,
+    getEdgeHandleID,
+    setFocusedAddressData,
+    setHoveredTransferData,
+    focusedAddressData,
   };
 
   return (
-    <div
-      style={{ height: "100%" }}
-      onKeyDown={(event) => {
-        if (event.key === "Delete" || event.key === "Backspace") {
-          // Delete all selected nodes
-          deleteSelectedNodes();
-        }
-        if (event.key === "Escape") {
-          // Onfocus all nodes
-          setNodes((nodes) =>
-            nodes.map((node) => ({
-              ...node,
-              data: { ...node.data, state: AddressNodeState.MINIMIZED },
-            })),
-          );
-        }
-        if (event.key === "z") {
-          // Undo
-          undoState();
-        }
-      }}
-    >
-      <GraphContext.Provider value={graphContext}>
-        <ReactFlow
-          nodes={nodes}
-          onNodesChange={onNodesChange}
-          edges={edges}
-          onEdgesChange={onEdgesChange}
-          fitView
-          nodeTypes={nodeTypes}
-          edgeTypes={edgeTypes}
-          panOnScroll
-          selectionOnDrag
-          panOnDrag={panOnDrag}
-          selectionMode={SelectionMode.Partial}
-          zoomOnDoubleClick={true}
-        >
-          <img
-            className="-z-10 m-auto w-full scale-150 pt-20 opacity-40"
-            aria-hidden="true"
-            src="https://tailwindui.com/img/beams-home@95.jpg"
+    <>
+      <div
+        style={{ height: "100%" }}
+        onKeyDown={(event) => {
+          if (event.key === "Delete" || event.key === "Backspace") {
+            // Delete all selected nodes
+            deleteSelectedNodes();
+          }
+          if (event.key === "Escape") {
+            setFocusedAddressData(null);
+          }
+        }}
+      >
+        <GraphContext.Provider value={graphContext}>
+          <DraggableWindow
+            analysisData={focusedAddressData}
+            setFocusedAddressData={setFocusedAddressData}
           />
-          <Background />
-          <Controls position="bottom-right" showInteractive={false} />
-          <MiniMap position="top-right" pannable zoomable />
-        </ReactFlow>
-      </GraphContext.Provider>
-    </div>
+          <ReactFlow
+            nodes={nodes}
+            onNodesChange={onNodesChange}
+            edges={edges}
+            onEdgesChange={onEdgesChange}
+            fitView
+            nodeTypes={nodeTypes}
+            edgeTypes={edgeTypes}
+            panOnScroll
+            selectionOnDrag
+            panOnDrag={panOnDrag}
+            selectionMode={SelectionMode.Partial}
+            zoomOnDoubleClick={true}
+          >
+            <img
+              className="-z-10 m-auto w-full scale-150 opacity-40"
+              aria-hidden="true"
+              src="https://tailwindui.com/img/beams-home@95.jpg"
+            />
+
+            <Background />
+            <Panel position="top-left">
+              <Legend />
+            </Panel>
+            <Panel position="top-right">
+              {hoveredTransferData && (
+                <TransactionTooltip
+                  source={hoveredTransferData.source}
+                  target={hoveredTransferData.target}
+                  volume={hoveredTransferData.volume ?? 0}
+                />
+              )}
+            </Panel>
+            <Controls position="bottom-right" showInteractive={false} />
+          </ReactFlow>
+        </GraphContext.Provider>
+      </div>
+    </>
   );
 };
 
