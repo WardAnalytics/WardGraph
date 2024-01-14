@@ -2,6 +2,8 @@ import { FC } from "react";
 import { Transition } from "@headlessui/react";
 import { SparklesIcon } from "@heroicons/react/20/solid";
 
+import Searchbar from "./SearchBar";
+
 interface LandingPageProps {
   setSearchedAddress: (address: string) => void;
 }
