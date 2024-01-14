@@ -1,12 +1,8 @@
-import { Node, Edge, XYPosition } from "reactflow";
+import { Edge, Node, XYPosition } from "reactflow";
 import {
-  createAddressNode,
   AddressNodeState,
+  createAddressNode,
 } from "./custom_elements/nodes/AddressNode";
-import {
-  createTransfershipEdge,
-  TransfershipEdge,
-} from "./custom_elements/edges/TransfershipEdge";
 
 // How much distance there should be between two nodes when calculating new address nodes positions
 const INTERSECTING_NODE_X_OFFSET = 300;
@@ -36,13 +32,13 @@ function convertNodeListToRecord(nodes: Node[]): Record<string, Node> {
  * @param edges the list of edges to convert
  * @returns a dictionary of edges with the id as the key
  */
-function convertEdgeListToRecord(edges: Edge[]): Record<string, Edge> {
+/* function convertEdgeListToRecord(edges: Edge[]): Record<string, Edge> {
   const dict: Record<string, Edge> = {};
   edges.forEach((edge) => {
     dict[edge.id] = edge;
   });
   return dict;
-}
+} */
 
 /** Checks if nodes are within a certain distance of each other
  * @param x the x position of the node
@@ -92,7 +88,7 @@ function addAddressAux(
   nodes.push(node);
 }
 
-function addEdgeAux(
+/* function addEdgeAux(
   edgesRecord: Record<string, Edge>,
   edges: Edge[],
   edge: Edge,
@@ -107,7 +103,7 @@ function addEdgeAux(
   // Else, we add the edge to the record and list
   edgesRecord[edge.id] = edge;
   edges.push(edge);
-}
+} */
 
 interface CalculateNewAddressPathsReturnType {
   nodes: Node[];
@@ -138,7 +134,7 @@ export function calculateNewAddressPath(
   // Convert nodes and edges to a record of nodes and make a copy
   const nodesRecord = convertNodeListToRecord(nodes);
   const nodesList = [...nodes];
-  const edgesRecord = convertEdgeListToRecord(edges);
+  //const edgesRecord = convertEdgeListToRecord(edges);
   const edgesList = [...edges];
 
   // Get the origin address' node positions to set a cursor to that position

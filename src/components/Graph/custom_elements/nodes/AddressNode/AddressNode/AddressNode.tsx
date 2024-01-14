@@ -1,15 +1,16 @@
-import clsx from "clsx";
-import { Position, Handle } from "reactflow";
 import { Transition } from "@headlessui/react";
+import clsx from "clsx";
+import { Handle, Position } from "reactflow";
 
 import { useAnalysisAddressData } from "../../../../../../api/compliance/compliance";
 import { AddressAnalysis } from "../../../../../../api/model";
 
 import { GraphContext } from "../../../../Graph";
 
+import { FC, createContext, useContext, useEffect, useState } from "react";
 import AddressNodeStates from "../states";
-import Header from "./Header";
 import Content from "./Content";
+import Header from "./Header";
 
 /** Context data for the AddressNode */
 

@@ -15,7 +15,7 @@ const TransfershipEdge: FC<EdgeProps> = ({
   sourcePosition,
   targetPosition,
   style = {},
-  data,
+  //data,
   markerEnd,
 }: EdgeProps) => {
   const [edgePath, labelX, labelY] = getBezierPath({
@@ -27,7 +27,7 @@ const TransfershipEdge: FC<EdgeProps> = ({
     targetPosition,
   });
 
-  const volume: number = data?.volume ?? 0;
+  //const volume: number = data?.volume ?? 0;
 
   // Calculate the angle of the edge (in degrees)
   const angle = Math.round(

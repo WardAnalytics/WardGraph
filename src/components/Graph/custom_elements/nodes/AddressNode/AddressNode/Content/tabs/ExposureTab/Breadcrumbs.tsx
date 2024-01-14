@@ -1,6 +1,6 @@
-import { FC } from "react";
+import { ChevronRightIcon } from "@heroicons/react/24/outline";
 import clsx from "clsx";
-import { ChevronRightIcon, ChevronLeftIcon } from "@heroicons/react/24/outline";
+import { FC } from "react";
 
 /** This interface is a page to display in the breadcrumbs.
  * It can then be clicked to navigate to that page.

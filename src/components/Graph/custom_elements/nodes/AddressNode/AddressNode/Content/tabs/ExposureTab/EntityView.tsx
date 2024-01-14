@@ -1,6 +1,6 @@
-import { FC, useContext, useState, useMemo } from "react";
 import { Transition } from "@headlessui/react";
 import { HashtagIcon } from "@heroicons/react/20/solid";
+import { FC, useContext, useMemo, useState } from "react";
 
 import { ShareIcon } from "@heroicons/react/24/solid";
 
@@ -9,8 +9,8 @@ import formatNumber from "../../../../../../../../../utils/formatNumber";
 import Delayed from "../../../../../../../../common/Delayed";
 
 import BigButton from "../../../../../../../../common/BigButton";
-import { AnalysisContext } from "../../../AddressNode";
 import { GraphContext } from "../../../../../../../Graph";
+import { AnalysisContext } from "../../../AddressNode";
 import { ExposureTabContext } from "./ExposureTabGeneric";
 
 import Pagination from "../../../../../../../../common/Pagination";

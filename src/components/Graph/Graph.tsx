@@ -1,26 +1,21 @@
-import { createContext, useEffect, useCallback, useState, FC } from "react";
-import Dagre from "@dagrejs/dagre";
+import { createContext, FC, useEffect, useState } from "react";
 import ReactFlow, {
-  addEdge,
-  Node,
-  Edge,
-  useNodesState,
-  useEdgesState,
-  MiniMap,
-  Controls,
   Background,
+  Controls,
+  Edge,
+  MiniMap,
+  Node,
   ReactFlowProvider,
   SelectionMode,
-  ReactFlowInstance,
-  useReactFlow,
-  useOnSelectionChange,
+  useEdgesState,
+  useNodesState,
+  useOnSelectionChange
 } from "reactflow";
-import getLayoutedElements from "./layout";
 
 import {
-  createAddressNode,
-  AddressNodeState,
   AddressNode,
+  AddressNodeState,
+  createAddressNode,
 } from "./custom_elements/nodes/AddressNode";
 
 import {
@@ -29,8 +24,8 @@ import {
 } from "./custom_elements/edges/TransfershipEdge";
 
 import {
-  calculateNewAddressPath,
   calculatedNewFocusedAddress,
+  calculateNewAddressPath,
 } from "./graph_calculations";
 
 import "reactflow/dist/style.css";
@@ -43,7 +38,7 @@ const nodeTypes = { AddressNode: AddressNode };
 const edgeTypes = { TransfershipEdge: TransfershipEdge };
 
 /* Automatic Layout Setup */
-const g = new Dagre.graphlib.Graph().setDefaultEdgeLabel(() => ({}));
+//const g = new Dagre.graphlib.Graph().setDefaultEdgeLabel(() => ({}));
 
 /* Context for variable handling */
 interface GraphContextProps {
@@ -94,35 +89,35 @@ const GraphProvided: FC = () => {
   const [edges, setEdges, onEdgesChange] = useEdgesState([initialTestEdge]);
   const [selectedNodes, setSelectedNodes] = useState<string[]>([]);
 
-  const { setViewport } = useReactFlow();
+  //const { setViewport } = useReactFlow();
 
   /* Callback to automatically layout the full graph */
-  const onLayout = useCallback(() => {
+  /* const onLayout = useCallback(() => {
     const layouted = getLayoutedElements(g, nodes, edges);
 
     setNodes([...layouted.nodes]);
     setEdges([...layouted.edges]);
-  }, [nodes, edges]);
+  }, [nodes, edges]); */
 
   // Node & Edge Manipulation Functions ---
 
   /** Adds a node to the graph. If the node already exists, it is not added.
    * @param newNode the node to add
    */
-  function addNewNode(newNode: Node) {
+  /* function addNewNode(newNode: Node) {
     // If node with same id already exists, don't add it
     if (nodes.find((node) => node.id === newNode.id)) {
       return;
     }
     setNodes((nodes) => [...nodes, newNode]);
-  }
+  } */
 
   /** Adds an edge to the graph. If the edge already exists, it is not added.
    * @param newEdge the edge to add
    */
-  function addNewEdge(newEdge: Edge) {
+  /* function addNewEdge(newEdge: Edge) {
     setEdges((oldEdges) => addEdge(newEdge, oldEdges));
-  }
+  } */
 
   /** Deletes multiple nodes and all edges connected to them
    * @param ids the ids of the nodes to delete
@@ -152,7 +147,7 @@ const GraphProvided: FC = () => {
    * @param x the x position of the node
    * @param y the y position of the node
    */
-  function addIndividualAddress(
+  /* function addIndividualAddress(
     address: string,
     state: AddressNodeState,
     x: number,
@@ -160,12 +155,12 @@ const GraphProvided: FC = () => {
   ) {
     const newNode: Node = createAddressNode(address, state, x, y);
     addNewNode(newNode);
-  }
+  } */
 
   /** Pans to a specific address node.
    * @param address the address to pan to
    */
-  function panToAddress(address: string) {
+  /* function panToAddress(address: string) {
     const node = nodes.find((node) => node.id === address);
     if (node) {
       const x = -node.position.x + window.innerWidth / 3;
@@ -173,7 +168,7 @@ const GraphProvided: FC = () => {
 
       setViewport({ x, y, zoom: 1.2 }, { duration: 300 });
     }
-  }
+  } */
 
   /** Focuses on a specific address node, setting it to EXPANDED and everything else to MINIMIZED.
    * Also pans the graph to the node.
