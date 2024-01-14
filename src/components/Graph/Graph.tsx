@@ -28,7 +28,6 @@ import {
 } from "./custom_elements/nodes/AddressNode";
 
 import {
-  createTransfershipEdge,
   TransfershipEdge,
   TransfershipEdgeStates,
 } from "./custom_elements/edges/TransfershipEdge";
@@ -48,6 +47,7 @@ import { AddressAnalysis } from "../../api/model";
 import TransactionTooltip, {
   TransactionTooltipProps,
 } from "./TransactionTooltip";
+import { Transition } from "@headlessui/react";
 
 /* Pan on drag settings */
 const panOnDrag = [1, 2];
@@ -229,17 +229,6 @@ const GraphProvided: FC<GraphProvidedProps> = ({ initialNodes }) => {
 
   // Node & Edge Manipulation Functions ---
 
-  /** Adds a node to the graph. If the node already exists, it is not added.
-   * @param newNode the node to add
-   */
-  function addNewNode(newNode: Node) {
-    // If node with same id already exists, don't add it
-    if (nodes.find((node) => node.id === newNode.id)) {
-      return;
-    }
-    setNodes((nodes) => [...nodes, newNode]);
-  }
-
   /** Deletes multiple nodes and all edges connected to them
    * @param ids the ids of the nodes to delete
    */
@@ -295,17 +284,14 @@ const GraphProvided: FC<GraphProvidedProps> = ({ initialNodes }) => {
     }
   }
 
-  function addAddressPaths(
-    paths: string[][],
-    incoming: boolean,
-    volume: number,
-  ) {
+  function addAddressPaths(paths: string[][], incoming: boolean) {
     // 1 - Calculate result of adding path to the graph
-    const {
-      nodes: newNodes,
-      edges: newEdges,
-      finalNode,
-    } = calculateNewAddressPath(nodes, edges, paths, incoming, volume);
+    const { nodes: newNodes, edges: newEdges } = calculateNewAddressPath(
+      nodes,
+      edges,
+      paths,
+      incoming,
+    );
 
     // 2 - Calculate result of focusing on a node
     // const focusedNodes = calculatedNewFocusedAddress(newNodes, finalNode.id);
@@ -409,13 +395,29 @@ const Graph: FC = () => {
   const [searchedAddress, setSearchedAddress] = useState<string | null>(null);
 
   return (
-    <>
-      {searchedAddress ? (
-        <GraphProvider initialAddresses={[searchedAddress]} />
-      ) : (
+    <div className="overflow-hidden">
+      <Transition
+        show={searchedAddress === null}
+        appear={true}
+        leave="transition-all duration-500"
+        leaveFrom="opacity-100 scale-100"
+        leaveTo="opacity-0 scale-50"
+        className="fixed flex h-full w-full flex-col items-center justify-center"
+      >
         <LandingPage setSearchedAddress={setSearchedAddress} />
-      )}
-    </>
+      </Transition>
+      <Transition
+        show={searchedAddress !== null}
+        appear={true}
+        enter="transition-all duration-500 delay-500"
+        enterFrom="opacity-0 scale-150"
+        enterTo="opacity-100 scale-100"
+      >
+        {searchedAddress && (
+          <GraphProvider initialAddresses={[searchedAddress]} />
+        )}
+      </Transition>
+    </div>
   );
 };
 

@@ -1,5 +1,5 @@
-import { Edge, MarkerType } from "reactflow";
-import TransfershipEdgeStates from "./states";
+import { Edge } from "reactflow";
+import TransfershipEdgeStates from "../TransfershipEdge/states";
 
 export default function createTransfershipEdge(
   source: string,

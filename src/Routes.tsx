@@ -1,5 +1,5 @@
 import { FC, lazy } from "react";
-import { Navigate, RouteObject, useRoutes } from "react-router-dom";
+import { RouteObject, useRoutes } from "react-router-dom";
 
 const GraphTemplate = lazy(() => import("./templates/GraphTemplate"));
 
