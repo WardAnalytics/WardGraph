@@ -1,10 +1,10 @@
 import { Transition } from "@headlessui/react";
 import { FC, useContext } from "react";
 
-import BlockExplorerAddressIcon from "./components/BlockExplorerAddressIcon";
-import CopyToClipboardIcon from "./components/CopyToClipboardIcon";
-import LabelList from "./components/LabelList";
-import RiskIndicator from "./components/RiskIndicator";
+import BlockExplorerAddressIcon from "../../../../../AnalysisWindow/Header/components/BlockExplorerAddressIcon";
+import CopyToClipboardIcon from "../../../../../AnalysisWindow/Header/components/CopyToClipboardIcon";
+import LabelList from "../../../../../AnalysisWindow/Header/components/LabelList";
+import RiskIndicator from "../../../../../AnalysisWindow/Header/components/RiskIndicator";
 
 import AddressNodeStates from "../../states";
 import { AnalysisContext } from "../AddressNode";
