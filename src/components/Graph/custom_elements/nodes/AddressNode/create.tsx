@@ -1,5 +1,5 @@
-import { Node } from "reactflow";
 import AddressNodeState from "./states";
+import { Node } from "reactflow";
 
 export default function createAddressNode(
   address: string,
