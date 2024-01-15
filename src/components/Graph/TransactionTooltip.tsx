@@ -31,7 +31,7 @@ const TransactionTooltip: FC<TransactionTooltipProps> = ({
       </div>
 
       <h1 className="flex w-full flex-row justify-center gap-x-1 pt-1 text-center text-xs font-medium text-gray-400">
-        Click edge to <h1 className="font-bold text-gray-500">toggle</h1>
+        Click edge to <a className="font-bold text-gray-500">toggle</a>
         <EyeSlashIcon className="mt-0.5 inline-block h-4 w-4 text-gray-500" />
       </h1>
     </div>

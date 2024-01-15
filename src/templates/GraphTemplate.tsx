@@ -3,7 +3,7 @@ import Graph from "../components/Graph";
 
 const GraphTemplate: FC = () => {
   return (
-    <div className="flex h-screen flex-col">
+    <div className="h-screen w-screen">
       <Graph />
     </div>
   );
