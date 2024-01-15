@@ -1,24 +1,71 @@
-import { FC } from "react";
-import { ChevronDoubleRightIcon } from "@heroicons/react/16/solid";
-import {
-  BaseEdge,
-  EdgeLabelRenderer,
-  EdgeProps,
-  getBezierPath,
-} from "reactflow";
+import { FC, useContext } from "react";
+import { EdgeProps, getBezierPath } from "reactflow";
+
+import CustomEdgePath from "../TransfershipEdge/CustomEdgePath";
+import TransfershipEdgeStates from "../TransfershipEdge/states";
+import { GraphContext } from "../../../Graph";
 
 const TransfershipEdge: FC<EdgeProps> = ({
+  id,
+  source,
   sourceX,
   sourceY,
+  sourcePosition,
   targetX,
   targetY,
-  sourcePosition,
   targetPosition,
-  style = {},
-  //data,
-  markerEnd,
+  target,
+  data,
 }: EdgeProps) => {
-  const [edgePath, labelX, labelY] = getBezierPath({
+  // Whether the edge is hidden or revealded ------------------------------
+
+  const {
+    setEdgeState,
+    getEdgeVolumeScale,
+    getEdgeHandleID,
+    setHoveredTransferData,
+    focusedAddressData,
+  } = useContext(GraphContext);
+  const isHidden: boolean = data?.state === TransfershipEdgeStates.HIDDEN;
+
+  // If hidden, check whether the source or target node is focused. If none are focused, don't render the edge at all
+  if (
+    isHidden &&
+    focusedAddressData?.address !== source &&
+    focusedAddressData?.address !== target
+  ) {
+    return null;
+  }
+
+  // Pick a color and icon - Either it's infrared and can be revealed or it's gray and should be hidden
+  const volume: number = data?.volume ?? 0;
+
+  // Width starts at 1 and goes up to 9 based on the volume transfered
+  const volumeScale: number = getEdgeVolumeScale(volume);
+  let width: number = Math.min(0.5 + volumeScale * 6, 6.5);
+  let opacity: number = 0.65 + volumeScale * 0.35;
+  let isClickable: boolean = true;
+
+  // If an address is focused and this edge is not connected to it, make it more transparent
+  if (focusedAddressData !== null) {
+    if (
+      source !== focusedAddressData.address &&
+      target !== focusedAddressData.address
+    ) {
+      opacity = 0.1;
+      isClickable = false;
+    } else {
+      opacity = 1;
+      width = Math.max(width, 1.5) * 1.25;
+    }
+  }
+
+  const hoveredStyle = {
+    stroke: isHidden ? "#60a5fa" : "#9ca3af",
+    transition: "stroke 0.5s, opacity 0.2s ease-out",
+  };
+
+  const [edgePath] = getBezierPath({
     sourceX,
     sourceY,
     sourcePosition,
@@ -27,37 +74,34 @@ const TransfershipEdge: FC<EdgeProps> = ({
     targetPosition,
   });
 
-  //const volume: number = data?.volume ?? 0;
-
-  // Calculate the angle of the edge (in degrees)
-  const angle = Math.round(
-    Math.atan2(targetY - sourceY, targetX - sourceX) * (180 / Math.PI),
-  );
-
   return (
     <>
-      <BaseEdge path={edgePath} markerEnd={markerEnd} style={style} />
-      <EdgeLabelRenderer>
-        <div
-          style={{
-            position: "absolute",
-            transform: `translate(-50%, -50%) translate(${labelX}px,${labelY}px)`,
-            fontSize: 12,
-            // everything inside EdgeLabelRenderer has no pointer events by default
-            // if you have an interactive element, set pointer-events: all
-            pointerEvents: "all",
-          }}
-          className="nodrag nopan"
-        >
-          <div className="relative inline-flex items-center gap-x-1.5 rounded-full bg-white px-1 py-1 text-sm font-semibold text-gray-900 shadow-md ring-1 ring-inset ring-gray-300 transition-all duration-100 hover:bg-gray-50 focus:z-10">
-            <ChevronDoubleRightIcon
-              className="h-3 w-3 transform-gpu rounded-full text-gray-400"
-              style={{ transform: `rotate(${angle}deg)` }}
-              aria-hidden="true"
-            />
-          </div>
-        </div>
-      </EdgeLabelRenderer>
+      <CustomEdgePath
+        id={id}
+        edgeHandleID={getEdgeHandleID(id)}
+        path={edgePath}
+        strokeWidth={width}
+        opacity={opacity}
+        hoveredStyle={hoveredStyle}
+        isHidden={isHidden}
+        isClickable={isClickable}
+        onClick={() => {
+          setEdgeState(
+            id,
+            isHidden
+              ? TransfershipEdgeStates.REVEALED
+              : TransfershipEdgeStates.HIDDEN,
+          );
+        }}
+        onMouseEnter={() => {
+          setHoveredTransferData({
+            source,
+            target,
+            volume,
+          });
+        }}
+        onMouseLeave={() => setHoveredTransferData(null)}
+      />
     </>
   );
 };

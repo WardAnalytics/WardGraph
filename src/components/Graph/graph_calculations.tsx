@@ -3,6 +3,10 @@ import {
   AddressNodeState,
   createAddressNode,
 } from "./custom_elements/nodes/AddressNode";
+import {
+  createTransfershipEdge,
+  TransfershipEdgeStates,
+} from "./custom_elements/edges/TransfershipEdge";
 
 // How much distance there should be between two nodes when calculating new address nodes positions
 const INTERSECTING_NODE_X_OFFSET = 300;
@@ -19,7 +23,7 @@ const INTERSECTING_NODE_Y_OFFSET = 130;
  * @param nodes the list of nodes to convert
  * @returns a dictionary of nodes with the id as the key
  */
-function convertNodeListToRecord(nodes: Node[]): Record<string, Node> {
+export function convertNodeListToRecord(nodes: Node[]): Record<string, Node> {
   const dict: Record<string, Node> = {};
   nodes.forEach((node) => {
     dict[node.id] = node;
@@ -32,13 +36,13 @@ function convertNodeListToRecord(nodes: Node[]): Record<string, Node> {
  * @param edges the list of edges to convert
  * @returns a dictionary of edges with the id as the key
  */
-/* function convertEdgeListToRecord(edges: Edge[]): Record<string, Edge> {
+export function convertEdgeListToRecord(edges: Edge[]): Record<string, Edge> {
   const dict: Record<string, Edge> = {};
   edges.forEach((edge) => {
     dict[edge.id] = edge;
   });
   return dict;
-} */
+}
 
 /** Checks if nodes are within a certain distance of each other
  * @param x the x position of the node
@@ -88,7 +92,16 @@ function addAddressAux(
   nodes.push(node);
 }
 
-/* function addEdgeAux(
+/** Adds an edge to the list of edges.
+ * If the edge already exists, it updates the volume to the higher of the two.
+ * This is done because when adding a path, the edges of the address haven't been
+ * revealed yet. As such, we add the edges of the path with a base volume of 0
+ * when we find the real value we update it for real.
+ * @param edgesRecord a record of all edges
+ * @param edges a list of all edges
+ * @param edge the edge to add
+ */
+function addEdgeAux(
   edgesRecord: Record<string, Edge>,
   edges: Edge[],
   edge: Edge,
@@ -97,13 +110,41 @@ function addAddressAux(
   const oldEdge = edgesRecord[edge.id];
   if (oldEdge) {
     oldEdge.data.volume = Math.max(oldEdge.data.volume, edge.data.volume);
+
+    // If edge is revealed, we update the state
+    if (edge.data.state !== TransfershipEdgeStates.HIDDEN) {
+      oldEdge.data.state = edge.data.state;
+    }
+
     return;
   }
 
   // Else, we add the edge to the record and list
   edgesRecord[edge.id] = edge;
   edges.push(edge);
-} */
+}
+
+/** Computes edges being added in bulk.
+ * @param edges The edges of the graph
+ * @param newEdges The new edges to add
+ * @returns The new list of edges
+ */
+
+export function calculateAddTransfershipEdges(
+  edges: Edge[],
+  newEdges: Edge[],
+): Edge[] {
+  // Compute edgeList and edgeRecord to not override old edge list and reduce duplicate checking time
+  const edgesRecord = convertEdgeListToRecord(edges);
+  const edgesList = [...edges];
+
+  // Add all edges
+  newEdges.forEach((edge) => {
+    addEdgeAux(edgesRecord, edgesList, edge);
+  });
+
+  return edgesList;
+}
 
 interface CalculateNewAddressPathsReturnType {
   nodes: Node[];
@@ -111,14 +152,23 @@ interface CalculateNewAddressPathsReturnType {
   finalNode: Node;
 }
 
+/** Calculates the new address paths to add to the graph.
+ * @param nodes The list of nodes of the graph
+ * @param edges The list of edges of the graph
+ * @param addresses The list of addresses to add
+ * @param incoming Whether the addresses are incoming or outgoing
+ * @param volume The volume of the path
+ * @returns The new list of nodes and edges
+ */
 export function calculateNewAddressPath(
   nodes: Node[],
   edges: Edge[],
   addresses: string[][],
   incoming: boolean,
 ): CalculateNewAddressPathsReturnType {
-  // Addresses are currently a list of parallel paths. We need to convert them to a list of path positions, each having a list of addresses at that position
-  // We also need to make sure there are no duplicate addresses per path
+  /* Addresses are currently a list of parallel paths. We need to convert them to a list of 
+  path positions, each having a list of addresses at that position. We also need to make 
+  sure there are no duplicate addresses per path */
   const pathPositions: Record<number, string[]> = {};
   addresses.forEach((path) => {
     path.forEach((address, index) => {
@@ -134,8 +184,27 @@ export function calculateNewAddressPath(
   // Convert nodes and edges to a record of nodes and make a copy
   const nodesRecord = convertNodeListToRecord(nodes);
   const nodesList = [...nodes];
-  //const edgesRecord = convertEdgeListToRecord(edges);
+  const edgesRecord = convertEdgeListToRecord(edges);
   const edgesList = [...edges];
+
+  /* Compute all edges between addresses and add them to the graph. We'll iterate
+  over each path and add edges going from one address to another with a volume of -1
+  as we can't quite know the quantity of each edge due to API limitations. When the 
+  addresses finish loading, the value gets updated to the correct one so it's fine. */
+  for (const path in addresses) {
+    const pathAddresses = addresses[path];
+    for (let i = 0; i < pathAddresses.length - 1; i++) {
+      const fromAddress = incoming ? pathAddresses[i + 1] : pathAddresses[i];
+      const toAddress = incoming ? pathAddresses[i] : pathAddresses[i + 1];
+      const edge: Edge = createTransfershipEdge(
+        fromAddress,
+        toAddress,
+        TransfershipEdgeStates.REVEALED,
+        -1,
+      );
+      addEdgeAux(edgesRecord, edgesList, edge);
+    }
+  }
 
   // Get the origin address' node positions to set a cursor to that position
   const originAddress = addresses[0][0];
@@ -174,7 +243,7 @@ export function calculateNewAddressPath(
       cursor.y -= INTERSECTING_NODE_Y_OFFSET * 1.25;
     }
 
-    // For each address, we'll be adding a node
+    // For each address, we'll be adding a node and an edge
     let nodesInStack: number = 0;
     addresses.forEach((address) => {
       const node = createAddressNode(
@@ -183,8 +252,6 @@ export function calculateNewAddressPath(
         cursor.x,
         cursor.y - nodesInStack * INTERSECTING_NODE_Y_OFFSET,
       );
-
-      console.log("Adding ");
 
       if (!nodesRecord[node.id]) nodesInStack++;
 

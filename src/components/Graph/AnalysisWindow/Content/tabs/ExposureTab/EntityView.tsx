@@ -1,19 +1,18 @@
 import { Transition } from "@headlessui/react";
 import { HashtagIcon } from "@heroicons/react/20/solid";
-import { FC, useContext, useMemo, useState } from "react";
-
 import { ShareIcon } from "@heroicons/react/24/solid";
 
-import { Address } from "../../../../../../../../../api/model";
-import formatNumber from "../../../../../../../../../utils/formatNumber";
-import Delayed from "../../../../../../../../common/Delayed";
+import { Address } from "../../../../../../api/model";
+import formatNumber from "../../../../../../utils/formatNumber";
+import Delayed from "../../../../../common/Delayed";
 
-import BigButton from "../../../../../../../../common/BigButton";
-import { GraphContext } from "../../../../../../../Graph";
-import { AnalysisContext } from "../../../AddressNode";
+import BigButton from "../../../../../common/BigButton";
+import { AnalysisContext } from "../../../AnalysisWindow";
+import { GraphContext } from "../../../../Graph";
 import { ExposureTabContext } from "./ExposureTabGeneric";
 
-import Pagination from "../../../../../../../../common/Pagination";
+import Pagination from "../../../../../common/Pagination";
+import { FC, useContext, useMemo, useState } from "react";
 
 // Address Row _________________________________________________________________
 
@@ -38,7 +37,7 @@ const AddressRow: FC<AddressRowProps> = ({ address }) => {
       ? address.paths
       : [[targetAddress, address.hash]];
 
-    addAddressPaths(paths, focusedEntity!.incoming);
+    addAddressPaths(paths, focusedEntity!.incoming, address.quantity);
   }
 
   return (
@@ -71,7 +70,7 @@ const EntityView: FC = () => {
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 6;
-  const currentTableData = useMemo(() => {
+  const currentTableData: Address[] = useMemo(() => {
     const firstPageIndex = (currentPage - 1) * pageSize;
     const lastPageIndex = firstPageIndex + pageSize;
     return addresses.slice(firstPageIndex, lastPageIndex);

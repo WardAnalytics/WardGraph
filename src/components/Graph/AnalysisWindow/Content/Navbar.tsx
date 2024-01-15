@@ -101,7 +101,7 @@ interface NavbarProps {
 
 const Navbar: FC<NavbarProps> = ({ tabs, selectedTab, setSelectedTab }) => {
   return (
-    <nav className="nodrag inline-block" aria-label="Tabs">
+    <nav className="inline-block" aria-label="Tabs">
       {tabs.map((tab, index) => (
         <TabButton
           key={tab.name}

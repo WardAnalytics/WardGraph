@@ -1,7 +1,8 @@
-import { FC, useState, useEffect, createContext } from "react";
+import { FC, useState, useEffect, createContext, useContext } from "react";
 import { Transition } from "@headlessui/react";
-import { Exposure } from "../../../../../../../../../api/model";
+import { Exposure } from "../../../../../../api/model";
 
+import { AnalysisContext } from "../../../AnalysisWindow";
 import FocusedEntity from "./FocusedEntity";
 
 import Breadcrumbs, { Page } from "./Breadcrumbs";
@@ -60,6 +61,7 @@ const ExposureTab: FC<ExposureTabProps> = ({
     null,
   ); // The entity that is focused
   const [pages, setPages] = useState<Page[]>([]); // The pages that are shown in the breadcrumbs
+  const { analysisData } = useContext(AnalysisContext)!;
 
   // Define context
   const contextValue = {
@@ -85,6 +87,11 @@ const ExposureTab: FC<ExposureTabProps> = ({
       { name: focusedEntity.entity.name },
     ]);
   }, [focusedEntity]);
+
+  // Use Effect: When analysisData changes, reset the focused entity to null
+  useEffect(() => {
+    setFocusedEntity(null);
+  }, [analysisData]);
 
   return (
     <ExposureTabContext.Provider value={contextValue}>
