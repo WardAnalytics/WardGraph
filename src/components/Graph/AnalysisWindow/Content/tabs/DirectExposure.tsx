@@ -1,4 +1,4 @@
-import { useContext, FC } from "react";
+import { FC, useContext } from "react";
 
 import ExposureTab from "./ExposureTab";
 

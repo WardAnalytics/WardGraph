@@ -1,30 +1,30 @@
 import {
   createContext,
-  useEffect,
-  useRef,
-  useCallback,
-  useState,
-  useMemo,
   FC,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState
 } from "react";
 import ReactFlow, {
-  Node,
-  Edge,
-  useNodesState,
-  useEdgesState,
-  Controls,
   Background,
+  Controls,
+  Edge,
+  Node,
+  Panel,
   ReactFlowProvider,
   SelectionMode,
-  useOnSelectionChange,
-  Panel,
+  useEdgesState,
+  useNodesState,
+  useOnSelectionChange
 } from "reactflow";
 import LandingPage from "./LandingPage/LandingPage";
 
 import {
-  createAddressNode,
-  AddressNodeState,
   AddressNode,
+  AddressNodeState,
+  createAddressNode,
 } from "./custom_elements/nodes/AddressNode";
 
 import {
@@ -33,21 +33,21 @@ import {
 } from "./custom_elements/edges/TransfershipEdge";
 
 import {
+  calculateAddTransfershipEdges,
+  calculatedNewFocusedAddress,
+  calculateNewAddressPath,
   convertEdgeListToRecord,
   convertNodeListToRecord,
-  calculateNewAddressPath,
-  calculatedNewFocusedAddress,
-  calculateAddTransfershipEdges,
 } from "./graph_calculations";
 
+import { Transition } from "@headlessui/react";
 import "reactflow/dist/style.css";
+import { AddressAnalysis } from "../../api/model";
 import DraggableWindow from "./AnalysisWindow/AnalysisWindow";
 import Legend from "./Legend";
-import { AddressAnalysis } from "../../api/model";
 import TransactionTooltip, {
   TransactionTooltipProps,
 } from "./TransactionTooltip";
-import { Transition } from "@headlessui/react";
 
 /* Pan on drag settings */
 const panOnDrag = [1, 2];

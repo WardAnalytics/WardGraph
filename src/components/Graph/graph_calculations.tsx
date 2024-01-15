@@ -1,7 +1,7 @@
-import { Node, Edge, XYPosition } from "reactflow";
+import { Edge, Node, XYPosition } from "reactflow";
 import {
-  createAddressNode,
   AddressNodeState,
+  createAddressNode,
 } from "./custom_elements/nodes/AddressNode";
 import {
   createTransfershipEdge,
