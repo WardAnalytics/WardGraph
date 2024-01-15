@@ -1,7 +1,7 @@
-import clsx from "clsx";
 import { FC } from "react";
 import { ColorMap, Colors } from "../../../../../utils/colors";
 import LoadingCircle from "../../../../common/LoadingCircle";
+import clsx from "clsx";
 
 interface RiskIndicatorProps {
   isLoading: boolean;

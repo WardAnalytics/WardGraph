@@ -27,7 +27,7 @@ The project uses the following technologies:
 ## Roadmap
 
 - New blockchains: Bitcoin, Tron, Polygon, XRP.
-- Improvements to the UI/UX
+- Improvements to the UIUX
 - Improvements to the expansion algorithm heuristic
 
 ## Dataset
