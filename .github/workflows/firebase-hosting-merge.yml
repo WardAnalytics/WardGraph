@@ -6,6 +6,19 @@ name: Deploy to Firebase Hosting on merge
   push:
     branches:
       - main
+
+env:
+  VITE_WARD_API_BASE_URL: https://wardanalyticsapi.com
+  VITE_WARD_API_KEY: ${{ secrets.WARD_API_KEY }}
+  VITE_FIREBASE_API_KEY: AIzaSyD1LUGU2RM-bhxKgeYdnzItbwBC0VSTOV0
+  VITE_FIREBASE_AUTH_DOMAIN: graphapp-bca04.firebaseapp.com
+  VITE_FIREBASE_PROJECT_ID: graphapp-bca04
+  VITE_FIREBASE_STORAGE_BUCKET: graphapp-bca04.appspot.com
+  VITE_FIREBASE_MESSAGING_SENDER_ID: "1030502540585"
+  VITE_FIREBASE_APP_ID: "1:1030502540585:web:cfe727695aad44d0494338"
+  # For Google Analytics
+  VITE_FIREBASE_MEASUREMENT_ID: G-RYB03B2Q13
+
 jobs:
   build_and_deploy:
     runs-on: ubuntu-latest
