@@ -12,42 +12,43 @@ import ReactFlow, {
   Edge,
   useNodesState,
   useEdgesState,
-  Controls,
   Background,
   ReactFlowProvider,
   SelectionMode,
   useOnSelectionChange,
   Panel,
+  useUpdateNodeInternals,
 } from "reactflow";
-import LandingPage from "./LandingPage/LandingPage";
+import "reactflow/dist/style.css";
+import { Transition } from "@headlessui/react";
+
+import { AddressAnalysis } from "../../api/model";
 
 import {
   createAddressNode,
   AddressNodeState,
   AddressNode,
 } from "./custom_elements/nodes/AddressNode";
-
 import {
   TransfershipEdge,
-  TransfershipEdgeStates
+  TransfershipEdgeStates,
 } from "./custom_elements/edges/TransfershipEdge";
 
 import {
   convertEdgeListToRecord,
+  calculateLayoutedElements,
   convertNodeListToRecord,
   calculateNewAddressPath,
-  calculatedNewFocusedAddress,
   calculateAddTransfershipEdges,
 } from "./graph_calculations";
 
-import "reactflow/dist/style.css";
 import DraggableWindow from "./AnalysisWindow/AnalysisWindow";
+import LandingPage from "./LandingPage/LandingPage";
+import Hotbar from "./Hotbar";
 import Legend from "./Legend";
-import { AddressAnalysis } from "../../api/model";
 import TransactionTooltip, {
   TransactionTooltipProps,
 } from "./TransactionTooltip";
-import { Transition } from "@headlessui/react";
 
 /* Pan on drag settings */
 const panOnDrag = [1, 2];
@@ -63,14 +64,14 @@ interface GraphContextProps {
     incoming: boolean,
     volume: number,
   ) => void;
-  focusOnAddress: (address: string) => void;
   addEdges: (newEdges: Edge[]) => void;
-  isAddressFocused: (address: string) => boolean;
   setEdgeState: (edgeID: string, state: TransfershipEdgeStates) => void;
   getEdgeVolumeScale: (volume: number) => number;
   getEdgeHandleID: (edgeID: string) => string;
   setFocusedAddressData: (data: AddressAnalysis | null) => void;
   setHoveredTransferData: (data: TransactionTooltipProps | null) => void;
+  copyLink: () => void;
+  doLayout: () => void;
   focusedAddressData: AddressAnalysis | null;
 }
 
@@ -82,9 +83,19 @@ export const GraphContext = createContext<GraphContextProps>(
    Reference: https://reactflow.dev/api-reference/react-flow-provider#notes */
 interface GraphProviderProps {
   initialAddresses: string[];
+  initialPaths: string[];
 }
 
-const GraphProvider: FC<GraphProviderProps> = ({ initialAddresses }) => {
+/** GraphProvider simply wraps the ReactFlowProvider and provides the initial nodes
+ * for the graph to start. This is required due to the way ReactFlow works.
+ * @param initialAddresses the addresses to start the graph with
+ * @returns
+ */
+
+const GraphProvider: FC<GraphProviderProps> = ({
+  initialAddresses,
+  initialPaths,
+}) => {
   // Grab all initial addresses and create nodes for them
   const initialNodes = useMemo(() => {
     const nodes: Node[] = [];
@@ -94,10 +105,36 @@ const GraphProvider: FC<GraphProviderProps> = ({ initialAddresses }) => {
     return nodes;
   }, [initialAddresses]);
 
+  const initialEdges = useMemo(() => {
+    const edges: Edge[] = [];
+    initialPaths.forEach((path) => {
+      const [source, target] = path.split("-");
+      if (source && target) {
+        edges.push({
+          id: `${source}-${target}`,
+          source: source,
+          target: target,
+          sourceHandle: "a",
+          targetHandle: "a",
+          type: "TransfershipEdge",
+          data: {
+            state: TransfershipEdgeStates.REVEALED,
+            volume: 0,
+          },
+        });
+      }
+    });
+    return edges;
+  }, [initialPaths]);
+
+  // We make sure to calculate the layouted nodes and edges before rendering
   return (
     <div style={{ height: "100%" }}>
       <ReactFlowProvider>
-        <GraphProvided initialNodes={initialNodes} />
+        <GraphProvided
+          initialNodes={calculateLayoutedElements(initialNodes, initialEdges)}
+          initialEdges={initialEdges}
+        />
       </ReactFlowProvider>
     </div>
   );
@@ -105,12 +142,29 @@ const GraphProvider: FC<GraphProviderProps> = ({ initialAddresses }) => {
 
 interface GraphProvidedProps {
   initialNodes: Node[];
+  initialEdges: Edge[];
 }
 
-const GraphProvided: FC<GraphProvidedProps> = ({ initialNodes }) => {
+/** GraphProvided is the main component that renders the graph and handles
+ * most logic. It is wrapped by GraphProvider for the ReactFlowProvider.
+ * @param initialNodes the initial nodes to start the graph with
+ */
+const GraphProvided: FC<GraphProvidedProps> = ({
+  initialNodes,
+  initialEdges,
+}) => {
+  const updateNodeInternals = useUpdateNodeInternals();
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
-  const [selectedNodes, setSelectedNodes] = useState<string[]>([]);
+  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+
+  // Go through each node and update node internals
+  useEffect(() => {
+    nodes.forEach((node) => {
+      updateNodeInternals(node.id);
+    });
+  }, [nodes]);
+
+  // Record Optimization -------------------------------------------------------
 
   /* For performance reasons, we store the edges and nodes
    * in a ref so lookups are O(1) instead of O(n) */
@@ -124,6 +178,8 @@ const GraphProvided: FC<GraphProvidedProps> = ({ initialNodes }) => {
       edgesRecord: convertEdgeListToRecord(edges),
     };
   }, [edges]);
+
+  // Dynamic Edge Handles ------------------------------------------------------
 
   /* We want the edge handles to change dynamically depending on the position
    * of their source and target. Whenever a node's position changes:
@@ -195,23 +251,33 @@ const GraphProvided: FC<GraphProvidedProps> = ({ initialNodes }) => {
     return "";
   }
 
+  // Dynamic Edge Weighting ---------------------------------------------------
+
   /* Edges each have a volume associated and we want to scale their width
-   * based on that. As such, we calculate the max and min volume of all visible
-   * edges and get a function to scale the volume of an edge between 0 and 1. */
-  const { minEdgeVolume, maxEdgeVolume } = useMemo(() => {
-    let newMinEdgeVolume = Infinity;
-    let newMaxEdgeVolume = -Infinity;
+   * based on that. As such, we grade them on a curve similar to university
+   * grading curves. */
+  const { meanVolume, volumeStandardDeviation } = useMemo(() => {
+    let totalVolume = 0;
+    let totalVariance = 0;
 
     edges.forEach((edge) => {
-      if (edge.data.state === TransfershipEdgeStates.REVEALED) {
-        newMinEdgeVolume = Math.min(newMinEdgeVolume, edge.data.volume);
-        newMaxEdgeVolume = Math.max(newMaxEdgeVolume, edge.data.volume);
+      if (
+        edge.data.state === TransfershipEdgeStates.REVEALED &&
+        (nodesRecord[edge.source] || nodesRecord[edge.target])
+      ) {
+        const volume: number = edge.data.volume;
+        totalVolume += volume;
+        totalVariance += Math.pow(volume, 2);
       }
     });
 
+    // Calculate the mean and standard deviation
+    const meanVolume = totalVolume / edges.length;
+    const volumeStandardDeviation = Math.sqrt(totalVariance / edges.length);
+
     return {
-      minEdgeVolume: newMinEdgeVolume,
-      maxEdgeVolume: newMaxEdgeVolume,
+      meanVolume: meanVolume || 1,
+      volumeStandardDeviation: volumeStandardDeviation || 1,
     };
   }, [edges]);
 
@@ -221,22 +287,17 @@ const GraphProvided: FC<GraphProvidedProps> = ({ initialNodes }) => {
    */
   const getEdgeVolumeScale = useCallback(
     (volume: number): number => {
-      const range = maxEdgeVolume - minEdgeVolume;
-      return range === 0 ? 0 : (volume - minEdgeVolume) / range;
+      return Math.min(
+        Math.max((volume - meanVolume) / volumeStandardDeviation, 0),
+        1,
+      );
     },
-    [maxEdgeVolume, minEdgeVolume],
+    [edges],
   );
 
-  // Node & Edge Manipulation Functions ---
+  // Mass Selection and deletion logic ----------------------------------------
 
-  /** Deletes multiple nodes and all edges connected to them
-   * @param ids the ids of the nodes to delete
-   */
-  function deleteNodes(ids: string[]) {
-    setNodes((nodes) => nodes.filter((node) => !ids.includes(node.id)));
-    setEdges((edges) => edges.filter((edge) => !ids.includes(edge.source)));
-    setEdges((edges) => edges.filter((edge) => !ids.includes(edge.target)));
-  }
+  const [selectedNodes, setSelectedNodes] = useState<string[]>([]);
 
   /** Updates selected nodes whenever a new selection is made */
   useOnSelectionChange({
@@ -245,29 +306,28 @@ const GraphProvided: FC<GraphProvidedProps> = ({ initialNodes }) => {
     },
   });
 
+  /** Deletes multiple nodes and all dangling edges connected to them
+   * @param ids the ids of the nodes to delete
+   */
+  function deleteNodes(ids: string[]) {
+    setNodes((nodes) => nodes.filter((node) => !ids.includes(node.id)));
+    setEdges((edges) =>
+      edges.filter(
+        (edge) =>
+          !ids.includes(edge.source) &&
+          !ids.includes(edge.target) &&
+          (nodesRecord[edge.source] || nodesRecord[edge.target]),
+      ),
+    );
+  }
+
   /** Deletes all selected nodes */
   function deleteSelectedNodes() {
     deleteNodes(selectedNodes);
     setSelectedNodes([]);
   }
 
-  /** Focuses on a specific address node, setting it to EXPANDED and everything else to MINIMIZED.
-   * Also pans the graph to the node.
-   * @param address the address to focus on
-   */
-  function focusOnAddress(address: string) {
-    // Calculate and set the new nodes
-    const newNodes = calculatedNewFocusedAddress(nodes, address);
-    setNodes(newNodes);
-  }
-
-  function isAddressFocused(address: string): boolean {
-    const node = nodesRecord[address];
-    if (node) {
-      return node.data.state === AddressNodeState.EXPANDED;
-    }
-    return false;
-  }
+  // Edge State Toggling ------------------------------------------------------
 
   function setEdgeState(edgeID: string, state: TransfershipEdgeStates) {
     const edge = edgesRecord[edgeID];
@@ -284,8 +344,10 @@ const GraphProvided: FC<GraphProvidedProps> = ({ initialNodes }) => {
     }
   }
 
+  // Path Expansion -----------------------------------------------------------
+
   function addAddressPaths(paths: string[][], incoming: boolean) {
-    // 1 - Calculate result of adding path to the graph
+    // Calculate result of adding path to the graph
     const { nodes: newNodes, edges: newEdges } = calculateNewAddressPath(
       nodes,
       edges,
@@ -293,10 +355,7 @@ const GraphProvided: FC<GraphProvidedProps> = ({ initialNodes }) => {
       incoming,
     );
 
-    // 2 - Calculate result of focusing on a node
-    // const focusedNodes = calculatedNewFocusedAddress(newNodes, finalNode.id);
-
-    // 3 - Set the new nodes and edges
+    // Set the new nodes and edges
     setNodes(newNodes);
     setEdges(newEdges);
   }
@@ -306,46 +365,102 @@ const GraphProvided: FC<GraphProvidedProps> = ({ initialNodes }) => {
     setEdges(newStateEdges);
   }
 
+  // Address Focusing ---------------------------------------------------------
+
   /* One address can be focused at a time. This is tracked using a useState.
    * When an address is focused, it shows up on the AnalysisWindow overlaid
-   * on top of the graph.
-   */
-  //
+   * on top of the graph. */
   const [focusedAddressData, setFocusedAddressData] =
     useState<AddressAnalysis | null>(null);
+
+  // Edge Hovering ------------------------------------------------------------
 
   const [hoveredTransferData, setHoveredTransferData] =
     useState<TransactionTooltipProps | null>(null);
 
+  // Automatic Layout ---------------------------------------------------------
+
+  function filterLayoutElements(): {
+    filteredNodes: Node[];
+    filteredEdges: Edge[];
+  } {
+    const filteredNodes = nodes;
+    const filteredEdges = edges.filter(
+      (edge) =>
+        edge.data.state === TransfershipEdgeStates.REVEALED &&
+        nodesRecord[edge.source] &&
+        nodesRecord[edge.target],
+    );
+    return { filteredNodes, filteredEdges };
+  }
+
+  function setLayoutedElements(
+    filteredNodes: Node[],
+    filteredEdges: Edge[],
+  ): void {
+    const newNodes = calculateLayoutedElements(filteredNodes, filteredEdges);
+
+    console.log("Setting new nodes");
+    setNodes(newNodes);
+  }
+
+  function doLayout(): void {
+    const { filteredNodes, filteredEdges } = filterLayoutElements();
+    setLayoutedElements(filteredNodes, filteredEdges);
+  }
+
+  // Link Share ----------------------------------------------------------------
+
+  function getLink(): string {
+    const addressIDs: string[] = nodes.map((node) => node.id);
+    const addressPaths: string[] = edges
+      .filter(
+        (edge) =>
+          edge.data.state === TransfershipEdgeStates.REVEALED &&
+          nodesRecord[edge.source] &&
+          nodesRecord[edge.target],
+      )
+      .map((edge) => [edge.source, edge.target])
+      .filter((edge) => edge[0] && edge[1])
+      .map((edge) => edge.join("-"));
+    return `${window.location.origin}?addresses=${addressIDs.join(
+      ",",
+    )}&paths=${addressPaths.join(",")}`;
+  }
+
+  function copyLink(): void {
+    navigator.clipboard.writeText(getLink());
+  }
+
   // Set up the context
   const graphContext: GraphContextProps = {
     addAddressPaths,
-    focusOnAddress,
     addEdges,
-    isAddressFocused,
     setEdgeState,
     getEdgeVolumeScale,
     getEdgeHandleID,
     setFocusedAddressData,
     setHoveredTransferData,
+    doLayout,
+    copyLink,
     focusedAddressData,
   };
 
   return (
     <>
-      <div
-        style={{ height: "100%" }}
-        onKeyDown={(event) => {
-          if (event.key === "Delete" || event.key === "Backspace") {
-            // Delete all selected nodes
-            deleteSelectedNodes();
-          }
-          if (event.key === "Escape") {
-            setFocusedAddressData(null);
-          }
-        }}
-      >
-        <GraphContext.Provider value={graphContext}>
+      <GraphContext.Provider value={graphContext}>
+        <div
+          className="h-full w-full"
+          onKeyDown={(event) => {
+            if (event.key === "Delete" || event.key === "Backspace") {
+              // Delete all selected nodes
+              deleteSelectedNodes();
+            }
+            if (event.key === "Escape") {
+              setFocusedAddressData(null);
+            }
+          }}
+        >
           <DraggableWindow
             analysisData={focusedAddressData}
             setFocusedAddressData={setFocusedAddressData}
@@ -363,9 +478,10 @@ const GraphProvided: FC<GraphProvidedProps> = ({ initialNodes }) => {
             panOnDrag={panOnDrag}
             selectionMode={SelectionMode.Partial}
             zoomOnDoubleClick={true}
+            className="h-full w-full"
           >
             <img
-              className="-z-10 m-auto w-full scale-150 opacity-40"
+              className="-z-10 m-auto w-full scale-150 animate-pulse opacity-40"
               aria-hidden="true"
               src="https://tailwindui.com/img/beams-home@95.jpg"
             />
@@ -383,38 +499,66 @@ const GraphProvided: FC<GraphProvidedProps> = ({ initialNodes }) => {
                 />
               )}
             </Panel>
-            <Controls position="bottom-right" showInteractive={false} />
+            <Panel position="bottom-left">
+              <Hotbar />
+            </Panel>
           </ReactFlow>
-        </GraphContext.Provider>
-      </div>
+        </div>
+      </GraphContext.Provider>
     </>
   );
 };
 
+/** Graph + Landing Page - These are combined into one component for easy
+ * animated transitions between the two. */
+
+const useURLSearchParams = () => {
+  const urlParams = new URLSearchParams(window.location.search);
+  const addresses = urlParams.get("addresses")?.split(",") || [];
+  const paths = urlParams.get("paths")?.split(",") || [];
+  return { addresses, paths };
+};
+
 const Graph: FC = () => {
-  const [searchedAddress, setSearchedAddress] = useState<string | null>(null);
+  const [searchedAddresses, setSearchedAddresses] = useState<string[]>([]);
+  const [searchedPaths, setSearchedPaths] = useState<string[]>([]);
+
+  useEffect(() => {
+    const { addresses, paths } = useURLSearchParams();
+    if (addresses.length && paths.length) {
+      setSearchedAddresses(addresses);
+      setSearchedPaths(paths);
+    }
+  }, []);
 
   return (
-    <div className="overflow-hidden">
+    <div className="h-full w-full overflow-hidden">
       <Transition
-        show={searchedAddress === null}
+        show={searchedAddresses.length === 0}
         appear={true}
         leave="transition-all duration-500"
         leaveFrom="opacity-100 scale-100"
         leaveTo="opacity-0 scale-50"
         className="fixed flex h-full w-full flex-col items-center justify-center"
       >
-        <LandingPage setSearchedAddress={setSearchedAddress} />
+        <LandingPage
+          setSearchedAddress={(address: string) => {
+            setSearchedAddresses([address]);
+          }}
+        />
       </Transition>
       <Transition
-        show={searchedAddress !== null}
+        show={searchedAddresses.length > 0}
         appear={true}
         enter="transition-all duration-500 delay-500"
         enterFrom="opacity-0 scale-150"
         enterTo="opacity-100 scale-100"
       >
-        {searchedAddress && (
-          <GraphProvider initialAddresses={[searchedAddress]} />
+        {searchedAddresses.length > 0 && (
+          <GraphProvider
+            initialAddresses={searchedAddresses}
+            initialPaths={searchedPaths}
+          />
         )}
       </Transition>
     </div>
