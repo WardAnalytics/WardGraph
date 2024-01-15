@@ -1,5 +1,5 @@
-import { GlobeAltIcon } from "@heroicons/react/24/outline";
 import { FC } from "react";
+import { GlobeAltIcon } from "@heroicons/react/24/outline";
 
 import { getAddressLink } from "../../../../../utils/explorer_links";
 
