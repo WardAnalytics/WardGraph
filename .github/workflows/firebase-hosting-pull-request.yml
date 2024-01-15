@@ -26,7 +26,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: yarn install && yarn build
-      - run: echo "$VITE_FIREBASE_PROJECT_ID"
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: "${{ secrets.GITHUB_TOKEN }}"
