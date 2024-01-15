@@ -1,15 +1,15 @@
-import { FC, createContext, useContext, useState, useEffect } from "react";
 import clsx from "clsx";
-import { Position, Handle, Edge } from "reactflow";
+import { Edge, Handle, Position } from "reactflow";
 
-import { AddressAnalysis } from "../../../../../../api/model";
 import { useAnalysisAddressData } from "../../../../../../api/compliance/compliance";
+import { AddressAnalysis } from "../../../../../../api/model";
 
-import RiskIndicator from "../../../../AnalysisWindow/Header/components/RiskIndicator";
 import LabelList from "../../../../AnalysisWindow/Header/components/LabelList";
+import RiskIndicator from "../../../../AnalysisWindow/Header/components/RiskIndicator";
 
 import { GraphContext } from "../../../../Graph";
 
+import { FC, createContext, useContext, useEffect, useState } from "react";
 import {
   createTransfershipEdge,
   TransfershipEdgeStates,

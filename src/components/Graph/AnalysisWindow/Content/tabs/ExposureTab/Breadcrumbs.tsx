@@ -1,6 +1,6 @@
-import { FC } from "react";
-import clsx from "clsx";
 import { ChevronRightIcon } from "@heroicons/react/24/outline";
+import clsx from "clsx";
+import { FC } from "react";
 
 /** This interface is a page to display in the breadcrumbs.
  * It can then be clicked to navigate to that page.
@@ -45,11 +45,10 @@ const Breadcrumbs: FC<BreadcrumbsProps> = ({
 
               <a
                 onClick={page.onClick}
-                className={`font-small text-sm text-gray-400 hover:text-gray-600 ${
-                  pages.indexOf(page) === pages.length - 1
+                className={`font-small text-sm text-gray-400 hover:text-gray-600 ${pages.indexOf(page) === pages.length - 1
                     ? "cursor-default"
                     : "cursor-pointer"
-                }`}
+                  }`}
               >
                 {
                   /* If the page name is bigger than 20 characters and it's sm, slice it in the middle with ... and 10 chars on each side. Else, show full page name */
