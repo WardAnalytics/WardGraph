@@ -1,9 +1,5 @@
 import { FC, useContext } from "react";
-import {
-  MagnifyingGlassIcon,
-  RectangleGroupIcon,
-  ShareIcon,
-} from "@heroicons/react/24/solid";
+import { RectangleGroupIcon, ShareIcon } from "@heroicons/react/24/solid";
 
 import { GraphContext } from "../Graph";
 
@@ -17,10 +13,6 @@ const Hotbar: FC = () => {
   const { doLayout, copyLink } = useContext(GraphContext);
 
   const Buttons: HotbarButton[] = [
-    {
-      Icon: MagnifyingGlassIcon,
-      name: "Search New Address",
-    },
     {
       Icon: RectangleGroupIcon,
       name: "Organize Layout",
