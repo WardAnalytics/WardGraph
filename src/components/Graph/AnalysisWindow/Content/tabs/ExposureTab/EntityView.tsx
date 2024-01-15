@@ -1,4 +1,3 @@
-import { FC, useContext, useState, useMemo } from "react";
 import { Transition } from "@headlessui/react";
 import { HashtagIcon } from "@heroicons/react/20/solid";
 import { ShareIcon } from "@heroicons/react/24/solid";
@@ -13,6 +12,7 @@ import { GraphContext } from "../../../../Graph";
 import { ExposureTabContext } from "./ExposureTabGeneric";
 
 import Pagination from "../../../../../common/Pagination";
+import { FC, useContext, useMemo, useState } from "react";
 
 // Address Row _________________________________________________________________
 

@@ -5,7 +5,7 @@ import {
   useEffect,
   useMemo,
   useRef,
-  useState,
+  useState
 } from "react";
 import ReactFlow, {
   Background,
@@ -19,6 +19,7 @@ import ReactFlow, {
   useNodesState,
   useOnSelectionChange
 } from "reactflow";
+import LandingPage from "./LandingPage/LandingPage";
 
 import {
   AddressNode,
@@ -39,6 +40,7 @@ import {
   convertNodeListToRecord,
 } from "./graph_calculations";
 
+import { Transition } from "@headlessui/react";
 import "reactflow/dist/style.css";
 import { AddressAnalysis } from "../../api/model";
 import DraggableWindow from "./AnalysisWindow/AnalysisWindow";
@@ -78,11 +80,11 @@ export const GraphContext = createContext<GraphContextProps>(
 
 /* The ReactFlowProvider must be above the GraphProvided component in the tree for ReactFlow's internal context to work
    Reference: https://reactflow.dev/api-reference/react-flow-provider#notes */
-interface GraphProps {
+interface GraphProviderProps {
   initialAddresses: string[];
 }
 
-const Graph: FC<GraphProps> = ({ initialAddresses }) => {
+const GraphProvider: FC<GraphProviderProps> = ({ initialAddresses }) => {
   // Grab all initial addresses and create nodes for them
   const initialNodes = useMemo(() => {
     const nodes: Node[] = [];
@@ -227,17 +229,6 @@ const GraphProvided: FC<GraphProvidedProps> = ({ initialNodes }) => {
 
   // Node & Edge Manipulation Functions ---
 
-  /** Adds a node to the graph. If the node already exists, it is not added.
-   * @param newNode the node to add
-   */
-  /* function addNewNode(newNode: Node) {
-    // If node with same id already exists, don't add it
-    if (nodes.find((node) => node.id === newNode.id)) {
-      return;
-    }
-    setNodes((nodes) => [...nodes, newNode]);
-  } */
-
   /** Deletes multiple nodes and all edges connected to them
    * @param ids the ids of the nodes to delete
    */
@@ -293,17 +284,14 @@ const GraphProvided: FC<GraphProvidedProps> = ({ initialNodes }) => {
     }
   }
 
-  function addAddressPaths(
-    paths: string[][],
-    incoming: boolean,
-    volume: number,
-  ) {
+  function addAddressPaths(paths: string[][], incoming: boolean) {
     // 1 - Calculate result of adding path to the graph
-    const {
-      nodes: newNodes,
-      edges: newEdges,
-      //finalNode,
-    } = calculateNewAddressPath(nodes, edges, paths, incoming, volume);
+    const { nodes: newNodes, edges: newEdges } = calculateNewAddressPath(
+      nodes,
+      edges,
+      paths,
+      incoming,
+    );
 
     // 2 - Calculate result of focusing on a node
     // const focusedNodes = calculatedNewFocusedAddress(newNodes, finalNode.id);
@@ -400,6 +388,36 @@ const GraphProvided: FC<GraphProvidedProps> = ({ initialNodes }) => {
         </GraphContext.Provider>
       </div>
     </>
+  );
+};
+
+const Graph: FC = () => {
+  const [searchedAddress, setSearchedAddress] = useState<string | null>(null);
+
+  return (
+    <div className="overflow-hidden">
+      <Transition
+        show={searchedAddress === null}
+        appear={true}
+        leave="transition-all duration-500"
+        leaveFrom="opacity-100 scale-100"
+        leaveTo="opacity-0 scale-50"
+        className="fixed flex h-full w-full flex-col items-center justify-center"
+      >
+        <LandingPage setSearchedAddress={setSearchedAddress} />
+      </Transition>
+      <Transition
+        show={searchedAddress !== null}
+        appear={true}
+        enter="transition-all duration-500 delay-500"
+        enterFrom="opacity-0 scale-150"
+        enterTo="opacity-100 scale-100"
+      >
+        {searchedAddress && (
+          <GraphProvider initialAddresses={[searchedAddress]} />
+        )}
+      </Transition>
+    </div>
   );
 };
 
