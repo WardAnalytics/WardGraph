@@ -553,6 +553,7 @@ const Graph: FC = () => {
         enter="transition-all duration-500 delay-500"
         enterFrom="opacity-0 scale-150"
         enterTo="opacity-100 scale-100"
+        className="h-full w-full"
       >
         {searchedAddresses.length > 0 && (
           <GraphProvider
