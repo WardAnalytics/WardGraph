@@ -1,0 +1,4 @@
+.custom-svg-color {
+  filter: brightness(0) saturate(100%) invert(20%) sepia(100%) saturate(7500%)
+    hue-rotate(345deg) brightness(100%) contrast(100%);
+}
