@@ -26,7 +26,7 @@ const Hotbar: FC = () => {
   ];
 
   return (
-    <div className="mb-16 flex h-fit w-fit flex-col gap-y-1 rounded-lg bg-gray-800 p-2">
+    <div className="flex h-fit w-fit flex-col gap-y-1 rounded-lg bg-gray-800 p-2">
       {Buttons.map((button) => {
         return (
           <button
