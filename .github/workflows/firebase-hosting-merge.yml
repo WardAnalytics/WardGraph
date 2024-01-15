@@ -16,4 +16,4 @@ jobs:
           repoToken: "${{ secrets.GITHUB_TOKEN }}"
           firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT_GRAPHAPP_BCA04 }}"
           channelId: live
-          projectId: graphapp-bc04
+          projectId: graphapp-bca04

@@ -1,6 +1,7 @@
 # Configuration for deploy a preview of the PR to a temporary url
 # The goal is to be able to test the PR before merging it
 # This action is triggered on every PR, regardless of the branch
+# The preview url has a lifetime of 7 days
 
 name: Deploy to Firebase Hosting on PR
 "on": pull_request
@@ -14,5 +15,6 @@ jobs:
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: "${{ secrets.GITHUB_TOKEN }}"
-          firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT_GRAPHAPP_DEV }}"
-          projectId: graphapp-dev
+          firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT_GRAPHAPP_BCA04 }}"
+          expires: 7d
+          projectId: graphapp-bca04
