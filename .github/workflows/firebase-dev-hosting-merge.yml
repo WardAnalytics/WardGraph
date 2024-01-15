@@ -8,12 +8,12 @@ name: Deploy to Firebase Dev Hosting on merge
       - development
 
 env:
-  VITE_WARD_API_BASE_URL: https://wardanalyticsapi.com
+  VITE_WARD_API_BASE_URL: "https://wardanalyticsapi.com"
   VITE_WARD_API_KEY: ${{ secrets.WARD_API_KEY }}
-  VITE_FIREBASE_API_KEY: AIzaSyBZCnEQus6G42SodGNRf6o2zmBnGN0nXes
-  VITE_FIREBASE_AUTH_DOMAIN: graphapp-dev.firebaseapp.com
-  VITE_FIREBASE_PROJECT_ID: graphapp-dev
-  VITE_FIREBASE_STORAGE_BUCKET: graphapp-dev.appspot.com
+  VITE_FIREBASE_API_KEY: "AIzaSyBZCnEQus6G42SodGNRf6o2zmBnGN0nXes"
+  VITE_FIREBASE_AUTH_DOMAIN: "graphapp-dev.firebaseapp.com"
+  VITE_FIREBASE_PROJECT_ID: "graphapp-dev"
+  VITE_FIREBASE_STORAGE_BUCKET: "graphapp-dev.appspot.com"
   VITE_FIREBASE_MESSAGING_SENDER_ID: "897485812844"
   VITE_FIREBASE_APP_ID: "1:897485812844:web:039de3b976c1559fded449"
   # For Google Analytics
