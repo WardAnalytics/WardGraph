@@ -49,6 +49,9 @@ import TransactionTooltip, {
 } from "./TransactionTooltip";
 import { Transition } from "@headlessui/react";
 
+import { default as firebase } from "../../firebase/firebase"
+import { logEvent } from "firebase/analytics";
+
 /* Pan on drag settings */
 const panOnDrag = [1, 2];
 
@@ -394,6 +397,14 @@ const GraphProvided: FC<GraphProvidedProps> = ({ initialNodes }) => {
 const Graph: FC = () => {
   const [searchedAddress, setSearchedAddress] = useState<string | null>(null);
 
+  const onSetSearchedAddress = (newAddress: string) => {
+    setSearchedAddress(newAddress);
+
+    logEvent(firebase.analytics, "search_address", {
+      address: newAddress,
+    });
+  }
+
   return (
     <div className="overflow-hidden">
       <Transition
@@ -404,7 +415,7 @@ const Graph: FC = () => {
         leaveTo="opacity-0 scale-50"
         className="fixed flex h-full w-full flex-col items-center justify-center"
       >
-        <LandingPage setSearchedAddress={setSearchedAddress} />
+        <LandingPage setSearchedAddress={onSetSearchedAddress} />
       </Transition>
       <Transition
         show={searchedAddress !== null}
