@@ -8,6 +8,7 @@ import {
   createAddressNode,
 } from "./custom_elements/nodes/AddressNode";
 
+
 // How much distance there should be between two nodes when calculating new address nodes positions
 const INTERSECTING_NODE_X_OFFSET = 300;
 const INTERSECTING_NODE_Y_OFFSET = 130;
@@ -165,9 +166,7 @@ export function calculateNewAddressPath(
   edges: Edge[],
   addresses: string[][],
   incoming: boolean,
-  volume: number,
 ): CalculateNewAddressPathsReturnType {
-  console.log(volume)
   /* Addresses are currently a list of parallel paths. We need to convert them to a list of 
   path positions, each having a list of addresses at that position. We also need to make 
   sure there are no duplicate addresses per path */

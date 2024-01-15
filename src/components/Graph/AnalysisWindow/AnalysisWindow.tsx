@@ -1,6 +1,5 @@
 import { FC, createContext, useRef } from "react";
 
-
 import Draggable from "react-draggable";
 import Content from "./Content";
 import Header from "./Header";

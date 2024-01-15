@@ -1,7 +1,7 @@
 import { Transition } from "@headlessui/react";
 import { FC, useContext } from "react";
 
-import BlockExplorerAddressIcon from "../../../../../AnalysisWindow/Header/components/BlockExplorerAddressIcon"
+import BlockExplorerAddressIcon from "../../../../../AnalysisWindow/Header/components/BlockExplorerAddressIcon";
 import CopyToClipboardIcon from "../../../../../AnalysisWindow/Header/components/CopyToClipboardIcon";
 import LabelList from "../../../../../AnalysisWindow/Header/components/LabelList";
 import RiskIndicator from "../../../../../AnalysisWindow/Header/components/RiskIndicator";

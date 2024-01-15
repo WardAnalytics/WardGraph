@@ -4,7 +4,7 @@ import Graph from "../components/Graph";
 const GraphTemplate: FC = () => {
   return (
     <div className="flex h-screen flex-col">
-      <Graph initialAddresses={[]} />
+      <Graph />
     </div>
   );
 };
