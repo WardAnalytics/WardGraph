@@ -1,4 +1,5 @@
 # Configuration for deploying to production on merge to development
+# For more information, see https://github.com/marketplace/actions/deploy-to-firebase-hosting#options
 
 name: Deploy to Firebase Dev Hosting on merge
 "on":
