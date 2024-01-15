@@ -23,7 +23,6 @@ build
 
 # Firebase
 .firebase/*
-firebase.json
 .firebaserc
 
 # Editor directories and files
