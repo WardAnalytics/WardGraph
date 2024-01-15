@@ -49,6 +49,8 @@ import Legend from "./Legend";
 import TransactionTooltip, {
   TransactionTooltipProps,
 } from "./TransactionTooltip";
+import { default as firebase } from "../../firebase/firebase"
+import { logEvent } from "firebase/analytics";
 
 /* Pan on drag settings */
 const panOnDrag = [1, 2];
@@ -531,6 +533,17 @@ const Graph: FC = () => {
     }
   }, []);
 
+  const onSetSearchedAddress = (newAddress: string) => {
+    setSearchedAddresses([newAddress]);
+
+    logEvent(firebase.analytics, "search_address", {
+      address: newAddress,
+    });
+
+    console.log("Searched address: ", newAddress);
+    console.log(firebase.analytics)
+  }
+
   return (
     <div className="h-full w-full overflow-hidden">
       <Transition
@@ -542,9 +555,7 @@ const Graph: FC = () => {
         className="fixed flex h-full w-full flex-col items-center justify-center"
       >
         <LandingPage
-          setSearchedAddress={(address: string) => {
-            setSearchedAddresses([address]);
-          }}
+          setSearchedAddress={onSetSearchedAddress}
         />
       </Transition>
       <Transition
