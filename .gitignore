@@ -19,6 +19,7 @@ build
 .yarn/install-state.gz
 
 # Firebase
+.firebase/*
 firebase.json
 .firebaserc
 

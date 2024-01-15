@@ -1,8 +1,8 @@
 import { FC, createContext, useRef } from "react";
 
 import Draggable from "react-draggable";
-import Header from "./Header";
 import Content from "./Content";
+import Header from "./Header";
 
 import { AddressAnalysis } from "../../../api/model";
 
