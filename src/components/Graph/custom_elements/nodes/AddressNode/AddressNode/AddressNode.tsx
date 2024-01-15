@@ -120,12 +120,14 @@ const AddressNode: FC<AddressNodeProps> = ({ data: { address } }) => {
         position={Position.Left}
         className="mb-2 opacity-0"
         id="a"
+        isConnectable={false}
       />
       <Handle
         type="source"
         position={Position.Right}
         className="mb-2 opacity-0"
         id="a"
+        isConnectable={false}
       />
       {/* Handle B - The edge flows from the right of a node to the left of another */}
       <Handle
@@ -133,12 +135,14 @@ const AddressNode: FC<AddressNodeProps> = ({ data: { address } }) => {
         position={Position.Right}
         className="mt-2 opacity-0"
         id="b"
+        isConnectable={false}
       />
       <Handle
         type="source"
         position={Position.Left}
         className="mt-2 opacity-0"
         id="b"
+        isConnectable={false}
       />
 
       <span

@@ -1,10 +1,14 @@
 import { Edge, Node, XYPosition } from "reactflow";
-import { TransfershipEdgeStates, createTransfershipEdge } from "./custom_elements/edges/TransfershipEdge";
+import {
+  TransfershipEdgeStates,
+  createTransfershipEdge,
+} from "./custom_elements/edges/TransfershipEdge";
 import {
   AddressNodeState,
   createAddressNode,
 } from "./custom_elements/nodes/AddressNode";
 
+import Dagre from "@dagrejs/dagre";
 
 // How much distance there should be between two nodes when calculating new address nodes positions
 const INTERSECTING_NODE_X_OFFSET = 300;
@@ -263,27 +267,47 @@ export function calculateNewAddressPath(
   return { nodes: nodesList, edges: edgesList, finalNode };
 }
 
-/** Calculates the new address to focus on and de-focus the rest.
- * @param nodes the list of nodes
- * @param address the address to focus on
- * @returns the new list of nodes
+/** Calculates the layout of the graph using dagre.
+ * @param dagreGraph The dagre graph object to use. Already setup by default
+ * @param nodes Nodes to take into account
+ * @param edges Edges to take into account
+ * @param direction The direction of the graph
+ * @returns The new lists of nodes and edges
  */
 
-export function calculatedNewFocusedAddress(
+export function calculateLayoutedElements(
   nodes: Node[],
-  address: string,
+  edges: Edge[],
+  direction = "LR",
 ): Node[] {
-  // Iterate over all nodes and set them to MINIMIZED except the one we want to focus on
-  const newNodes = nodes.map((node) => {
-    if (node.id === address) {
-      return {
-        ...node,
-        data: { ...node.data, state: AddressNodeState.EXPANDED },
-      };
-    } else {
-      return {
-        ...node,
-        data: { ...node.data, state: AddressNodeState.MINIMIZED },
+  const dagreGraph = new Dagre.graphlib.Graph().setDefaultEdgeLabel(() => ({}));
+  dagreGraph.setGraph({
+    rankdir: direction,
+    ranksep: 100,
+    nodesep: 100,
+  });
+
+  nodes.forEach((node) => {
+    dagreGraph.setNode(node.id, {
+      width: node.width ? node.width : 200,
+      height: node.height ? node.height : 50,
+    });
+  });
+
+  edges.forEach((edge) => {
+    dagreGraph.setEdge(edge.source, edge.target);
+  });
+
+  Dagre.layout(dagreGraph);
+
+  const newNodes: Node[] = [...nodes];
+
+  dagreGraph.nodes().forEach((nodeId) => {
+    const node = newNodes.find((n) => n.id === nodeId);
+    if (node) {
+      node.position = {
+        x: dagreGraph.node(nodeId).x,
+        y: dagreGraph.node(nodeId).y,
       };
     }
   });
