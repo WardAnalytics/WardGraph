@@ -1,12 +1,13 @@
 import { Edge, Node, XYPosition } from "reactflow";
 import {
+  TransfershipEdgeStates,
+  createTransfershipEdge,
+} from "./custom_elements/edges/TransfershipEdge";
+import {
   AddressNodeState,
   createAddressNode,
 } from "./custom_elements/nodes/AddressNode";
-import {
-  createTransfershipEdge,
-  TransfershipEdgeStates,
-} from "./custom_elements/edges/TransfershipEdge";
+
 
 // How much distance there should be between two nodes when calculating new address nodes positions
 const INTERSECTING_NODE_X_OFFSET = 300;

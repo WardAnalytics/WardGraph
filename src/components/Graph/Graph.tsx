@@ -29,7 +29,7 @@ import {
 
 import {
   TransfershipEdge,
-  TransfershipEdgeStates,
+  TransfershipEdgeStates
 } from "./custom_elements/edges/TransfershipEdge";
 
 import {
