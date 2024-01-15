@@ -14,6 +14,8 @@ dist-ssr
 build
 *.local
 .env
+.env.development
+.env.production
 
 # Yarn installation state file
 .yarn/install-state.gz
