@@ -25,7 +25,7 @@ const LandingPage: FC<LandingPageProps> = ({ setSearchedAddress }) => {
   return (
     <div className="flex max-w-screen-sm flex-col items-center gap-y-10">
       <img src={logo} alt="Ward Logo" className="w-2/3" />
-      <Searchbar className="w-full" onSearchAddress={setSearchedAddress} />
+      <Searchbar className="w-2/3 sm:w-full" onSearchAddress={setSearchedAddress} />
       <h3
         className="flex cursor-pointer flex-row items-center gap-x-2 text-sm text-blue-500"
         onClick={selectRandomAddress}
