@@ -1,8 +1,8 @@
+import { RectangleGroupIcon, ShareIcon } from "@heroicons/react/24/solid";
 import { FC, useContext, useState } from "react";
-import { RectangleGroupIcon, ShareIcon, CheckCircleIcon } from "@heroicons/react/24/solid";
 
-import { GraphContext } from "../Graph";
 import { Transition } from "@headlessui/react";
+import { GraphContext } from "../Graph";
 
 interface HotbarButton {
   onClick?: () => void;
