@@ -1,12 +1,12 @@
 import clsx from "clsx";
-import { FC, ReactNode } from "react";
+import { FC } from "react";
 
 import { FaDiscord as discord, FaGithub as github, FaLinkedin as linkedin } from "react-icons/fa";
 import { IconType } from "react-icons/lib";
 
 interface Social {
   name: string;
-  Icon: IconType | ReactNode;
+  Icon: IconType;
   link: string;
 }
 
