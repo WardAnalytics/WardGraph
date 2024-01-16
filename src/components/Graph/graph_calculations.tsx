@@ -301,7 +301,6 @@ export function calculateLayoutedElements(
   Dagre.layout(dagreGraph);
 
   const newNodes: Node[] = [...nodes];
-
   dagreGraph.nodes().forEach((nodeId) => {
     const node = newNodes.find((n) => n.id === nodeId);
     if (node) {

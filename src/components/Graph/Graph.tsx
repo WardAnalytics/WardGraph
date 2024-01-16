@@ -18,6 +18,7 @@ import ReactFlow, {
   useOnSelectionChange,
   Panel,
   useUpdateNodeInternals,
+  Controls,
 } from "reactflow";
 import "reactflow/dist/style.css";
 import { Transition } from "@headlessui/react";
@@ -160,11 +161,33 @@ const GraphProvided: FC<GraphProvidedProps> = ({
 
   // Regularly update the node internals to make sure edges are consistent
   const updateNodeInternals = useUpdateNodeInternals();
+  const prevNodeWidths = useRef<Map<string, number | null | undefined>>(
+    new Map(),
+  );
   useEffect(() => {
     nodes.forEach((node) => {
-      updateNodeInternals(node.id);
+      if (prevNodeWidths.current.get(node.id) !== node.width) {
+        prevNodeWidths.current.set(node.id, node.width);
+        updateNodeInternals(node.id);
+      }
     });
-  }, [nodes.length]);
+  }, [nodes]);
+
+  // For the first 3 seconds after mounting, we want to updateNodeInternals for all nodes every 100ms
+  const [firstUpdate, setFirstUpdate] = useState<boolean>(true);
+  useEffect(() => {
+    if (firstUpdate) {
+      const interval = setInterval(() => {
+        nodes.forEach((node) => {
+          updateNodeInternals(node.id);
+        });
+      }, 100);
+      setTimeout(() => {
+        clearInterval(interval);
+        setFirstUpdate(false);
+      }, 10000);
+    }
+  }, [firstUpdate]);
 
   // Record Optimization -------------------------------------------------------
 
@@ -479,13 +502,19 @@ const GraphProvided: FC<GraphProvidedProps> = ({
             selectionMode={SelectionMode.Partial}
             zoomOnDoubleClick={true}
             className="h-full w-full"
+            maxZoom={1.5}
+            minZoom={0.25}
           >
             <img
               className="-z-10 m-auto w-full scale-150 animate-pulse opacity-40"
               aria-hidden="true"
               src="https://tailwindui.com/img/beams-home@95.jpg"
             />
-
+            <Controls
+              position="top-right"
+              showFitView={false}
+              showInteractive={false}
+            />
             <Background />
             <Panel position="top-left">
               <Legend />

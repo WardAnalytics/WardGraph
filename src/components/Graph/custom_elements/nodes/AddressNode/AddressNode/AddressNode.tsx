@@ -15,6 +15,7 @@ import {
   createTransfershipEdge,
   TransfershipEdgeStates,
 } from "../../../edges/TransfershipEdge";
+import { Transition } from "@headlessui/react";
 
 /** Context data for the AddressNode */
 
@@ -146,39 +147,47 @@ const AddressNode: FC<AddressNodeProps> = ({ data: { address } }) => {
         isConnectable={false}
       />
 
-      <span
-        className={clsx(
-          "flex flex-row items-center gap-x-2 rounded-lg bg-white px-4 py-5  transition-all duration-150 hover:bg-gray-50",
-          focusedAddressData?.address === address
-            ? "shadow-2xl shadow-blue-300 ring-4 ring-blue-400"
-            : "shadow-md ring-1 ring-gray-300",
-        )}
-        onClick={() => {
-          if (analysisData) {
-            setFocusedAddressData(analysisData);
-          }
-        }}
+      <Transition
+        appear={true}
+        show={true}
+        enter="transition-all duration-250"
+        enterFrom="opacity-0 scale-50"
+        enterTo="opacity-100 scale-100"
       >
-        {/* Address Risk inside a badge */}
-        <RiskIndicator
-          risk={analysisData?.risk}
-          isLoading={isLoadingAddressData}
-        />
+        <span
+          className={clsx(
+            "flex flex-row items-center gap-x-2 rounded-lg bg-white px-4 py-5  transition-all duration-150 hover:bg-gray-50",
+            focusedAddressData?.address === address
+              ? "shadow-2xl shadow-blue-300 ring-4 ring-blue-400"
+              : "shadow-md ring-1 ring-gray-300",
+          )}
+          onClick={() => {
+            if (analysisData) {
+              setFocusedAddressData(analysisData);
+            }
+          }}
+        >
+          {/* Address Risk inside a badge */}
+          <RiskIndicator
+            risk={analysisData?.risk}
+            isLoading={isLoadingAddressData}
+          />
 
-        {/* Address information */}
-        <div className="flex flex-col gap-y-0.5">
-          <h1 className="flex flex-row font-mono font-semibold tracking-tight text-gray-800">
-            {`${address.slice(0, 5)}...${address.slice(-5)}`}
-            {analysisData && analysisData.labels.length > 0 && (
-              <EntityLogo
-                entity={analysisData!.labels[0]}
-                className="ml-2 h-7 w-7 rounded-full"
-              />
-            )}
-          </h1>
-          {analysisData && <LabelList labels={analysisData!.labels} />}
-        </div>
-      </span>
+          {/* Address information */}
+          <div className="flex flex-col gap-y-0.5">
+            <h1 className="flex flex-row font-mono font-semibold tracking-tight text-gray-800">
+              {`${address.slice(0, 5)}...${address.slice(-5)}`}
+              {analysisData && analysisData.labels.length > 0 && (
+                <EntityLogo
+                  entity={analysisData!.labels[0]}
+                  className="ml-2 h-7 w-7 rounded-full"
+                />
+              )}
+            </h1>
+            {analysisData && <LabelList labels={analysisData!.labels} />}
+          </div>
+        </span>
+      </Transition>
     </AnalysisContext.Provider>
   );
 };
