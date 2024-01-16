@@ -31,6 +31,7 @@ const storeUrl = async (url: string) => {
   try {
     const shortUrlDoc = await addDoc(collection(db, "shortenedUrls"), {
       originalUrl: url,
+      created_at: new Date(),
     });
     key = shortUrlDoc.id;
   } catch (e) {
