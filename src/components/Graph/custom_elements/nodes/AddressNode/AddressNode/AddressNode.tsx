@@ -5,6 +5,7 @@ import { Position, Handle, Edge } from "reactflow";
 import { AddressAnalysis } from "../../../../../../api/model";
 import { useAnalysisAddressData } from "../../../../../../api/compliance/compliance";
 
+import EntityLogo from "../../../../../common/EntityLogo";
 import RiskIndicator from "../../../../AnalysisWindow/Header/components/RiskIndicator";
 import LabelList from "../../../../AnalysisWindow/Header/components/LabelList";
 
@@ -166,8 +167,14 @@ const AddressNode: FC<AddressNodeProps> = ({ data: { address } }) => {
 
         {/* Address information */}
         <div className="flex flex-col gap-y-0.5">
-          <h1 className="font-mono font-semibold tracking-tight text-gray-800">
+          <h1 className="flex flex-row font-mono font-semibold tracking-tight text-gray-800">
             {`${address.slice(0, 5)}...${address.slice(-5)}`}
+            {analysisData && analysisData.labels.length > 0 && (
+              <EntityLogo
+                entity={analysisData!.labels[0]}
+                className="ml-2 h-7 w-7 rounded-full"
+              />
+            )}
           </h1>
           {analysisData && <LabelList labels={analysisData!.labels} />}
         </div>
