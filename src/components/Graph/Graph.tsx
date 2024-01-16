@@ -49,7 +49,7 @@ import Legend from "./Legend";
 import TransactionTooltip, {
   TransactionTooltipProps,
 } from "./TransactionTooltip";
-import { default as firebase } from "../../firebase/firebase"
+import { default as firebase } from "../../firebase/firebase";
 import { logEvent } from "firebase/analytics";
 
 import { default as firebase } from "../../firebase/firebase"
@@ -158,16 +158,16 @@ const GraphProvided: FC<GraphProvidedProps> = ({
   initialNodes,
   initialEdges,
 }) => {
-  const updateNodeInternals = useUpdateNodeInternals();
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
 
-  // Go through each node and update node internals
+  // Regularly update the node internals to make sure edges are consistent
+  const updateNodeInternals = useUpdateNodeInternals();
   useEffect(() => {
     nodes.forEach((node) => {
       updateNodeInternals(node.id);
     });
-  }, [nodes]);
+  }, [nodes.length]);
 
   // Record Optimization -------------------------------------------------------
 
@@ -404,8 +404,6 @@ const GraphProvided: FC<GraphProvidedProps> = ({
     filteredEdges: Edge[],
   ): void {
     const newNodes = calculateLayoutedElements(filteredNodes, filteredEdges);
-
-    console.log("Setting new nodes");
     setNodes(newNodes);
   }
 
@@ -542,10 +540,7 @@ const Graph: FC = () => {
     logEvent(firebase.analytics, "search_address", {
       address: newAddress,
     });
-
-    console.log("Searched address: ", newAddress);
-    console.log(firebase.analytics)
-  }
+  };
 
   return (
     <div className="h-full w-full overflow-hidden">
@@ -557,9 +552,7 @@ const Graph: FC = () => {
         leaveTo="opacity-0 scale-50"
         className="fixed flex h-full w-full flex-col items-center justify-center"
       >
-        <LandingPage
-          setSearchedAddress={onSetSearchedAddress}
-        />
+        <LandingPage setSearchedAddress={onSetSearchedAddress} />
       </Transition>
       <Transition
         show={searchedAddresses.length > 0}

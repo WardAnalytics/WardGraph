@@ -13,6 +13,7 @@ import { Colors } from "../../../../../../utils/colors";
 import { CategoryClasses } from "../../../../../../utils/categories";
 
 import Badge from "../../../../../common/Badge";
+import EntityLogo from "../../../../../common/EntityLogo";
 
 import { ExposureTabContext } from "./ExposureTabGeneric";
 
@@ -47,36 +48,37 @@ const EntityRow: FC<EntityRowProps> = ({ entity, total, isLast, incoming }) => {
 
   return (
     <div className="flex h-14 w-full flex-row items-center pl-4">
-      {/* Vertical line going downwards */}
+      {/* Vertical & Horizontal lines going downwards */}
       <div
         className={`w-[1px] bg-gray-300 ${isLast ? "mb-7 h-7" : "h-full"}`}
-      ></div>
-
-      {/* Vertical line going sideways */}
-      <div className={`h-[1px] w-5 bg-gray-300`}></div>
+      />
+      <div className={`h-[1px] w-5 bg-gray-300`} />
 
       <div
-        className="w-full cursor-pointer flex-col space-y-1 rounded-md p-2 transition-all duration-100 hover:bg-gray-100"
+        className="flex w-full cursor-pointer flex-row items-center gap-x-1.5 rounded-md p-2 transition-all duration-100 hover:bg-gray-100"
         onClick={() => setFocusedEntity({ entity: entity, incoming: incoming })}
       >
-        <span className="flex items-center space-x-2">
-          <p className="text-sm font-semibold text-gray-800">{entity.name}</p>
+        <EntityLogo entity={entity.name} className="h-8 w-8 rounded-full" />
+        <span className="flex flex-col gap-y-1">
+          <span className="flex items-center space-x-2">
+            <p className="text-sm font-semibold text-gray-800">{entity.name}</p>
+          </span>
+
+          <div className="flex items-center gap-x-2 text-xs text-gray-500">
+            <p>{formatNumber(entity.quantity)}</p>
+            <p>{`(${exposurePercentageString}%)`}</p>
+
+            <svg
+              viewBox="0 0 2 2"
+              className="h-0.5 w-0.5 fill-current align-middle"
+            >
+              <circle cx={1} cy={1} r={1} />
+            </svg>
+            <p>{`${entity.addresses.length} ${
+              entity.addresses.length === 1 ? "Address" : "Addresses"
+            }`}</p>
+          </div>
         </span>
-
-        <div className="flex items-center gap-x-2 text-xs text-gray-500">
-          <p>{formatNumber(entity.quantity)}</p>
-          <p>{`(${exposurePercentageString}%)`}</p>
-
-          <svg
-            viewBox="0 0 2 2"
-            className="h-0.5 w-0.5 fill-current align-middle"
-          >
-            <circle cx={1} cy={1} r={1} />
-          </svg>
-          <p>{`${entity.addresses.length} ${
-            entity.addresses.length === 1 ? "Address" : "Addresses"
-          }`}</p>
-        </div>
       </div>
     </div>
   );
