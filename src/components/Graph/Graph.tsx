@@ -1,59 +1,57 @@
+import { Transition } from "@headlessui/react";
 import {
-  createContext,
-  useEffect,
-  useRef,
-  useCallback,
-  useState,
-  useMemo,
   FC,
+  createContext,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
 } from "react";
 import ReactFlow, {
-  Node,
-  Edge,
-  useNodesState,
-  useEdgesState,
   Background,
+  Edge,
+  Node,
+  Panel,
   ReactFlowProvider,
   SelectionMode,
+  useEdgesState,
+  useNodesState,
   useOnSelectionChange,
-  Panel,
   useUpdateNodeInternals,
 } from "reactflow";
 import "reactflow/dist/style.css";
-import { Transition } from "@headlessui/react";
 
 import { AddressAnalysis } from "../../api/model";
 
 import {
-  createAddressNode,
-  AddressNodeState,
-  AddressNode,
-} from "./custom_elements/nodes/AddressNode";
-import {
   TransfershipEdge,
   TransfershipEdgeStates,
 } from "./custom_elements/edges/TransfershipEdge";
+import {
+  AddressNode,
+  AddressNodeState,
+  createAddressNode,
+} from "./custom_elements/nodes/AddressNode";
 
 import {
-  convertEdgeListToRecord,
-  calculateLayoutedElements,
-  convertNodeListToRecord,
-  calculateNewAddressPath,
   calculateAddTransfershipEdges,
+  calculateLayoutedElements,
+  calculateNewAddressPath,
+  convertEdgeListToRecord,
+  convertNodeListToRecord,
 } from "./graph_calculations";
 
 import DraggableWindow from "./AnalysisWindow/AnalysisWindow";
-import LandingPage from "./LandingPage/LandingPage";
 import Hotbar from "./Hotbar";
+import LandingPage from "./LandingPage/LandingPage";
 import Legend from "./Legend";
 import TransactionTooltip, {
   TransactionTooltipProps,
 } from "./TransactionTooltip";
-import { default as firebase } from "../../firebase/firebase"
-import { logEvent } from "firebase/analytics";
 
-import { default as firebase } from "../../firebase/firebase"
-import { logEvent } from "firebase/analytics";
+import analytics from '../../firebase/analytics';
+import firestore from '../../firebase/firestore';
 
 /* Pan on drag settings */
 const panOnDrag = [1, 2];
@@ -433,8 +431,27 @@ const GraphProvided: FC<GraphProvidedProps> = ({
     )}&paths=${addressPaths.join(",")}`;
   }
 
+  /**
+   * Stores the url in the database and returns the shortened url
+   * 
+   * @param url The original url to be shortened
+   * @returns The shortened url
+   */
+  async function getShortUrl(url: string) {
+    const key = await firestore.storeUrl(url)
+
+    const shortenedUrl = `${window.location.origin}/short/${key}`;
+    return shortenedUrl;
+  };
+
   function copyLink(): void {
-    navigator.clipboard.writeText(getLink());
+    const link = getLink();
+    getShortUrl(link).then((shortenedUrl) => {
+      navigator.clipboard.writeText(shortenedUrl);
+      analytics.logAnalyticsEvent("copy_link", {
+        link: shortenedUrl,
+      });
+    })
   }
 
   // Set up the context
@@ -539,12 +556,9 @@ const Graph: FC = () => {
   const onSetSearchedAddress = (newAddress: string) => {
     setSearchedAddresses([newAddress]);
 
-    logEvent(firebase.analytics, "search_address", {
+    analytics.logAnalyticsEvent("search_address", {
       address: newAddress,
     });
-
-    console.log("Searched address: ", newAddress);
-    console.log(firebase.analytics)
   }
 
   return (
