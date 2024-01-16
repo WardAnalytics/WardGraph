@@ -18,6 +18,7 @@ import ReactFlow, {
   useOnSelectionChange,
   Panel,
   useUpdateNodeInternals,
+  Controls,
 } from "reactflow";
 import "reactflow/dist/style.css";
 import { Transition } from "@headlessui/react";
@@ -184,7 +185,7 @@ const GraphProvided: FC<GraphProvidedProps> = ({
       setTimeout(() => {
         clearInterval(interval);
         setFirstUpdate(false);
-      }, 3000);
+      }, 10000);
     }
   }, [firstUpdate]);
 
@@ -501,13 +502,19 @@ const GraphProvided: FC<GraphProvidedProps> = ({
             selectionMode={SelectionMode.Partial}
             zoomOnDoubleClick={true}
             className="h-full w-full"
+            maxZoom={1.5}
+            minZoom={0.25}
           >
             <img
               className="-z-10 m-auto w-full scale-150 animate-pulse opacity-40"
               aria-hidden="true"
               src="https://tailwindui.com/img/beams-home@95.jpg"
             />
-
+            <Controls
+              position="top-right"
+              showFitView={false}
+              showInteractive={false}
+            />
             <Background />
             <Panel position="top-left">
               <Legend />
