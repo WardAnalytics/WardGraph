@@ -49,7 +49,6 @@ import Legend from "./Legend";
 import TransactionTooltip, {
   TransactionTooltipProps,
 } from "./TransactionTooltip";
-
 import analytics from '../../firebase/analytics';
 import firestore from '../../firebase/firestore';
 
@@ -557,11 +556,7 @@ const Graph: FC = () => {
     analytics.logAnalyticsEvent("search_address", {
       address: newAddress,
     });
-<<<<<<< HEAD
-  }
-=======
   };
->>>>>>> main
 
   return (
     <div className="h-full w-full overflow-hidden">
