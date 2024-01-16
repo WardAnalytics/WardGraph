@@ -7,6 +7,7 @@ export default defineConfig({
   publicDir: "./public",
   base: "",
   build: {
+    sourcemap: true, // Enable devtool for debugging
     // Relative to the root
     outDir: "./build",
     assetsInlineLimit: 0,
