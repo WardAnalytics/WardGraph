@@ -160,11 +160,33 @@ const GraphProvided: FC<GraphProvidedProps> = ({
 
   // Regularly update the node internals to make sure edges are consistent
   const updateNodeInternals = useUpdateNodeInternals();
+  const prevNodeWidths = useRef<Map<string, number | null | undefined>>(
+    new Map(),
+  );
   useEffect(() => {
     nodes.forEach((node) => {
-      updateNodeInternals(node.id);
+      if (prevNodeWidths.current.get(node.id) !== node.width) {
+        prevNodeWidths.current.set(node.id, node.width);
+        updateNodeInternals(node.id);
+      }
     });
-  }, [nodes.length]);
+  }, [nodes]);
+
+  // For the first 3 seconds after mounting, we want to updateNodeInternals for all nodes every 100ms
+  const [firstUpdate, setFirstUpdate] = useState<boolean>(true);
+  useEffect(() => {
+    if (firstUpdate) {
+      const interval = setInterval(() => {
+        nodes.forEach((node) => {
+          updateNodeInternals(node.id);
+        });
+      }, 100);
+      setTimeout(() => {
+        clearInterval(interval);
+        setFirstUpdate(false);
+      }, 3000);
+    }
+  }, [firstUpdate]);
 
   // Record Optimization -------------------------------------------------------
 
