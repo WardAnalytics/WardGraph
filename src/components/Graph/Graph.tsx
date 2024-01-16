@@ -446,8 +446,8 @@ const GraphProvided: FC<GraphProvidedProps> = ({
 
   function copyLink(): void {
     const link = getLink();
-    getShortUrl(link).then((shortenedUrl) => {
-      navigator.clipboard.writeText(shortenedUrl);
+    getShortUrl(link).then(async (shortenedUrl) => {
+      await navigator.clipboard.writeText(shortenedUrl);
       analytics.logAnalyticsEvent("copy_link", {
         link: shortenedUrl,
       });
