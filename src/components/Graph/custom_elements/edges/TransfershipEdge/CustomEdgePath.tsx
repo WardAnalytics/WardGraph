@@ -87,6 +87,9 @@ const CustomEdgePath = ({
         strokeWidth={strokeWidth}
         markerEnd={`url(#${triangleMarkerID})`}
         opacity={opacity}
+        style={{
+          transition: "stroke-width 1s ease-in-out",
+        }}
       />
       <path
         id={id}
@@ -100,6 +103,9 @@ const CustomEdgePath = ({
               : "stroke-orange-400",
         )}
         strokeWidth={strokeWidth * 1.1}
+        style={{
+          transition: "stroke-width 1s ease-in-out",
+        }}
         opacity={opacity * 0.8}
       />
       {isClickable && (
