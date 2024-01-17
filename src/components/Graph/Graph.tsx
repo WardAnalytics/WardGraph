@@ -163,7 +163,7 @@ const GraphProvided: FC<GraphProvidedProps> = ({
 }) => {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
-  const { setViewport } = useReactFlow();
+  const { fitView } = useReactFlow();
 
   // Regularly update the node internals to make sure edges are consistent
   const updateNodeInternals = useUpdateNodeInternals();
@@ -435,15 +435,6 @@ const GraphProvided: FC<GraphProvidedProps> = ({
   const [hoveredTransferData, setHoveredTransferData] =
     useState<TransactionTooltipProps | null>(null);
 
-  // Smooth Panning -----------------------------------------------------------
-
-  const panTo = useCallback(
-    (x: number, y: number, zoom: number) => {
-      setViewport({ x, y, zoom }, { duration: 800 });
-    },
-    [setViewport],
-  );
-
   // Automatic Layout ---------------------------------------------------------
 
   function filterLayoutElements(): {
@@ -463,15 +454,23 @@ const GraphProvided: FC<GraphProvidedProps> = ({
   function setLayoutedElements(
     filteredNodes: Node[],
     filteredEdges: Edge[],
-  ): void {
+  ): Node[] {
     const newNodes = calculateLayoutedElements(filteredNodes, filteredEdges);
     setNodes(newNodes);
+    return newNodes;
   }
 
   function doLayout(): void {
     const { filteredNodes, filteredEdges } = filterLayoutElements();
-    setLayoutedElements(filteredNodes, filteredEdges);
-    panTo(0, 0, 0.25);
+    const newNodes: Node[] = setLayoutedElements(filteredNodes, filteredEdges);
+
+    setTimeout(() => {
+      fitView({
+        padding: 10,
+        duration: 800,
+        nodes: newNodes,
+      });
+    }, 250);
   }
 
   // Link Share ----------------------------------------------------------------
