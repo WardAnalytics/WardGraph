@@ -33,12 +33,20 @@ export const AnalysisContext = createContext<AnalysisContextProps>({
 interface AddressNodeProps {
   data: {
     address: string;
+    highlight: boolean;
+    state: string;
   };
 }
 
-const AddressNode: FC<AddressNodeProps> = ({ data: { address } }) => {
-  const { setFocusedAddressData, addEdges, focusedAddressData } =
-    useContext(GraphContext);
+const AddressNode: FC<AddressNodeProps> = ({
+  data: { address, highlight },
+}) => {
+  const {
+    setFocusedAddressData,
+    addEdges,
+    focusedAddressData,
+    setNodeHighlight,
+  } = useContext(GraphContext);
 
   // Analysis data is fetched into a useState hook from the Ward API using the Orval Hook and then passed into the context
   const [analysisData, setAnalysisData] = useState<AddressAnalysis | null>(
@@ -156,15 +164,21 @@ const AddressNode: FC<AddressNodeProps> = ({ data: { address } }) => {
       >
         <span
           className={clsx(
-            "flex flex-row items-center gap-x-2 rounded-lg bg-white px-4 py-5  transition-all duration-150 hover:bg-gray-50",
+            "1transition-all flex flex-row items-center gap-x-2 rounded-lg bg-white px-4 py-5 ring-1 duration-150 hover:bg-gray-50",
             focusedAddressData?.address === address
-              ? "shadow-2xl shadow-blue-300 ring-4 ring-blue-400"
-              : "shadow-md ring-1 ring-gray-300",
+              ? "bg-blue-50 shadow-2xl shadow-blue-300 ring-4 ring-blue-400"
+              : highlight
+                ? "shadow-xl shadow-blue-200 ring-blue-300"
+                : "shadow-md ring-gray-300",
           )}
           onClick={() => {
             if (analysisData) {
               setFocusedAddressData(analysisData);
             }
+          }}
+          onMouseEnter={() => {
+            // When the mouse enters the node, the node is no longer highlighted
+            setNodeHighlight(address, false);
           }}
         >
           {/* Address Risk inside a badge */}
