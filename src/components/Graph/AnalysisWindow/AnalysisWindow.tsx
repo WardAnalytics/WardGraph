@@ -48,7 +48,7 @@ const DraggableWindow: FC<DraggableWindowProps> = ({
           <div ref={nodeRef}>
             <div
               className={clsx(
-                "pointer-events-auto w-[68rem] scale-75 divide-y divide-dashed divide-gray-200 overflow-hidden rounded-lg bg-white shadow-xl transition-opacity duration-300",
+                "pointer-events-auto w-[68rem] scale-75 divide-y divide-dashed divide-gray-200 rounded-lg bg-white shadow-xl transition-opacity duration-300",
                 hasBeenHovered ? "opacity-30 hover:opacity-100" : "opacity-100",
               )}
               onMouseEnter={() => setHasBeenHovered(true)}
