@@ -78,7 +78,7 @@ const Content: FC = () => {
           />
         </div>
       </div>
-      <div className="w-full pl-3">
+      <div className="h-[29rem] w-full overflow-scroll overflow-x-hidden pl-3">
         <AllContentComponents tabs={tabs} selectedTab={selectedTab} />
       </div>
     </div>
