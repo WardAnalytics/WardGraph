@@ -41,7 +41,7 @@ const Header: FC<HeaderProps> = ({ onExit }: HeaderProps) => {
             </h1>
 
             {/* Clipboard and Block Explorer icons - only shown in expanded mode */}
-            <CopyToClipboardIcon address={address} />
+            <CopyToClipboardIcon textToCopy={address} />
             {analysisData && (
               <BlockExplorerAddressIcon
                 blockchain={analysisData.blockchain}

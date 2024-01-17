@@ -10,6 +10,7 @@ import {
 } from "react";
 import ReactFlow, {
   Background,
+  Controls,
   Edge,
   Node,
   Panel,
@@ -18,9 +19,8 @@ import ReactFlow, {
   useEdgesState,
   useNodesState,
   useOnSelectionChange,
-  useUpdateNodeInternals,
-  Controls,
   useReactFlow,
+  useUpdateNodeInternals,
 } from "reactflow";
 import "reactflow/dist/style.css";
 
@@ -44,6 +44,8 @@ import {
   convertNodeListToRecord,
 } from "./graph_calculations";
 
+import analytics from '../../firebase/analytics';
+import firestore from '../../firebase/firestore';
 import DraggableWindow from "./AnalysisWindow/AnalysisWindow";
 import Hotbar from "./Hotbar";
 import LandingPage from "./LandingPage/LandingPage";
@@ -51,8 +53,7 @@ import Legend from "./Legend";
 import TransactionTooltip, {
   TransactionTooltipProps,
 } from "./TransactionTooltip";
-import analytics from '../../firebase/analytics';
-import firestore from '../../firebase/firestore';
+import generateShortUrl from "../../utils/generateShortUrl";
 
 /* Pan on drag settings */
 const panOnDrag = [1, 2];
@@ -74,7 +75,8 @@ interface GraphContextProps {
   getEdgeHandleID: (edgeID: string) => string;
   setFocusedAddressData: (data: AddressAnalysis | null) => void;
   setHoveredTransferData: (data: TransactionTooltipProps | null) => void;
-  copyLink: () => void;
+  getSharingLink: () => string
+  copyLink: (url: string) => void;
   doLayout: () => void;
   setNodeHighlight: (address: string, highlight: boolean) => void;
   focusedAddressData: AddressAnalysis | null;
@@ -473,45 +475,14 @@ const GraphProvided: FC<GraphProvidedProps> = ({
     panTo(0, 0, 0.25);
   }
 
-  // Link Share ----------------------------------------------------------------
-
-  function getLink(): string {
-    const addressIDs: string[] = nodes.map((node) => node.id);
-    const addressPaths: string[] = edges
-      .filter(
-        (edge) =>
-          edge.data.state === TransfershipEdgeStates.REVEALED &&
-          nodesRecord[edge.source] &&
-          nodesRecord[edge.target],
-      )
-      .map((edge) => [edge.source, edge.target])
-      .filter((edge) => edge[0] && edge[1])
-      .map((edge) => edge.join("-"));
-    return `${window.location.origin}?addresses=${addressIDs.join(
-      ",",
-    )}&paths=${addressPaths.join(",")}`;
-  }
-
-  /**
-   * Stores the url in the database and returns the shortened url
-   * 
-   * @param url The original url to be shortened
-   * @returns The shortened url
-   */
-  async function getShortUrl(url: string) {
-    const key = await firestore.storeUrl(url)
-
-    const shortenedUrl = `${window.location.origin}/short/${key}`;
-    return shortenedUrl;
-  };
-
-  function copyLink(): void {
-    const link = getLink();
-    getShortUrl(link).then(async (shortenedUrl) => {
-      await navigator.clipboard.writeText(shortenedUrl);
-      analytics.logAnalyticsEvent("copy_link", {
-        link: shortenedUrl,
-      });
+  async function copyLink(url: string): Promise<void> {
+    await firestore.storeUrl(url).then(async (shortenedUrl) => {
+      if (shortenedUrl) {
+        await navigator.clipboard.writeText(shortenedUrl);
+        analytics.logAnalyticsEvent("copy_link", {
+          link: shortenedUrl,
+        });
+      }
     })
   }
 
@@ -525,6 +496,7 @@ const GraphProvided: FC<GraphProvidedProps> = ({
     setFocusedAddressData,
     setHoveredTransferData,
     doLayout,
+    getSharingLink: generateShortUrl,
     copyLink,
     setNodeHighlight,
     focusedAddressData,
