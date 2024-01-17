@@ -77,6 +77,7 @@ interface GraphContextProps {
   copyLink: () => void;
   doLayout: () => void;
   setNodeHighlight: (address: string, highlight: boolean) => void;
+  getNodeCount: () => number;
   focusedAddressData: AddressAnalysis | null;
 }
 
@@ -496,6 +497,12 @@ const GraphProvided: FC<GraphProvidedProps> = ({
     navigator.clipboard.writeText(getLink());
   }
 
+  // Getting the node count so that we can show the legend dynamically ---------
+
+  function getNodeCount(): number {
+    return nodes.length;
+  }
+
   // Set up the context
   const graphContext: GraphContextProps = {
     addAddressPaths,
@@ -508,6 +515,7 @@ const GraphProvided: FC<GraphProvidedProps> = ({
     doLayout,
     copyLink,
     setNodeHighlight,
+    getNodeCount,
     focusedAddressData,
   };
 
