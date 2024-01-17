@@ -20,6 +20,7 @@ import ReactFlow, {
   useOnSelectionChange,
   useUpdateNodeInternals,
   Controls,
+  useReactFlow,
 } from "reactflow";
 import "reactflow/dist/style.css";
 
@@ -75,6 +76,7 @@ interface GraphContextProps {
   setHoveredTransferData: (data: TransactionTooltipProps | null) => void;
   copyLink: () => void;
   doLayout: () => void;
+  setNodeHighlight: (address: string, highlight: boolean) => void;
   focusedAddressData: AddressAnalysis | null;
 }
 
@@ -103,7 +105,9 @@ const GraphProvider: FC<GraphProviderProps> = ({
   const initialNodes = useMemo(() => {
     const nodes: Node[] = [];
     initialAddresses.forEach((address) => {
-      nodes.push(createAddressNode(address, AddressNodeState.MINIMIZED, 0, 0));
+      nodes.push(
+        createAddressNode(address, AddressNodeState.MINIMIZED, true, 0, 0),
+      );
     });
     return nodes;
   }, [initialAddresses]);
@@ -158,6 +162,7 @@ const GraphProvided: FC<GraphProvidedProps> = ({
 }) => {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+  const { setViewport } = useReactFlow();
 
   // Regularly update the node internals to make sure edges are consistent
   const updateNodeInternals = useUpdateNodeInternals();
@@ -398,10 +403,45 @@ const GraphProvided: FC<GraphProvidedProps> = ({
   const [focusedAddressData, setFocusedAddressData] =
     useState<AddressAnalysis | null>(null);
 
+  // New Address Highlighting -------------------------------------------------
+
+  /** Sets the highlight of a node to either true or false.
+   *
+   * @param address The address of the node to highlight
+   * @param highlight Whether to highlight the node or not
+   */
+
+  function setNodeHighlight(address: string, highlight: boolean) {
+    const node = nodesRecord[address];
+    if (node) {
+      const newNode: Node = {
+        ...node,
+        data: {
+          ...node.data,
+          highlight: highlight,
+        },
+      };
+      setNodes((nodes) => {
+        const newNodes = nodes.filter((node) => node.id !== address);
+        newNodes.push(newNode);
+        return newNodes;
+      });
+    }
+  }
+
   // Edge Hovering ------------------------------------------------------------
 
   const [hoveredTransferData, setHoveredTransferData] =
     useState<TransactionTooltipProps | null>(null);
+
+  // Smooth Panning -----------------------------------------------------------
+
+  const panTo = useCallback(
+    (x: number, y: number, zoom: number) => {
+      setViewport({ x, y, zoom }, { duration: 800 });
+    },
+    [setViewport],
+  );
 
   // Automatic Layout ---------------------------------------------------------
 
@@ -430,6 +470,7 @@ const GraphProvided: FC<GraphProvidedProps> = ({
   function doLayout(): void {
     const { filteredNodes, filteredEdges } = filterLayoutElements();
     setLayoutedElements(filteredNodes, filteredEdges);
+    panTo(0, 0, 0.25);
   }
 
   // Link Share ----------------------------------------------------------------
@@ -485,6 +526,7 @@ const GraphProvided: FC<GraphProvidedProps> = ({
     setHoveredTransferData,
     doLayout,
     copyLink,
+    setNodeHighlight,
     focusedAddressData,
   };
 
@@ -529,11 +571,7 @@ const GraphProvided: FC<GraphProvidedProps> = ({
               aria-hidden="true"
               src="https://tailwindui.com/img/beams-home@95.jpg"
             />
-            <Controls
-              position="top-right"
-              showFitView={false}
-              showInteractive={false}
-            />
+            <Controls position="top-right" showInteractive={false} />
             <Background />
             <Panel position="top-left">
               <Legend />
