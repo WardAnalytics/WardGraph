@@ -1,61 +1,59 @@
+import { Transition } from "@headlessui/react";
 import {
-  createContext,
-  useEffect,
-  useRef,
-  useCallback,
-  useState,
-  useMemo,
   FC,
+  createContext,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
 } from "react";
 import ReactFlow, {
-  Node,
-  Edge,
-  useNodesState,
-  useEdgesState,
   Background,
+  Controls,
+  Edge,
+  Node,
+  Panel,
   ReactFlowProvider,
   SelectionMode,
+  useEdgesState,
+  useNodesState,
   useOnSelectionChange,
-  Panel,
-  useUpdateNodeInternals,
-  Controls,
   useReactFlow,
+  useUpdateNodeInternals,
 } from "reactflow";
 import "reactflow/dist/style.css";
-import { Transition } from "@headlessui/react";
 
 import { AddressAnalysis } from "../../api/model";
 
 import {
-  createAddressNode,
-  AddressNodeState,
-  AddressNode,
-} from "./custom_elements/nodes/AddressNode";
-import {
   TransfershipEdge,
   TransfershipEdgeStates,
 } from "./custom_elements/edges/TransfershipEdge";
+import {
+  AddressNode,
+  AddressNodeState,
+  createAddressNode,
+} from "./custom_elements/nodes/AddressNode";
 
 import {
-  convertEdgeListToRecord,
-  calculateLayoutedElements,
-  convertNodeListToRecord,
-  calculateNewAddressPath,
   calculateAddTransfershipEdges,
+  calculateLayoutedElements,
+  calculateNewAddressPath,
+  convertEdgeListToRecord,
+  convertNodeListToRecord,
 } from "./graph_calculations";
 
+import { logEvent } from "firebase/analytics";
+import { default as firebase } from "../../firebase/firebase";
 import DraggableWindow from "./AnalysisWindow/AnalysisWindow";
-import LandingPage from "./LandingPage/LandingPage";
 import Hotbar from "./Hotbar";
+import LandingPage from "./LandingPage/LandingPage";
 import Legend from "./Legend";
 import TransactionTooltip, {
   TransactionTooltipProps,
 } from "./TransactionTooltip";
-import { default as firebase } from "../../firebase/firebase";
-import { logEvent } from "firebase/analytics";
 
-import { default as firebase } from "../../firebase/firebase"
-import { logEvent } from "firebase/analytics";
 
 /* Pan on drag settings */
 const panOnDrag = [1, 2];
