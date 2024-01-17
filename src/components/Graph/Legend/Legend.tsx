@@ -1,9 +1,10 @@
-import { FC } from "react";
+import { FC, useContext } from "react";
 import { InformationCircleIcon } from "@heroicons/react/16/solid";
+import { GraphContext } from "../../../contexts/GraphContext";
 
 import "./LegendPath.css";
 
-const RightTip: FC = () => {
+const ForwardTip: FC = () => {
   return (
     <span className="flex flex-row items-center gap-x-1.5">
       <svg className="h-5" viewBox="0 0 50 20">
@@ -21,12 +22,12 @@ const RightTip: FC = () => {
           strokeLinecap="round"
         />
       </svg>
-      <h3 className="text-xs font-semibold text-blue-700"> Right </h3>
+      <h3 className="text-xs font-semibold text-blue-700"> Forward </h3>
     </span>
   );
 };
 
-const LeftTip: FC = () => {
+const BackwardTip: FC = () => {
   return (
     <span className="flex flex-row items-center gap-x-1.5">
       <svg className="h-5" viewBox="0 0 50 20">
@@ -44,18 +45,7 @@ const LeftTip: FC = () => {
           strokeLinecap="round"
         />
       </svg>
-      <h3 className="text-xs font-semibold text-orange-700">Left</h3>
-    </span>
-  );
-};
-
-const RiskTip: FC = () => {
-  return (
-    <span className="flex flex-row items-center gap-x-1.5">
-      <h1 className="flex h-9 w-9 items-center justify-center rounded-md bg-red-50 text-center text-sm font-medium text-red-700 ring-1 ring-inset ring-red-600/10">
-        8.2
-      </h1>
-      <h3 className="text-xs font-semibold text-red-700"> Risk </h3>
+      <h3 className="text-xs font-semibold text-orange-700">Backward</h3>
     </span>
   );
 };
@@ -68,11 +58,8 @@ const Legend: FC = () => {
         LEGEND
       </h2>
       <div className="flex flex-col gap-y-3 pt-3">
-        <RightTip />
-        <LeftTip />
-      </div>
-      <div className="flex flex-col gap-y-3 pt-3">
-        <RiskTip />
+        <ForwardTip />
+        <BackwardTip />
       </div>
     </div>
   );
