@@ -470,7 +470,7 @@ const GraphProvided: FC<GraphProvidedProps> = ({
         duration: 800,
         nodes: newNodes,
       });
-    }, 100);
+    }, 250);
   }
 
   // Link Share ----------------------------------------------------------------
