@@ -1,4 +1,5 @@
-import { FC, createContext, useRef } from "react";
+import { FC, createContext, useRef, useState, useEffect } from "react";
+import clsx from "clsx";
 
 import Draggable from "react-draggable";
 import Content from "./Content";
@@ -24,6 +25,13 @@ const DraggableWindow: FC<DraggableWindowProps> = ({
   analysisData,
   setFocusedAddressData,
 }) => {
+  const [hasBeenHovered, setHasBeenHovered] = useState<boolean>(false);
+  const nodeRef = useRef(null);
+
+  useEffect(() => {
+    setHasBeenHovered(false);
+  }, [analysisData]);
+
   if (analysisData === null) {
     return null;
   }
@@ -33,14 +41,18 @@ const DraggableWindow: FC<DraggableWindowProps> = ({
     address: analysisData.address,
   };
 
-  const nodeRef = useRef(null);
-
   return (
     <div className="pointer-events-none fixed z-50 h-full w-full">
       <AnalysisContext.Provider value={contextValue}>
         <Draggable nodeRef={nodeRef}>
           <div ref={nodeRef}>
-            <div className="pointer-events-auto w-[68rem] scale-75 divide-y divide-dashed divide-gray-200 overflow-hidden rounded-lg bg-white opacity-50 shadow-xl transition-opacity duration-300 hover:opacity-100">
+            <div
+              className={clsx(
+                "pointer-events-auto w-[68rem] scale-75 divide-y divide-dashed divide-gray-200 overflow-hidden rounded-lg bg-white shadow-xl transition-opacity duration-300",
+                hasBeenHovered ? "opacity-30 hover:opacity-100" : "opacity-100",
+              )}
+              onMouseEnter={() => setHasBeenHovered(true)}
+            >
               <div className="px-4 py-5">
                 <Header onExit={() => setFocusedAddressData(null)} />
               </div>
