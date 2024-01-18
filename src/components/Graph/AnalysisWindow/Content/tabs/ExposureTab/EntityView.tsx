@@ -1,18 +1,15 @@
-import { FC, useContext, useState, useMemo } from "react";
+import { FC, useContext } from "react";
 import { Transition } from "@headlessui/react";
 import { HashtagIcon } from "@heroicons/react/20/solid";
 import { ShareIcon } from "@heroicons/react/24/solid";
 
 import { Address } from "../../../../../../api/model";
 import formatNumber from "../../../../../../utils/formatNumber";
-import Delayed from "../../../../../common/Delayed";
 
 import BigButton from "../../../../../common/BigButton";
 import { AnalysisContext } from "../../../AnalysisWindow";
 import { GraphContext } from "../../../../Graph";
 import { ExposureTabContext } from "./ExposureTabGeneric";
-
-import Pagination from "../../../../../common/Pagination";
 
 // Address Row _________________________________________________________________
 
@@ -64,43 +61,26 @@ const AddressRow: FC<AddressRowProps> = ({ address }) => {
 
 const EntityView: FC = () => {
   const { focusedEntity } = useContext(ExposureTabContext)!;
-
-  const addresses = focusedEntity!.entity.addresses;
-
-  // Pagination
-  const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = 6;
-  const currentTableData: Address[] = useMemo(() => {
-    const firstPageIndex = (currentPage - 1) * pageSize;
-    const lastPageIndex = firstPageIndex + pageSize;
-    return addresses.slice(firstPageIndex, lastPageIndex);
-  }, [currentPage, addresses]);
-
   return (
     <div className="w-auto flex-grow flex-col space-y-2">
-      {currentTableData.map((address, index) => (
-        <Delayed
-          waitBeforeShow={currentPage === 1 ? index * (50 - index / 3) : 0}
+      {focusedEntity!.entity.addresses.map((address, index) => (
+        <Transition
+          appear={true}
+          show={true}
+          enter="transition-all ease-in-out transform duration-300 origin-left"
+          enterFrom="-translate-x-10 -translate-y-3 opacity-0 scale-50"
+          enterTo="translate-y-0 opacity-100 scale-100"
+          leave="transition-all ease-in-out transform duration-300 origin-left"
+          leaveFrom="translate-y-0 opacity-100 scale-100"
+          leaveTo="-translate-x-10 -translate-y-3 opacity-0 scale-50"
           key={address.hash}
+          style={{
+            transitionDelay: `${index * (50 - index / 10)}ms`,
+          }}
         >
-          <Transition
-            appear={true}
-            show={true}
-            enter={`transition-all ease-in-out transform`}
-            enterFrom="-translate-y-10 opacity-0"
-            enterTo="translate-y-0 opacity-100"
-            key={address.hash}
-          >
-            <AddressRow address={address} />
-          </Transition>
-        </Delayed>
+          <AddressRow address={address} />
+        </Transition>
       ))}
-      <Pagination
-        currentPage={currentPage}
-        totalCount={focusedEntity!.entity.addresses.length}
-        pageSize={pageSize}
-        onPageChange={(page: number) => setCurrentPage(page)}
-      />
     </div>
   );
 };

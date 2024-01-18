@@ -1,7 +1,7 @@
 import { FC, useState, useContext, useEffect } from "react";
 import { Transition } from "@headlessui/react";
 import { BLOCKCHAIN_TABS, Tab } from "./Tab";
-import "./Scrollbar.css";
+import "../Scrollbar.css";
 
 import Navbar from "./Navbar";
 import LoadingPulseMock from "./PulseMock";
@@ -79,8 +79,8 @@ const Content: FC = () => {
         </div>
       </div>
       <div
-        id="content-components"
-        className="content-component h-[29rem] w-full overflow-scroll overflow-x-hidden pl-3"
+        id="scrollbar"
+        className="scrollbar h-[29rem] w-full overflow-scroll overflow-x-hidden pl-3"
       >
         <AllContentComponents tabs={tabs} selectedTab={selectedTab} />
       </div>
