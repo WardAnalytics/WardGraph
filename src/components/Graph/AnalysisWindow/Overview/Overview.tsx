@@ -1,4 +1,11 @@
-import { FC, useState, useContext, useCallback, useMemo } from "react";
+import {
+  FC,
+  useState,
+  useContext,
+  useCallback,
+  useMemo,
+  useEffect,
+} from "react";
 import {
   ArrowDownLeftIcon,
   ArrowUpRightIcon,
@@ -17,9 +24,10 @@ import BigButton from "../../../common/BigButton";
 import EntityLogo from "../../../common/EntityLogo";
 import Badge from "../../../common/Badge";
 
-import "../Scrollbar.css";
-
 import { GraphContext } from "../../Graph";
+import { AnalysisContext } from "../../custom_elements/nodes/AddressNode/AddressNode/AddressNode";
+
+import "../Scrollbar.css";
 
 /** There can be 3 incoming states for an entity row:
  * - **Outgoing**: The address is sending funds to the entity
@@ -105,6 +113,12 @@ const EntityRow: FC<EntityRowProps> = ({
   // TODO - Import the path expansion method from the graph
   const [expandedPaths, setExpandedPaths] = useState<number>(0);
   const { addAddressPaths } = useContext(GraphContext);
+  const { analysisData } = useContext(AnalysisContext);
+
+  // Whenever analysisData changes, reset the expanded paths
+  useEffect(() => {
+    setExpandedPaths(0);
+  }, [analysisData]);
 
   const expandPath = useCallback(() => {
     if (expandedPaths < paths.length) {
@@ -270,12 +284,14 @@ const Overview: FC = () => {
             style={{
               transitionDelay: `${index * (100 - index / 10)}ms`,
             }}
+            key={row.entity + focusedAddressData.address}
           >
             <EntityRow
               entity={row.entity}
               totalIncoming={row.totalIncoming}
               totalOutgoing={row.totalOutgoing}
               paths={row.paths}
+              key={row.entity + focusedAddressData.address}
             />
           </Transition>
         ))}
