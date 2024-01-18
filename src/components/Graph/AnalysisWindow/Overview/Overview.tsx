@@ -6,6 +6,7 @@ import {
   useMemo,
   useEffect,
 } from "react";
+import clsx from "clsx";
 import {
   ArrowDownLeftIcon,
   ArrowUpRightIcon,
@@ -191,7 +192,10 @@ const EntityRow: FC<EntityRowProps> = ({
         if (!showExpandButton) return;
         expandPath();
       }}
-      className="flex w-full cursor-pointer flex-row items-center justify-between rounded-md p-2 transition-all duration-100 hover:bg-gray-100"
+      className={clsx(
+        "flex w-full flex-row items-center justify-between rounded-md p-2 transition-all duration-100",
+        showExpandButton && "hover:cursor-pointer hover:bg-gray-100",
+      )}
     >
       <span className="flex flex-row items-center gap-x-3">
         <EntityLogo entity={entity} className="h-12 w-12 rounded-full" />
@@ -281,6 +285,7 @@ const Overview: FC = () => {
             leave="transition-all ease-in-out transform duration-300 origin-left"
             leaveFrom="translate-y-0 opacity-100 scale-100"
             leaveTo="-translate-x-10 -translate-y-3 opacity-0 scale-50"
+            className="mr-2"
             style={{
               transitionDelay: `${index * (100 - index / 10)}ms`,
             }}
