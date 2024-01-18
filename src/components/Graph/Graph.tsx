@@ -18,6 +18,8 @@ import ReactFlow, {
   useOnSelectionChange,
   Panel,
   useUpdateNodeInternals,
+  Controls,
+  useReactFlow,
 } from "reactflow";
 import "reactflow/dist/style.css";
 import { Transition } from "@headlessui/react";
@@ -74,6 +76,8 @@ interface GraphContextProps {
   setHoveredTransferData: (data: TransactionTooltipProps | null) => void;
   copyLink: () => void;
   doLayout: () => void;
+  setNodeHighlight: (address: string, highlight: boolean) => void;
+  getNodeCount: () => number;
   focusedAddressData: AddressAnalysis | null;
 }
 
@@ -102,7 +106,9 @@ const GraphProvider: FC<GraphProviderProps> = ({
   const initialNodes = useMemo(() => {
     const nodes: Node[] = [];
     initialAddresses.forEach((address) => {
-      nodes.push(createAddressNode(address, AddressNodeState.MINIMIZED, 0, 0));
+      nodes.push(
+        createAddressNode(address, AddressNodeState.MINIMIZED, true, 0, 0),
+      );
     });
     return nodes;
   }, [initialAddresses]);
@@ -157,14 +163,37 @@ const GraphProvided: FC<GraphProvidedProps> = ({
 }) => {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+  const { fitView } = useReactFlow();
 
   // Regularly update the node internals to make sure edges are consistent
   const updateNodeInternals = useUpdateNodeInternals();
+  const prevNodeWidths = useRef<Map<string, number | null | undefined>>(
+    new Map(),
+  );
   useEffect(() => {
     nodes.forEach((node) => {
-      updateNodeInternals(node.id);
+      if (prevNodeWidths.current.get(node.id) !== node.width) {
+        prevNodeWidths.current.set(node.id, node.width);
+        updateNodeInternals(node.id);
+      }
     });
-  }, [nodes.length]);
+  }, [nodes]);
+
+  // For the first 3 seconds after mounting, we want to updateNodeInternals for all nodes every 100ms
+  const [firstUpdate, setFirstUpdate] = useState<boolean>(true);
+  useEffect(() => {
+    if (firstUpdate) {
+      const interval = setInterval(() => {
+        nodes.forEach((node) => {
+          updateNodeInternals(node.id);
+        });
+      }, 100);
+      setTimeout(() => {
+        clearInterval(interval);
+        setFirstUpdate(false);
+      }, 10000);
+    }
+  }, [firstUpdate]);
 
   // Record Optimization -------------------------------------------------------
 
@@ -348,24 +377,44 @@ const GraphProvided: FC<GraphProvidedProps> = ({
 
   // Path Expansion -----------------------------------------------------------
 
-  function addAddressPaths(paths: string[][], incoming: boolean) {
-    // Calculate result of adding path to the graph
-    const { nodes: newNodes, edges: newEdges } = calculateNewAddressPath(
-      nodes,
-      edges,
-      paths,
-      incoming,
-    );
+  // We use a ref to avoid stale closures
+  const nodesRef = useRef(nodes);
+  const edgesRef = useRef(edges);
 
-    // Set the new nodes and edges
-    setNodes(newNodes);
-    setEdges(newEdges);
-  }
+  useEffect(() => {
+    nodesRef.current = nodes;
+    edgesRef.current = edges;
+  }, [nodes, edges]);
 
-  function addEdges(newEdges: Edge[]) {
-    const newStateEdges = calculateAddTransfershipEdges(edges, newEdges);
-    setEdges(newStateEdges);
-  }
+  const addAddressPaths = useCallback(
+    (paths: string[][], incoming: boolean) => {
+      // Calculate result of adding path to the graph
+      const { nodes: newNodes, edges: newEdges } = calculateNewAddressPath(
+        nodesRef.current,
+        edgesRef.current,
+        paths,
+        incoming,
+      );
+
+      // Set the new nodes and edges
+      setNodes(newNodes);
+      setEdges(newEdges);
+    },
+    [nodes.length, edges.length],
+  );
+
+  // useEffect: Whenever addAddressPaths changes, log it
+  useEffect(() => {
+    console.log("addAddressPaths changed");
+  }, [addAddressPaths]);
+
+  const addEdges = useCallback(
+    (newEdges: Edge[]) => {
+      const newStateEdges = calculateAddTransfershipEdges(edges, newEdges);
+      setEdges(newStateEdges);
+    },
+    [edges, nodes],
+  );
 
   // Address Focusing ---------------------------------------------------------
 
@@ -374,6 +423,32 @@ const GraphProvided: FC<GraphProvidedProps> = ({
    * on top of the graph. */
   const [focusedAddressData, setFocusedAddressData] =
     useState<AddressAnalysis | null>(null);
+
+  // New Address Highlighting -------------------------------------------------
+
+  /** Sets the highlight of a node to either true or false.
+   *
+   * @param address The address of the node to highlight
+   * @param highlight Whether to highlight the node or not
+   */
+
+  function setNodeHighlight(address: string, highlight: boolean) {
+    const node = nodesRecord[address];
+    if (node) {
+      const newNode: Node = {
+        ...node,
+        data: {
+          ...node.data,
+          highlight: highlight,
+        },
+      };
+      setNodes((nodes) => {
+        const newNodes = nodes.filter((node) => node.id !== address);
+        newNodes.push(newNode);
+        return newNodes;
+      });
+    }
+  }
 
   // Edge Hovering ------------------------------------------------------------
 
@@ -399,14 +474,23 @@ const GraphProvided: FC<GraphProvidedProps> = ({
   function setLayoutedElements(
     filteredNodes: Node[],
     filteredEdges: Edge[],
-  ): void {
+  ): Node[] {
     const newNodes = calculateLayoutedElements(filteredNodes, filteredEdges);
     setNodes(newNodes);
+    return newNodes;
   }
 
   function doLayout(): void {
     const { filteredNodes, filteredEdges } = filterLayoutElements();
-    setLayoutedElements(filteredNodes, filteredEdges);
+    const newNodes: Node[] = setLayoutedElements(filteredNodes, filteredEdges);
+
+    setTimeout(() => {
+      fitView({
+        padding: 10,
+        duration: 800,
+        nodes: newNodes,
+      });
+    }, 250);
   }
 
   // Link Share ----------------------------------------------------------------
@@ -432,6 +516,12 @@ const GraphProvided: FC<GraphProvidedProps> = ({
     navigator.clipboard.writeText(getLink());
   }
 
+  // Getting the node count so that we can show the legend dynamically ---------
+
+  function getNodeCount(): number {
+    return nodes.length;
+  }
+
   // Set up the context
   const graphContext: GraphContextProps = {
     addAddressPaths,
@@ -443,6 +533,8 @@ const GraphProvided: FC<GraphProvidedProps> = ({
     setHoveredTransferData,
     doLayout,
     copyLink,
+    setNodeHighlight,
+    getNodeCount,
     focusedAddressData,
   };
 
@@ -479,13 +571,15 @@ const GraphProvided: FC<GraphProvidedProps> = ({
             selectionMode={SelectionMode.Partial}
             zoomOnDoubleClick={true}
             className="h-full w-full"
+            maxZoom={1.5}
+            minZoom={0.25}
           >
             <img
               className="-z-10 m-auto w-full scale-150 animate-pulse opacity-40"
               aria-hidden="true"
               src="https://tailwindui.com/img/beams-home@95.jpg"
             />
-
+            <Controls position="top-right" showInteractive={false} />
             <Background />
             <Panel position="top-left">
               <Legend />

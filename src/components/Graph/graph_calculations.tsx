@@ -251,6 +251,7 @@ export function calculateNewAddressPath(
       const node = createAddressNode(
         address,
         AddressNodeState.MINIMIZED,
+        true,
         cursor.x,
         cursor.y - nodesInStack * INTERSECTING_NODE_Y_OFFSET,
       );
@@ -283,7 +284,7 @@ export function calculateLayoutedElements(
   const dagreGraph = new Dagre.graphlib.Graph().setDefaultEdgeLabel(() => ({}));
   dagreGraph.setGraph({
     rankdir: direction,
-    ranksep: 100,
+    ranksep: 150,
     nodesep: 100,
   });
 
@@ -301,7 +302,6 @@ export function calculateLayoutedElements(
   Dagre.layout(dagreGraph);
 
   const newNodes: Node[] = [...nodes];
-
   dagreGraph.nodes().forEach((nodeId) => {
     const node = newNodes.find((n) => n.id === nodeId);
     if (node) {
