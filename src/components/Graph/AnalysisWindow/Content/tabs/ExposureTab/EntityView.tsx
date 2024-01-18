@@ -39,7 +39,12 @@ const AddressRow: FC<AddressRowProps> = ({ address }) => {
 
   return (
     <li className="flex w-full items-center space-x-3" key={address.hash}>
-      <div className="flex w-full flex-row items-center justify-between rounded-md p-2 transition-all duration-100 hover:bg-gray-100">
+      <div
+        className="flex w-full cursor-pointer flex-row items-center justify-between rounded-md p-2 transition-all duration-100 hover:bg-gray-100"
+        onClick={() => {
+          expand();
+        }}
+      >
         <div className="flex items-center gap-x-2 text-xs text-gray-500">
           <HashtagIcon className="h-7 w-7 text-gray-300" />
           <span className="flex-col items-center space-y-1">
@@ -51,7 +56,7 @@ const AddressRow: FC<AddressRowProps> = ({ address }) => {
             </p>
           </span>
         </div>
-        <BigButton text="Expand" Icon={ShareIcon} onClick={expand} />
+        <BigButton text="Expand" Icon={ShareIcon} onClick={() => {}} />
       </div>
     </li>
   );
