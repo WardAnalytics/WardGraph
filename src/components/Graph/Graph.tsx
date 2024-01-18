@@ -46,6 +46,7 @@ import {
 
 import analytics from '../../firebase/analytics';
 import firestore from '../../firebase/firestore';
+import generateShortUrl from "../../utils/generateShortUrl";
 import DraggableWindow from "./AnalysisWindow/AnalysisWindow";
 import Hotbar from "./Hotbar";
 import LandingPage from "./LandingPage/LandingPage";
@@ -53,7 +54,6 @@ import Legend from "./Legend";
 import TransactionTooltip, {
   TransactionTooltipProps,
 } from "./TransactionTooltip";
-import generateShortUrl from "../../utils/generateShortUrl";
 
 /* Pan on drag settings */
 const panOnDrag = [1, 2];
@@ -79,6 +79,7 @@ interface GraphContextProps {
   copyLink: (url: string) => void;
   doLayout: () => void;
   setNodeHighlight: (address: string, highlight: boolean) => void;
+  getNodeCount: () => number;
   focusedAddressData: AddressAnalysis | null;
 }
 
@@ -164,7 +165,7 @@ const GraphProvided: FC<GraphProvidedProps> = ({
 }) => {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
-  const { setViewport } = useReactFlow();
+  const { fitView } = useReactFlow();
 
   // Regularly update the node internals to make sure edges are consistent
   const updateNodeInternals = useUpdateNodeInternals();
@@ -378,24 +379,44 @@ const GraphProvided: FC<GraphProvidedProps> = ({
 
   // Path Expansion -----------------------------------------------------------
 
-  function addAddressPaths(paths: string[][], incoming: boolean) {
-    // Calculate result of adding path to the graph
-    const { nodes: newNodes, edges: newEdges } = calculateNewAddressPath(
-      nodes,
-      edges,
-      paths,
-      incoming,
-    );
+  // We use a ref to avoid stale closures
+  const nodesRef = useRef(nodes);
+  const edgesRef = useRef(edges);
 
-    // Set the new nodes and edges
-    setNodes(newNodes);
-    setEdges(newEdges);
-  }
+  useEffect(() => {
+    nodesRef.current = nodes;
+    edgesRef.current = edges;
+  }, [nodes, edges]);
 
-  function addEdges(newEdges: Edge[]) {
-    const newStateEdges = calculateAddTransfershipEdges(edges, newEdges);
-    setEdges(newStateEdges);
-  }
+  const addAddressPaths = useCallback(
+    (paths: string[][], incoming: boolean) => {
+      // Calculate result of adding path to the graph
+      const { nodes: newNodes, edges: newEdges } = calculateNewAddressPath(
+        nodesRef.current,
+        edgesRef.current,
+        paths,
+        incoming,
+      );
+
+      // Set the new nodes and edges
+      setNodes(newNodes);
+      setEdges(newEdges);
+    },
+    [nodes.length, edges.length],
+  );
+
+  // useEffect: Whenever addAddressPaths changes, log it
+  useEffect(() => {
+    console.log("addAddressPaths changed");
+  }, [addAddressPaths]);
+
+  const addEdges = useCallback(
+    (newEdges: Edge[]) => {
+      const newStateEdges = calculateAddTransfershipEdges(edges, newEdges);
+      setEdges(newStateEdges);
+    },
+    [edges, nodes],
+  );
 
   // Address Focusing ---------------------------------------------------------
 
@@ -436,15 +457,6 @@ const GraphProvided: FC<GraphProvidedProps> = ({
   const [hoveredTransferData, setHoveredTransferData] =
     useState<TransactionTooltipProps | null>(null);
 
-  // Smooth Panning -----------------------------------------------------------
-
-  const panTo = useCallback(
-    (x: number, y: number, zoom: number) => {
-      setViewport({ x, y, zoom }, { duration: 800 });
-    },
-    [setViewport],
-  );
-
   // Automatic Layout ---------------------------------------------------------
 
   function filterLayoutElements(): {
@@ -464,15 +476,23 @@ const GraphProvided: FC<GraphProvidedProps> = ({
   function setLayoutedElements(
     filteredNodes: Node[],
     filteredEdges: Edge[],
-  ): void {
+  ): Node[] {
     const newNodes = calculateLayoutedElements(filteredNodes, filteredEdges);
     setNodes(newNodes);
+    return newNodes;
   }
 
   function doLayout(): void {
     const { filteredNodes, filteredEdges } = filterLayoutElements();
-    setLayoutedElements(filteredNodes, filteredEdges);
-    panTo(0, 0, 0.25);
+    const newNodes: Node[] = setLayoutedElements(filteredNodes, filteredEdges);
+
+    setTimeout(() => {
+      fitView({
+        padding: 10,
+        duration: 800,
+        nodes: newNodes,
+      });
+    }, 250);
   }
 
   async function copyLink(url: string): Promise<void> {
@@ -484,6 +504,12 @@ const GraphProvided: FC<GraphProvidedProps> = ({
         });
       }
     })
+  }
+
+  // Getting the node count so that we can show the legend dynamically ---------
+
+  function getNodeCount(): number {
+    return nodes.length;
   }
 
   // Set up the context
@@ -499,6 +525,7 @@ const GraphProvided: FC<GraphProvidedProps> = ({
     getSharingLink: generateShortUrl,
     copyLink,
     setNodeHighlight,
+    getNodeCount,
     focusedAddressData,
   };
 
