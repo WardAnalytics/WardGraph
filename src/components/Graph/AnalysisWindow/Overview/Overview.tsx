@@ -1,4 +1,12 @@
-import { FC, useState, useContext, useCallback, useMemo } from "react";
+import {
+  FC,
+  useState,
+  useContext,
+  useCallback,
+  useMemo,
+  useEffect,
+} from "react";
+import clsx from "clsx";
 import {
   ArrowDownLeftIcon,
   ArrowUpRightIcon,
@@ -17,9 +25,10 @@ import BigButton from "../../../common/BigButton";
 import EntityLogo from "../../../common/EntityLogo";
 import Badge from "../../../common/Badge";
 
-import "../Scrollbar.css";
-
 import { GraphContext } from "../../Graph";
+import { AnalysisContext } from "../../custom_elements/nodes/AddressNode/AddressNode/AddressNode";
+
+import "../Scrollbar.css";
 
 /** There can be 3 incoming states for an entity row:
  * - **Outgoing**: The address is sending funds to the entity
@@ -105,6 +114,12 @@ const EntityRow: FC<EntityRowProps> = ({
   // TODO - Import the path expansion method from the graph
   const [expandedPaths, setExpandedPaths] = useState<number>(0);
   const { addAddressPaths } = useContext(GraphContext);
+  const { analysisData } = useContext(AnalysisContext);
+
+  // Whenever analysisData changes, reset the expanded paths
+  useEffect(() => {
+    setExpandedPaths(0);
+  }, [analysisData]);
 
   const expandPath = useCallback(() => {
     if (expandedPaths < paths.length) {
@@ -177,7 +192,10 @@ const EntityRow: FC<EntityRowProps> = ({
         if (!showExpandButton) return;
         expandPath();
       }}
-      className="flex w-full cursor-pointer flex-row items-center justify-between rounded-md p-2 transition-all duration-100 hover:bg-gray-100"
+      className={clsx(
+        "flex w-full flex-row items-center justify-between rounded-md p-2 transition-all duration-100",
+        showExpandButton && "hover:cursor-pointer hover:bg-gray-100",
+      )}
     >
       <span className="flex flex-row items-center gap-x-3">
         <EntityLogo entity={entity} className="h-12 w-12 rounded-full" />
@@ -267,15 +285,18 @@ const Overview: FC = () => {
             leave="transition-all ease-in-out transform duration-300 origin-left"
             leaveFrom="translate-y-0 opacity-100 scale-100"
             leaveTo="-translate-x-10 -translate-y-3 opacity-0 scale-50"
+            className="mr-2"
             style={{
               transitionDelay: `${index * (100 - index / 10)}ms`,
             }}
+            key={row.entity + focusedAddressData.address}
           >
             <EntityRow
               entity={row.entity}
               totalIncoming={row.totalIncoming}
               totalOutgoing={row.totalOutgoing}
               paths={row.paths}
+              key={row.entity + focusedAddressData.address}
             />
           </Transition>
         ))}

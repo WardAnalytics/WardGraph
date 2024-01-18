@@ -400,8 +400,13 @@ const GraphProvided: FC<GraphProvidedProps> = ({
       setNodes(newNodes);
       setEdges(newEdges);
     },
-    [nodes, edges],
+    [nodes.length, edges.length],
   );
+
+  // useEffect: Whenever addAddressPaths changes, log it
+  useEffect(() => {
+    console.log("addAddressPaths changed");
+  }, [addAddressPaths]);
 
   const addEdges = useCallback(
     (newEdges: Edge[]) => {
