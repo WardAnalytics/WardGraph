@@ -377,24 +377,39 @@ const GraphProvided: FC<GraphProvidedProps> = ({
 
   // Path Expansion -----------------------------------------------------------
 
-  function addAddressPaths(paths: string[][], incoming: boolean) {
-    // Calculate result of adding path to the graph
-    const { nodes: newNodes, edges: newEdges } = calculateNewAddressPath(
-      nodes,
-      edges,
-      paths,
-      incoming,
-    );
+  // We use a ref to avoid stale closures
+  const nodesRef = useRef(nodes);
+  const edgesRef = useRef(edges);
 
-    // Set the new nodes and edges
-    setNodes(newNodes);
-    setEdges(newEdges);
-  }
+  useEffect(() => {
+    nodesRef.current = nodes;
+    edgesRef.current = edges;
+  }, [nodes, edges]);
 
-  function addEdges(newEdges: Edge[]) {
-    const newStateEdges = calculateAddTransfershipEdges(edges, newEdges);
-    setEdges(newStateEdges);
-  }
+  const addAddressPaths = useCallback(
+    (paths: string[][], incoming: boolean) => {
+      // Calculate result of adding path to the graph
+      const { nodes: newNodes, edges: newEdges } = calculateNewAddressPath(
+        nodesRef.current,
+        edgesRef.current,
+        paths,
+        incoming,
+      );
+
+      // Set the new nodes and edges
+      setNodes(newNodes);
+      setEdges(newEdges);
+    },
+    [nodes, edges],
+  );
+
+  const addEdges = useCallback(
+    (newEdges: Edge[]) => {
+      const newStateEdges = calculateAddTransfershipEdges(edges, newEdges);
+      setEdges(newStateEdges);
+    },
+    [edges, nodes],
+  );
 
   // Address Focusing ---------------------------------------------------------
 

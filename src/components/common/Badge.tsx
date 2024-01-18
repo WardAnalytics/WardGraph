@@ -26,7 +26,7 @@ export default function Badge({ color, text, Icon }: BadgeProps) {
         ring,
       )}
     >
-      {Icon && <Icon className={`h-3 w-3 ${textColor}`} />}
+      {Icon && <Icon className={`mr-0.5 h-3 w-3 ${textColor}`} />}
       {text}
     </span>
   );
