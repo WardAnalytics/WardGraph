@@ -498,9 +498,9 @@ const GraphProvided: FC<GraphProvidedProps> = ({
   async function copyLink(url: string): Promise<void> {
     await firestore.storeUrl(url).then(async (shortenedUrl) => {
       if (shortenedUrl) {
-        await navigator.clipboard.writeText(shortenedUrl);
+        await navigator.clipboard.writeText(url);
         analytics.logAnalyticsEvent("copy_link", {
-          link: shortenedUrl,
+          link: url,
         });
       }
     })

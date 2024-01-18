@@ -11,37 +11,7 @@ import {
     XIcon
 } from 'react-share';
 
-import clsx from "clsx";
-import CopyToClipboardIcon from '../AnalysisWindow/Header/components/CopyToClipboardIcon';
-
-interface CopyLinkBarProps {
-    shareUrl: string
-}
-
-const CopyLinkBar: FC<CopyLinkBarProps> = ({ shareUrl }) => {
-    return (
-        <div className={clsx("flex rounded-md shadow-sm")}>
-            <div className="relative flex flex-grow items-stretch focus-within:z-10">
-                <input
-                    type="text"
-                    name="address"
-                    id="address"
-                    value={shareUrl}
-                    readOnly={true}
-                    className={
-                        "block w-full rounded-none rounded-l-md border-0 py-1.5 font-mono text-gray-500 ring-1 ring-inset ring-gray-300 transition-all text-xs sm:leading-6 focus:outline-none focus:ring-gray-300 focus:border-gray-500"}
-                />
-            </div>
-
-            <button
-                type="button"
-                className="relative -ml-px inline-flex items-center gap-x-1.5 rounded-r-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 transition-all hover:bg-gray-50 text"
-            >
-                <CopyToClipboardIcon textToCopy={shareUrl} />
-            </button>
-        </div>
-    );
-};
+import { FaLink } from "react-icons/fa";
 
 interface ShareDialogProps {
     shareUrl: string
@@ -105,6 +75,13 @@ const ShareDialog: FC<ShareDialogProps> = ({
                                     </div>
                                     <div className="mt-8">
                                         <div className='flex justify-center gap-x-6 text-xs text-gray-500'>
+                                            <button className='flex flex-col items-center gap-y-1 hover:cursor-pointer' onClick={onShareUrl}>
+                                                <FaLink size={32} className='border border-gray-300 rounded-full p-2' />
+                                                <div className='flex flex-col items-center'>
+                                                    <p>Copy</p>
+                                                    <p>Link</p>
+                                                </div>
+                                            </button>
                                             <LinkedinShareButton
                                                 url={shareUrl}
                                                 className='flex flex-col items-center gap-y-1'
@@ -138,10 +115,6 @@ const ShareDialog: FC<ShareDialogProps> = ({
                                                 <WhatsappIcon size={32} round />
                                                 <p>Whatsapp</p>
                                             </WhatsappShareButton>
-
-                                        </div>
-                                        <div className='mt-8'>
-                                            <CopyLinkBar shareUrl={shareUrl} />
                                         </div>
                                     </div>
                                 </Dialog.Panel>

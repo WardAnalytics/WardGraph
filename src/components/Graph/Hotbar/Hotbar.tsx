@@ -1,5 +1,5 @@
 import { RectangleGroupIcon, ShareIcon } from "@heroicons/react/24/solid";
-import { FC, useContext, useState } from "react";
+import { FC, useContext, useMemo, useState } from "react";
 
 import { GraphContext } from "../Graph";
 import ShareDialog from "../LandingPage/ShareDialog";
@@ -15,11 +15,13 @@ const Hotbar: FC = () => {
 
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
 
-  const shareUrl = getSharingLink();
+  const shareUrl = useMemo(() => getSharingLink(), []);
   console.log(shareUrl)
 
   const onShareUrl = () => {
     copyLink(shareUrl);
+    console.log("copied")
+    console.log(shareUrl)
   }
 
   const openShareDialog = () => {
