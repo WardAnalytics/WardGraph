@@ -44,8 +44,8 @@ import {
   convertNodeListToRecord,
 } from "./graph_calculations";
 
-import analytics from '../../firebase/analytics';
-import firestore, { StoreUrlObject } from '../../firebase/firestore';
+import analytics from "../../firebase/analytics";
+import firestore, { StoreUrlObject } from "../../firebase/firestore";
 import generateShortUrl from "../../utils/generateShortUrl";
 import DraggableWindow from "./AnalysisWindow/AnalysisWindow";
 import Hotbar from "./Hotbar";
@@ -75,7 +75,7 @@ interface GraphContextProps {
   getEdgeHandleID: (edgeID: string) => string;
   setFocusedAddressData: (data: AddressAnalysis | null) => void;
   setHoveredTransferData: (data: TransactionTooltipProps | null) => void;
-  getSharingLink: () => string
+  getSharingLink: () => string;
   copyLink: (url: string) => void;
   doLayout: () => void;
   setNodeHighlight: (address: string, highlight: boolean) => void;
@@ -523,7 +523,7 @@ const GraphProvided: FC<GraphProvidedProps> = ({
     const storeUrlObj: StoreUrlObject = {
       originalUrl: link,
       key: key,
-    }
+    };
 
     await firestore.storeUrl(storeUrlObj).then(async (id) => {
       if (id) {
@@ -532,7 +532,7 @@ const GraphProvided: FC<GraphProvidedProps> = ({
           link: shortenedUrl,
         });
       }
-    })
+    });
   }
 
   // Getting the node count so that we can show the legend dynamically ---------
