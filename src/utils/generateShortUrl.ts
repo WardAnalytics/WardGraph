@@ -8,7 +8,6 @@ import uuid from "react-uuid";
  */
 function generateShortUrl(): string {
   const key = uuid();
-  console.log(key);
 
   const shortenedUrl = `${window.location.origin}/short/${key}`;
   return shortenedUrl;

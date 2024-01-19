@@ -7,7 +7,6 @@ const RedirectShortUrl: FC = () => {
 
     async function getFullUrl(shortenedUrl: string) {
         const key = shortenedUrl.split("/").pop()
-        console.log(key)
 
         let fullUrl = null
         if (key) {

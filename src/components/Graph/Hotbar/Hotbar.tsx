@@ -16,12 +16,9 @@ const Hotbar: FC = () => {
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
 
   const shareUrl = useMemo(() => getSharingLink(), []);
-  console.log(shareUrl)
 
   const onShareUrl = () => {
     copyLink(shareUrl);
-    console.log("copied")
-    console.log(shareUrl)
   }
 
   const openShareDialog = () => {
