@@ -5,7 +5,6 @@ import EnvironmentPlugin from "vite-plugin-environment";
 // https://vitejs.dev/config/
 export default defineConfig({
   publicDir: "./public",
-  base: "",
   build: {
     sourcemap: true, // Enable devtool for debugging
     // Relative to the root
