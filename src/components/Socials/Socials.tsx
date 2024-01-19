@@ -1,7 +1,11 @@
 import clsx from "clsx";
 import { FC } from "react";
 
-import { FaDiscord as discord, FaGithub as github, FaLinkedin as linkedin } from "react-icons/fa";
+import {
+  FaDiscord as discord,
+  FaGithub as github,
+  FaLinkedin as linkedin,
+} from "react-icons/fa";
 import { IconType } from "react-icons/lib";
 
 interface Social {
@@ -31,7 +35,10 @@ const SocialList: Social[] = [
 const SocialButton: FC<Social> = ({ name, Icon, link }) => {
   return (
     <a href={link} target="_blank" rel="noreferrer">
-      <Icon aria-label={`${name} Icon`} className="h-8 w-8 p-1 opacity-50 backdrop-blur-sm transition-all duration-200 hover:opacity-70" />
+      <Icon
+        aria-label={`${name} Icon`}
+        className="h-8 w-8 p-1 opacity-50 backdrop-blur-sm transition-all duration-200 hover:opacity-70"
+      />
     </a>
   );
 };
