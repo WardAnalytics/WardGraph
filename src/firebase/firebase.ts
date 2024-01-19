@@ -1,6 +1,7 @@
 // Import the functions you need from the SDKs you need
 import { Analytics, getAnalytics } from "firebase/analytics";
 import { FirebaseApp, initializeApp } from "firebase/app";
+import { Firestore, getFirestore } from "firebase/firestore";
 
 const {
   VITE_FIREBASE_API_KEY: apiKey,
@@ -25,8 +26,10 @@ const firebaseConfig = {
 // Initialize Firebase
 const app: FirebaseApp = initializeApp(firebaseConfig);
 const analytics: Analytics = getAnalytics(app);
+const db: Firestore = getFirestore(app);
 
 export default {
   app,
   analytics,
+  db,
 };

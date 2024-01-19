@@ -1,13 +1,16 @@
-import { FC } from "react";
 import clsx from "clsx";
+import { FC } from "react";
 
-import discord from "../../assets/discord.svg";
-import github from "../../assets/github.svg";
-import linkedin from "../../assets/linkedin.svg";
+import {
+  FaDiscord as discord,
+  FaGithub as github,
+  FaLinkedin as linkedin,
+} from "react-icons/fa";
+import { IconType } from "react-icons/lib";
 
 interface Social {
   name: string;
-  Icon: string;
+  Icon: IconType;
   link: string;
 }
 
@@ -32,10 +35,9 @@ const SocialList: Social[] = [
 const SocialButton: FC<Social> = ({ name, Icon, link }) => {
   return (
     <a href={link} target="_blank" rel="noreferrer">
-      <img
-        src={Icon}
-        alt={`${name} Icon`}
-        className="h-8 w-8 rounded-full p-1 opacity-50 backdrop-blur-sm transition-all duration-200 hover:opacity-70"
+      <Icon
+        aria-label={`${name} Icon`}
+        className="h-8 w-8 p-1 opacity-50 backdrop-blur-sm transition-all duration-200 hover:opacity-70"
       />
     </a>
   );
