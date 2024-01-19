@@ -1,13 +1,13 @@
 import { FC, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import firestore from "../firebase/firestore";
 
 const RedirectShortUrl: FC = () => {
+    const { key } = useParams()
+
     const navigate = useNavigate();
 
-    async function getFullUrl(shortenedUrl: string) {
-        const key = shortenedUrl.split("/").pop()
-
+    async function getFullUrl() {
         let fullUrl = null
         if (key) {
             fullUrl = await firestore.getOriginalUrl(key)
@@ -19,8 +19,7 @@ const RedirectShortUrl: FC = () => {
     }
 
     useEffect(() => {
-        const shortenedUrl = window.location.href
-        getFullUrl(shortenedUrl).then(fullUrl => {
+        getFullUrl().then(fullUrl => {
             if (fullUrl) {
                 window.location.href = fullUrl
             } else {
@@ -28,7 +27,7 @@ const RedirectShortUrl: FC = () => {
                 console.error("Invalid url")
             }
         })
-    }, [])
+    }, [key,])
 
     return (
         // Animation of three dots to show that the page is loading

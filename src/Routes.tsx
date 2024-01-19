@@ -11,7 +11,7 @@ const PublicRoutes: RouteObject[] = [
     element: <GraphTemplate />,
   },
   {
-    path: "/short/*",
+    path: "/short/:key",
     element: <RedirectShortUrl />,
   },
   {
