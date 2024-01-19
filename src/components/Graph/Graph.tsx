@@ -53,6 +53,7 @@ import Legend from "./Legend";
 import TransactionTooltip, {
   TransactionTooltipProps,
 } from "./TransactionTooltip";
+import TutorialPopup from "../tutorial/TutorialPopup";
 
 
 /* Pan on drag settings */
@@ -138,14 +139,17 @@ const GraphProvider: FC<GraphProviderProps> = ({
 
   // We make sure to calculate the layouted nodes and edges before rendering
   return (
-    <div style={{ height: "100%" }}>
-      <ReactFlowProvider>
-        <GraphProvided
-          initialNodes={calculateLayoutedElements(initialNodes, initialEdges)}
-          initialEdges={initialEdges}
-        />
-      </ReactFlowProvider>
-    </div>
+    <>
+      <div style={{ height: "100%" }}>
+        <ReactFlowProvider>
+          <GraphProvided
+            initialNodes={calculateLayoutedElements(initialNodes, initialEdges)}
+            initialEdges={initialEdges}
+          />
+        </ReactFlowProvider>
+      </div>
+      <TutorialPopup />
+    </>
   );
 };
 

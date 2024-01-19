@@ -1,10 +1,11 @@
-import { Transition } from "@headlessui/react";
 import clsx from "clsx";
 import { FC, useEffect, useState } from "react";
 import Modal from "../common/Modal";
 import TutorialStepCard, { TutorialStep } from "./TutorialStepCard";
 
 interface TutorialProps {
+    show: boolean;
+    setShow: (show: boolean) => void;
     steps: TutorialStep[];
     initialStep?: number;
     className?: string;
@@ -17,16 +18,15 @@ enum SlidesDirection {
 }
 
 const Tutorial: FC<TutorialProps> = ({
+    show: isTutorialOpen,
+    setShow: setIsTutorialOpen,
     steps,
     initialStep = 0,
     className
 }) => {
     const [currentStep, setCurrentStep] = useState(initialStep);
-    const [isTutorialOpen, setIsTutorialOpen] = useState(true);
 
     const [slideDirection, setSlideDirection] = useState<SlidesDirection>(SlidesDirection.STILL);
-
-    console.log(slideDirection)
 
     const onSlideButtonClick = (direction: SlidesDirection) => {
         setSlideDirection(direction);
@@ -60,7 +60,8 @@ const Tutorial: FC<TutorialProps> = ({
                 <div className="flex justify-end mb-2">
                     <button
                         type="button"
-                        className="inline-flex rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                        className="inline-flex rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none"
+                        onClick={closeTutorial}
                     >
                         X
                     </button>
