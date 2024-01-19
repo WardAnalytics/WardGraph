@@ -1,4 +1,4 @@
-import { addDoc, collection, doc, getDoc } from "firebase/firestore";
+import { addDoc, collection, doc, getDoc, setDoc } from "firebase/firestore";
 import firebase from "./firebase";
 
 const db = firebase.db;
@@ -10,6 +10,7 @@ const db = firebase.db;
  * @returns
  */
 const getOriginalUrl = async (key: string) => {
+  console.log(key);
   const docRef = doc(db, "shortenedUrls", key);
   const docSnap = await getDoc(docRef);
 
@@ -20,25 +21,31 @@ const getOriginalUrl = async (key: string) => {
   }
 };
 
+export interface StoreUrlObject {
+  originalUrl: string;
+  key: string;
+}
+
 /**
  * Store the url in the database and return the key
  *
  * @param url
  * @returns
  */
-const storeUrl = async (url: string) => {
-  let key = null;
+const storeUrl = async (obj: StoreUrlObject) => {
+  const key = obj.key;
+  console.log(obj);
+
   try {
-    const shortUrlDoc = await addDoc(collection(db, "shortenedUrls"), {
-      originalUrl: url,
+    await setDoc(doc(collection(db, "shortenedUrls"), key), {
+      originalUrl: obj.originalUrl,
       created_at: new Date(),
     });
-    key = shortUrlDoc.id;
+
+    return key;
   } catch (e) {
     console.error(e);
   }
-
-  return key;
 };
 
 export default {

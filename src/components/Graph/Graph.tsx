@@ -45,7 +45,7 @@ import {
 } from "./graph_calculations";
 
 import analytics from '../../firebase/analytics';
-import firestore from '../../firebase/firestore';
+import firestore, { StoreUrlObject } from '../../firebase/firestore';
 import generateShortUrl from "../../utils/generateShortUrl";
 import DraggableWindow from "./AnalysisWindow/AnalysisWindow";
 import Hotbar from "./Hotbar";
@@ -495,12 +495,41 @@ const GraphProvided: FC<GraphProvidedProps> = ({
     }, 250);
   }
 
-  async function copyLink(url: string): Promise<void> {
-    await firestore.storeUrl(url).then(async (shortenedUrl) => {
-      if (shortenedUrl) {
-        await navigator.clipboard.writeText(url);
+  // Link Share ----------------------------------------------------------------
+
+  function getLink(): string {
+    const addressIDs: string[] = nodes.map((node) => node.id);
+    const addressPaths: string[] = edges
+      .filter(
+        (edge) =>
+          edge.data.state === TransfershipEdgeStates.REVEALED &&
+          nodesRecord[edge.source] &&
+          nodesRecord[edge.target],
+      )
+      .map((edge) => [edge.source, edge.target])
+      .filter((edge) => edge[0] && edge[1])
+      .map((edge) => edge.join("-"));
+    return `${window.location.origin}?addresses=${addressIDs.join(
+      ",",
+    )}&paths=${addressPaths.join(",")}`;
+  }
+
+  async function copyLink(shortenedUrl: string): Promise<void> {
+    const link = getLink();
+    const key = shortenedUrl.split("/").pop()!;
+
+    console.log("link: ", shortenedUrl);
+
+    const storeUrlObj: StoreUrlObject = {
+      originalUrl: link,
+      key: key,
+    }
+
+    await firestore.storeUrl(storeUrlObj).then(async (id) => {
+      if (id) {
+        await navigator.clipboard.writeText(shortenedUrl);
         analytics.logAnalyticsEvent("copy_link", {
-          link: url,
+          link: shortenedUrl,
         });
       }
     })

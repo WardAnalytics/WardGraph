@@ -1,4 +1,4 @@
-import uuid from "react-uuid";
+import { v4 as uuidv4 } from "uuid";
 
 /**
  * Stores the url in the database and returns the shortened url
@@ -7,7 +7,7 @@ import uuid from "react-uuid";
  * @returns The shortened url
  */
 function generateShortUrl(): string {
-  const key = uuid();
+  const key = uuidv4();
 
   const shortenedUrl = `${window.location.origin}/short/${key}`;
   return shortenedUrl;
