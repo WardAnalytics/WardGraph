@@ -1,22 +1,22 @@
-import { FC, useState } from "react";
 import { ClipboardIcon } from "@heroicons/react/24/outline";
+import { FC, useState } from "react";
 
 interface CopyToClipboardIconProps {
-  address: string;
+  textToCopy: string;
 }
 
-/** This component is an icon that copies the address to the clipboard.
- * It uses the navigator.clipboard API to copy the address to the clipboard.
+/** This component is an icon that copies a piece of text to the clipboard.
+ * It uses the navigator.clipboard API to copy the text to the clipboard.
  *
- * @param address: The address to copy
+ * @param textToCopy: The text to copy
  */
 
-const CopyToClipboardIcon: FC<CopyToClipboardIconProps> = ({ address }) => {
-  // Function for copying the address to the clipboard
+const CopyToClipboardIcon: FC<CopyToClipboardIconProps> = ({ textToCopy }) => {
+  // Function for copying text to the clipboard
   const [isCopied, setIsCopied] = useState(false);
   const copyToClipboard = async () => {
     try {
-      await navigator.clipboard.writeText(address);
+      await navigator.clipboard.writeText(textToCopy);
       setIsCopied(true);
       setTimeout(() => setIsCopied(false), 500);
     } catch (err) {
@@ -26,9 +26,8 @@ const CopyToClipboardIcon: FC<CopyToClipboardIconProps> = ({ address }) => {
 
   return (
     <ClipboardIcon
-      className={`h-5 w-5 cursor-pointer transition-all duration-200 ${
-        isCopied ? "text-blue-500" : "text-gray-400 hover:text-gray-500"
-      }`}
+      className={`h-5 w-5 cursor-pointer transition-all duration-200 ${isCopied ? "text-blue-500" : "text-gray-400 hover:text-gray-500"
+        }`}
       aria-hidden="true"
       onClick={copyToClipboard}
     />
