@@ -1,9 +1,11 @@
-import { FC } from "react";
+import { FC, useContext, useEffect, useState } from "react";
 import { InformationCircleIcon } from "@heroicons/react/16/solid";
+import { Transition } from "@headlessui/react";
+import { GraphContext } from "../Graph";
 
 import "./LegendPath.css";
 
-const RightTip: FC = () => {
+const ForwardTip: FC = () => {
   return (
     <span className="flex flex-row items-center gap-x-1.5">
       <svg className="h-5" viewBox="0 0 50 20">
@@ -21,12 +23,12 @@ const RightTip: FC = () => {
           strokeLinecap="round"
         />
       </svg>
-      <h3 className="text-xs font-semibold text-blue-700"> Right </h3>
+      <h3 className="text-xs font-semibold text-blue-700"> Forward </h3>
     </span>
   );
 };
 
-const LeftTip: FC = () => {
+const BackwardTip: FC = () => {
   return (
     <span className="flex flex-row items-center gap-x-1.5">
       <svg className="h-5" viewBox="0 0 50 20">
@@ -44,37 +46,42 @@ const LeftTip: FC = () => {
           strokeLinecap="round"
         />
       </svg>
-      <h3 className="text-xs font-semibold text-orange-700">Left</h3>
-    </span>
-  );
-};
-
-const RiskTip: FC = () => {
-  return (
-    <span className="flex flex-row items-center gap-x-1.5">
-      <h1 className="flex h-9 w-9 items-center justify-center rounded-md bg-red-50 text-center text-sm font-medium text-red-700 ring-1 ring-inset ring-red-600/10">
-        8.2
-      </h1>
-      <h3 className="text-xs font-semibold text-red-700"> Risk </h3>
+      <h3 className="text-xs font-semibold text-orange-700">Backward</h3>
     </span>
   );
 };
 
 const Legend: FC = () => {
+  const { getNodeCount } = useContext(GraphContext);
+  const [showLegend, setShowLegend] = useState<boolean>(false);
+
+  // When node count >= 2, set showLegend to true
+  useEffect(() => {
+    if (!showLegend && getNodeCount() >= 2) {
+      setShowLegend(true);
+    }
+  }, [getNodeCount]);
+
   return (
-    <div className="flex h-fit w-32 flex-col items-center gap-y-3 divide-y divide-gray-300 bg-white/10 p-3 backdrop-blur-sm">
-      <h2 className="flex flex-row items-center gap-x-1 text-xs font-semibold tracking-wide text-gray-600">
-        <InformationCircleIcon className="h-5 w-5 text-gray-400" />
-        LEGEND
-      </h2>
-      <div className="flex flex-col gap-y-3 pt-3">
-        <RightTip />
-        <LeftTip />
+    <Transition
+      show={showLegend}
+      appear={true}
+      enter="transition-all duration-1000"
+      enterFrom="opacity-0 scale-95 -translate-x-1/2"
+      enterTo="opacity-100 scale-100 translate-x-0"
+      className="h-fit w-fit"
+    >
+      <div className="flex h-fit w-32 flex-col items-center gap-y-3 divide-y divide-gray-300 bg-white/10 p-3 backdrop-blur-sm">
+        <h2 className="flex flex-row items-center gap-x-1 text-xs font-semibold tracking-wide text-gray-600">
+          <InformationCircleIcon className="h-5 w-5 text-gray-400" />
+          LEGEND
+        </h2>
+        <div className="flex flex-col gap-y-3 pt-3">
+          <ForwardTip />
+          <BackwardTip />
+        </div>
       </div>
-      <div className="flex flex-col gap-y-3 pt-3">
-        <RiskTip />
-      </div>
-    </div>
+    </Transition>
   );
 };
 
