@@ -10,9 +10,8 @@ import {
     WhatsappShareButton,
     XIcon
 } from 'react-share';
-
-import { FaLink } from "react-icons/fa";
-import { FaCheck } from "react-icons/fa6";
+import { LinkIcon } from '@heroicons/react/24/solid';
+import { CheckIcon } from '@heroicons/react/24/solid';
 
 interface CopyLinkButtonProps {
     onShareUrl: () => void
@@ -42,7 +41,7 @@ const CopyLinkButton: FC<CopyLinkButtonProps> = ({ onShareUrl }) => {
                 leaveFrom='opacity-100'
                 leaveTo='opacity-0'
             >
-                <FaLink size={32} className='p-2' />
+                <LinkIcon className='p-2 h-8 w-8' />
             </Transition>
             <Transition
                 className={'absolute'}
@@ -54,7 +53,7 @@ const CopyLinkButton: FC<CopyLinkButtonProps> = ({ onShareUrl }) => {
                 leaveFrom='opacity-100'
                 leaveTo='opacity-0'
             >
-                <FaCheck size={32} className='p-2' />
+                <CheckIcon className='p-2 h-8 w-8' />
             </Transition>
             <div className='h-8 w-8 p-2 border border-gray-300 rounded-full' />
             <div className='flex flex-col items-center text-xs text-gray-500'>
