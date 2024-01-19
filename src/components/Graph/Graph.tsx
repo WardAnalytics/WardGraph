@@ -44,8 +44,10 @@ import {
   convertNodeListToRecord,
 } from "./graph_calculations";
 
-import { logEvent } from "firebase/analytics";
-import { default as firebase } from "../../firebase/firebase";
+import analytics from "../../firebase/analytics";
+import firestore, { StoreUrlObject } from "../../firebase/firestore";
+import generateShortUrl from "../../utils/generateShortUrl";
+import TutorialPopup from "../tutorial/TutorialPopup";
 import DraggableWindow from "./AnalysisWindow/AnalysisWindow";
 import Hotbar from "./Hotbar";
 import LandingPage from "./LandingPage/LandingPage";
@@ -53,7 +55,6 @@ import Legend from "./Legend";
 import TransactionTooltip, {
   TransactionTooltipProps,
 } from "./TransactionTooltip";
-import TutorialPopup from "../tutorial/TutorialPopup";
 
 
 /* Pan on drag settings */
@@ -76,7 +77,8 @@ interface GraphContextProps {
   getEdgeHandleID: (edgeID: string) => string;
   setFocusedAddressData: (data: AddressAnalysis | null) => void;
   setHoveredTransferData: (data: TransactionTooltipProps | null) => void;
-  copyLink: () => void;
+  getSharingLink: () => string;
+  copyLink: (url: string) => void;
   doLayout: () => void;
   setNodeHighlight: (address: string, highlight: boolean) => void;
   getNodeCount: () => number;
@@ -517,8 +519,25 @@ const GraphProvided: FC<GraphProvidedProps> = ({
     )}&paths=${addressPaths.join(",")}`;
   }
 
-  function copyLink(): void {
-    navigator.clipboard.writeText(getLink());
+  async function copyLink(shortenedUrl: string): Promise<void> {
+    const link = getLink();
+    const key = shortenedUrl.split("/").pop()!;
+
+    console.log("link: ", shortenedUrl);
+
+    const storeUrlObj: StoreUrlObject = {
+      originalUrl: link,
+      key: key,
+    };
+
+    await firestore.storeUrl(storeUrlObj).then(async (id) => {
+      if (id) {
+        await navigator.clipboard.writeText(shortenedUrl);
+        analytics.logAnalyticsEvent("copy_link", {
+          link: shortenedUrl,
+        });
+      }
+    });
   }
 
   // Getting the node count so that we can show the legend dynamically ---------
@@ -537,6 +556,7 @@ const GraphProvided: FC<GraphProvidedProps> = ({
     setFocusedAddressData,
     setHoveredTransferData,
     doLayout,
+    getSharingLink: generateShortUrl,
     copyLink,
     setNodeHighlight,
     getNodeCount,
@@ -633,7 +653,7 @@ const Graph: FC = () => {
   const onSetSearchedAddress = (newAddress: string) => {
     setSearchedAddresses([newAddress]);
 
-    logEvent(firebase.analytics, "search_address", {
+    analytics.logAnalyticsEvent("search_address", {
       address: newAddress,
     });
   };
