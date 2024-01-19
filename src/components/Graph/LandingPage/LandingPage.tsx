@@ -3,7 +3,6 @@ import { FC } from "react";
 
 import logo from "../../../assets/ward-logo-blue-full.svg";
 import Searchbar from "./SearchBar";
-import ShareDialog from "./ShareDialog";
 
 const PossibleAddresses: string[] = [
   "0x1f9090aaE28b8a3dCeaDf281B0F12828e676c326",
