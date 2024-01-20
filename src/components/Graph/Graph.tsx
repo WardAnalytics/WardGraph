@@ -358,7 +358,7 @@ const GraphProvided: FC<GraphProvidedProps> = ({
   /** Deletes all selected nodes */
   function deleteSelectedNodes() {
     deleteNodes(selectedNodes);
-    setSelectedNodes([]);
+    onAddressFocusOff();
   }
 
   // Edge State Toggling ------------------------------------------------------
@@ -559,6 +559,10 @@ const GraphProvided: FC<GraphProvidedProps> = ({
     focusedAddressData,
   };
 
+  const onAddressFocusOff = useCallback(() => {
+    setFocusedAddressData(null);
+  }, []);
+
   const hotKeysMap: HotKeysType = {
     DELETE: {
       key: "delete",
@@ -605,7 +609,7 @@ const GraphProvided: FC<GraphProvidedProps> = ({
         >
           <DraggableWindow
             analysisData={focusedAddressData}
-            setFocusedAddressData={setFocusedAddressData}
+            onExit={onAddressFocusOff}
           />
           <ReactFlow
             nodes={nodes}

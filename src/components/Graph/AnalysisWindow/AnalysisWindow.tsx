@@ -27,7 +27,7 @@ export const AnalysisContext = createContext<AnalysisContextProps>({
 
 interface DraggableWindowProps {
   analysisData: AddressAnalysis | null;
-  setFocusedAddressData: (data: AddressAnalysis | null) => void;
+  onExit: () => void;
 }
 
 /** The draggable window that appears when an address is clicked on.
@@ -39,13 +39,13 @@ interface DraggableWindowProps {
  * exposed to and with thorough information.
  *
  * @param analysisData The analysis data of the address that was clicked on
- * @param setFocusedAddressData A function to set the focused address data to null when the window is closed
+ * @param onExit Callback that is called when the window is closed
  * @returns
  */
 
 const DraggableWindow: FC<DraggableWindowProps> = ({
   analysisData,
-  setFocusedAddressData,
+  onExit,
 }) => {
   const [hasBeenHovered, setHasBeenHovered] = useState<boolean>(false);
   const [analysisMode, setAnalysisMode] = useState<boolean>(false);
@@ -90,7 +90,7 @@ const DraggableWindow: FC<DraggableWindowProps> = ({
             >
               <div className="px-4 py-5">
                 <Header
-                  onExit={() => setFocusedAddressData(null)}
+                  onExit={onExit}
                   toggleAnalysisMode={toggleAnalysisMode}
                   analysisMode={analysisMode}
                 />
