@@ -519,8 +519,6 @@ const GraphProvided: FC<GraphProvidedProps> = ({
     const link = getLink();
     const key = shortenedUrl.split("/").pop()!;
 
-    console.log("link: ", shortenedUrl);
-
     const storeUrlObj: StoreUrlObject = {
       originalUrl: link,
       key: key,

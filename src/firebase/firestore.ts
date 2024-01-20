@@ -10,7 +10,6 @@ const db = firebase.db;
  * @returns
  */
 const getOriginalUrl = async (key: string) => {
-  console.log(key);
   const docRef = doc(db, "shortenedUrls", key);
   const docSnap = await getDoc(docRef);
 
@@ -34,7 +33,6 @@ export interface StoreUrlObject {
  */
 const storeUrl = async (obj: StoreUrlObject) => {
   const key = obj.key;
-  console.log(obj);
 
   try {
     await setDoc(doc(collection(db, "shortenedUrls"), key), {
