@@ -55,8 +55,6 @@ import TransactionTooltip, {
   TransactionTooltipProps,
 } from "./TransactionTooltip";
 
-import { default as firebase } from "../../firebase/firebase"
-import { logEvent } from "firebase/analytics";
 
 /* Pan on drag settings */
 const panOnDrag = [1, 2];
