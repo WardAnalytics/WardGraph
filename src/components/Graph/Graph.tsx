@@ -55,6 +55,7 @@ import TransactionTooltip, {
   TransactionTooltipProps,
 } from "./TransactionTooltip";
 
+
 /* Pan on drag settings */
 const panOnDrag = [1, 2];
 
