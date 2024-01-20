@@ -1,28 +1,31 @@
 @keyframes dash {
-  to {
-    stroke-dashoffset: 0;
-  }
+    to {
+        stroke-dashoffset: 0;
+    }
 }
 
 .animated-dotted-line {
-  stroke-dasharray: 10, 10;
-  stroke-dashoffset: 20;
-  animation: dash 1.2s linear infinite;
-  stroke-linecap: round; /* Add this line */
+    stroke-dasharray: 10, 10;
+    stroke-dashoffset: 20;
+    animation: dash 1.2s linear infinite;
+    stroke-linecap: round;
+    /* Add this line */
 }
 
 @keyframes dash-reverse {
-  from {
-    stroke-dashoffset: 0;
-  }
-  to {
-    stroke-dashoffset: 20;
-  }
+    from {
+        stroke-dashoffset: 0;
+    }
+
+    to {
+        stroke-dashoffset: 20;
+    }
 }
 
 .animated-dotted-line-reverse {
-  stroke-dasharray: 10, 10;
-  stroke-dashoffset: 0;
-  animation: dash-reverse 1.2s linear infinite;
-  stroke-linecap: round; /* Add this line */
+    stroke-dasharray: 10, 10;
+    stroke-dashoffset: 0;
+    animation: dash-reverse 1.2s linear infinite;
+    stroke-linecap: round;
+    /* Add this line */
 }

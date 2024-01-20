@@ -49,11 +49,12 @@ import firestore, { StoreUrlObject } from "../../firebase/firestore";
 import generateShortUrl from "../../utils/generateShortUrl";
 import DraggableWindow from "./AnalysisWindow/AnalysisWindow";
 import Hotbar from "./Hotbar";
-import Legend from "./Legend";
 import TransactionTooltip, {
   TransactionTooltipProps,
 } from "./TransactionTooltip";
 import LandingPage from "../LandingPage/LandingPage";
+import { HotKeysType } from "../../types/hotKeys";
+import Legend from "./Legend";
 
 /* Pan on drag settings */
 const panOnDrag = [1, 2];
@@ -558,18 +559,47 @@ const GraphProvided: FC<GraphProvidedProps> = ({
     focusedAddressData,
   };
 
+  const hotKeysMap: HotKeysType = {
+    DELETE: {
+      key: "delete",
+      handler: (event) => {
+        event.preventDefault();
+        deleteSelectedNodes();
+      },
+    },
+    BACKSPACE: {
+      key: "backspace",
+      handler: (event) => {
+        event.preventDefault();
+        deleteSelectedNodes();
+      },
+    },
+    ESCAPE: {
+      key: "escape",
+      handler: (event) => {
+        event.preventDefault();
+        setFocusedAddressData(null);
+      },
+    },
+  };
+
   return (
     <>
       <GraphContext.Provider value={graphContext}>
         <div
           className="h-full w-full"
           onKeyDown={(event) => {
-            if (event.key === "Delete" || event.key === "Backspace") {
-              // Delete all selected nodes
-              deleteSelectedNodes();
-            }
-            if (event.key === "Escape") {
-              setFocusedAddressData(null);
+            const hotKey = event.key.toLocaleLowerCase();
+            switch (hotKey) {
+              case hotKeysMap.DELETE.key:
+                hotKeysMap.DELETE.handler(event);
+                break;
+              case hotKeysMap.BACKSPACE.key:
+                hotKeysMap.BACKSPACE.handler(event);
+                break;
+              case hotKeysMap.ESCAPE.key:
+                hotKeysMap.ESCAPE.handler(event);
+                break;
             }
           }}
         >
