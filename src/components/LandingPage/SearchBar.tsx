@@ -1,12 +1,13 @@
-import { FC, useState, useMemo } from "react";
-import clsx from "clsx";
 import { Transition } from "@headlessui/react";
 import {
-  MagnifyingGlassIcon,
   ArrowUpRightIcon,
+  MagnifyingGlassIcon,
   XCircleIcon,
 } from "@heroicons/react/24/solid";
+import clsx from "clsx";
+import { FC, useMemo, useState } from "react";
 
+import { HotKeysType } from "../../types/hotKeys";
 import isValidAddress from "../../utils/isValidAddress";
 
 const InvalidAddressPopover: FC = () => {
@@ -40,6 +41,22 @@ const Searchbar: FC<SearchbarProps> = ({ className, onSearchAddress }) => {
 
   const isAddressValid = useMemo(() => isValidAddress(query), [query]);
 
+  const onSearchAddressHandler = () => {
+    if (isAddressValid) {
+      onSearchAddress(query);
+    }
+  }
+
+  const hotKeysMap: HotKeysType = {
+    SEARCH: {
+      key: "enter",
+      handler: (event) => {
+          event.preventDefault()
+          onSearchAddressHandler()
+        }
+    }
+  }
+
   return (
     <div className={clsx("flex rounded-md shadow-sm", className)}>
       <div className="relative flex flex-grow items-stretch focus-within:z-10">
@@ -58,11 +75,16 @@ const Searchbar: FC<SearchbarProps> = ({ className, onSearchAddress }) => {
           id="address"
           value={query}
           onChange={(event) => setQuery(event.target.value)}
-          onKeyDown={(event) => {
-            if (event.key === "Enter") {
-              if (isAddressValid) onSearchAddress(query);
+          onKeyDown={
+            (event) => {
+              const hotKey = event.key.toLocaleLowerCase()
+              switch (hotKey) {
+                case hotKeysMap.SEARCH.key:
+                  hotKeysMap.SEARCH.handler(event)
+                  break
+              }
             }
-          }}
+          }
           className={
             "block w-full rounded-none rounded-l-md border-0 py-1.5 pl-10 font-mono text-gray-900 ring-1 ring-inset ring-gray-300 transition-all placeholder:text-gray-400 focus:ring-2 focus:ring-inset sm:text-sm sm:leading-6" +
             (isAddressValid || !query
