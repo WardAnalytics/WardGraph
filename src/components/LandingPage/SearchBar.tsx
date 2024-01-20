@@ -7,7 +7,7 @@ import {
   XCircleIcon,
 } from "@heroicons/react/24/solid";
 
-import isValidAddress from "../../../utils/isValidAddress";
+import isValidAddress from "../../utils/isValidAddress";
 
 const InvalidAddressPopover: FC = () => {
   return (

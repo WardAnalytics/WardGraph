@@ -49,14 +49,11 @@ import firestore, { StoreUrlObject } from "../../firebase/firestore";
 import generateShortUrl from "../../utils/generateShortUrl";
 import DraggableWindow from "./AnalysisWindow/AnalysisWindow";
 import Hotbar from "./Hotbar";
-import LandingPage from "./LandingPage/LandingPage";
 import Legend from "./Legend";
 import TransactionTooltip, {
   TransactionTooltipProps,
 } from "./TransactionTooltip";
-
-import { default as firebase } from "../../firebase/firebase"
-import { logEvent } from "firebase/analytics";
+import LandingPage from "../LandingPage/LandingPage";
 
 /* Pan on drag settings */
 const panOnDrag = [1, 2];

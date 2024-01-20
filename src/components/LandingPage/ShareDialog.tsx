@@ -13,8 +13,8 @@ import {
 
 import { XMarkIcon } from "@heroicons/react/20/solid";
 
-import BigButton from "../../common/BigButton";
-import { LinkIcon, CheckIcon, ShareIcon } from "@heroicons/react/24/solid";
+import { CheckIcon, LinkIcon, ShareIcon } from "@heroicons/react/24/solid";
+import BigButton from "../common/BigButton";
 
 interface CopyLinkButtonProps {
   onShareUrl: () => void;

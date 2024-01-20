@@ -2,7 +2,7 @@ import { RectangleGroupIcon, ShareIcon } from "@heroicons/react/24/solid";
 import { FC, useContext, useMemo, useState } from "react";
 
 import { GraphContext } from "../Graph";
-import ShareDialog from "../LandingPage/ShareDialog";
+import ShareDialog from "../../LandingPage/ShareDialog";
 
 interface HotbarButton {
   onClick?: () => void;

@@ -1,7 +1,7 @@
 import { SparklesIcon } from "@heroicons/react/20/solid";
 import { FC } from "react";
 
-import logo from "../../../assets/ward-logo-blue-full.svg";
+import logo from "../../assets/ward-logo-blue-full.svg";
 import Searchbar from "./SearchBar";
 
 const PossibleAddresses: string[] = [
