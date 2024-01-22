@@ -1,30 +1,25 @@
-import { FC } from 'react';
-
-export interface TutorialStep {
-    title: string;
-    description: string;
-    image: string;
-}
+import { Transition } from "@headlessui/react";
+import { FC } from "react";
 
 interface TutorialStepCardProps {
-    step: TutorialStep;
-    className?: string;
+  Step: any;
+  show: boolean;
 }
 
-const TutorialStepCard: FC<TutorialStepCardProps> = ({
-    step,
-    className
-}) => {
-
-    return (
-        <div className={className}>
-            <div className="flex flex-col items-center gap-y-4">
-                <img src={step.image} alt={step.title} className="w-2/3" />
-                <h3 className="text-2xl font-bold">{step.title}</h3>
-                <p className="text-lg text-center">{step.description}</p>
-            </div>
-        </div>
-    );
-}
+const TutorialStepCard: FC<TutorialStepCardProps> = ({ Step, show }) => {
+  return (
+    <Transition
+      appear
+      show={show}
+      enter="ease-out transition-all duration-500"
+      enterFrom="opacity-0 -translate-x-1/2"
+      enterTo="opacity-100 translate-x-0"
+      leave="hidden duration-0"
+      className="h-fit w-fit"
+    >
+      <Step />
+    </Transition>
+  );
+};
 
 export default TutorialStepCard;

@@ -56,7 +56,6 @@ import TransactionTooltip, {
   TransactionTooltipProps,
 } from "./TransactionTooltip";
 
-
 /* Pan on drag settings */
 const panOnDrag = [1, 2];
 
@@ -82,6 +81,7 @@ interface GraphContextProps {
   doLayout: () => void;
   setNodeHighlight: (address: string, highlight: boolean) => void;
   getNodeCount: () => number;
+  setShowTutorial: (show: boolean) => void;
   focusedAddressData: AddressAnalysis | null;
 }
 
@@ -150,7 +150,6 @@ const GraphProvider: FC<GraphProviderProps> = ({
           />
         </ReactFlowProvider>
       </div>
-      <TutorialPopup />
     </>
   );
 };
@@ -546,6 +545,9 @@ const GraphProvided: FC<GraphProvidedProps> = ({
     return nodes.length;
   }
 
+  // Tutorial
+  const [showTutorial, setShowTutorial] = useState<boolean>(false);
+
   // Set up the context
   const graphContext: GraphContextProps = {
     addAddressPaths,
@@ -560,6 +562,7 @@ const GraphProvided: FC<GraphProvidedProps> = ({
     copyLink,
     setNodeHighlight,
     getNodeCount,
+    setShowTutorial,
     focusedAddressData,
   };
 
@@ -604,7 +607,11 @@ const GraphProvided: FC<GraphProvidedProps> = ({
               aria-hidden="true"
               src="https://tailwindui.com/img/beams-home@95.jpg"
             />
-            <Controls position="top-right" showInteractive={false} />
+            {<Controls position="top-right" showInteractive={false} />}
+            <TutorialPopup
+              showTutorial={showTutorial}
+              setShowTutorial={setShowTutorial}
+            />
             <Background />
             <Panel position="top-left">
               <Legend />

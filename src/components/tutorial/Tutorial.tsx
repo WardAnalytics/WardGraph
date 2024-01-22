@@ -1,135 +1,189 @@
-import clsx from "clsx";
 import { FC, useEffect, useState } from "react";
+import clsx from "clsx";
+import BigButton from "../common/BigButton";
+import {
+  XMarkIcon,
+  RocketLaunchIcon,
+  ArrowLeftIcon,
+  ArrowRightIcon,
+} from "@heroicons/react/24/outline";
+
 import Modal from "../common/Modal";
-import TutorialStepCard, { TutorialStep } from "./TutorialStepCard";
+import TutorialStepCard from "./TutorialStepCard";
 
 interface TutorialProps {
-    show: boolean;
-    setShow: (show: boolean) => void;
-    steps: TutorialStep[];
-    initialStep?: number;
-    className?: string;
+  show: boolean;
+  setShow: (show: boolean) => void;
+  steps: any[];
+  initialStep?: number;
 }
 
 enum SlidesDirection {
-    STILL,
-    NEXT,
-    PREV
+  STILL,
+  NEXT,
+  PREV,
 }
+
+interface ProgressCircleProps {
+  isCompleted: boolean;
+  isCurrent: boolean;
+  onClick: () => void;
+}
+
+const ProgressCircle: FC<ProgressCircleProps> = ({
+  isCompleted,
+  isCurrent,
+  onClick,
+}) => {
+  return (
+    <div
+      className="flex h-4 w-4 cursor-pointer flex-row items-center justify-center align-middle"
+      onClick={onClick}
+    >
+      {isCurrent && (
+        <div className="absolute h-4 w-4 rounded-full bg-blue-200" />
+      )}
+      {
+        <div
+          className={clsx(
+            "absolute h-2 w-2 rounded-full",
+            isCompleted ? "bg-blue-500" : "bg-gray-200",
+          )}
+        />
+      }
+    </div>
+  );
+};
+
+interface ProgressCirclesProps {
+  currentStep: number;
+  totalSteps: number;
+  setCurrentStep: (step: number) => void;
+}
+
+const ProgressCircles: FC<ProgressCirclesProps> = ({
+  currentStep,
+  totalSteps,
+  setCurrentStep,
+}) => {
+  return (
+    <div className="flex flex-row items-center justify-center gap-x-2">
+      {Array.from(Array(totalSteps).keys()).map((step) => {
+        return (
+          <ProgressCircle
+            key={step}
+            isCompleted={step <= currentStep}
+            isCurrent={step === currentStep}
+            onClick={() => {
+              setCurrentStep(step);
+            }}
+          />
+        );
+      })}
+    </div>
+  );
+};
 
 const Tutorial: FC<TutorialProps> = ({
-    show: isTutorialOpen,
-    setShow: setIsTutorialOpen,
-    steps,
-    initialStep = 0,
-    className
+  show: isTutorialOpen,
+  setShow: setIsTutorialOpen,
+  steps,
+  initialStep = 0,
 }) => {
-    const [currentStep, setCurrentStep] = useState(initialStep);
+  const [currentStep, setCurrentStep] = useState(initialStep);
 
-    const [slideDirection, setSlideDirection] = useState<SlidesDirection>(SlidesDirection.STILL);
+  const [slideDirection, setSlideDirection] = useState<SlidesDirection>(
+    SlidesDirection.STILL,
+  );
 
-    const onSlideButtonClick = (direction: SlidesDirection) => {
-        setSlideDirection(direction);
+  const onSlideButtonClick = (direction: SlidesDirection) => {
+    setSlideDirection(direction);
+  };
+
+  const changeSlide = () => {
+    switch (slideDirection) {
+      case SlidesDirection.NEXT:
+        setCurrentStep(currentStep + 1);
+        break;
+      case SlidesDirection.PREV:
+        setCurrentStep(currentStep - 1);
+        break;
+      default:
+        break;
     }
+    setSlideDirection(SlidesDirection.STILL);
+  };
 
-    const changeSlide = () => {
-        switch (slideDirection) {
-            case SlidesDirection.NEXT:
-                setCurrentStep(currentStep + 1);
-                break;
-            case SlidesDirection.PREV:
-                setCurrentStep(currentStep - 1);
-                break;
-            default:
-                break;
-        }
-        setSlideDirection(SlidesDirection.STILL);
-    }
+  const closeTutorial = () => {
+    setIsTutorialOpen(false);
+  };
 
-    const closeTutorial = () => {
-        setIsTutorialOpen(false);
-    }
+  useEffect(() => {
+    changeSlide();
+  }, [slideDirection]);
 
-    useEffect(() => {
-        changeSlide();
-    }, [slideDirection]);
-
-    return (
-        <Modal isOpen={isTutorialOpen} closeModal={closeTutorial}>
-            <div className={className}>
-                <div className="flex justify-end mb-2">
-                    <button
-                        type="button"
-                        className="inline-flex rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none"
-                        onClick={closeTutorial}
-                    >
-                        X
-                    </button>
-                </div>
-                <div className="flex flex-col items-center">
-                    <div className="flex justify-center">
-                        <TutorialStepCard
-                            step={steps[currentStep]}
-                            className={clsx(
-                                "transition-all duration-500",
-                                slideDirection === SlidesDirection.NEXT ? "translate-x-full" : "",
-                                slideDirection === SlidesDirection.PREV ? "-translate-x-full" : "",
-                            )}
-                        />
-                    </div>
-                    <div className="flex w-full justify-between mt-4">
-                        {currentStep !== 0
-                            ?
-                            <button
-                                type="button"
-                                className="inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-500 hover:bg-blue-400 focus:outline-none"
-                                onClick={() => onSlideButtonClick(SlidesDirection.PREV)}
-                            >
-                                <svg className="-ml-0.5 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
-                                    fill="currentColor" aria-hidden="true">
-                                    <path fillRule="evenodd"
-                                        d="M10.707 3.293a1 1 0 010 1.414L6.414 9H15a1 1 0 010 2H6.414l4.293 4.293a1 1 0
-                                    01-1.414 1.414l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 0z"
-                                        clipRule="evenodd" />
-                                </svg>
-                                Previous
-                            </button>
-                            :
-                            <div />
-                        }
-                        {
-                            currentStep !== steps.length - 1
-                                ?
-                                <button
-                                    type="button"
-                                    className="inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-500 hover:bg-blue-400 focus:outline-none"
-                                    onClick={() => onSlideButtonClick(SlidesDirection.NEXT)}
-                                    disabled={currentStep === steps.length - 1}
-                                >
-                                    Next
-                                    <svg className="ml-2 -mr-0.5 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
-                                        fill="currentColor" aria-hidden="true">
-                                        <path fillRule="evenodd"
-                                            d="M9.293 16.707a1 1 0 010-1.414L13.586 11H5a1 1 0 010-2h8.586l-4.293
-                                    -4.293a1 1 0 011.414-1.414l6 6a1 1 0 010 1.414l-6 6a1 1 0
-                                    01-1.414 0z"
-                                            clipRule="evenodd" />
-                                    </svg>
-                                </button>
-                                :
-                                <button
-                                    type="button"
-                                    className="inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-500 hover:bg-blue-400 focus:outline-none"
-                                    onClick={closeTutorial}
-                                >
-                                    Done
-                                </button>
-                        }
-                    </div>
-                </div>
-            </div>
-        </Modal >
-    );
-}
+  return (
+    <Modal isOpen={isTutorialOpen} closeModal={closeTutorial}>
+      <div className="w-[30rem]">
+        <div className="mb-2 flex w-full justify-end">
+          <XMarkIcon
+            className="h-7 w-7 cursor-pointer p-1 text-gray-400 hover:text-gray-500 focus:outline-none"
+            aria-hidden="true"
+            onClick={closeTutorial}
+          />
+        </div>
+        <div className="flex w-full flex-col items-center">
+          <div className="flex w-fit flex-row justify-center overflow-hidden">
+            {steps.map((_, index) => {
+              return (
+                <TutorialStepCard
+                  Step={steps[index]}
+                  key={index}
+                  show={index === currentStep}
+                />
+              );
+            })}
+          </div>
+          <div className=" mt-10 flex w-full justify-between">
+            {currentStep !== 0 ? (
+              <BigButton
+                onClick={() => {
+                  onSlideButtonClick(SlidesDirection.PREV);
+                }}
+                text="Previous"
+                Icon={ArrowLeftIcon}
+                className="w-28 ring-0"
+              />
+            ) : (
+              <div className="w-28 ring-0 hover:bg-white" />
+            )}
+            <ProgressCircles
+              currentStep={currentStep}
+              totalSteps={steps.length}
+              setCurrentStep={setCurrentStep}
+            />
+            {currentStep !== steps.length - 1 ? (
+              <BigButton
+                onClick={() => {
+                  onSlideButtonClick(SlidesDirection.NEXT);
+                }}
+                text="Next"
+                Icon={ArrowRightIcon}
+                className="w-28 ring-0 hover:bg-white"
+              />
+            ) : (
+              <BigButton
+                onClick={closeTutorial}
+                text="Done"
+                Icon={RocketLaunchIcon}
+                className="w-28"
+              />
+            )}
+          </div>
+        </div>
+      </div>
+    </Modal>
+  );
+};
 
 export default Tutorial;
