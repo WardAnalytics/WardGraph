@@ -72,11 +72,11 @@ const Hotbar: FC = () => {
     <>
       <div className="flex h-fit w-fit flex-col gap-y-1 divide-y-2 divide-gray-600 rounded-lg bg-gray-800  p-2">
         <HotbarButtonGroup>
-          <HotbarButton
+          {/* <HotbarButton
             Icon={MagnifyingGlassPlusIcon}
             name="Search Address"
             onClick={() => {}}
-          />
+          /> */}
           <HotbarButton
             Icon={RectangleGroupIcon}
             name="Organize Layout"

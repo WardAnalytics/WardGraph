@@ -133,7 +133,7 @@ const Tutorial: FC<TutorialProps> = ({
           />
         </div>
         <div className="flex w-full flex-col items-center">
-          <div className="flex w-fit flex-row justify-center overflow-hidden">
+          <div className="flex min-h-[20rem] w-fit flex-row justify-center overflow-hidden">
             {steps.map((_, index) => {
               return (
                 <TutorialStepCard
