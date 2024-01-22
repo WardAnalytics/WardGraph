@@ -17,6 +17,7 @@ import ReactFlow, {
   ReactFlowProvider,
   SelectionMode,
   useEdgesState,
+  useKeyPress,
   useNodesState,
   useOnSelectionChange,
   useReactFlow,
@@ -47,14 +48,19 @@ import {
 import analytics from "../../firebase/analytics";
 import firestore, { StoreUrlObject } from "../../firebase/firestore";
 import generateShortUrl from "../../utils/generateShortUrl";
+import LandingPage from "../LandingPage/LandingPage";
 import DraggableWindow from "./AnalysisWindow/AnalysisWindow";
 import Hotbar from "./Hotbar";
+import Legend from "./Legend";
 import TransactionTooltip, {
   TransactionTooltipProps,
 } from "./TransactionTooltip";
-import LandingPage from "../LandingPage/LandingPage";
-import { HotKeysType } from "../../types/hotKeys";
-import Legend from "./Legend";
+
+enum HotKeyMap {
+  DELETE = 1,
+  BACKSPACE,
+  ESCAPE,
+}
 
 /* Pan on drag settings */
 const panOnDrag = [1, 2];
@@ -557,54 +563,37 @@ const GraphProvided: FC<GraphProvidedProps> = ({
     focusedAddressData,
   };
 
-  const onAddressFocusOff = useCallback(() => {
+  const onAddressFocusOff = () => {
     setFocusedAddressData(null);
-  }, []);
-
-  const hotKeysMap: HotKeysType = {
-    DELETE: {
-      key: "delete",
-      handler: (event) => {
-        event.preventDefault();
-        deleteSelectedNodes();
-      },
-    },
-    BACKSPACE: {
-      key: "backspace",
-      handler: (event) => {
-        event.preventDefault();
-        deleteSelectedNodes();
-      },
-    },
-    ESCAPE: {
-      key: "escape",
-      handler: (event) => {
-        event.preventDefault();
-        setFocusedAddressData(null);
-      },
-    },
   };
+
+  // Key Press Handling -------------------------------------------------------
+  const deleteKeyPressed = useKeyPress("Delete") ? HotKeyMap.DELETE : false;
+  const backspaceKeyPressed = useKeyPress("Backspace") ? HotKeyMap.BACKSPACE : false;
+  const escapeKeyPressed = useKeyPress("Escape") ? HotKeyMap.ESCAPE : false;
+
+  const keyPressed = useMemo(() => deleteKeyPressed || backspaceKeyPressed || escapeKeyPressed, [deleteKeyPressed, backspaceKeyPressed, escapeKeyPressed])
+
+  useEffect(() => {
+    switch (keyPressed) {
+      case HotKeyMap.DELETE:
+      case HotKeyMap.BACKSPACE:
+        deleteSelectedNodes()
+        console.log("delete")
+        break;
+      case HotKeyMap.ESCAPE:
+        onAddressFocusOff()
+        console.log("escape")
+        break;
+      default:
+        break;
+    }
+  }, [keyPressed])
 
   return (
     <>
       <GraphContext.Provider value={graphContext}>
-        <div
-          className="h-full w-full"
-          onKeyDown={(event) => {
-            const hotKey = event.key.toLocaleLowerCase();
-            switch (hotKey) {
-              case hotKeysMap.DELETE.key:
-                hotKeysMap.DELETE.handler(event);
-                break;
-              case hotKeysMap.BACKSPACE.key:
-                hotKeysMap.BACKSPACE.handler(event);
-                break;
-              case hotKeysMap.ESCAPE.key:
-                hotKeysMap.ESCAPE.handler(event);
-                break;
-            }
-          }}
-        >
+        <div className="h-full w-full">
           <DraggableWindow
             analysisData={focusedAddressData}
             onExit={onAddressFocusOff}
