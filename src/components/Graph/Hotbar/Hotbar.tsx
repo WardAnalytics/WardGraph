@@ -1,6 +1,10 @@
 import { RectangleGroupIcon, ShareIcon } from "@heroicons/react/24/solid";
 import { FC, useContext, useEffect, useMemo, useState } from "react";
 
+import {
+  QuestionMarkCircleIcon
+} from "@heroicons/react/24/outline";
+import clsx from "clsx";
 import { useKeyPress } from "reactflow";
 import ShareDialog from "../../LandingPage/ShareDialog";
 import { GraphContext } from "../Graph";
@@ -61,8 +65,30 @@ const HotbarButton: FC<HotbarButtonProps> = ({
   )
 }
 
+interface HotbarButtonGroupProps {
+  children: any;
+  className?: string;
+}
+
+const HotbarButtonGroup: FC<HotbarButtonGroupProps> = ({
+  children,
+  className,
+}) => {
+  return (
+    <div
+      className={clsx(
+        "flex flex-col items-center justify-center gap-y-0.5",
+        className,
+      )}
+    >
+      {children}
+    </div>
+  );
+};
+
 const Hotbar: FC = () => {
-  const { doLayout, copyLink, getSharingLink } = useContext(GraphContext);
+  const { doLayout, copyLink, getSharingLink, setShowTutorial } =
+    useContext(GraphContext);
 
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
 
@@ -70,33 +96,51 @@ const Hotbar: FC = () => {
 
   const onShareUrl = () => {
     copyLink(shareUrl);
-  }
+  };
 
   const openShareDialog = () => {
     setIsShareDialogOpen(true);
   }
 
-  const Buttons = [
-    <HotbarButton
-      Icon={RectangleGroupIcon}
-      name="Organize Layout"
-      onClick={doLayout}
-      hotKey="l"
-    />,
-    <HotbarButton
-      Icon={ShareIcon}
-      name="Share"
-      onClick={openShareDialog}
-      hotKey="e"
-    />
-  ]
-
   return (
     <>
-      <div className="flex h-fit w-fit flex-col gap-y-1 rounded-lg bg-gray-800 p-2">
-        {Buttons.map((button) => button)}
+      <div className="flex h-fit w-fit flex-col gap-y-1 divide-y-2 divide-gray-600 rounded-lg bg-gray-800  p-2">
+        <HotbarButtonGroup>
+          {/* <HotbarButton
+            Icon={MagnifyingGlassPlusIcon}
+            name="Search Address"
+            onClick={() => {}}
+          /> */}
+          <HotbarButton
+            Icon={RectangleGroupIcon}
+            name="Organize Layout"
+            onClick={doLayout}
+            hotKey="l"
+          />
+        </HotbarButtonGroup>
+        <HotbarButtonGroup className="pt-1">
+          <HotbarButton
+            Icon={ShareIcon}
+            name="Share"
+            onClick={openShareDialog}
+            hotKey="e"
+          />
+          <HotbarButton
+            Icon={QuestionMarkCircleIcon}
+            name="Tutorial"
+            onClick={() => {
+              setShowTutorial(true);
+            }}
+            hotKey="t"
+          />
+        </HotbarButtonGroup>
       </div>
-      <ShareDialog shareUrl={shareUrl} isOpen={isShareDialogOpen} setIsOpen={setIsShareDialogOpen} onShareUrl={onShareUrl} />
+      <ShareDialog
+        shareUrl={shareUrl}
+        isOpen={isShareDialogOpen}
+        setIsOpen={setIsShareDialogOpen}
+        onShareUrl={onShareUrl}
+      />
     </>
   );
 };

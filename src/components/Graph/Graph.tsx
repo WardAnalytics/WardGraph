@@ -49,6 +49,7 @@ import analytics from "../../firebase/analytics";
 import firestore, { StoreUrlObject } from "../../firebase/firestore";
 import generateShortUrl from "../../utils/generateShortUrl";
 import LandingPage from "../LandingPage/LandingPage";
+import TutorialPopup from "../tutorial/TutorialPopup";
 import DraggableWindow from "./AnalysisWindow/AnalysisWindow";
 import Hotbar from "./Hotbar";
 import Legend from "./Legend";
@@ -87,6 +88,7 @@ interface GraphContextProps {
   doLayout: () => void;
   setNodeHighlight: (address: string, highlight: boolean) => void;
   getNodeCount: () => number;
+  setShowTutorial: (show: boolean) => void;
   focusedAddressData: AddressAnalysis | null;
 }
 
@@ -146,14 +148,16 @@ const GraphProvider: FC<GraphProviderProps> = ({
 
   // We make sure to calculate the layouted nodes and edges before rendering
   return (
-    <div style={{ height: "100%" }}>
-      <ReactFlowProvider>
-        <GraphProvided
-          initialNodes={calculateLayoutedElements(initialNodes, initialEdges)}
-          initialEdges={initialEdges}
-        />
-      </ReactFlowProvider>
-    </div>
+    <>
+      <div style={{ height: "100%" }}>
+        <ReactFlowProvider>
+          <GraphProvided
+            initialNodes={calculateLayoutedElements(initialNodes, initialEdges)}
+            initialEdges={initialEdges}
+          />
+        </ReactFlowProvider>
+      </div>
+    </>
   );
 };
 
@@ -546,6 +550,9 @@ const GraphProvided: FC<GraphProvidedProps> = ({
     return nodes.length;
   }
 
+  // Tutorial
+  const [showTutorial, setShowTutorial] = useState<boolean>(false);
+
   // Set up the context
   const graphContext: GraphContextProps = {
     addAddressPaths,
@@ -560,6 +567,7 @@ const GraphProvided: FC<GraphProvidedProps> = ({
     copyLink,
     setNodeHighlight,
     getNodeCount,
+    setShowTutorial,
     focusedAddressData,
   };
 
@@ -620,7 +628,11 @@ const GraphProvided: FC<GraphProvidedProps> = ({
               aria-hidden="true"
               src="https://tailwindui.com/img/beams-home@95.jpg"
             />
-            <Controls position="top-right" showInteractive={false} />
+            {<Controls position="top-right" showInteractive={false} />}
+            <TutorialPopup
+              showTutorial={showTutorial}
+              setShowTutorial={setShowTutorial}
+            />
             <Background />
             <Panel position="top-left">
               <Legend />
