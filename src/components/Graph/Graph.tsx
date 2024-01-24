@@ -556,7 +556,6 @@ const GraphProvided: FC<GraphProvidedProps> = ({
 
     setTimeout(() => {
       fitView({
-        padding: 10,
         duration: 800,
         nodes: newNodes,
       });
