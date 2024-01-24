@@ -18,6 +18,7 @@ import ReactFlow, {
   SelectionMode,
   useEdgesState,
   useNodesState,
+  useKeyPress,
   useOnSelectionChange,
   useReactFlow,
   useUpdateNodeInternals,
@@ -56,6 +57,11 @@ import TransactionTooltip, {
   TransactionTooltipProps,
 } from "./TransactionTooltip";
 
+enum HotKeyMap {
+  DELETE = 1,
+  BACKSPACE,
+  ESCAPE,
+}
 
 /* Pan on drag settings */
 const panOnDrag = [1, 2];
@@ -83,6 +89,7 @@ interface GraphContextProps {
   setNodeHighlight: (address: string, highlight: boolean) => void;
   getNodeCount: () => number;
   setShowTutorial: (show: boolean) => void;
+  addNewAddressToCenter: (address: string) => void;
   focusedAddressData: AddressAnalysis | null;
 }
 
@@ -170,7 +177,7 @@ const GraphProvided: FC<GraphProvidedProps> = ({
 }) => {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
-  const { fitView } = useReactFlow();
+  const { fitView, screenToFlowPosition } = useReactFlow();
 
   // Regularly update the node internals to make sure edges are consistent
   const updateNodeInternals = useUpdateNodeInternals();
@@ -362,8 +369,41 @@ const GraphProvided: FC<GraphProvidedProps> = ({
   /** Deletes all selected nodes */
   function deleteSelectedNodes() {
     deleteNodes(selectedNodes);
-    setSelectedNodes([]);
+    onAddressFocusOff();
   }
+
+  const onAddressFocusOff = () => {
+    setFocusedAddressData(null);
+  };
+
+  // Key Press Handling -------------------------------------------------------
+
+  const deleteKeyPressed = useKeyPress("Delete") ? HotKeyMap.DELETE : false;
+  const backspaceKeyPressed = useKeyPress("Backspace")
+    ? HotKeyMap.BACKSPACE
+    : false;
+  const escapeKeyPressed = useKeyPress("Escape") ? HotKeyMap.ESCAPE : false;
+
+  const keyPressed = useMemo(
+    () => deleteKeyPressed || backspaceKeyPressed || escapeKeyPressed,
+    [deleteKeyPressed, backspaceKeyPressed, escapeKeyPressed],
+  );
+
+  useEffect(() => {
+    switch (keyPressed) {
+      case HotKeyMap.DELETE:
+      case HotKeyMap.BACKSPACE:
+        deleteSelectedNodes();
+        setSelectedNodes([]);
+        break;
+      case HotKeyMap.ESCAPE:
+        onAddressFocusOff();
+        setSelectedNodes([]);
+        break;
+      default:
+        break;
+    }
+  }, [keyPressed]);
 
   // Edge State Toggling ------------------------------------------------------
 
@@ -455,6 +495,29 @@ const GraphProvided: FC<GraphProvidedProps> = ({
         return newNodes;
       });
     }
+  }
+
+  // Adding New Address -------------------------------------------------------
+
+  function addNewAddressToCenter(address: string) {
+    // Calculate flow position of the center of the screen
+    const centerX = window.innerWidth / 2;
+    const centerY = window.innerHeight / 2;
+    const graphCenterPosition = screenToFlowPosition({
+      x: centerX,
+      y: centerY,
+    });
+
+    // Add new node while accounting for the node width and height so that it's truly at the center
+    const newNode = createAddressNode(
+      address,
+      AddressNodeState.MINIMIZED,
+      true,
+      graphCenterPosition.x - 100,
+      graphCenterPosition.y - 50,
+    );
+    const newNodes = [...nodes, newNode];
+    setNodes(newNodes);
   }
 
   // Edge Hovering ------------------------------------------------------------
@@ -564,27 +627,17 @@ const GraphProvided: FC<GraphProvidedProps> = ({
     setNodeHighlight,
     getNodeCount,
     setShowTutorial,
+    addNewAddressToCenter,
     focusedAddressData,
   };
 
   return (
     <>
       <GraphContext.Provider value={graphContext}>
-        <div
-          className="h-full w-full"
-          onKeyDown={(event) => {
-            if (event.key === "Delete" || event.key === "Backspace") {
-              // Delete all selected nodes
-              deleteSelectedNodes();
-            }
-            if (event.key === "Escape") {
-              setFocusedAddressData(null);
-            }
-          }}
-        >
+        <div className="h-full w-full">
           <DraggableWindow
             analysisData={focusedAddressData}
-            setFocusedAddressData={setFocusedAddressData}
+            onExit={onAddressFocusOff}
           />
           <ReactFlow
             nodes={nodes}
