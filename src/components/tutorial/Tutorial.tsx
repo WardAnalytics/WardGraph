@@ -24,12 +24,6 @@ interface TutorialProps {
   initialStep?: number;
 }
 
-enum SlidesDirection {
-  STILL,
-  NEXT,
-  PREV,
-}
-
 interface ProgressCircleProps {
   isCompleted: boolean;
   isCurrent: boolean;
@@ -97,9 +91,6 @@ const Tutorial: FC<TutorialProps> = ({
   initialStep = 0,
 }) => {
   const [currentStep, setCurrentStep] = useState(initialStep);
-  const [slideDirection, setSlideDirection] = useState<SlidesDirection>(
-    SlidesDirection.STILL,
-  );
 
   // Hotkeys
   const leftArrowPressed = useKeyPress("ArrowLeft") ? HotKeyMap.ARROW_LEFT : 0;
@@ -111,35 +102,28 @@ const Tutorial: FC<TutorialProps> = ({
     return leftArrowPressed + rightArrowPressed;
   }, [leftArrowPressed, rightArrowPressed]);
 
-  const onSlideButtonClick = (direction: SlidesDirection) => {
-    setSlideDirection(direction);
+  const increaseSlide = () => {
+    if (currentStep === steps.length - 1) {
+      closeTutorial();
+      setCurrentStep(0);
+      return;
+    }
+
+    setCurrentStep(currentStep + 1);
   };
 
-  const changeSlide = () => {
-    switch (slideDirection) {
-      case SlidesDirection.NEXT:
-        if (currentStep === steps.length - 1) {
-          closeTutorial();
-          return;
-        }
-        setCurrentStep(currentStep + 1);
-        break;
-      case SlidesDirection.PREV:
-        setCurrentStep(currentStep - 1);
-        break;
-      default:
-        break;
-    }
-    setSlideDirection(SlidesDirection.STILL);
+  const decreaseSlide = () => {
+    if (currentStep === 0) return;
+    setCurrentStep(currentStep - 1);
   };
 
   useEffect(() => {
     switch (keyPressed) {
       case HotKeyMap.ARROW_LEFT:
-        onSlideButtonClick(SlidesDirection.PREV);
+        decreaseSlide();
         break;
       case HotKeyMap.ARROW_RIGHT:
-        onSlideButtonClick(SlidesDirection.NEXT);
+        increaseSlide();
         break;
       default:
         break;
@@ -150,10 +134,6 @@ const Tutorial: FC<TutorialProps> = ({
     setIsTutorialOpen(false);
     setCurrentStep(0);
   };
-
-  useEffect(() => {
-    changeSlide();
-  }, [slideDirection]);
 
   return (
     <Modal isOpen={isTutorialOpen} closeModal={closeTutorial}>
@@ -166,7 +146,7 @@ const Tutorial: FC<TutorialProps> = ({
           />
         </div>
         <div className="flex w-full flex-col items-center">
-          <div className="flex min-h-[20rem] w-fit flex-row justify-center overflow-hidden">
+          <div className="flex min-h-[20rem] w-full flex-row justify-center overflow-hidden">
             {steps.map((_, index) => {
               return (
                 <TutorialStepCard
@@ -181,7 +161,7 @@ const Tutorial: FC<TutorialProps> = ({
             {currentStep !== 0 ? (
               <BigButton
                 onClick={() => {
-                  onSlideButtonClick(SlidesDirection.NEXT);
+                  decreaseSlide();
                 }}
                 text="Previous"
                 Icon={ArrowLeftIcon}
@@ -198,7 +178,7 @@ const Tutorial: FC<TutorialProps> = ({
             {currentStep !== steps.length - 1 ? (
               <BigButton
                 onClick={() => {
-                  onSlideButtonClick(SlidesDirection.NEXT);
+                  increaseSlide();
                 }}
                 text="Next"
                 Icon={ArrowRightIcon}

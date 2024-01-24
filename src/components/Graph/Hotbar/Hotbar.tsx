@@ -2,6 +2,8 @@ import {
   RectangleGroupIcon,
   ShareIcon,
   QuestionMarkCircleIcon,
+  MagnifyingGlassPlusIcon,
+  BugAntIcon,
 } from "@heroicons/react/24/outline";
 import { FC, useContext, useMemo, useState, useEffect } from "react";
 import { useKeyPress } from "reactflow";
@@ -14,7 +16,7 @@ interface HotbarButton {
   Icon: any;
   name: string;
   className?: string;
-  hotKey: string;
+  hotKey?: string;
 }
 
 const HotbarButton: FC<HotbarButton> = ({
@@ -95,11 +97,12 @@ const Hotbar: FC = () => {
     <>
       <div className="flex h-fit w-fit flex-col gap-y-1 divide-y-2 divide-gray-600 rounded-lg bg-gray-800  p-2">
         <HotbarButtonGroup>
-          {/* <HotbarButton
+          <HotbarButton
             Icon={MagnifyingGlassPlusIcon}
             name="Search Address"
             onClick={() => {}}
-          /> */}
+            hotKey="a"
+          />
           <HotbarButton
             Icon={RectangleGroupIcon}
             name="Organize Layout"
@@ -120,7 +123,13 @@ const Hotbar: FC = () => {
             onClick={() => {
               setShowTutorial(true);
             }}
-            hotKey="t"
+          />
+        </HotbarButtonGroup>
+        <HotbarButtonGroup className="pt-1">
+          <HotbarButton
+            Icon={BugAntIcon}
+            name="Report Bug / Give Feedback"
+            onClick={() => {}}
           />
         </HotbarButtonGroup>
       </div>

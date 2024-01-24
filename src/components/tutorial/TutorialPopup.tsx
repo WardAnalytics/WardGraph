@@ -44,14 +44,35 @@ const TutorialCardTitle: FC<TutorialCardTitleProps> = ({
   );
 };
 
+interface TutorialImageProps {
+  src: string;
+  alt: string;
+}
+
+const TutorialImage: FC<TutorialImageProps> = ({ src, alt }) => {
+  const [imageLoaded, setImageLoaded] = useState(false);
+
+  return (
+    <div className="aspect-video w-full rounded-lg p-1 shadow-inner">
+      {!imageLoaded && (
+        <div className="h-full w-full animate-pulse rounded-lg bg-gray-300 shadow"></div>
+      )}
+      <img
+        src={src}
+        alt={alt}
+        className={`h-full w-full rounded-lg shadow ${
+          imageLoaded ? "block" : "hidden"
+        }`}
+        onLoad={() => setImageLoaded(true)}
+      />
+    </div>
+  );
+};
+
 const IntroductionCard: FC = () => {
   return (
-    <div className="flex flex-col gap-y-2">
-      <img
-        src={introductionGIF}
-        alt="Ward Graph Demonstration"
-        className="rounded-lg"
-      />
+    <div className="flex w-full flex-col gap-y-2">
+      <TutorialImage src={introductionGIF} alt="Ward Graph Demonstration" />
       <TutorialCardTitle
         title="Introducing: Ward Graph"
         Icon={RocketLaunchIcon}
@@ -66,12 +87,8 @@ const IntroductionCard: FC = () => {
 
 const InspectionCard: FC = () => {
   return (
-    <div className="flex flex-col gap-y-2">
-      <img
-        src={inspectionGIF}
-        alt="Ward Graph Demonstration"
-        className="rounded-lg"
-      />
+    <div className="flex w-full flex-col gap-y-2">
+      <TutorialImage src={inspectionGIF} alt="Ward Graph Demonstration" />
       <TutorialCardTitle title="Inspection" Icon={MagnifyingGlassIcon} />
       <p className="text-sm text-gray-600">
         To inspect an address, simply click the address node. You'll be able to
@@ -83,12 +100,8 @@ const InspectionCard: FC = () => {
 
 const ExplorationCard: FC = () => {
   return (
-    <div className="flex flex-col gap-y-2">
-      <img
-        src={explorationGIF}
-        alt="Ward Graph Demonstration"
-        className="rounded-lg"
-      />
+    <div className="flex w-full flex-col gap-y-2">
+      <TutorialImage src={explorationGIF} alt="Ward Graph Demonstration" />
       <TutorialCardTitle title="Exploration" Icon={PlusCircleIcon} />
       <p className="text-sm text-gray-600">
         To expand to other addresses, you can click the 'Expand' button.
@@ -99,12 +112,8 @@ const ExplorationCard: FC = () => {
 
 const EdgeManagementCard: FC = () => {
   return (
-    <div className="flex flex-col gap-y-2">
-      <img
-        src={edgeManagementGIF}
-        alt="Ward Graph Demonstration"
-        className="rounded-lg"
-      />
+    <div className="flex w-full flex-col gap-y-2">
+      <TutorialImage src={edgeManagementGIF} alt="Ward Graph Demonstration" />
       <TutorialCardTitle title="Edge Management" Icon={ArrowTrendingUpIcon} />
       <p className="text-sm text-gray-600">
         There are a lot of transactions on the blockchain!
@@ -129,12 +138,8 @@ const EdgeManagementCard: FC = () => {
 
 const GoodLuckCard: FC = () => {
   return (
-    <div className="flex flex-col gap-y-2">
-      <img
-        src={introductionGIF}
-        alt="Ward Graph Demonstration"
-        className="rounded-lg"
-      />
+    <div className="flex w-full flex-col gap-y-2">
+      <TutorialImage src={introductionGIF} alt="Ward Graph Demonstration" />
       <TutorialCardTitle title="Good Luck!" Icon={FireIcon} />
       <p className="text-sm text-gray-600">
         That's it! You're ready to explore the blockchain. Good luck!
