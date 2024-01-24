@@ -18,6 +18,7 @@ import ReactFlow, {
   SelectionMode,
   useEdgesState,
   useNodesState,
+  useKeyPress,
   useOnSelectionChange,
   useReactFlow,
   useUpdateNodeInternals,
@@ -56,6 +57,11 @@ import TransactionTooltip, {
   TransactionTooltipProps,
 } from "./TransactionTooltip";
 
+enum HotKeyMap {
+  DELETE = 1,
+  BACKSPACE,
+  ESCAPE,
+}
 
 /* Pan on drag settings */
 const panOnDrag = [1, 2];
@@ -362,8 +368,41 @@ const GraphProvided: FC<GraphProvidedProps> = ({
   /** Deletes all selected nodes */
   function deleteSelectedNodes() {
     deleteNodes(selectedNodes);
-    setSelectedNodes([]);
+    onAddressFocusOff();
   }
+
+  const onAddressFocusOff = () => {
+    setFocusedAddressData(null);
+  };
+
+  // Key Press Handling -------------------------------------------------------
+
+  const deleteKeyPressed = useKeyPress("Delete") ? HotKeyMap.DELETE : false;
+  const backspaceKeyPressed = useKeyPress("Backspace")
+    ? HotKeyMap.BACKSPACE
+    : false;
+  const escapeKeyPressed = useKeyPress("Escape") ? HotKeyMap.ESCAPE : false;
+
+  const keyPressed = useMemo(
+    () => deleteKeyPressed || backspaceKeyPressed || escapeKeyPressed,
+    [deleteKeyPressed, backspaceKeyPressed, escapeKeyPressed],
+  );
+
+  useEffect(() => {
+    switch (keyPressed) {
+      case HotKeyMap.DELETE:
+      case HotKeyMap.BACKSPACE:
+        deleteSelectedNodes();
+        setSelectedNodes([]);
+        break;
+      case HotKeyMap.ESCAPE:
+        onAddressFocusOff();
+        setSelectedNodes([]);
+        break;
+      default:
+        break;
+    }
+  }, [keyPressed]);
 
   // Edge State Toggling ------------------------------------------------------
 
@@ -570,21 +609,10 @@ const GraphProvided: FC<GraphProvidedProps> = ({
   return (
     <>
       <GraphContext.Provider value={graphContext}>
-        <div
-          className="h-full w-full"
-          onKeyDown={(event) => {
-            if (event.key === "Delete" || event.key === "Backspace") {
-              // Delete all selected nodes
-              deleteSelectedNodes();
-            }
-            if (event.key === "Escape") {
-              setFocusedAddressData(null);
-            }
-          }}
-        >
+        <div className="h-full w-full">
           <DraggableWindow
             analysisData={focusedAddressData}
-            setFocusedAddressData={setFocusedAddressData}
+            onExit={onAddressFocusOff}
           />
           <ReactFlow
             nodes={nodes}

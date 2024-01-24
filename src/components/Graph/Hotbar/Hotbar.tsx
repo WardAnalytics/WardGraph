@@ -3,7 +3,8 @@ import {
   ShareIcon,
   QuestionMarkCircleIcon,
 } from "@heroicons/react/24/outline";
-import { FC, useContext, useMemo, useState } from "react";
+import { FC, useContext, useMemo, useState, useEffect } from "react";
+import { useKeyPress } from "reactflow";
 import clsx from "clsx";
 import { GraphContext } from "../Graph";
 import ShareDialog from "../LandingPage/ShareDialog";
@@ -13,9 +14,24 @@ interface HotbarButton {
   Icon: any;
   name: string;
   className?: string;
+  hotKey: string;
 }
 
-const HotbarButton: FC<HotbarButton> = ({ Icon, name, onClick, className }) => {
+const HotbarButton: FC<HotbarButton> = ({
+  Icon,
+  name,
+  onClick,
+  className,
+  hotKey,
+}) => {
+  const hotKeyClicked = hotKey ? useKeyPress(hotKey) : false;
+
+  useEffect(() => {
+    if (onClick && hotKeyClicked) {
+      onClick();
+    }
+  }, [hotKeyClicked]);
+
   return (
     <button
       className={clsx("group flex flex-row items-center", className)}
@@ -23,9 +39,17 @@ const HotbarButton: FC<HotbarButton> = ({ Icon, name, onClick, className }) => {
       onClick={onClick}
     >
       <Icon className="h-8 w-8 rounded-lg p-1 text-gray-400 transition-all duration-200 hover:bg-gray-700 hover:text-white" />
-      <h1 className="pointer-events-none absolute ml-8 mt-0.5 w-max rounded-lg bg-gray-800 px-3 py-2 text-sm font-medium text-white opacity-0 shadow-sm transition-opacity duration-300 group-hover:opacity-100 dark:bg-gray-700">
+      <span className="pointer-events-none absolute ml-8 mt-0.5 flex w-max flex-row rounded-lg bg-gray-800 px-3 py-2 text-sm font-medium text-white opacity-0 shadow-sm transition-opacity duration-300 group-hover:opacity-100 dark:bg-gray-700">
         {name}
-      </h1>
+        {hotKey && (
+          <span
+            className="ml-5 font-normal capitalize text-gray-400
+          "
+          >
+            {hotKey}
+          </span>
+        )}
+      </span>
     </button>
   );
 };
@@ -80,6 +104,7 @@ const Hotbar: FC = () => {
             Icon={RectangleGroupIcon}
             name="Organize Layout"
             onClick={doLayout}
+            hotKey="l"
           />
         </HotbarButtonGroup>
         <HotbarButtonGroup className="pt-1">
@@ -87,6 +112,7 @@ const Hotbar: FC = () => {
             Icon={ShareIcon}
             name="Share"
             onClick={openShareDialog}
+            hotKey="s"
           />
           <HotbarButton
             Icon={QuestionMarkCircleIcon}
@@ -94,6 +120,7 @@ const Hotbar: FC = () => {
             onClick={() => {
               setShowTutorial(true);
             }}
+            hotKey="t"
           />
         </HotbarButtonGroup>
       </div>

@@ -1,4 +1,4 @@
-import { FC, useEffect, useState } from "react";
+import { FC, useEffect, useState, useMemo } from "react";
 import clsx from "clsx";
 import BigButton from "../common/BigButton";
 import {
@@ -10,6 +10,12 @@ import {
 
 import Modal from "../common/Modal";
 import TutorialStepCard from "./TutorialStepCard";
+import { useKeyPress } from "reactflow";
+
+enum HotKeyMap {
+  ARROW_LEFT = 1,
+  ARROW_RIGHT,
+}
 
 interface TutorialProps {
   show: boolean;
@@ -91,10 +97,19 @@ const Tutorial: FC<TutorialProps> = ({
   initialStep = 0,
 }) => {
   const [currentStep, setCurrentStep] = useState(initialStep);
-
   const [slideDirection, setSlideDirection] = useState<SlidesDirection>(
     SlidesDirection.STILL,
   );
+
+  // Hotkeys
+  const leftArrowPressed = useKeyPress("ArrowLeft") ? HotKeyMap.ARROW_LEFT : 0;
+  const rightArrowPressed = useKeyPress("ArrowRight")
+    ? HotKeyMap.ARROW_RIGHT
+    : 0;
+
+  const keyPressed = useMemo(() => {
+    return leftArrowPressed + rightArrowPressed;
+  }, [leftArrowPressed, rightArrowPressed]);
 
   const onSlideButtonClick = (direction: SlidesDirection) => {
     setSlideDirection(direction);
@@ -103,6 +118,10 @@ const Tutorial: FC<TutorialProps> = ({
   const changeSlide = () => {
     switch (slideDirection) {
       case SlidesDirection.NEXT:
+        if (currentStep === steps.length - 1) {
+          closeTutorial();
+          return;
+        }
         setCurrentStep(currentStep + 1);
         break;
       case SlidesDirection.PREV:
@@ -114,8 +133,22 @@ const Tutorial: FC<TutorialProps> = ({
     setSlideDirection(SlidesDirection.STILL);
   };
 
+  useEffect(() => {
+    switch (keyPressed) {
+      case HotKeyMap.ARROW_LEFT:
+        onSlideButtonClick(SlidesDirection.PREV);
+        break;
+      case HotKeyMap.ARROW_RIGHT:
+        onSlideButtonClick(SlidesDirection.NEXT);
+        break;
+      default:
+        break;
+    }
+  }, [keyPressed]);
+
   const closeTutorial = () => {
     setIsTutorialOpen(false);
+    setCurrentStep(0);
   };
 
   useEffect(() => {
@@ -148,7 +181,7 @@ const Tutorial: FC<TutorialProps> = ({
             {currentStep !== 0 ? (
               <BigButton
                 onClick={() => {
-                  onSlideButtonClick(SlidesDirection.PREV);
+                  onSlideButtonClick(SlidesDirection.NEXT);
                 }}
                 text="Previous"
                 Icon={ArrowLeftIcon}
