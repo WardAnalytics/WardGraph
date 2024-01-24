@@ -1,6 +1,6 @@
 import { FC } from "react";
 import Graph from "../components/Graph";
-import Socials from "../components/Socials";
+import Socials from "../components/socials";
 
 const GraphTemplate: FC = () => {
   return (

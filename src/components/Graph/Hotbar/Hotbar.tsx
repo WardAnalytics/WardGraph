@@ -10,9 +10,11 @@ import { useKeyPress } from "reactflow";
 import clsx from "clsx";
 import { GraphContext } from "../Graph";
 import ShareDialog from "../LandingPage/ShareDialog";
+import NewAddressModal from "../NewAddressModal";
 
 interface HotbarButton {
   onClick?: () => void;
+  href?: string;
   Icon: any;
   name: string;
   className?: string;
@@ -25,6 +27,7 @@ const HotbarButton: FC<HotbarButton> = ({
   onClick,
   className,
   hotKey,
+  href,
 }) => {
   const hotKeyClicked = hotKey ? useKeyPress(hotKey) : false;
 
@@ -35,24 +38,26 @@ const HotbarButton: FC<HotbarButton> = ({
   }, [hotKeyClicked]);
 
   return (
-    <button
-      className={clsx("group flex flex-row items-center", className)}
-      key={name}
-      onClick={onClick}
-    >
-      <Icon className="h-8 w-8 rounded-lg p-1 text-gray-400 transition-all duration-200 hover:bg-gray-700 hover:text-white" />
-      <span className="pointer-events-none absolute ml-8 mt-0.5 flex w-max flex-row rounded-lg bg-gray-800 px-3 py-2 text-sm font-medium text-white opacity-0 shadow-sm transition-opacity duration-300 group-hover:opacity-100 dark:bg-gray-700">
-        {name}
-        {hotKey && (
-          <span
-            className="ml-5 font-normal capitalize text-gray-400
+    <a href={href} target="_blank" className="h-full w-full">
+      <button
+        className={clsx("group flex flex-row items-center", className)}
+        key={name}
+        onClick={onClick}
+      >
+        <Icon className="h-8 w-8 rounded-lg p-1 text-gray-400 transition-all duration-200 hover:bg-gray-700 hover:text-white" />
+        <span className="pointer-events-none absolute ml-8 mt-0.5 flex w-max flex-row rounded-lg bg-gray-800 px-3 py-2 text-sm font-medium text-white opacity-0 shadow-sm transition-opacity duration-300 group-hover:opacity-100 dark:bg-gray-700">
+          {name}
+          {hotKey && (
+            <span
+              className="ml-5 font-normal capitalize text-gray-400
           "
-          >
-            {hotKey}
-          </span>
-        )}
-      </span>
-    </button>
+            >
+              {hotKey}
+            </span>
+          )}
+        </span>
+      </button>
+    </a>
   );
 };
 
@@ -78,15 +83,11 @@ const HotbarButtonGroup: FC<HotbarButtonGroupProps> = ({
 };
 
 const Hotbar: FC = () => {
-  const {
-    doLayout,
-    copyLink,
-    getSharingLink,
-    setShowTutorial,
-    addNewAddressToCenter,
-  } = useContext(GraphContext);
+  const { doLayout, copyLink, getSharingLink, setShowTutorial } =
+    useContext(GraphContext);
 
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
+  const [isAddAddressModalOpen, setIsAddAddressModalOpen] = useState(false);
 
   const shareUrl = useMemo(() => getSharingLink(), []);
 
@@ -106,9 +107,7 @@ const Hotbar: FC = () => {
             Icon={MagnifyingGlassPlusIcon}
             name="Search Address"
             onClick={() => {
-              addNewAddressToCenter(
-                "0xe7EfDf10a4413b833C1A8B1B3479837029450cee",
-              );
+              setIsAddAddressModalOpen(true);
             }}
             hotKey="a"
           />
@@ -139,6 +138,7 @@ const Hotbar: FC = () => {
             Icon={BugAntIcon}
             name="Report Bug / Give Feedback"
             onClick={() => {}}
+            href="https://forms.gle/yCFrDnKyUmPYPhfg8"
           />
         </HotbarButtonGroup>
       </div>
@@ -147,6 +147,10 @@ const Hotbar: FC = () => {
         isOpen={isShareDialogOpen}
         setIsOpen={setIsShareDialogOpen}
         onShareUrl={onShareUrl}
+      />
+      <NewAddressModal
+        isOpen={isAddAddressModalOpen}
+        setOpen={setIsAddAddressModalOpen}
       />
     </>
   );
