@@ -2,9 +2,9 @@ import clsx from "clsx";
 import { FC } from "react";
 
 import {
-  FaDiscord as discord,
   FaGithub as github,
   FaLinkedin as linkedin,
+  FaTelegram as telegram,
 } from "react-icons/fa";
 import { IconType } from "react-icons/lib";
 
@@ -21,9 +21,9 @@ const SocialList: Social[] = [
     link: "https://github.com/WardAnalytics/WardGraph",
   },
   {
-    name: "Discord",
-    Icon: discord,
-    link: "https://discord.gg/4ZzgeUwa",
+    name: "Telegram",
+    Icon: telegram,
+    link: "https://t.me/+BopgfcEYo-I3NTg8",
   },
   {
     name: "LinkedIn",

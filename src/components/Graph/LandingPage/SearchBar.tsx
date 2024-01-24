@@ -8,6 +8,7 @@ import {
 } from "@heroicons/react/24/solid";
 
 import isValidAddress from "../../../utils/isValidAddress";
+import { HotKeysType } from "../../../types/hotKeys";
 
 const InvalidAddressPopover: FC = () => {
   return (
@@ -40,6 +41,22 @@ const Searchbar: FC<SearchbarProps> = ({ className, onSearchAddress }) => {
 
   const isAddressValid = useMemo(() => isValidAddress(query), [query]);
 
+  const onSearchAddressHandler = () => {
+    if (isAddressValid) {
+      onSearchAddress(query);
+    }
+  };
+
+  const hotKeysMap: HotKeysType = {
+    SEARCH: {
+      key: "enter",
+      handler: (event) => {
+        event.preventDefault();
+        onSearchAddressHandler();
+      },
+    },
+  };
+
   return (
     <div className={clsx("flex rounded-md shadow-sm", className)}>
       <div className="relative flex flex-grow items-stretch focus-within:z-10">
@@ -59,8 +76,11 @@ const Searchbar: FC<SearchbarProps> = ({ className, onSearchAddress }) => {
           value={query}
           onChange={(event) => setQuery(event.target.value)}
           onKeyDown={(event) => {
-            if (event.key === "Enter") {
-              if (isAddressValid) onSearchAddress(query);
+            const hotKey = event.key.toLocaleLowerCase();
+            switch (hotKey) {
+              case hotKeysMap.SEARCH.key:
+                hotKeysMap.SEARCH.handler(event);
+                break;
             }
           }}
           className={

@@ -6,6 +6,7 @@ import EnvironmentPlugin from "vite-plugin-environment";
 export default defineConfig({
   publicDir: "./public",
   build: {
+    chunkSizeWarningLimit: 1600,
     sourcemap: true, // Enable devtool for debugging
     // Relative to the root
     outDir: "./build",
