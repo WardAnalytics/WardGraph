@@ -78,8 +78,13 @@ const HotbarButtonGroup: FC<HotbarButtonGroupProps> = ({
 };
 
 const Hotbar: FC = () => {
-  const { doLayout, copyLink, getSharingLink, setShowTutorial } =
-    useContext(GraphContext);
+  const {
+    doLayout,
+    copyLink,
+    getSharingLink,
+    setShowTutorial,
+    addNewAddressToCenter,
+  } = useContext(GraphContext);
 
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
 
@@ -100,7 +105,11 @@ const Hotbar: FC = () => {
           <HotbarButton
             Icon={MagnifyingGlassPlusIcon}
             name="Search Address"
-            onClick={() => {}}
+            onClick={() => {
+              addNewAddressToCenter(
+                "0xe7EfDf10a4413b833C1A8B1B3479837029450cee",
+              );
+            }}
             hotKey="a"
           />
           <HotbarButton

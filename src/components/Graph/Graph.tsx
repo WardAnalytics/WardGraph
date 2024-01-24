@@ -89,6 +89,7 @@ interface GraphContextProps {
   setNodeHighlight: (address: string, highlight: boolean) => void;
   getNodeCount: () => number;
   setShowTutorial: (show: boolean) => void;
+  addNewAddressToCenter: (address: string) => void;
   focusedAddressData: AddressAnalysis | null;
 }
 
@@ -176,7 +177,7 @@ const GraphProvided: FC<GraphProvidedProps> = ({
 }) => {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
-  const { fitView } = useReactFlow();
+  const { fitView, screenToFlowPosition } = useReactFlow();
 
   // Regularly update the node internals to make sure edges are consistent
   const updateNodeInternals = useUpdateNodeInternals();
@@ -496,6 +497,29 @@ const GraphProvided: FC<GraphProvidedProps> = ({
     }
   }
 
+  // Adding New Address -------------------------------------------------------
+
+  function addNewAddressToCenter(address: string) {
+    // Calculate flow position of the center of the screen
+    const centerX = window.innerWidth / 2;
+    const centerY = window.innerHeight / 2;
+    const graphCenterPosition = screenToFlowPosition({
+      x: centerX,
+      y: centerY,
+    });
+
+    // Add new node while accounting for the node width and height so that it's truly at the center
+    const newNode = createAddressNode(
+      address,
+      AddressNodeState.MINIMIZED,
+      true,
+      graphCenterPosition.x - 100,
+      graphCenterPosition.y - 50,
+    );
+    const newNodes = [...nodes, newNode];
+    setNodes(newNodes);
+  }
+
   // Edge Hovering ------------------------------------------------------------
 
   const [hoveredTransferData, setHoveredTransferData] =
@@ -603,6 +627,7 @@ const GraphProvided: FC<GraphProvidedProps> = ({
     setNodeHighlight,
     getNodeCount,
     setShowTutorial,
+    addNewAddressToCenter,
     focusedAddressData,
   };
 
