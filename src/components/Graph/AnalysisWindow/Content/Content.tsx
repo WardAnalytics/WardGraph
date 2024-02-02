@@ -68,7 +68,7 @@ const Content: FC = () => {
   const tabs = BLOCKCHAIN_TABS[analysisData.blockchain];
 
   return (
-    <div className="flex divide-x divide-dashed divide-gray-200">
+    <div className="flex h-full divide-x divide-dashed divide-gray-200">
       <div className="w-1/5">
         <div className="pr-3">
           <Navbar
@@ -80,7 +80,7 @@ const Content: FC = () => {
       </div>
       <div
         id="scrollbar"
-        className="scrollbar h-[29rem] w-full overflow-scroll overflow-x-hidden pl-3"
+        className="scrollbar w-full overflow-scroll overflow-x-hidden pl-3"
       >
         <AllContentComponents tabs={tabs} selectedTab={selectedTab} />
       </div>
