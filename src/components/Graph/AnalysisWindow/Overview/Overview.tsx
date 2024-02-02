@@ -269,12 +269,12 @@ const Overview: FC = () => {
 
   // TODO - Add a max height and a scrollbar, maybe a slight fade effect to the bottom and top
   return (
-    <div className="flex flex-col gap-y-2">
-      <h3 className="flex flex-row items-center gap-x-1 text-sm font-semibold tracking-wide text-gray-600">
+    <div className="flex h-full flex-col gap-y-2">
+      <h3 className="flex h-fit flex-row items-center gap-x-1 text-sm font-semibold tracking-wide text-gray-600">
         <BuildingLibraryIcon className="h-5 w-5 text-gray-400" />
         TOP ENTITIES
       </h3>
-      <ul className="scrollbar flex h-96 scroll-m-28 flex-col gap-y-1.5 overflow-scroll overflow-x-hidden">
+      <ul className="scrollbar flex flex-grow scroll-m-28 flex-col gap-y-1.5 overflow-scroll overflow-x-hidden">
         {topEntityRows.map((row, index) => (
           <Transition
             appear={true}
