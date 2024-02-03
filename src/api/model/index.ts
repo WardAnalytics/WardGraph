@@ -13,3 +13,6 @@ export * from './category';
 export * from './entity';
 export * from './errorResponse';
 export * from './exposure';
+export * from './getTransactionsBetweenAddressesParams';
+export * from './output';
+export * from './transaction';
