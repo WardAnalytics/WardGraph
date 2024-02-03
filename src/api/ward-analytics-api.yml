@@ -106,6 +106,40 @@ paths:
                     type: array
                     items:
                       $ref: "#/components/schemas/Transaction"
+  /transactions/get_combined_transactions:
+    get:
+      operationId: get-combined-transactions
+      description: Get combined transactions
+      tags:
+        - transactions
+      parameters:
+        - name: address
+          in: query
+          description: The address to get transactions for
+          required: true
+          schema:
+            type: string
+        - name: count
+          in: query
+          description: The number of transactions to return
+          required: false
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  transactions:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Transaction"
+                    required:
+                      - transactions
+
 components:
   schemas:
     # Address Analysis

@@ -15,8 +15,14 @@ import type {
   UseQueryResult
 } from 'react-query'
 import type {
-  GetTransactionsBetweenAddressesInputSchema
-} from '../model/getTransactionsBetweenAddressesInputSchema'
+  GetCombinedTransactions200
+} from '../model/getCombinedTransactions200'
+import type {
+  GetCombinedTransactionsParams
+} from '../model/getCombinedTransactionsParams'
+import type {
+  GetTransactionsBetweenAddresses200
+} from '../model/getTransactionsBetweenAddresses200'
 import type {
   GetTransactionsBetweenAddressesParams
 } from '../model/getTransactionsBetweenAddressesParams'
@@ -33,7 +39,7 @@ export const getTransactionsBetweenAddresses = (
 ) => {
       
       
-      return instance<GetTransactionsBetweenAddressesInputSchema>(
+      return instance<GetTransactionsBetweenAddresses200>(
       {url: `/transactions/get_transactions_between_addresses`, method: 'GET',
         params, signal
     },
@@ -73,6 +79,65 @@ export const useGetTransactionsBetweenAddresses = <TData = Awaited<ReturnType<ty
   ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
 
   const queryOptions = getGetTransactionsBetweenAddressesQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
+/**
+ * Get combined transactions
+ */
+export const getCombinedTransactions = (
+    params: GetCombinedTransactionsParams,
+ signal?: AbortSignal
+) => {
+      
+      
+      return instance<GetCombinedTransactions200>(
+      {url: `/transactions/get_combined_transactions`, method: 'GET',
+        params, signal
+    },
+      );
+    }
+  
+
+export const getGetCombinedTransactionsQueryKey = (params: GetCombinedTransactionsParams,) => {
+    return [`/transactions/get_combined_transactions`, ...(params ? [params]: [])] as const;
+    }
+
+    
+export const getGetCombinedTransactionsQueryOptions = <TData = Awaited<ReturnType<typeof getCombinedTransactions>>, TError = unknown>(params: GetCombinedTransactionsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getCombinedTransactions>>, TError, TData>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetCombinedTransactionsQueryKey(params);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getCombinedTransactions>>> = ({ signal }) => getCombinedTransactions(params, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getCombinedTransactions>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetCombinedTransactionsQueryResult = NonNullable<Awaited<ReturnType<typeof getCombinedTransactions>>>
+export type GetCombinedTransactionsQueryError = unknown
+
+export const useGetCombinedTransactions = <TData = Awaited<ReturnType<typeof getCombinedTransactions>>, TError = unknown>(
+ params: GetCombinedTransactionsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getCombinedTransactions>>, TError, TData>, }
+
+  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
+
+  const queryOptions = getGetCombinedTransactionsQueryOptions(params,options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 

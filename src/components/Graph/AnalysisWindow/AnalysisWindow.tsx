@@ -43,14 +43,14 @@ export const AnalysisModes: AnalysisMode[] = [
     component: Overview,
   },
   {
-    name: AnalysisModeNames.Advanced,
-    icon: PresentationChartLineIcon,
-    component: Content,
-  },
-  {
     name: AnalysisModeNames.Transactions,
     icon: ArrowsRightLeftIcon,
     component: Transactions,
+  },
+  {
+    name: AnalysisModeNames.Advanced,
+    icon: PresentationChartLineIcon,
+    component: Content,
   },
 ];
 
