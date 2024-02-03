@@ -86,10 +86,7 @@ const Header: FC<HeaderProps> = ({
   const { analysisData, address } = useContext(AnalysisContext);
 
   // When minimized, the address hash should be sliced off
-  const displayedAddress =
-    analysisMode.name === AnalysisModeNames.Advanced
-      ? address
-      : address.slice(0, 8) + "..." + address.slice(-6);
+  const displayedAddress = address.slice(0, 8) + "..." + address.slice(-6);
   const risk = analysisData!.risk;
 
   return (
