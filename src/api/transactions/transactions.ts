@@ -5,22 +5,19 @@
  * The ward's compliance queires endpoints
  * OpenAPI spec version: 1.0
  */
-import {
-  useQuery
-} from 'react-query'
 import type {
   QueryFunction,
   QueryKey,
   UseQueryOptions,
   UseQueryResult
-} from 'react-query'
-import type {
-  GetTransactionsBetweenAddressesInputSchema
-} from '../model/getTransactionsBetweenAddressesInputSchema'
+} from 'react-query';
+import {
+  useQuery
+} from 'react-query';
+import { instance } from '.././instance';
 import type {
   GetTransactionsBetweenAddressesParams
-} from '../model/getTransactionsBetweenAddressesParams'
-import { instance } from '.././instance';
+} from '../model/getTransactionsBetweenAddressesParams';
 
 
 
@@ -33,7 +30,7 @@ export const getTransactionsBetweenAddresses = (
 ) => {
       
       
-      return instance<GetTransactionsBetweenAddressesInputSchema>(
+      return instance<GetTransactionsBetweenAddressesParams>(
       {url: `/transactions/get_transactions_between_addresses`, method: 'GET',
         params, signal
     },

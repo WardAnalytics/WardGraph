@@ -1,30 +1,21 @@
+import { Transition } from "@headlessui/react";
 import {
-  FC,
-  useState,
-  useContext,
-  useCallback,
-  useMemo,
-  useEffect,
-} from "react";
-import clsx from "clsx";
-import {
-  BarsArrowDownIcon,
   ArrowDownLeftIcon,
   ArrowUpRightIcon,
+  BarsArrowDownIcon,
 } from "@heroicons/react/16/solid";
-import { Transition } from "@headlessui/react";
+import {
+  FC,
+  useContext
+} from "react";
 
-import { Category } from "../../../../api/model";
 
 import { Colors } from "../../../../utils/colors";
 import formatNumber from "../../../../utils/formatNumber";
 
-import BigButton from "../../../common/BigButton";
-import EntityLogo from "../../../common/EntityLogo";
 import Badge from "../../../common/Badge";
 
 import { GraphContext } from "../../Graph";
-import { AnalysisContext } from "../../custom_elements/nodes/AddressNode/AddressNode/AddressNode";
 
 import CopyToClipboardIcon from "../Header/components/CopyToClipboardIcon";
 
