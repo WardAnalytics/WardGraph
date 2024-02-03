@@ -10,11 +10,7 @@ import BigButton from "../../../common/BigButton";
 import EntityLogo from "../../../common/EntityLogo";
 
 import { AnalysisContext } from "../AnalysisWindow";
-import {
-  AnalysisMode,
-  AnalysisModes,
-  AnalysisModeNames,
-} from "../AnalysisWindow";
+import { AnalysisMode, AnalysisModes } from "../AnalysisWindow";
 
 interface ModeButtonProps {
   isActive: boolean;
