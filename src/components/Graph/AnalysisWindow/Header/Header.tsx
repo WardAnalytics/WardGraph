@@ -1,5 +1,6 @@
-import { XMarkIcon } from "@heroicons/react/20/solid";
-import clsx from "clsx";
+import {
+  XMarkIcon
+} from "@heroicons/react/20/solid";
 import { FC, useContext } from "react";
 
 import BigButton from "../../../common/BigButton";
@@ -9,8 +10,9 @@ import CopyToClipboardIcon from "./components/CopyToClipboardIcon";
 import LabelList from "./components/LabelList";
 import RiskIndicator from "./components/RiskIndicator";
 
-import { AnalysisContext } from "../AnalysisWindow";
-import { AnalysisMode, AnalysisModes } from "../AnalysisWindow";
+import clsx from "clsx";
+import TagInput from "../../../common/TagInput";
+import { AnalysisContext, AnalysisMode, AnalysisModes } from "../AnalysisWindow";
 
 interface ModeButtonProps {
   isActive: boolean;
@@ -67,6 +69,7 @@ const ModeToggle: FC<ModeToggleProps> = ({ analysisMode, setAnalysisMode }) => {
   );
 };
 
+
 interface HeaderProps {
   onExit: () => void;
   setAnalysisMode: (mode: AnalysisMode) => void;
@@ -82,7 +85,9 @@ const Header: FC<HeaderProps> = ({
   const { analysisData, address } = useContext(AnalysisContext);
 
   // When minimized, the address hash should be sliced off
-  const displayedAddress = address.slice(0, 8) + "..." + address.slice(-6);
+  const displayedAddress = analysisMode
+    ? address
+    : address.slice(0, 14) + "..." + address.slice(-12);
   const risk = analysisData!.risk;
 
   return (
@@ -90,19 +95,21 @@ const Header: FC<HeaderProps> = ({
       <span className="flex flex-row items-center space-x-2">
         {/* Address Risk inside a badge */}
         <RiskIndicator risk={risk} isLoading={false} />
+      </span>
 
-        {/* Address information */}
-        <div className="flex flex-col gap-y-0.5">
-          <span className="flex flex-row items-center gap-x-1 gap-y-1">
-            {/* Address Hash - Sliced when in non-expanded mode*/}
-            <h1 className="font-xs flex flex-row font-mono font-semibold tracking-tight text-gray-800">
-              {displayedAddress}
-              <EntityLogo
-                entity={analysisData!.labels[0]}
-                className="ml-2 h-7 w-7 rounded-full"
-              />
-            </h1>
+      {/* Address information */}
+      <div className="flex flex-col grow gap-y-0.5">
+        <span className="flex flex-row items-center gap-x-1 gap-y-1">
+          {/* Address Hash - Sliced when in non-expanded mode*/}
+          <h1 className="grow font-xs flex flex-row font-mono font-semibold tracking-tight text-gray-800">
+            {displayedAddress}
+            <EntityLogo
+              entity={analysisData!.labels[0]}
+              className="ml-2 h-7 w-7 rounded-full"
+            />
+          </h1>
 
+          <div className="flex flex-row items-center gap-x-1.5">
             {/* Clipboard and Block Explorer icons - only shown in expanded mode */}
             <CopyToClipboardIcon textToCopy={address} />
             {analysisData && (
@@ -111,13 +118,16 @@ const Header: FC<HeaderProps> = ({
                 address={address}
               />
             )}
-          </span>
-          <span className="flex flex-row items-center gap-x-1.5">
-            {/* List of labels using Badges shown underneath the address. */}
-            <LabelList labels={analysisData!.labels} />
-          </span>
-        </div>
-      </span>
+          </div>
+        </span>
+        <span className="flex flex-row items-center gap-x-1.5">
+          {/* List of labels using Badges shown underneath the address. */}
+          <LabelList labels={analysisData!.labels} />
+          <TagInput address={address} />
+
+          {/* <TagInput address={address} /> */}
+        </span>
+      </div>
 
       {/* Exit button */}
       <span className="flex flex-row items-center gap-x-1.5">

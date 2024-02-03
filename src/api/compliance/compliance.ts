@@ -23,6 +23,9 @@ import type {
 import type {
   ErrorResponse
 } from '../model/errorResponse'
+import type {
+  RiskFeed
+} from '../model/riskFeed'
 import { instance } from '.././instance';
 
 
@@ -76,6 +79,64 @@ export const useAnalysisAddressData = <TData = Awaited<ReturnType<typeof analysi
   ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
 
   const queryOptions = getAnalysisAddressDataQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
+/**
+ * Get risk feed
+ */
+export const getRiskFeed = (
+    
+ signal?: AbortSignal
+) => {
+      
+      
+      return instance<RiskFeed>(
+      {url: `/compliance/risk-feed`, method: 'GET', signal
+    },
+      );
+    }
+  
+
+export const getGetRiskFeedQueryKey = () => {
+    return [`/compliance/risk-feed`] as const;
+    }
+
+    
+export const getGetRiskFeedQueryOptions = <TData = Awaited<ReturnType<typeof getRiskFeed>>, TError = ErrorResponse>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getRiskFeed>>, TError, TData>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetRiskFeedQueryKey();
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getRiskFeed>>> = ({ signal }) => getRiskFeed(signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getRiskFeed>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetRiskFeedQueryResult = NonNullable<Awaited<ReturnType<typeof getRiskFeed>>>
+export type GetRiskFeedQueryError = ErrorResponse
+
+export const useGetRiskFeed = <TData = Awaited<ReturnType<typeof getRiskFeed>>, TError = ErrorResponse>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getRiskFeed>>, TError, TData>, }
+
+  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
+
+  const queryOptions = getGetRiskFeedQueryOptions(options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 

@@ -9,7 +9,6 @@ import {
   useState,
 } from "react";
 import ReactFlow, {
-  Background,
   Controls,
   Edge,
   Node,
@@ -17,11 +16,11 @@ import ReactFlow, {
   ReactFlowProvider,
   SelectionMode,
   useEdgesState,
-  useNodesState,
   useKeyPress,
+  useNodesState,
   useOnSelectionChange,
   useReactFlow,
-  useUpdateNodeInternals,
+  useUpdateNodeInternals
 } from "reactflow";
 import "reactflow/dist/style.css";
 
@@ -45,8 +44,9 @@ import {
   convertNodeListToRecord,
 } from "./graph_calculations";
 
-import analytics from "../../firebase/analytics";
-import firestore, { StoreUrlObject } from "../../firebase/firestore";
+import { logAnalyticsEvent } from "../../services/firebase/analytics/analytics";
+import { StoreUrlObject, storeUrl } from "../../services/firebase/graph/short-urls";
+import searchHistoryService from "../../services/firebase/user/search-history";
 import generateShortUrl from "../../utils/generateShortUrl";
 import TutorialPopup from "../tutorial/TutorialPopup";
 import DraggableWindow from "./AnalysisWindow/AnalysisWindow";
@@ -592,10 +592,10 @@ const GraphProvided: FC<GraphProvidedProps> = ({
       key: key,
     };
 
-    await firestore.storeUrl(storeUrlObj).then(async (id) => {
+    await storeUrl(storeUrlObj).then(async (id) => {
       if (id) {
         await navigator.clipboard.writeText(shortenedUrl);
-        analytics.logAnalyticsEvent("copy_link", {
+        logAnalyticsEvent("copy_link", {
           link: shortenedUrl,
         });
       }
@@ -665,7 +665,7 @@ const GraphProvided: FC<GraphProvidedProps> = ({
               showTutorial={showTutorial}
               setShowTutorial={setShowTutorial}
             />
-            <Background />
+            {/* <Background /> */}
             <Panel position="top-left">
               <Legend />
             </Panel>
@@ -713,7 +713,9 @@ const Graph: FC = () => {
   const onSetSearchedAddress = (newAddress: string) => {
     setSearchedAddresses([newAddress]);
 
-    analytics.logAnalyticsEvent("search_address", {
+    searchHistoryService.StoreAddress(newAddress);
+
+    logAnalyticsEvent("search_address", {
       address: newAddress,
     });
   };

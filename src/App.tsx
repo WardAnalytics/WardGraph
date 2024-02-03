@@ -3,7 +3,7 @@ import { QueryClientProvider } from 'react-query'
 
 import Routes from './Routes';
 import useCustomQueryClient from './hooks/useCustomQueryClient';
-import './firebase/firebase'
+import './services/firebase/firebase'
 
 function App() {
   const queryClient = useCustomQueryClient()

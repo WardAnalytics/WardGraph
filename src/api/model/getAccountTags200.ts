@@ -6,13 +6,6 @@
  * OpenAPI spec version: 1.0
  */
 
-export type GetTransactionsBetweenAddressesParams = {
-/**
- * The source address to filter
- */
-src: string;
-/**
- * The destination address to filter
- */
-dst: string;
+export type GetAccountTags200 = {
+  tags?: string[];
 };

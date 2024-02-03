@@ -63,6 +63,50 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+  /compliance/risk-feed:
+    get:
+      operationId: get-risk-feed
+      description: Get risk feed
+      tags:
+        - compliance
+      parameters:
+        - name: api
+          in: header
+          description: The api key
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RiskFeed"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "429":
+          description: Too Many Requests
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
   /transactions/get_transactions_between_addresses:
     get:
       operationId: get-transactions-between-addresses
@@ -70,30 +114,68 @@ paths:
       tags:
         - transactions
       parameters:
+        - name: api
+          in: header
+          description: The api key
+          required: true
+          schema:
+            type: string
         - name: src
           in: query
-          description: The source address
+          description: The source address to filter
           required: true
           schema:
             type: string
         - name: dst
           in: query
-          description: The destination address
+          description: The destination address to filter
           required: true
           schema:
             type: string
-        - name: page
-          in: query
-          description: The page of transactions to return
-          required: false
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FilteredTransactions"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "429":
+          description: Too Many Requests
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /tags/get-account-tags:
+    get:
+      operationId: get-account-tags
+      description: Get account tags
+      tags:
+        - tagging
+      parameters:
+        - name: api
+          in: header
+          description: The api key
+          required: true
           schema:
-            type: integer
-        - name: page_size
-          in: query
-          description: The number of transactions to return
-          required: false
-          schema:
-            type: integer
+            type: string
       responses:
         "200":
           description: OK
@@ -102,29 +184,59 @@ paths:
               schema:
                 type: object
                 properties:
-                  transactions:
+                  tags:
                     type: array
                     items:
-                      $ref: "#/components/schemas/Transaction"
-  /transactions/get_combined_transactions:
-    get:
-      operationId: get-combined-transactions
-      description: Get combined transactions
+                      type: string
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "429":
+          description: Too Many Requests
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /tags/tag-individual-address:
+    post:
+      operationId: tag-individual-address
+      description: Tag individual address
       tags:
-        - transactions
+        - tagging
       parameters:
+        - name: api
+          in: header
+          description: The api key
+          required: true
+          schema:
+            type: string
         - name: address
           in: query
-          description: The address to get transactions for
+          description: The address to tag
           required: true
           schema:
             type: string
-        - name: count
+        - name: tag
           in: query
-          description: The number of transactions to return
-          required: false
+          description: The tag to add
+          required: true
           schema:
-            type: integer
+            type: string
       responses:
         "200":
           description: OK
@@ -133,12 +245,35 @@ paths:
               schema:
                 type: object
                 properties:
-                  transactions:
+                  tags:
                     type: array
                     items:
-                      $ref: "#/components/schemas/Transaction"
-                    required:
-                      - transactions
+                      type: string
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "429":
+          description: Too Many Requests
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  # TODO - Create endpoint to get tags of a specific address (Gabriel)
 
 components:
   schemas:
@@ -236,32 +371,34 @@ components:
         - hash
         - quantity
 
-    # Transaction
+    # Fetching Transactions
     Output:
       type: object
       properties:
         address:
           type: string
-        value:
-          type: number
         usdValue:
+          type: number
+        value:
           type: number
       required:
         - address
-        - value
         - usdValue
+        - value
     Transaction:
       type: object
       properties:
         hash:
           type: string
-        value:
-          type: number
         currency:
           type: string
         blockNumber:
           type: number
         timestamp:
+          type: number
+        usdValue:
+          type: number
+        value:
           type: number
         inputs:
           type: array
@@ -271,17 +408,50 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/Output"
-        usdValue:
-          type: number
       required:
         - hash
-        - value
         - currency
         - blockNumber
         - timestamp
+        - usdValue
+        - value
         - inputs
         - outputs
-        - usdValue
+    FilteredTransactions:
+      type: object
+      properties:
+        transactions:
+          type: array
+          items:
+            $ref: "#/components/schemas/Transaction"
+      required:
+        - transactions
+
+    # Risk Feed
+    RiskFeedAddress:
+      type: object
+      properties:
+        address:
+          type: string
+        risk:
+          type: number
+        labels:
+          type: array
+          items:
+            type: string
+      required:
+        - address
+        - risk
+        - labels
+    RiskFeed:
+      type: object
+      properties:
+        addresses:
+          type: array
+          items:
+            $ref: "#/components/schemas/RiskFeedAddress"
+      required:
+        - addresses
 
     # Error
     ErrorResponse:
@@ -291,6 +461,10 @@ components:
           type: string
 
 tags:
+  - name: tagging
+    description: Endpoints related to tagging of address
+  - name: transactions
+    description: The transaction endpoints
   - name: compliance
     description: The compliance queires endpoints
   - name: errors

@@ -1,6 +1,6 @@
 import { FC, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import firestore from "../firebase/firestore";
+import {getOriginalUrl} from "../services/firebase/graph/short-urls";
 
 const RedirectShortUrl: FC = () => {
     const { key } = useParams()
@@ -10,7 +10,7 @@ const RedirectShortUrl: FC = () => {
     async function getFullUrl() {
         let fullUrl = null
         if (key) {
-            fullUrl = await firestore.getOriginalUrl(key)
+            fullUrl = await getOriginalUrl(key)
         } else {
             console.error("Invalid url")
         }

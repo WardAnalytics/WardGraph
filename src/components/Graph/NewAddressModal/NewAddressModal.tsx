@@ -1,6 +1,7 @@
 import { FC, useContext } from "react";
 import Modal from "../../common/Modal";
 import { GraphContext } from "../Graph";
+import searchHistoryService from "../../../services/firebase/user/search-history";
 
 import Searchbar from "../LandingPage/SearchBar";
 
@@ -12,7 +13,8 @@ interface NewAddressModalProps {
 const NewAddressModal: FC<NewAddressModalProps> = ({ isOpen, setOpen }) => {
   const { addNewAddressToCenter } = useContext(GraphContext);
 
-  function handleSearchAddress(address: string) {
+  const handleSearchAddress = async (address: string) => {
+    await searchHistoryService.StoreAddress(address);
     addNewAddressToCenter(address);
     setOpen(false);
   }
