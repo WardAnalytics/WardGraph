@@ -1,4 +1,4 @@
-import { Entity } from "../../../../../../api/model";
+import { Entity } from "../../../../../../api/galactus/model";
 
 /** This component represents an entity that is currently focused in the exposure tab.
  * It is used to display the entity name and whether it's incoming or outgoing.

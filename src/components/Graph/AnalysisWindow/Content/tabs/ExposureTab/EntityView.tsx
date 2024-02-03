@@ -3,7 +3,7 @@ import { Transition } from "@headlessui/react";
 import { HashtagIcon } from "@heroicons/react/20/solid";
 import { ShareIcon } from "@heroicons/react/24/solid";
 
-import { Address } from "../../../../../../api/model";
+import { Address } from "../../../../../../api/galactus/model";
 import formatNumber from "../../../../../../utils/formatNumber";
 
 import BigButton from "../../../../../common/BigButton";
@@ -56,7 +56,7 @@ const AddressRow: FC<AddressRowProps> = ({ address }) => {
             </p>
           </span>
         </div>
-        <BigButton text="Expand" Icon={ShareIcon} onClick={() => {}} />
+        <BigButton text="Expand" Icon={ShareIcon} onClick={() => { }} />
       </div>
     </li>
   );

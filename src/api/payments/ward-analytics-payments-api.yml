@@ -1,0 +1,71 @@
+# This is the yml file that defines the API endpoints
+#
+# To add a new endpoint, add a new path under paths
+# To add a new response object, add a new object under components/schemas
+# To add a new tag, add a new tag under tags
+#
+# For more information about the OpenAPI Specification, see https://swagger.io/specification/
+# To debug your yml code, you can use https://editor.swagger.io/
+
+openapi: 3.0.3
+info:
+  title: compliance-queries-api
+  version: "1.0"
+  description: The ward's compliance queires endpoints
+paths:
+  /payments/create-checkout-session:
+    post:
+      operationId: create-checkout-session
+      description: Create a new checkout session
+      tags:
+        - checkout
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  url:
+                    type: string
+                required:
+                  - url
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "429":
+          description: Too Many Requests
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+components:
+  schemas:
+    # Error
+    ErrorResponse:
+      type: object
+      properties:
+        msg:
+          type: string
+
+tags:
+  - name: checkout
+    description: Checkout operations
+  - name: errors
+    description: The error responses

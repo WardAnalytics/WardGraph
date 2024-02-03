@@ -1,16 +1,15 @@
-import { FC, useEffect, useState, useMemo } from "react";
-import clsx from "clsx";
-import BigButton from "../common/BigButton";
 import {
-  XMarkIcon,
-  RocketLaunchIcon,
   ArrowLeftIcon,
   ArrowRightIcon,
+  RocketLaunchIcon
 } from "@heroicons/react/24/outline";
+import clsx from "clsx";
+import { FC, useEffect, useMemo, useState } from "react";
+import BigButton from "../common/BigButton";
 
+import { useKeyPress } from "reactflow";
 import Modal from "../common/Modal";
 import TutorialStepCard from "./TutorialStepCard";
-import { useKeyPress } from "reactflow";
 
 enum HotKeyMap {
   ARROW_LEFT = 1,
@@ -137,14 +136,7 @@ const Tutorial: FC<TutorialProps> = ({
 
   return (
     <Modal isOpen={isTutorialOpen} closeModal={closeTutorial}>
-      <div className="w-[30rem]">
-        <div className="mb-2 flex w-full justify-end">
-          <XMarkIcon
-            className="h-7 w-7 cursor-pointer p-1 text-gray-400 hover:text-gray-500 focus:outline-none"
-            aria-hidden="true"
-            onClick={closeTutorial}
-          />
-        </div>
+      <div className="w-full">
         <div className="flex w-full flex-col items-center">
           <div className="flex min-h-[20rem] w-full flex-row justify-center overflow-hidden">
             {steps.map((_, index) => {

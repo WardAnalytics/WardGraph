@@ -23,7 +23,8 @@
     "noFallthroughCasesInSwitch": true,
   },
   "include": [
-    "src"
+    "src",
+    "src/templates/RedirectShortUrl.tsx"
   ],
   "exclude": [
     "node_modules",

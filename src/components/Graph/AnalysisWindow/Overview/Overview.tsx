@@ -16,7 +16,7 @@ import {
 import { CheckIcon, PlusIcon } from "@heroicons/react/20/solid";
 import { Transition } from "@headlessui/react";
 
-import { Category } from "../../../../api/model";
+import { Category } from "../../../../api/galactus/model";
 
 import { Colors } from "../../../../utils/colors";
 import formatNumber from "../../../../utils/formatNumber";
@@ -212,7 +212,7 @@ const EntityRow: FC<EntityRowProps> = ({
         </span>
       </span>
       {showExpandButton ? (
-        <BigButton text={expandButtonText} Icon={PlusIcon} onClick={() => {}} />
+        <BigButton text={expandButtonText} Icon={PlusIcon} onClick={() => { }} />
       ) : (
         <h3 className="flex flex-row items-center gap-x-1 text-sm font-semibold tracking-wide text-gray-400">
           <CheckIcon className="h-5 w-5 rounded-full  text-gray-400" />

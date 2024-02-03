@@ -25,7 +25,7 @@ import ReactFlow, {
 } from "reactflow";
 import "reactflow/dist/style.css";
 
-import { AddressAnalysis } from "../../api/model";
+import { AddressAnalysis } from "../../api/galactus/model";
 
 import {
   TransfershipEdge,

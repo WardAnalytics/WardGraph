@@ -11,7 +11,8 @@
     "deploy": "yarn install && yarn build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
-    "generate-api": "orval --config ./src/api/orval.config.cjs"
+    "generate-api": "orval --config ./src/api/orval.config.cjs",
+    "generate-payments-api": "orval --config ./src/api/payments/orval.config.cjs"
   },
   "dependencies": {
     "@dagrejs/dagre": "^1.0.4",
@@ -30,6 +31,7 @@
     "react-query": "^3.39.3",
     "react-share": "^5.0.3",
     "reactflow": "^11.10.1",
+    "tailwind-merge": "^2.2.1",
     "uuid": "^9.0.1",
     "vite-plugin-environment": "^1.1.3",
     "yarn": "^1.22.21"

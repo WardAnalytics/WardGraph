@@ -13,7 +13,7 @@ import Content from "./Content";
 import Overview from "./Overview";
 import Header from "./Header";
 
-import { AddressAnalysis } from "../../../api/model";
+import { AddressAnalysis } from "../../../api/galactus/model";
 import { Transition } from "@headlessui/react";
 
 interface AnalysisContextProps {

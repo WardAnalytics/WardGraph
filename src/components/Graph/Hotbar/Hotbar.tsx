@@ -1,16 +1,18 @@
 import {
+  BugAntIcon,
+  MagnifyingGlassPlusIcon,
+  QuestionMarkCircleIcon,
   RectangleGroupIcon,
   ShareIcon,
-  QuestionMarkCircleIcon,
-  MagnifyingGlassPlusIcon,
-  BugAntIcon,
 } from "@heroicons/react/24/outline";
-import { FC, useContext, useMemo, useState, useEffect } from "react";
-import { useKeyPress } from "reactflow";
+import { CreditCardIcon } from "@heroicons/react/24/solid";
 import clsx from "clsx";
+import { FC, useContext, useEffect, useMemo, useState } from "react";
+import { useKeyPress } from "reactflow";
 import { GraphContext } from "../Graph";
 import ShareDialog from "../LandingPage/ShareDialog";
 import NewAddressModal from "../NewAddressModal";
+import { useNavigate } from "react-router-dom";
 
 interface HotbarButton {
   onClick?: () => void;
@@ -86,6 +88,8 @@ const Hotbar: FC = () => {
   const { doLayout, copyLink, getSharingLink, setShowTutorial } =
     useContext(GraphContext);
 
+  const navigate = useNavigate()
+
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
   const [isAddAddressModalOpen, setIsAddAddressModalOpen] = useState(false);
 
@@ -98,6 +102,10 @@ const Hotbar: FC = () => {
   const openShareDialog = () => {
     setIsShareDialogOpen(true);
   };
+
+  const onProPaymentAction = () => {
+    navigate("/payment-checkout")
+  }
 
   return (
     <>
@@ -132,12 +140,17 @@ const Hotbar: FC = () => {
               setShowTutorial(true);
             }}
           />
+          <HotbarButton
+            Icon={CreditCardIcon}
+            name="Go PRO"
+            onClick={onProPaymentAction}
+          />
         </HotbarButtonGroup>
         <HotbarButtonGroup className="pt-1">
           <HotbarButton
             Icon={BugAntIcon}
             name="Report Bug / Give Feedback"
-            onClick={() => {}}
+            onClick={() => { }}
             href="https://forms.gle/yCFrDnKyUmPYPhfg8"
           />
         </HotbarButtonGroup>

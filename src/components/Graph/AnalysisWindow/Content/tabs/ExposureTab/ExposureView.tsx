@@ -6,7 +6,7 @@ import {
   ArrowUpRightIcon,
 } from "@heroicons/react/20/solid";
 
-import { Exposure, Category, Entity } from "../../../../../../api/model";
+import { Exposure, Category, Entity } from "../../../../../../api/galactus/model";
 
 import formatNumber from "../../../../../../utils/formatNumber";
 import { Colors } from "../../../../../../utils/colors";
@@ -74,9 +74,8 @@ const EntityRow: FC<EntityRowProps> = ({ entity, total, isLast, incoming }) => {
             >
               <circle cx={1} cy={1} r={1} />
             </svg>
-            <p>{`${entity.addresses.length} ${
-              entity.addresses.length === 1 ? "Address" : "Addresses"
-            }`}</p>
+            <p>{`${entity.addresses.length} ${entity.addresses.length === 1 ? "Address" : "Addresses"
+              }`}</p>
           </div>
         </span>
       </div>
@@ -164,9 +163,8 @@ const CategoryRow: FC<CategoryRowProps> = ({ category, total, incoming }) => {
         <div className="flex items-center space-x-2">
           {/* Category Icon */}
           <span
-            className={`h-7 w-7 transition-all duration-100 ${
-              isExpanded ? "text-gray-500" : "text-gray-300"
-            }`}
+            className={`h-7 w-7 transition-all duration-100 ${isExpanded ? "text-gray-500" : "text-gray-300"
+              }`}
           >
             <CategoryIcon category={category.name} />
           </span>
@@ -189,9 +187,8 @@ const CategoryRow: FC<CategoryRowProps> = ({ category, total, incoming }) => {
               >
                 <circle cx={1} cy={1} r={1} />
               </svg>
-              <p>{`${category.entities.length} ${
-                category.entities.length === 1 ? "Entity" : "Entities"
-              }`}</p>
+              <p>{`${category.entities.length} ${category.entities.length === 1 ? "Entity" : "Entities"
+                }`}</p>
             </div>
           </div>
         </div>

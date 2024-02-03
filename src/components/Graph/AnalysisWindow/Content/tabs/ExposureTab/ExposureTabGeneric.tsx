@@ -1,6 +1,6 @@
 import { FC, useState, useEffect, createContext, useContext } from "react";
 import { Transition } from "@headlessui/react";
-import { Exposure } from "../../../../../../api/model";
+import { Exposure } from "../../../../../../api/galactus/model";
 
 import { AnalysisContext } from "../../../AnalysisWindow";
 import FocusedEntity from "./FocusedEntity";

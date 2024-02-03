@@ -1,21 +1,21 @@
-import { FC, createContext, useContext, useState, useEffect } from "react";
 import clsx from "clsx";
-import { Position, Handle, Edge } from "reactflow";
+import { createContext, FC, useContext, useEffect, useState } from "react";
+import { Edge, Handle, Position } from "reactflow";
 
-import { AddressAnalysis } from "../../../../../../api/model";
-import { useAnalysisAddressData } from "../../../../../../api/compliance/compliance";
+import { useAnalysisAddressData } from "../../../../../../api/galactus/compliance/compliance";
+import { AddressAnalysis } from "../../../../../../api/galactus/model";
 
 import EntityLogo from "../../../../../common/EntityLogo";
-import RiskIndicator from "../../../../AnalysisWindow/Header/components/RiskIndicator";
 import LabelList from "../../../../AnalysisWindow/Header/components/LabelList";
+import RiskIndicator from "../../../../AnalysisWindow/Header/components/RiskIndicator";
 
 import { GraphContext } from "../../../../Graph";
 
+import { Transition } from "@headlessui/react";
 import {
   createTransfershipEdge,
   TransfershipEdgeStates,
 } from "../../../edges/TransfershipEdge";
-import { Transition } from "@headlessui/react";
 
 /** Context data for the AddressNode */
 
