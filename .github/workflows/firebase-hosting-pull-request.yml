@@ -19,6 +19,12 @@ env:
   # For Google Analytics
   VITE_FIREBASE_MEASUREMENT_ID: "G-V2S9JPMH7S"
 
+  # Payments Service
+  VITE_PAYMENTS_SERVICE_URL: "https://wardanalyticsapi.com"
+
+  # Stripe
+  VITE_STRIPE_PUBLISHABLE_KEY: "pk_test_51Oc41GB1nTjHR72V1Y1Rtc9EbV8dwaFU65enxsC8H7f8OcnW5f3JJu2Az2h21zyqh1sobkNI5N4Q1fSgWxfbheDw00ePIhiK97"
+
 jobs:
   build_and_preview:
     if: "${{ github.event.pull_request.head.repo.full_name == github.repository }}"

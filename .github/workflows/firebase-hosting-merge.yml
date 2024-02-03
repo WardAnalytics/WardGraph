@@ -19,6 +19,13 @@ env:
   # For Google Analytics
   VITE_FIREBASE_MEASUREMENT_ID: G-RYB03B2Q13
 
+
+  # Payments Service
+  VITE_PAYMENTS_SERVICE_URL: "https://wardanalyticsapi.com"
+
+  # Stripe
+  VITE_STRIPE_PUBLISHABLE_KEY: "${{ secrets.STRIPE_PUBLISHABLE_KEY }}"
+
 jobs:
   build_and_deploy:
     runs-on: ubuntu-latest
