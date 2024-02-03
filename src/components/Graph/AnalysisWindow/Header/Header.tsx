@@ -1,13 +1,13 @@
-import { FC, useContext } from "react";
-import clsx from "clsx";
 import { XMarkIcon } from "@heroicons/react/20/solid";
+import clsx from "clsx";
+import { FC, useContext } from "react";
 
-import LabelList from "./components/LabelList";
-import CopyToClipboardIcon from "./components/CopyToClipboardIcon";
-import BlockExplorerAddressIcon from "./components/BlockExplorerAddressIcon";
-import RiskIndicator from "./components/RiskIndicator";
 import BigButton from "../../../common/BigButton";
 import EntityLogo from "../../../common/EntityLogo";
+import BlockExplorerAddressIcon from "./components/BlockExplorerAddressIcon";
+import CopyToClipboardIcon from "./components/CopyToClipboardIcon";
+import LabelList from "./components/LabelList";
+import RiskIndicator from "./components/RiskIndicator";
 
 import { AnalysisContext } from "../AnalysisWindow";
 import { AnalysisMode, AnalysisModes } from "../AnalysisWindow";

@@ -3,8 +3,9 @@ import {
   BarsArrowDownIcon,
   ArrowDownLeftIcon,
   ArrowUpRightIcon,
+  BarsArrowDownIcon,
 } from "@heroicons/react/16/solid";
-import { Transition } from "@headlessui/react";
+import { FC, useContext } from "react";
 
 import { Colors } from "../../../../utils/colors";
 import formatNumber from "../../../../utils/formatNumber";
