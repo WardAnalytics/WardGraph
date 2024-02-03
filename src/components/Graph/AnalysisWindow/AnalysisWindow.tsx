@@ -1,16 +1,15 @@
-import {
-  FC,
-  createContext,
-  useRef,
-  useCallback,
-  useState,
-  useEffect,
-} from "react";
+import { FC, createContext, useRef, useState, useEffect } from "react";
 import clsx from "clsx";
+import {
+  PresentationChartLineIcon,
+  EyeIcon,
+  ArrowsRightLeftIcon,
+} from "@heroicons/react/20/solid";
 
 import Draggable from "react-draggable";
 import Content from "./Content";
 import Overview from "./Overview";
+import Transactions from "./Transactions";
 import Header from "./Header";
 
 import { AddressAnalysis } from "../../../api/galactus/model";
@@ -24,6 +23,36 @@ export const AnalysisContext = createContext<AnalysisContextProps>({
   analysisData: null,
   address: "",
 });
+
+export enum AnalysisModeNames {
+  Overview = "Overview",
+  Advanced = "Advanced",
+  Transactions = "Transactions",
+}
+
+export interface AnalysisMode {
+  name: AnalysisModeNames;
+  icon: any;
+  component?: FC;
+}
+
+export const AnalysisModes: AnalysisMode[] = [
+  {
+    name: AnalysisModeNames.Overview,
+    icon: EyeIcon,
+    component: Overview,
+  },
+  {
+    name: AnalysisModeNames.Transactions,
+    icon: ArrowsRightLeftIcon,
+    component: Transactions,
+  },
+  {
+    name: AnalysisModeNames.Advanced,
+    icon: PresentationChartLineIcon,
+    component: Content,
+  },
+];
 
 interface DraggableWindowProps {
   analysisData: AddressAnalysis | null;
@@ -48,21 +77,52 @@ const DraggableWindow: FC<DraggableWindowProps> = ({
   onExit,
 }) => {
   const [hasBeenHovered, setHasBeenHovered] = useState<boolean>(false);
-  const [analysisMode, setAnalysisMode] = useState<boolean>(false);
+  const [analysisMode, setAnalysisMode] = useState<AnalysisMode>(
+    AnalysisModes[0],
+  );
+  const [previousAnalysisMode, setPreviousAnalysisMode] =
+    useState<AnalysisMode>(analysisMode);
   const nodeRef = useRef(null);
 
+  // When analysisData is none, reset the analysis mode
   useEffect(() => {
     setHasBeenHovered(false);
     if (analysisData === null) {
-      setAnalysisMode(false);
+      setAnalysisMode(AnalysisModes[0]);
     }
   }, [analysisData]);
 
-  const toggleAnalysisMode = useCallback(() => {
-    setAnalysisMode(!analysisMode);
-    console.log("Analysis mode toggled");
+  // Whenever analysisMode changes, setTimeout to set previousAnalysisMode after 500ms. This is used for the dynamic transition
+  useEffect(() => {
+    // Whenever currentAnalysisMode changes, update previousAnalysisMode
+    // and then set current mode to new mode after a delay
+    if (analysisMode !== previousAnalysisMode) {
+      setTimeout(() => setPreviousAnalysisMode(analysisMode), 500); // Adjust delay based on transition duration
+    }
   }, [analysisMode]);
 
+  // Function to determine transition classes based on direction
+  function getTransactionClasses(mode: AnalysisMode, leaving: boolean = false) {
+    const currentIndex = AnalysisModes.findIndex((m) => m === mode);
+    const previousIndex = AnalysisModes.findIndex(
+      (m) => m === previousAnalysisMode,
+    );
+
+    // If increasing the mode index, we want the leaving component to go to the left and the entering component to come from the right - transition-all duration-500 opacity-0 translate-x-full
+    // If decreasing the mode index, we want the leaving component to go to the right and the entering component to come from the left - transition-all duration-500 opacity-0 -translate-x-full
+
+    if (currentIndex > previousIndex) {
+      return leaving
+        ? "transition-all duration-500 opacity-0 -translate-x-full"
+        : "transition-all duration-500 opacity-0 translate-x-full";
+    } else {
+      return leaving
+        ? "transition-all duration-500 opacity-0 translate-x-full"
+        : "transition-all duration-500 opacity-0 -translate-x-full";
+    }
+  }
+
+  // If no analysis data, don't show the window
   if (analysisData === null) {
     return null;
   }
@@ -79,43 +139,42 @@ const DraggableWindow: FC<DraggableWindowProps> = ({
           <div ref={nodeRef}>
             <div
               className={clsx(
-                "pointer-events-auto scale-75 divide-y divide-dashed divide-gray-200 rounded-lg bg-white shadow-xl transition-opacity duration-300",
+                "pointer-events-auto flex h-[50rem] scale-75 flex-col divide-y divide-dashed divide-gray-200 rounded-lg bg-white shadow-xl transition-opacity duration-300",
                 hasBeenHovered ? "opacity-30 hover:opacity-100" : "opacity-100",
               )}
               style={{
-                width: analysisMode ? "68rem" : "40rem",
+                width:
+                  analysisMode.name === AnalysisModeNames.Advanced
+                    ? "68rem"
+                    : "50rem",
                 transition: "width 0.5s ease-in-out, opacity 0.2s ease-in-out",
               }}
               onMouseEnter={() => setHasBeenHovered(true)}
             >
-              <div className="px-4 py-5">
+              <div className="h-fit flex-none px-4 py-5">
                 <Header
                   onExit={onExit}
-                  toggleAnalysisMode={toggleAnalysisMode}
+                  setAnalysisMode={setAnalysisMode}
                   analysisMode={analysisMode}
                 />
               </div>
-              <div className="overflow-hidden px-4 py-5">
-                <Transition
-                  appear={true}
-                  show={analysisMode}
-                  enter="transition-all duration-500"
-                  enterFrom="opacity-50 translate-x-1/2"
-                  enterTo="opacity-100 translate-x-0"
-                  leave="hidden fixed duration-0"
-                >
-                  <Content />
-                </Transition>
-                <Transition
-                  appear={true}
-                  show={!analysisMode}
-                  enter="transition-all duration-500"
-                  enterFrom="opacity-50 -translate-x-1/2"
-                  enterTo="opacity-100 translate-x-0"
-                  leave="hidden fixed duration-0"
-                >
-                  <Overview />
-                </Transition>
+              <div className="relative flex-auto overflow-hidden">
+                {AnalysisModes.map((mode) => (
+                  <Transition
+                    key={mode.name}
+                    appear={true}
+                    show={analysisMode === mode}
+                    enter="transition-all duration-500"
+                    enterFrom={getTransactionClasses(analysisMode, false)}
+                    enterTo="opacity-100 translate-x-0"
+                    leave="transition-all duration-500"
+                    leaveFrom="opacity-100 translate-x-0"
+                    leaveTo={getTransactionClasses(analysisMode, true)}
+                    className="absolute h-full w-full p-4"
+                  >
+                    {mode.component ? <mode.component /> : null}
+                  </Transition>
+                ))}
               </div>
             </div>
           </div>

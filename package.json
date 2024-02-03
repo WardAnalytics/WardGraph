@@ -11,7 +11,7 @@
     "deploy": "yarn install && yarn build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
-    "generate-api": "orval --config ./src/api/orval.config.cjs",
+    "generate-api": "orval --config ./src/api/galactus/orval.config.cjs",
     "generate-payments-api": "orval --config ./src/api/payments/orval.config.cjs"
   },
   "dependencies": {
