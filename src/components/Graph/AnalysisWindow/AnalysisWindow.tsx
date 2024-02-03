@@ -3,12 +3,13 @@ import clsx from "clsx";
 import {
   PresentationChartLineIcon,
   EyeIcon,
-  //ArrowsRightLeftIcon,
+  ArrowsRightLeftIcon,
 } from "@heroicons/react/20/solid";
 
 import Draggable from "react-draggable";
 import Content from "./Content";
 import Overview from "./Overview";
+import Transactions from "./Transactions";
 import Header from "./Header";
 
 import { AddressAnalysis } from "../../../api/model";
@@ -42,14 +43,15 @@ export const AnalysisModes: AnalysisMode[] = [
     component: Overview,
   },
   {
+    name: AnalysisModeNames.Transactions,
+    icon: ArrowsRightLeftIcon,
+    component: Transactions,
+  },
+  {
     name: AnalysisModeNames.Advanced,
     icon: PresentationChartLineIcon,
     component: Content,
   },
-  // {
-  //   name: AnalysisModeNames.Transactions,
-  //   icon: ArrowsRightLeftIcon,
-  // },
 ];
 
 interface DraggableWindowProps {
@@ -137,7 +139,7 @@ const DraggableWindow: FC<DraggableWindowProps> = ({
           <div ref={nodeRef}>
             <div
               className={clsx(
-                "pointer-events-auto flex h-[50rem] scale-75 flex-col divide-y divide-dashed divide-gray-200 overflow-hidden rounded-lg bg-white shadow-xl transition-opacity duration-300",
+                "pointer-events-auto flex h-[50rem] scale-75 flex-col divide-y divide-dashed divide-gray-200 rounded-lg bg-white shadow-xl transition-opacity duration-300",
                 hasBeenHovered ? "opacity-30 hover:opacity-100" : "opacity-100",
               )}
               style={{

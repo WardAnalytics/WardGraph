@@ -1,3 +1,4 @@
 import getAddressLink from "./getAddressLink";
+import getTransactionLink from "./getTransactionLink";
 
-export { getAddressLink };
+export { getAddressLink, getTransactionLink };

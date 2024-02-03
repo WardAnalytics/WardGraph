@@ -63,6 +63,82 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+  /transactions/get_transactions_between_addresses:
+    get:
+      operationId: get-transactions-between-addresses
+      description: Get transactions between addresses
+      tags:
+        - transactions
+      parameters:
+        - name: src
+          in: query
+          description: The source address
+          required: true
+          schema:
+            type: string
+        - name: dst
+          in: query
+          description: The destination address
+          required: true
+          schema:
+            type: string
+        - name: page
+          in: query
+          description: The page of transactions to return
+          required: false
+          schema:
+            type: integer
+        - name: page_size
+          in: query
+          description: The number of transactions to return
+          required: false
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  transactions:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Transaction"
+  /transactions/get_combined_transactions:
+    get:
+      operationId: get-combined-transactions
+      description: Get combined transactions
+      tags:
+        - transactions
+      parameters:
+        - name: address
+          in: query
+          description: The address to get transactions for
+          required: true
+          schema:
+            type: string
+        - name: count
+          in: query
+          description: The number of transactions to return
+          required: false
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  transactions:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Transaction"
+                    required:
+                      - transactions
 
 components:
   schemas:
@@ -160,6 +236,53 @@ components:
         - hash
         - quantity
 
+    # Transaction
+    Output:
+      type: object
+      properties:
+        address:
+          type: string
+        value:
+          type: number
+        usdValue:
+          type: number
+      required:
+        - address
+        - value
+        - usdValue
+    Transaction:
+      type: object
+      properties:
+        hash:
+          type: string
+        value:
+          type: number
+        currency:
+          type: string
+        blockNumber:
+          type: number
+        timestamp:
+          type: number
+        inputs:
+          type: array
+          items:
+            $ref: "#/components/schemas/Output"
+        outputs:
+          type: array
+          items:
+            $ref: "#/components/schemas/Output"
+        usdValue:
+          type: number
+      required:
+        - hash
+        - value
+        - currency
+        - blockNumber
+        - timestamp
+        - inputs
+        - outputs
+        - usdValue
+
     # Error
     ErrorResponse:
       type: object
@@ -172,3 +295,5 @@ tags:
     description: The compliance queires endpoints
   - name: errors
     description: The error responses
+  - name: transactions
+    description: The transaction endpoints
