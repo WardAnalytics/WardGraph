@@ -1,7 +1,5 @@
-import firebase from "./firebase";
+import { analytics } from "./firebase";
 import { logEvent } from "firebase/analytics";
-
-const analytics = firebase.analytics;
 
 /**
  * Logs an event to Google Analytics

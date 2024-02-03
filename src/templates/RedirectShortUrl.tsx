@@ -1,6 +1,6 @@
 import { FC, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import firestore from "../firebase/firestore";
+import firestore from "../services/firebase/firestore";
 
 const RedirectShortUrl: FC = () => {
     const { key } = useParams()

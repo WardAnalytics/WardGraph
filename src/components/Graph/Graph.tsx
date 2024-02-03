@@ -45,8 +45,9 @@ import {
   convertNodeListToRecord,
 } from "./graph_calculations";
 
-import analytics from "../../firebase/analytics";
-import firestore, { StoreUrlObject } from "../../firebase/firestore";
+import analytics from "../../services/firebase/analytics/analytics";
+import firestore, { StoreUrlObject } from "../../services/firebase/short-urls/short-urls";
+import searchHistoryService from "../../services/firebase/search-history/search-history";
 import generateShortUrl from "../../utils/generateShortUrl";
 import TutorialPopup from "../tutorial/TutorialPopup";
 import DraggableWindow from "./AnalysisWindow/AnalysisWindow";
@@ -712,6 +713,8 @@ const Graph: FC = () => {
 
   const onSetSearchedAddress = (newAddress: string) => {
     setSearchedAddresses([newAddress]);
+
+    searchHistoryService.StoreAddress(newAddress);
 
     analytics.logAnalyticsEvent("search_address", {
       address: newAddress,
