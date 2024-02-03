@@ -11,6 +11,8 @@ import type {
   UseQueryOptions,
   UseQueryResult,
 } from "react-query";
+import { instance } from ".././instance";
+import { useQuery } from "react-query";
 import type { GetCombinedTransactions200 } from "../model/getCombinedTransactions200";
 import type { GetCombinedTransactionsParams } from "../model/getCombinedTransactionsParams";
 import type { GetTransactionsBetweenAddresses200 } from "../model/getTransactionsBetweenAddresses200";
