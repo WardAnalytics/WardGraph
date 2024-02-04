@@ -1,6 +1,6 @@
 import { FC, useContext } from "react";
 import authService from "../../services/auth/auth.services";
-import { AuthContext } from "../Graph/LandingPage/AuthDialog";
+import { AuthContext } from "./AuthDialog";
 import AuthInput from "../common/auth/AuthInput";
 import SignInWithGoogleButton from "../common/auth/SignInWithGoogleButton";
 

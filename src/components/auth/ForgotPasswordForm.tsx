@@ -1,6 +1,6 @@
 import { FC, useContext } from "react";
 import AuthInput from "../common/auth/AuthInput";
-import { AuthContext } from "../Graph/LandingPage/AuthDialog";
+import { AuthContext } from "./AuthDialog";
 import authService from "../../services/auth/auth.services";
 
 const ForgotPasswordForm: FC = () => {

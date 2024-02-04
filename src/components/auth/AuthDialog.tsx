@@ -1,16 +1,10 @@
 import { Dialog, Transition } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
-import {
-  KeyIcon,
-  LockClosedIcon,
-  UserPlusIcon,
-} from "@heroicons/react/24/solid";
 import { FC, Fragment, createContext, useState } from "react";
-import ForgotPasswordForm from "../../auth/ForgotPasswordForm";
-import LoginForm from "../../auth/LoginForm";
-import SignupForm from "../../auth/SignupForm";
-import BigButton from "../../common/BigButton";
-import AuthApiErrors from "../../../services/auth/auth.errors";
+import ForgotPasswordForm from "./ForgotPasswordForm";
+import LoginForm from "./LoginForm";
+import SignupForm from "./SignupForm";
+import AuthApiErrors from "../../services/auth/auth.errors";
 
 enum AuthDialogState {
   LOGIN,
