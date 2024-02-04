@@ -1,5 +1,8 @@
 import { Dialog, Transition } from "@headlessui/react";
-import { XMarkIcon } from "@heroicons/react/24/outline";
+import {
+  XMarkIcon,
+  ExclamationTriangleIcon,
+} from "@heroicons/react/24/outline";
 import { FC, Fragment, createContext, useState } from "react";
 import ForgotPasswordForm from "./ForgotPasswordForm";
 import LoginForm from "./LoginForm";
@@ -341,8 +344,9 @@ const AuthDialog: FC<AuthDialogProps> = ({ isOpen, setIsOpen }) => {
                   </div>
                   <div className="mt-3">
                     {authApiErrorMessage && (
-                      <div className="mt-3 flex flex-col items-center justify-center gap-y-2 rounded-lg bg-red-100 p-4 shadow-lg">
-                        <p className="text-red-500">{authApiErrorMessage}</p>
+                      <div className="justify-left mb-3 flex flex-row items-center gap-x-3 rounded-lg bg-red-50 p-4">
+                        <ExclamationTriangleIcon className="h-7 w-7 text-red-500" />
+                        <p className="text-red-800">{authApiErrorMessage}</p>
                       </div>
                     )}
                     <AuthContext.Provider value={authContext}>
@@ -355,37 +359,6 @@ const AuthDialog: FC<AuthDialogProps> = ({ isOpen, setIsOpen }) => {
                         <SignupForm />
                       )}
                     </AuthContext.Provider>
-                  </div>
-                  <div>
-                    {isAuthenticating && (
-                      <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm backdrop-filter">
-                        <div className="flex flex-col items-center justify-center gap-y-2 rounded-lg bg-white p-4 shadow-lg">
-                          <svg
-                            className="h-5 w-5 animate-spin text-blue-500 dark:text-white"
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                          >
-                            <circle
-                              className="opacity-25"
-                              cx="12"
-                              cy="12"
-                              r="10"
-                              stroke="currentColor"
-                              strokeWidth="4"
-                            ></circle>
-                            <path
-                              className="opacity-75"
-                              fill="currentColor"
-                              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                            ></path>
-                          </svg>
-                          <p className="text-blue-500 dark:text-white">
-                            Please wait...
-                          </p>
-                        </div>
-                      </div>
-                    )}
                   </div>
                 </Dialog.Panel>
               </Transition.Child>

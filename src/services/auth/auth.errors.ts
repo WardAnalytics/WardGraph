@@ -23,24 +23,23 @@ const AuthApiErrors = {
   INVALID_EMAIL: { code: "auth/invalid-email", message: "Invalid email" },
   WEAK_PASSWORD: {
     code: "auth/weak-password",
-    message: "Password is too weak",
+    message: "Password is too weak.",
   },
 
   // Login errors
   INVALID_CREDENTIAL: {
     code: "auth/invalid-credential",
-    message: "Wrong email or password",
+    message: "Wrong credentials.",
   },
   USER_NOT_FOUND: {
     code: "auth/user-not-found",
-    message:
-      "No user found with that email or password. Please register first.",
+    message: "No user found with those credentials. Please register first.",
   },
 
   // Email verification errors
   EMAIL_VERIFICATION_REQUIRED: {
     code: "auth/email-not-verified",
-    message: "Please verify your email first",
+    message: "Please verify your email first.",
   },
 
   // Other errors
