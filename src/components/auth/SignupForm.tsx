@@ -4,6 +4,8 @@ import { AuthContext } from "./AuthDialog";
 import AuthInput from "../common/auth/AuthInput";
 import SignInWithGoogleButton from "../common/auth/SignInWithGoogleButton";
 
+import { AuthDialogState } from "./AuthDialog";
+
 const SignupForm: FC = () => {
   const {
     onAuthentication,
@@ -11,7 +13,7 @@ const SignupForm: FC = () => {
     onSignupError,
     onGoogleSignupSucess,
     onGoogleSignupError,
-    moveToLoginState,
+    setAuthDialogState,
   } = useContext(AuthContext);
 
   const handleGoogleSignIn = () => {
@@ -89,7 +91,7 @@ const SignupForm: FC = () => {
         <button
           type="button"
           className="dark:text-white-600 bg-white font-semibold leading-6 text-blue-500 hover:text-blue-400 dark:hover:text-slate-100"
-          onClick={moveToLoginState}
+          onClick={() => setAuthDialogState(AuthDialogState.LOGIN)}
         >
           Sign in
         </button>

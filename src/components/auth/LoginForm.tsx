@@ -4,6 +4,8 @@ import { AuthContext } from "./AuthDialog";
 import AuthInput from "../common/auth/AuthInput";
 import SignInWithGoogleButton from "../common/auth/SignInWithGoogleButton";
 
+import { AuthDialogState } from "./AuthDialog";
+
 const LoginForm: FC = () => {
   const {
     onAuthentication,
@@ -11,8 +13,7 @@ const LoginForm: FC = () => {
     onLoginError,
     onGoogleLoginSucess,
     onGoogleLoginError,
-    moveToSignUpState,
-    moveToForgotPasswordState,
+    setAuthDialogState,
   } = useContext(AuthContext);
 
   const handleGoogleSignIn = () => {
@@ -60,7 +61,9 @@ const LoginForm: FC = () => {
               <button
                 type="button"
                 className="bg-white font-semibold text-blue-500 hover:text-blue-400 dark:text-white dark:hover:text-slate-100"
-                onClick={moveToForgotPasswordState}
+                onClick={() =>
+                  setAuthDialogState(AuthDialogState.FORGOT_PASSWORD)
+                }
               >
                 Forgot password?
               </button>
@@ -87,7 +90,7 @@ const LoginForm: FC = () => {
         <button
           type="button"
           className="dark:text-white-600 bg-white font-semibold leading-6 text-blue-500 hover:text-blue-400 dark:hover:text-slate-100"
-          onClick={moveToSignUpState}
+          onClick={() => setAuthDialogState(AuthDialogState.SIGNUP)}
         >
           Sign up
         </button>

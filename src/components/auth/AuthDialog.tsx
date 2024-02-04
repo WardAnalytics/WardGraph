@@ -1,15 +1,17 @@
+import { FC, Fragment, createContext, useState, useEffect } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import {
   XMarkIcon,
   ExclamationTriangleIcon,
 } from "@heroicons/react/24/outline";
-import { FC, Fragment, createContext, useState } from "react";
+
+import AuthApiErrors from "../../services/auth/auth.errors";
+
 import ForgotPasswordForm from "./ForgotPasswordForm";
 import LoginForm from "./LoginForm";
 import SignupForm from "./SignupForm";
-import AuthApiErrors from "../../services/auth/auth.errors";
 
-enum AuthDialogState {
+export enum AuthDialogState {
   LOGIN,
   SIGNUP,
   FORGOT_PASSWORD,
@@ -27,9 +29,7 @@ interface AuthContextProps {
   onGoogleSignupError: (error: any) => void;
   onResetPasswordSuccess: () => void;
   onResetPasswordError: (error: any) => void;
-  moveToLoginState: () => void;
-  moveToSignUpState: () => void;
-  moveToForgotPasswordState: () => void;
+  setAuthDialogState: (state: AuthDialogState) => void;
 }
 
 export const AuthContext = createContext<AuthContextProps>({
@@ -44,9 +44,7 @@ export const AuthContext = createContext<AuthContextProps>({
   onGoogleSignupError: () => {},
   onResetPasswordSuccess: () => {},
   onResetPasswordError: () => {},
-  moveToLoginState: () => {},
-  moveToSignUpState: () => {},
-  moveToForgotPasswordState: () => {},
+  setAuthDialogState: () => {},
 });
 
 interface AuthDialogProps {
@@ -279,6 +277,10 @@ const AuthDialog: FC<AuthDialogProps> = ({ isOpen, setIsOpen }) => {
     setAuthDialogState(AuthDialogState.FORGOT_PASSWORD);
   };
 
+  useEffect(() => {
+    resetAuthApiErrorMessage();
+  }, [authDialogState]);
+
   const authContext: AuthContextProps = {
     onAuthentication,
     onLoginSuccess,
@@ -291,9 +293,7 @@ const AuthDialog: FC<AuthDialogProps> = ({ isOpen, setIsOpen }) => {
     onGoogleSignupError,
     onResetPasswordSuccess,
     onResetPasswordError,
-    moveToLoginState,
-    moveToSignUpState,
-    moveToForgotPasswordState,
+    setAuthDialogState,
   };
 
   return (
