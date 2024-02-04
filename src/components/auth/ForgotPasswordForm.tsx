@@ -6,17 +6,11 @@ import authService from "../../services/auth/auth.services";
 import { AuthDialogState } from "./AuthDialog";
 
 const ForgotPasswordForm: FC = () => {
-  const {
-    onAuthentication,
-    onResetPasswordSuccess,
-    onResetPasswordError,
-    setAuthDialogState,
-  } = useContext(AuthContext);
+  const { onResetPasswordSuccess, onResetPasswordError, setAuthDialogState } =
+    useContext(AuthContext);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
-    onAuthentication();
 
     const email = e.currentTarget.email.value;
 

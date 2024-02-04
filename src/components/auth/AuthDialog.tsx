@@ -18,7 +18,6 @@ export enum AuthDialogState {
 }
 
 interface AuthContextProps {
-  onAuthentication: () => void;
   onLoginSuccess: () => void;
   onLoginError: (error: any) => void;
   onGoogleLoginSucess: () => void;
@@ -33,7 +32,6 @@ interface AuthContextProps {
 }
 
 export const AuthContext = createContext<AuthContextProps>({
-  onAuthentication: () => {},
   onLoginSuccess: () => {},
   onLoginError: () => {},
   onGoogleLoginSucess: () => {},
@@ -58,8 +56,6 @@ const AuthDialog: FC<AuthDialogProps> = ({ isOpen, setIsOpen }) => {
     null,
   );
 
-  const [isAuthenticating, setIsAuthenticating] = useState(false);
-
   /**
    * Resets the authApiErrorMessage state to null
    *
@@ -79,17 +75,12 @@ const AuthDialog: FC<AuthDialogProps> = ({ isOpen, setIsOpen }) => {
     setAuthDialogState(AuthDialogState.LOGIN);
   };
 
-  const onAuthentication = () => {
-    setIsAuthenticating(true);
-  };
-
   /**
    * Callback function for when the user successfully logs in
    *
    * @returns void
    */
   const onLoginSuccess = () => {
-    setIsAuthenticating(false);
     closeDialog();
   };
 
@@ -100,8 +91,6 @@ const AuthDialog: FC<AuthDialogProps> = ({ isOpen, setIsOpen }) => {
    * @returns void
    */
   const onLoginError = (error: any) => {
-    setIsAuthenticating(false);
-
     switch (error.code) {
       case AuthApiErrors.INVALID_CREDENTIAL.code:
         setAuthApiErrorMessage(AuthApiErrors.INVALID_CREDENTIAL.message);
@@ -125,7 +114,6 @@ const AuthDialog: FC<AuthDialogProps> = ({ isOpen, setIsOpen }) => {
    * @returns void
    */
   const onGoogleLoginSucess = () => {
-    setIsAuthenticating(false);
     closeDialog();
   };
 
@@ -136,8 +124,6 @@ const AuthDialog: FC<AuthDialogProps> = ({ isOpen, setIsOpen }) => {
    * @returns void
    */
   const onGoogleLoginError = (error: any) => {
-    setIsAuthenticating(false);
-
     switch (error.code) {
       case AuthApiErrors.EMAIL_ALREADY_EXISTS.code:
         setAuthApiErrorMessage(AuthApiErrors.EMAIL_ALREADY_EXISTS.message);
@@ -156,8 +142,7 @@ const AuthDialog: FC<AuthDialogProps> = ({ isOpen, setIsOpen }) => {
    * @returns void
    */
   const onSignupSuccess = () => {
-    setIsAuthenticating(false);
-    moveToLoginState();
+    setAuthDialogState(AuthDialogState.LOGIN);
   };
 
   /**
@@ -167,8 +152,6 @@ const AuthDialog: FC<AuthDialogProps> = ({ isOpen, setIsOpen }) => {
    * @returns void
    */
   const onSignupError = (error: any) => {
-    setIsAuthenticating(false);
-
     console.log(error);
 
     switch (error.code) {
@@ -192,8 +175,7 @@ const AuthDialog: FC<AuthDialogProps> = ({ isOpen, setIsOpen }) => {
    * @returns void
    */
   const onGoogleSignupSucess = () => {
-    setIsAuthenticating(false);
-    moveToLoginState();
+    setAuthDialogState(AuthDialogState.LOGIN);
   };
 
   /**
@@ -203,8 +185,6 @@ const AuthDialog: FC<AuthDialogProps> = ({ isOpen, setIsOpen }) => {
    * @returns void
    */
   const onGoogleSignupError = (error: any) => {
-    setIsAuthenticating(false);
-
     switch (error.code) {
       case AuthApiErrors.EMAIL_ALREADY_EXISTS.code:
         setAuthApiErrorMessage(AuthApiErrors.EMAIL_ALREADY_EXISTS.message);
@@ -223,8 +203,7 @@ const AuthDialog: FC<AuthDialogProps> = ({ isOpen, setIsOpen }) => {
    * @returns void
    */
   const onResetPasswordSuccess = () => {
-    setIsAuthenticating(false);
-    moveToLoginState();
+    setAuthDialogState(AuthDialogState.LOGIN);
   };
 
   /**
@@ -233,8 +212,6 @@ const AuthDialog: FC<AuthDialogProps> = ({ isOpen, setIsOpen }) => {
    * @param error
    */
   const onResetPasswordError = (error: any) => {
-    setIsAuthenticating(false);
-
     switch (error.code) {
       case AuthApiErrors.INVALID_CREDENTIAL.code:
         setAuthApiErrorMessage(AuthApiErrors.INVALID_CREDENTIAL.message);
@@ -247,42 +224,11 @@ const AuthDialog: FC<AuthDialogProps> = ({ isOpen, setIsOpen }) => {
     }
   };
 
-  /**
-   * Changes the dialog state to SIGNUP
-   *
-   * @returns void
-   */
-  const moveToSignUpState = () => {
-    resetAuthApiErrorMessage();
-    setAuthDialogState(AuthDialogState.SIGNUP);
-  };
-
-  /**
-   * Changes the dialog state to LOGIN
-   *
-   * @returns void
-   */
-  const moveToLoginState = () => {
-    resetAuthApiErrorMessage();
-    setAuthDialogState(AuthDialogState.LOGIN);
-  };
-
-  /**
-   * Changes the dialog state to FORGOT_PASSWORD
-   *
-   * @returns void
-   */
-  const moveToForgotPasswordState = () => {
-    resetAuthApiErrorMessage();
-    setAuthDialogState(AuthDialogState.FORGOT_PASSWORD);
-  };
-
   useEffect(() => {
     resetAuthApiErrorMessage();
   }, [authDialogState]);
 
   const authContext: AuthContextProps = {
-    onAuthentication,
     onLoginSuccess,
     onLoginError,
     onGoogleLoginSucess,

@@ -8,7 +8,6 @@ import { AuthDialogState } from "./AuthDialog";
 
 const SignupForm: FC = () => {
   const {
-    onAuthentication,
     onSignupSuccess,
     onSignupError,
     onGoogleSignupSucess,
@@ -22,8 +21,6 @@ const SignupForm: FC = () => {
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
-    onAuthentication();
 
     const email = e.currentTarget.email.value;
     const password = e.currentTarget.password.value;
