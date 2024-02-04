@@ -9,7 +9,6 @@ import {
 import clsx from "clsx";
 import { FC, useContext, useEffect, useMemo, useState } from "react";
 import { useKeyPress } from "reactflow";
-import useAuthState from "../../../hooks/useAuthState";
 import authService from "../../../services/auth/auth.services";
 import { GraphContext } from "../Graph";
 import LoginDialog from "../../auth/AuthDialog";
@@ -90,7 +89,7 @@ const Hotbar: FC = () => {
   const { doLayout, copyLink, getSharingLink, setShowTutorial } =
     useContext(GraphContext);
 
-  const user = useAuthState();
+  const user = authService.useAuthState();
 
   const isAutenticated = useMemo(() => {
     return user?.emailVerified;
