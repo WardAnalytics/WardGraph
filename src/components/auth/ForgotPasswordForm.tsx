@@ -1,5 +1,5 @@
 import { FC, useContext } from "react";
-import AuthInput from "../common/auth/AuthInput";
+import AuthInput from "./AuthInput";
 import { AuthContext } from "./AuthDialog";
 import authService from "../../services/auth/auth.services";
 
