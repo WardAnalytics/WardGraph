@@ -1,14 +1,18 @@
+import { UserCircleIcon } from "@heroicons/react/20/solid";
 import {
+  BugAntIcon,
+  MagnifyingGlassPlusIcon,
+  QuestionMarkCircleIcon,
   RectangleGroupIcon,
   ShareIcon,
-  QuestionMarkCircleIcon,
-  MagnifyingGlassPlusIcon,
-  BugAntIcon,
 } from "@heroicons/react/24/outline";
-import { FC, useContext, useMemo, useState, useEffect } from "react";
-import { useKeyPress } from "reactflow";
 import clsx from "clsx";
+import { FC, useContext, useEffect, useMemo, useState } from "react";
+import { useKeyPress } from "reactflow";
+import useAuthState from "../../../hooks/useAuthState";
+import authService from "../../../services/auth/auth.services";
 import { GraphContext } from "../Graph";
+import LoginDialog from "../../auth/AuthDialog";
 import ShareDialog from "../LandingPage/ShareDialog";
 import NewAddressModal from "../NewAddressModal";
 
@@ -86,7 +90,14 @@ const Hotbar: FC = () => {
   const { doLayout, copyLink, getSharingLink, setShowTutorial } =
     useContext(GraphContext);
 
+  const user = useAuthState();
+
+  const isAutenticated = useMemo(() => {
+    return user?.emailVerified;
+  }, [user]);
+
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
+  const [isLoginDialogOpen, setIsLoginDialogOpen] = useState(false);
   const [isAddAddressModalOpen, setIsAddAddressModalOpen] = useState(false);
 
   const shareUrl = useMemo(() => getSharingLink(), []);
@@ -97,6 +108,23 @@ const Hotbar: FC = () => {
 
   const openShareDialog = () => {
     setIsShareDialogOpen(true);
+  };
+
+  const openLoginDialog = () => {
+    setIsLoginDialogOpen(true);
+  };
+
+  const onLogoutSuccess = () => {
+    console.log("Logout success");
+    window.location.reload();
+  };
+
+  const onLogoutError = () => {
+    console.log("Logout error");
+  };
+
+  const onLogout = () => {
+    authService.logout(onLogoutSuccess, onLogoutError);
   };
 
   return (
@@ -134,6 +162,19 @@ const Hotbar: FC = () => {
           />
         </HotbarButtonGroup>
         <HotbarButtonGroup className="pt-1">
+          {isAutenticated ? (
+            <HotbarButton
+              Icon={UserCircleIcon}
+              name={"Logout"}
+              onClick={onLogout}
+            />
+          ) : (
+            <HotbarButton
+              Icon={UserCircleIcon}
+              name="Login"
+              onClick={openLoginDialog}
+            />
+          )}
           <HotbarButton
             Icon={BugAntIcon}
             name="Report Bug / Give Feedback"
@@ -147,6 +188,10 @@ const Hotbar: FC = () => {
         isOpen={isShareDialogOpen}
         setIsOpen={setIsShareDialogOpen}
         onShareUrl={onShareUrl}
+      />
+      <LoginDialog
+        isOpen={isLoginDialogOpen}
+        setIsOpen={setIsLoginDialogOpen}
       />
       <NewAddressModal
         isOpen={isAddAddressModalOpen}

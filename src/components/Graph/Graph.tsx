@@ -45,8 +45,8 @@ import {
   convertNodeListToRecord,
 } from "./graph_calculations";
 
-import analytics from "../../firebase/analytics";
-import firestore, { StoreUrlObject } from "../../firebase/firestore";
+import analytics from "../../services/firebase/analytics";
+import firestore, { StoreUrlObject } from "../../services/firebase/firestore";
 import generateShortUrl from "../../utils/generateShortUrl";
 import TutorialPopup from "../tutorial/TutorialPopup";
 import DraggableWindow from "./AnalysisWindow/AnalysisWindow";
