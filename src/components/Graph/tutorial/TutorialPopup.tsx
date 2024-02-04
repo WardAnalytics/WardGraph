@@ -18,10 +18,10 @@ import {
 import { FC, Fragment, useState } from "react";
 import Tutorial from "./Tutorial";
 
-import introductionGIF from "../../assets/tutorial/introduction.gif";
-import inspectionGIF from "../../assets/tutorial/inspection.gif";
-import explorationGIF from "../../assets/tutorial/exploration.gif";
-import edgeManagementGIF from "../../assets/tutorial/edge-management.gif";
+import introductionGIF from "../../../assets/tutorial/introduction.gif";
+import inspectionGIF from "../../../assets/tutorial/inspection.gif";
+import explorationGIF from "../../../assets/tutorial/exploration.gif";
+import edgeManagementGIF from "../../../assets/tutorial/edge-management.gif";
 
 interface TutorialCardTitleProps {
   title: string;
@@ -186,7 +186,7 @@ const TutorialPopup: FC<TutorialPopupProps> = ({
             leaveFrom="opacity-100"
             leaveTo="opacity-0"
           >
-            <div className="pointer-events-auto w-full max-w-sm overflow-hidden rounded-lg bg-white shadow-lg ring-1 ring-black ring-opacity-5">
+            <div className="pointer-events-auto mt-5 w-full max-w-sm overflow-hidden rounded-lg bg-white shadow-lg ring-1 ring-black ring-opacity-5">
               <div className="p-4">
                 <div className="flex items-start">
                   <div className="flex-shrink-0">

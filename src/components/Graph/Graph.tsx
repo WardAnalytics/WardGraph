@@ -48,7 +48,7 @@ import {
 import analytics from "../../services/firebase/analytics";
 import firestore, { StoreUrlObject } from "../../services/firebase/firestore";
 import generateShortUrl from "../../utils/generateShortUrl";
-import TutorialPopup from "../tutorial/TutorialPopup";
+import TutorialPopup from "./tutorial/TutorialPopup";
 import DraggableWindow from "./AnalysisWindow/AnalysisWindow";
 import Hotbar from "./Hotbar";
 import LandingPage from "./LandingPage/LandingPage";
@@ -660,7 +660,7 @@ const GraphProvided: FC<GraphProvidedProps> = ({
               aria-hidden="true"
               src="https://tailwindui.com/img/beams-home@95.jpg"
             />
-            {<Controls position="top-right" showInteractive={false} />}
+            {/* {<Controls position="top-right" showInteractive={false} />} */}
             <TutorialPopup
               showTutorial={showTutorial}
               setShowTutorial={setShowTutorial}
@@ -726,7 +726,7 @@ const Graph: FC = () => {
         leave="transition-all duration-500"
         leaveFrom="opacity-100 scale-100"
         leaveTo="opacity-0 scale-50"
-        className="fixed flex h-full w-full flex-col items-center justify-center"
+        className="absolute flex h-full w-full flex-col items-center justify-center"
       >
         <LandingPage setSearchedAddress={onSetSearchedAddress} />
       </Transition>
