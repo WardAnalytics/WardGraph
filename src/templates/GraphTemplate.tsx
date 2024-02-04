@@ -1,22 +1,48 @@
 import { FC, useMemo } from "react";
 import authService from "../services/auth/auth.services";
 
-import Graph from "../components/Graph";
+import { PublicGraph, PrivateGraph } from "../components/Graph";
 import Socials from "../components/Socials";
 import Banner from "../components/banner";
 
-const GraphTemplate: FC = () => {
-  const user = authService.useAuthState();
+const getURLSearchParams = () => {
+  const urlParams = new URLSearchParams(window.location.search);
+  const addresses = urlParams.get("addresses")?.split(",") || [];
+  const paths = urlParams.get("paths")?.split(",") || [];
+  return { addresses, paths };
+};
 
-  console.log("User is ", user);
+const GraphTemplate: FC = () => {
+  // Get the current user
+  const user = authService.useAuthState();
   const isAutenticated = useMemo(() => {
     return user !== null;
   }, [user]);
 
+  // On initial load, get the addresses and paths from the URL
+  const { initialAddresses, initialPaths } = useMemo(() => {
+    const { addresses, paths } = getURLSearchParams();
+    return { initialAddresses: addresses, initialPaths: paths };
+  }, []);
+
   return (
     <div className="h-screen w-screen">
-      {!isAutenticated && <Banner />}
-      <Graph />
+      {isAutenticated ? (
+        <>
+          <PrivateGraph
+            initialAddresses={initialAddresses}
+            initialPaths={initialPaths}
+          />
+        </>
+      ) : (
+        <>
+          <Banner />
+          <PublicGraph
+            initialAddresses={initialAddresses}
+            initialPaths={initialPaths}
+          />
+        </>
+      )}
       <Socials className="absolute bottom-0 right-0 m-4" />
     </div>
   );

@@ -40,7 +40,7 @@ export default function Banner() {
           >
             <circle cx={1} cy={1} r={1} />
           </svg>
-          Register now for unlimited graph lookups
+          Register now for free, unlimited graph lookups
         </p>
         <a
           href="#"
