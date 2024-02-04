@@ -2,10 +2,10 @@ import { FC, useMemo, useState } from "react";
 import authService from "../services/auth/auth.services";
 
 import { PublicGraph, PrivateGraph } from "../components/Graph";
-import LoginDialog from "../components/auth";
 
 import Socials from "../components/Socials";
 import Banner from "../components/banner";
+import Navbar from "../components/navbar";
 
 const getURLSearchParams = () => {
   const urlParams = new URLSearchParams(window.location.search);
@@ -16,7 +16,6 @@ const getURLSearchParams = () => {
 
 const GraphTemplate: FC = () => {
   // Get the current user
-  const [isLoginDialogOpen, setIsLoginDialogOpen] = useState(false);
   const user = authService.useAuthState();
   const isAutenticated = useMemo(() => {
     return user !== null;
@@ -31,12 +30,13 @@ const GraphTemplate: FC = () => {
   return (
     <div className="h-screen w-screen">
       {isAutenticated ? (
-        <>
+        <div className="flex h-full flex-row">
+          <Navbar />
           <PrivateGraph
             initialAddresses={initialAddresses}
             initialPaths={initialPaths}
           />
-        </>
+        </div>
       ) : (
         <>
           <Banner />
@@ -47,10 +47,6 @@ const GraphTemplate: FC = () => {
         </>
       )}
       <Socials className="absolute bottom-0 right-0 m-4" />
-      <LoginDialog
-        isOpen={isLoginDialogOpen}
-        setIsOpen={setIsLoginDialogOpen}
-      />
     </div>
   );
 };
