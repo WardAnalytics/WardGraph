@@ -12,7 +12,7 @@ import { useKeyPress } from "reactflow";
 import useAuthState from "../../../hooks/useAuthState";
 import authService from "../../../services/auth/auth.services";
 import { GraphContext } from "../Graph";
-import LoginDialog from "../LandingPage/AuthDialog";
+import LoginDialog from "../../auth/AuthDialog";
 import ShareDialog from "../LandingPage/ShareDialog";
 import NewAddressModal from "../NewAddressModal";
 import { BookmarkIcon } from "@heroicons/react/24/solid";
@@ -117,24 +117,24 @@ const Hotbar: FC = () => {
     const userSearchHistory = await searchHistoryService.GetUserHistory();
 
     console.log(userSearchHistory);
-  }
+  };
 
   const openLoginDialog = () => {
     setIsLoginDialogOpen(true);
-  }
+  };
 
   const onLogoutSuccess = () => {
     console.log("Logout success");
     window.location.reload();
-  }
+  };
 
   const onLogoutError = () => {
     console.log("Logout error");
-  }
+  };
 
   const onLogout = () => {
     authService.logout(onLogoutSuccess, onLogoutError);
-  }
+  };
 
   return (
     <>
@@ -171,32 +171,30 @@ const Hotbar: FC = () => {
           />
         </HotbarButtonGroup>
         <HotbarButtonGroup className="pt-1">
-          {
-            isAutenticated ? (
-              <>
-                <HotbarButton
-                  Icon={BookmarkIcon}
-                  name="Search History"
-                  onClick={getSearchHistory}
-                />
-                <HotbarButton
-                  Icon={UserCircleIcon}
-                  name={"Logout"}
-                  onClick={onLogout}
-                />
-              </>
-            ) : (
+          {isAutenticated ? (
+            <>
+              <HotbarButton
+                Icon={BookmarkIcon}
+                name="Search History"
+                onClick={getSearchHistory}
+              />
               <HotbarButton
                 Icon={UserCircleIcon}
-                name="Login"
-                onClick={openLoginDialog}
+                name={"Logout"}
+                onClick={onLogout}
               />
-            )
-          }
+            </>
+          ) : (
+            <HotbarButton
+              Icon={UserCircleIcon}
+              name="Login"
+              onClick={openLoginDialog}
+            />
+          )}
           <HotbarButton
             Icon={BugAntIcon}
             name="Report Bug / Give Feedback"
-            onClick={() => { }}
+            onClick={() => {}}
             href="https://forms.gle/yCFrDnKyUmPYPhfg8"
           />
         </HotbarButtonGroup>
@@ -209,7 +207,8 @@ const Hotbar: FC = () => {
       />
       <LoginDialog
         isOpen={isLoginDialogOpen}
-        setIsOpen={setIsLoginDialogOpen} />
+        setIsOpen={setIsLoginDialogOpen}
+      />
       <NewAddressModal
         isOpen={isAddAddressModalOpen}
         setOpen={setIsAddAddressModalOpen}

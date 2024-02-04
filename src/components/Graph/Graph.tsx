@@ -46,7 +46,9 @@ import {
 } from "./graph_calculations";
 
 import analytics from "../../services/firebase/analytics/analytics";
-import firestore, { StoreUrlObject } from "../../services/firebase/short-urls/short-urls";
+import firestore, {
+  StoreUrlObject,
+} from "../../services/firebase/short-urls/short-urls";
 import searchHistoryService from "../../services/firebase/search-history/search-history";
 import generateShortUrl from "../../utils/generateShortUrl";
 import TutorialPopup from "../tutorial/TutorialPopup";
