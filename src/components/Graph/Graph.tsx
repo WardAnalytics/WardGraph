@@ -17,8 +17,8 @@ import ReactFlow, {
   ReactFlowProvider,
   SelectionMode,
   useEdgesState,
-  useNodesState,
   useKeyPress,
+  useNodesState,
   useOnSelectionChange,
   useReactFlow,
   useUpdateNodeInternals,
@@ -46,10 +46,10 @@ import {
 } from "./graph_calculations";
 
 import analytics from "../../services/firebase/analytics/analytics";
+import { storeAddress } from "../../services/firebase/search-history/search-history";
 import firestore, {
   StoreUrlObject,
 } from "../../services/firebase/short-urls/short-urls";
-import searchHistoryService from "../../services/firebase/search-history/search-history";
 import generateShortUrl from "../../utils/generateShortUrl";
 import TutorialPopup from "../tutorial/TutorialPopup";
 import DraggableWindow from "./AnalysisWindow/AnalysisWindow";
@@ -59,6 +59,7 @@ import Legend from "./Legend";
 import TransactionTooltip, {
   TransactionTooltipProps,
 } from "./TransactionTooltip";
+import useAuthState from "../../hooks/useAuthState";
 
 enum HotKeyMap {
   DELETE = 1,
@@ -705,6 +706,8 @@ const Graph: FC = () => {
   const [searchedAddresses, setSearchedAddresses] = useState<string[]>([]);
   const [searchedPaths, setSearchedPaths] = useState<string[]>([]);
 
+  const user = useAuthState();
+
   useEffect(() => {
     const { addresses, paths } = useURLSearchParams();
     if (addresses.length && paths.length) {
@@ -716,7 +719,7 @@ const Graph: FC = () => {
   const onSetSearchedAddress = (newAddress: string) => {
     setSearchedAddresses([newAddress]);
 
-    searchHistoryService.StoreAddress(newAddress);
+    storeAddress(newAddress, user?.uid);
 
     analytics.logAnalyticsEvent("search_address", {
       address: newAddress,

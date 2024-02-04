@@ -1,14 +1,18 @@
-import { FC, useState, useMemo } from "react";
-import clsx from "clsx";
 import { Transition } from "@headlessui/react";
 import {
-  MagnifyingGlassIcon,
   ArrowUpRightIcon,
+  MagnifyingGlassIcon,
   XCircleIcon,
 } from "@heroicons/react/24/solid";
+import clsx from "clsx";
+import { FC, useEffect, useMemo, useState } from "react";
 
-import isValidAddress from "../../../utils/isValidAddress";
 import { HotKeysType } from "../../../types/hotKeys";
+import isValidAddress from "../../../utils/isValidAddress";
+
+import { getUserHistory } from "../../../services/firebase/search-history/search-history";
+import SearchHistoryPopover from "./SearchHistoryPopover";
+import useAuthState from "../../../hooks/useAuthState";
 
 const InvalidAddressPopover: FC = () => {
   return (
@@ -38,8 +42,12 @@ interface SearchbarProps {
 
 const Searchbar: FC<SearchbarProps> = ({ className, onSearchAddress }) => {
   const [query, setQuery] = useState<string>("");
+  const [isUserHistoryPopoverOpen, setIsUserHistoryPopoverOpen] = useState(false);
+  const [userHistory, setUserHistory] = useState<string[]>([])
 
   const isAddressValid = useMemo(() => isValidAddress(query), [query]);
+
+  const user = useAuthState();
 
   const onSearchAddressHandler = () => {
     if (isAddressValid) {
@@ -57,80 +65,105 @@ const Searchbar: FC<SearchbarProps> = ({ className, onSearchAddress }) => {
     },
   };
 
+  useEffect(() => {
+    getUserHistory(user?.uid).then((userHistory) => {
+      console.log(userHistory);
+      if (userHistory) {
+        setUserHistory(userHistory);
+      }
+    });
+  }, [user]);
+
   return (
-    <div className={clsx("flex rounded-md shadow-sm", className)}>
-      <div className="relative flex flex-grow items-stretch focus-within:z-10">
-        {/* If the address is loading, show a loading icon. Else, show a magnifying glass instead */}
-        <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-          <MagnifyingGlassIcon
-            className="h-5 w-5 text-gray-400"
-            aria-hidden="true"
+    <div className={clsx("flex flex-col w-full")}>
+      <div className={clsx("flex rounded-md shadow-sm", className)}>
+        <div className="relative flex flex-grow items-stretch focus-within:z-10">
+          {/* If the address is loading, show a loading icon. Else, show a magnifying glass instead */}
+          <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+            <MagnifyingGlassIcon
+              className="h-5 w-5 text-gray-400"
+              aria-hidden="true"
+            />
+          </div>
+
+          {/* The input field */}
+          <input
+            type="text"
+            name="address"
+            id="address"
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            onKeyDown={(event) => {
+              const hotKey = event.key.toLocaleLowerCase();
+              switch (hotKey) {
+                case hotKeysMap.SEARCH.key:
+                  hotKeysMap.SEARCH.handler(event);
+                  break;
+              }
+            }}
+            className={
+              "block w-full rounded-none rounded-l-md border-0 py-1.5 pl-10 font-mono text-gray-900 ring-1 ring-inset ring-gray-300 transition-all placeholder:text-gray-400 focus:ring-2 focus:ring-inset sm:text-sm sm:leading-6" +
+              (isAddressValid || !query
+                ? " focus:ring-blue-600"
+                : " focus:ring-red-500")
+            }
+            placeholder="0x89c3ef557515934..."
+            onFocus={() => {
+              setIsUserHistoryPopoverOpen(true);
+            }}
+            onBlur={() => {
+              setIsUserHistoryPopoverOpen(false);
+            }}
           />
+
+          {/* If the address is invalid, show an error icon and a popover*/}
+          {!isAddressValid && query ? (
+            <div>
+              <div className="absolute inset-y-0 right-0 flex items-center pr-3">
+                <XCircleIcon
+                  className="h-5 w-5 text-red-400"
+                  aria-hidden="true"
+                />
+              </div>
+            </div>
+          ) : null}
+
+          <Transition
+            appear={true}
+            show={!isAddressValid && query ? true : false}
+            enter={`transition-all duration-500`}
+            enterFrom="opacity-0 scale-50"
+            enterTo="opacity-100 scale-100"
+            leave="transition-all duration-500"
+            leaveFrom="opacity-100 scale-100"
+            leaveTo="opacity-0 scale-50"
+          >
+            <InvalidAddressPopover />
+          </Transition>
         </div>
 
-        {/* The input field */}
-        <input
-          type="text"
-          name="address"
-          id="address"
-          value={query}
-          onChange={(event) => setQuery(event.target.value)}
-          onKeyDown={(event) => {
-            const hotKey = event.key.toLocaleLowerCase();
-            switch (hotKey) {
-              case hotKeysMap.SEARCH.key:
-                hotKeysMap.SEARCH.handler(event);
-                break;
-            }
+        <button
+          type="button"
+          onClick={() => {
+            if (isAddressValid) onSearchAddress(query);
           }}
-          className={
-            "block w-full rounded-none rounded-l-md border-0 py-1.5 pl-10 font-mono text-gray-900 ring-1 ring-inset ring-gray-300 transition-all placeholder:text-gray-400 focus:ring-2 focus:ring-inset sm:text-sm sm:leading-6" +
-            (isAddressValid || !query
-              ? " focus:ring-blue-600"
-              : " focus:ring-red-500")
-          }
-          placeholder="0x89c3ef557515934..."
-        />
-
-        {/* If the address is invalid, show an error icon and a popover*/}
-        {!isAddressValid && query ? (
-          <div>
-            <div className="absolute inset-y-0 right-0 flex items-center pr-3">
-              <XCircleIcon
-                className="h-5 w-5 text-red-400"
-                aria-hidden="true"
-              />
-            </div>
-          </div>
-        ) : null}
-
-        <Transition
-          appear={true}
-          show={!isAddressValid && query ? true : false}
-          enter={`transition-all duration-500`}
-          enterFrom="opacity-0 scale-50"
-          enterTo="opacity-100 scale-100"
-          leave="transition-all duration-500"
-          leaveFrom="opacity-100 scale-100"
-          leaveTo="opacity-0 scale-50"
+          className="relative -ml-px inline-flex items-center gap-x-1.5 rounded-r-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 transition-all hover:bg-gray-50"
         >
-          <InvalidAddressPopover />
-        </Transition>
+          <ArrowUpRightIcon
+            className="-ml-0.5 h-5 w-5 text-gray-400"
+            aria-hidden="true"
+          />
+          Analyze
+        </button>
       </div>
-
-      <button
-        type="button"
-        onClick={() => {
-          if (isAddressValid) onSearchAddress(query);
-        }}
-        className="relative -ml-px inline-flex items-center gap-x-1.5 rounded-r-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 transition-all hover:bg-gray-50"
-      >
-        <ArrowUpRightIcon
-          className="-ml-0.5 h-5 w-5 text-gray-400"
-          aria-hidden="true"
-        />
-        Analyze
-      </button>
+      {
+        // If the user history popover is open, show the user history popover
+        isUserHistoryPopoverOpen && userHistory.length > 0 ? (
+          <SearchHistoryPopover
+            userHistory={userHistory}
+          />
+        ) : null
+      }
     </div>
   );
 };

@@ -117,8 +117,10 @@ const signUpWithGoogle = async (
  *
  * @returns current user
  */
-const getCurrentUser = () => {
-  return auth.currentUser;
+const getCurrentUser = (callback: (user: User | null) => void) => {
+  return onAuthStateChanged(auth, (user) => {
+    callback(user);
+  });
 };
 
 /**

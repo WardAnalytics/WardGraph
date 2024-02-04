@@ -11,12 +11,10 @@ import { FC, useContext, useEffect, useMemo, useState } from "react";
 import { useKeyPress } from "reactflow";
 import useAuthState from "../../../hooks/useAuthState";
 import authService from "../../../services/auth/auth.services";
-import { GraphContext } from "../Graph";
 import LoginDialog from "../../auth/AuthDialog";
+import { GraphContext } from "../Graph";
 import ShareDialog from "../LandingPage/ShareDialog";
 import NewAddressModal from "../NewAddressModal";
-import { BookmarkIcon } from "@heroicons/react/24/solid";
-import searchHistoryService from "../../../services/firebase/search-history/search-history";
 
 interface HotbarButton {
   onClick?: () => void;
@@ -95,7 +93,7 @@ const Hotbar: FC = () => {
   const user = useAuthState();
 
   const isAutenticated = useMemo(() => {
-    return user?.emailVerified;
+    return user && user?.emailVerified;
   }, [user]);
 
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
@@ -114,7 +112,7 @@ const Hotbar: FC = () => {
 
   // TODO: Move this to sidebar
   const getSearchHistory = async () => {
-    const userSearchHistory = await searchHistoryService.GetUserHistory();
+    const userSearchHistory = await getSearchHistory();
 
     console.log(userSearchHistory);
   };
@@ -174,11 +172,6 @@ const Hotbar: FC = () => {
           {isAutenticated ? (
             <>
               <HotbarButton
-                Icon={BookmarkIcon}
-                name="Search History"
-                onClick={getSearchHistory}
-              />
-              <HotbarButton
                 Icon={UserCircleIcon}
                 name={"Logout"}
                 onClick={onLogout}
@@ -194,7 +187,7 @@ const Hotbar: FC = () => {
           <HotbarButton
             Icon={BugAntIcon}
             name="Report Bug / Give Feedback"
-            onClick={() => {}}
+            onClick={() => { }}
             href="https://forms.gle/yCFrDnKyUmPYPhfg8"
           />
         </HotbarButtonGroup>

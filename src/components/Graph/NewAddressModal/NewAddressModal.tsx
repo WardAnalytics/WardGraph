@@ -1,9 +1,10 @@
 import { FC, useContext } from "react";
 import Modal from "../../common/Modal";
 import { GraphContext } from "../Graph";
-import searchHistoryService from "../../../services/firebase/search-history/search-history";
+import { storeAddress } from "../../../services/firebase/search-history/search-history";
 
 import Searchbar from "../LandingPage/SearchBar";
+import useAuthState from "../../../hooks/useAuthState";
 
 interface NewAddressModalProps {
   isOpen: boolean;
@@ -13,8 +14,10 @@ interface NewAddressModalProps {
 const NewAddressModal: FC<NewAddressModalProps> = ({ isOpen, setOpen }) => {
   const { addNewAddressToCenter } = useContext(GraphContext);
 
+  const user = useAuthState();
+
   const handleSearchAddress = async (address: string) => {
-    await searchHistoryService.StoreAddress(address);
+    await storeAddress(address, user?.uid);
     addNewAddressToCenter(address);
     setOpen(false);
   }
