@@ -1,7 +1,9 @@
-import { FC, useMemo } from "react";
+import { FC, useMemo, useState } from "react";
 import authService from "../services/auth/auth.services";
 
 import { PublicGraph, PrivateGraph } from "../components/Graph";
+import LoginDialog from "../components/auth";
+
 import Socials from "../components/Socials";
 import Banner from "../components/banner";
 
@@ -14,6 +16,7 @@ const getURLSearchParams = () => {
 
 const GraphTemplate: FC = () => {
   // Get the current user
+  const [isLoginDialogOpen, setIsLoginDialogOpen] = useState(false);
   const user = authService.useAuthState();
   const isAutenticated = useMemo(() => {
     return user !== null;
@@ -44,6 +47,10 @@ const GraphTemplate: FC = () => {
         </>
       )}
       <Socials className="absolute bottom-0 right-0 m-4" />
+      <LoginDialog
+        isOpen={isLoginDialogOpen}
+        setIsOpen={setIsLoginDialogOpen}
+      />
     </div>
   );
 };
