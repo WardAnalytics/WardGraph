@@ -1,6 +1,6 @@
 import { FC, useEffect, useState, useMemo } from "react";
 import clsx from "clsx";
-import BigButton from "../common/BigButton";
+import BigButton from "../../common/BigButton";
 import {
   XMarkIcon,
   RocketLaunchIcon,
@@ -8,7 +8,7 @@ import {
   ArrowRightIcon,
 } from "@heroicons/react/24/outline";
 
-import Modal from "../common/Modal";
+import Modal from "../../common/Modal";
 import TutorialStepCard from "./TutorialStepCard";
 import { useKeyPress } from "reactflow";
 

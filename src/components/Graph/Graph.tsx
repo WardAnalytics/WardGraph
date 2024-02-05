@@ -10,7 +10,6 @@ import {
 } from "react";
 import ReactFlow, {
   Background,
-  Controls,
   Edge,
   Node,
   Panel,
@@ -48,7 +47,7 @@ import {
 import analytics from "../../services/firebase/analytics";
 import firestore, { StoreUrlObject } from "../../services/firebase/firestore";
 import generateShortUrl from "../../utils/generateShortUrl";
-import TutorialPopup from "../tutorial/TutorialPopup";
+import TutorialPopup from "./tutorial/TutorialPopup";
 import DraggableWindow from "./AnalysisWindow/AnalysisWindow";
 import Hotbar from "./Hotbar";
 import LandingPage from "./LandingPage/LandingPage";
@@ -147,13 +146,19 @@ const GraphProvider: FC<GraphProviderProps> = ({
     return edges;
   }, [initialPaths]);
 
+  const initialLayoutedNodes = useMemo(() => {
+    if (initialNodes.length === 0) return [];
+
+    return calculateLayoutedElements(initialNodes, initialEdges);
+  }, [initialNodes, initialEdges]);
+
   // We make sure to calculate the layouted nodes and edges before rendering
   return (
     <>
       <div style={{ height: "100%" }}>
         <ReactFlowProvider>
           <GraphProvided
-            initialNodes={calculateLayoutedElements(initialNodes, initialEdges)}
+            initialNodes={initialLayoutedNodes}
             initialEdges={initialEdges}
           />
         </ReactFlowProvider>
@@ -660,7 +665,7 @@ const GraphProvided: FC<GraphProvidedProps> = ({
               aria-hidden="true"
               src="https://tailwindui.com/img/beams-home@95.jpg"
             />
-            {<Controls position="top-right" showInteractive={false} />}
+            {/* {<Controls position="top-right" showInteractive={false} />} */}
             <TutorialPopup
               showTutorial={showTutorial}
               setShowTutorial={setShowTutorial}
@@ -691,24 +696,15 @@ const GraphProvided: FC<GraphProvidedProps> = ({
 /** Graph + Landing Page - These are combined into one component for easy
  * animated transitions between the two. */
 
-const useURLSearchParams = () => {
-  const urlParams = new URLSearchParams(window.location.search);
-  const addresses = urlParams.get("addresses")?.split(",") || [];
-  const paths = urlParams.get("paths")?.split(",") || [];
-  return { addresses, paths };
-};
+interface GraphProps {
+  initialAddresses: string[];
+  initialPaths: string[];
+}
 
-const Graph: FC = () => {
-  const [searchedAddresses, setSearchedAddresses] = useState<string[]>([]);
-  const [searchedPaths, setSearchedPaths] = useState<string[]>([]);
-
-  useEffect(() => {
-    const { addresses, paths } = useURLSearchParams();
-    if (addresses.length && paths.length) {
-      setSearchedAddresses(addresses);
-      setSearchedPaths(paths);
-    }
-  }, []);
+/** The public graph is the graph that gets shown to non-logged in users. It includes a landing page and a search bar. */
+const PublicGraph: FC<GraphProps> = ({ initialAddresses, initialPaths }) => {
+  const [searchedAddresses, setSearchedAddresses] =
+    useState<string[]>(initialAddresses);
 
   const onSetSearchedAddress = (newAddress: string) => {
     setSearchedAddresses([newAddress]);
@@ -719,14 +715,14 @@ const Graph: FC = () => {
   };
 
   return (
-    <div className="h-full w-full overflow-hidden">
+    <div className="h-full overflow-hidden">
       <Transition
         show={searchedAddresses.length === 0}
         appear={true}
         leave="transition-all duration-500"
         leaveFrom="opacity-100 scale-100"
         leaveTo="opacity-0 scale-50"
-        className="fixed flex h-full w-full flex-col items-center justify-center"
+        className="absolute flex h-full w-full flex-col items-center justify-center"
       >
         <LandingPage setSearchedAddress={onSetSearchedAddress} />
       </Transition>
@@ -741,7 +737,7 @@ const Graph: FC = () => {
         {searchedAddresses.length > 0 && (
           <GraphProvider
             initialAddresses={searchedAddresses}
-            initialPaths={searchedPaths}
+            initialPaths={initialPaths}
           />
         )}
       </Transition>
@@ -749,4 +745,14 @@ const Graph: FC = () => {
   );
 };
 
-export default Graph;
+/** The private graph is the graph that gets shown to logged in users. It has no landing page and goes straight to the graph. */
+const PrivateGraph: FC<GraphProps> = ({ initialAddresses, initialPaths }) => {
+  return (
+    <GraphProvider
+      initialAddresses={initialAddresses}
+      initialPaths={initialPaths}
+    />
+  );
+};
+
+export { PublicGraph, PrivateGraph };

@@ -166,7 +166,7 @@ const AddressNode: FC<AddressNodeProps> = ({
           className={clsx(
             "1transition-all flex flex-row items-center gap-x-2 rounded-lg bg-white px-4 py-5 ring-1 duration-150 hover:bg-gray-50",
             focusedAddressData?.address === address
-              ? "bg-blue-50 shadow-2xl shadow-blue-300 ring-4 ring-blue-400"
+              ? " scale-125 bg-blue-50 shadow-2xl shadow-blue-300 ring-4 ring-blue-400"
               : highlight
                 ? "shadow-xl shadow-blue-200 ring-blue-300"
                 : "shadow-md ring-gray-300",
