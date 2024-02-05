@@ -6,6 +6,7 @@ name: Deploy to Firebase Dev Hosting on merge
   push:
     branches:
       - development
+      - pro
 
 env:
   VITE_WARD_API_BASE_URL: "https://wardanalyticsapi.com"
