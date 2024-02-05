@@ -1,8 +1,8 @@
 import { FC, useContext } from "react";
 import authService from "../../services/auth/auth.services";
 import { AuthContext } from "./AuthDialog";
-import AuthInput from "../common/auth/AuthInput";
-import SignInWithGoogleButton from "../common/auth/SignInWithGoogleButton";
+import AuthInput from "./AuthInput";
+import SignInWithGoogleButton from "./SignInWithGoogleButton";
 
 import { AuthDialogState } from "./AuthDialog";
 
