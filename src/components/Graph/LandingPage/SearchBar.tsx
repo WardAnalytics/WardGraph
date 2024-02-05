@@ -1,4 +1,3 @@
-import { FC, useEffect, useMemo, useRef, useState } from "react";
 import { Transition } from "@headlessui/react";
 import {
   ArrowUpRightIcon,
@@ -6,6 +5,7 @@ import {
   XCircleIcon,
 } from "@heroicons/react/24/solid";
 import clsx from "clsx";
+import { FC, KeyboardEvent, useEffect, useMemo, useRef, useState } from "react";
 
 import authService from "../../../services/auth/auth.services";
 import { getUserHistory } from "../../../services/firebase/search-history/search-history";
@@ -50,23 +50,77 @@ const Searchbar: FC<SearchbarProps> = ({ className, onSearchAddress }) => {
   const [showInvalidAddressPopover, setShowInvalidAddressPopover] =
     useState(false);
   const [userHistory, setUserHistory] = useState<string[]>([]);
+  const [selectedUserHistoyIndex, setSelectedUserHistoyIndex] = useState<number | null>(null);
 
   const isAddressValid = useMemo(() => isValidAddress(query), [query]);
 
   const user = authService.useAuthState();
 
-  const onSearchAddressHandler = () => {
-    if (isAddressValid) {
-      onSearchAddress(query);
+  const uniqueSearchHistory = useMemo(() => {
+    // Remove duplicates
+    const uniqueHistory = userHistory.filter(
+      (address, index, self) =>
+        index ===
+        self.findIndex(
+          (t) => t.toLowerCase() === address.toLowerCase(),
+        ),
+    );
+
+    return uniqueHistory;
+  }, [userHistory])
+
+  const onSearchAddressHandler = (input: string) => {
+    if (isValidAddress(input)) {
+      onSearchAddress(input);
     }
   };
+
+  const moveSelectedIndexUp = () => {
+    if (selectedUserHistoyIndex === null) {
+      setSelectedUserHistoyIndex(0);
+    } else {
+      const newIndex = (selectedUserHistoyIndex - 1 + uniqueSearchHistory.length) % uniqueSearchHistory.length;
+      setSelectedUserHistoyIndex(newIndex);
+    }
+  }
+
+  const moveSelectedIndexDown = () => {
+    if (selectedUserHistoyIndex === null) {
+      setSelectedUserHistoyIndex(0);
+    } else {
+      const newIndex = (selectedUserHistoyIndex + 1 + uniqueSearchHistory.length) % uniqueSearchHistory.length;
+      setSelectedUserHistoyIndex(newIndex);
+    }
+  }
 
   const hotKeysMap: HotKeysType = {
     SEARCH: {
       key: "enter",
-      handler: (event) => {
+      handler: (event: KeyboardEvent<HTMLElement>) => {
         event.preventDefault();
-        onSearchAddressHandler();
+
+        if (selectedUserHistoyIndex !== null) {
+          onSearchAddressHandler(uniqueSearchHistory[selectedUserHistoyIndex]);
+          setSelectedUserHistoyIndex(null);
+        } else {
+          // @ts-ignore
+          onSearchAddressHandler(event.target.value);
+        }
+      },
+    },
+    ARROWUP: {
+      key: "arrowup",
+      handler: (event: KeyboardEvent<HTMLElement>) => {
+        event.preventDefault();
+        moveSelectedIndexUp();
+
+      },
+    },
+    ARROWDOWN: {
+      key: "arrowdown",
+      handler: (event: KeyboardEvent<HTMLElement>) => {
+        event.preventDefault();
+        moveSelectedIndexDown();
       },
     },
   };
@@ -106,6 +160,12 @@ const Searchbar: FC<SearchbarProps> = ({ className, onSearchAddress }) => {
                   switch (hotKey) {
                     case hotKeysMap.SEARCH.key:
                       hotKeysMap.SEARCH.handler(event);
+                      break;
+                    case hotKeysMap.ARROWUP.key:
+                      hotKeysMap.ARROWUP.handler(event);
+                      break;
+                    case hotKeysMap.ARROWDOWN.key:
+                      hotKeysMap.ARROWDOWN.handler(event);
                       break;
                   }
                 }}
@@ -148,11 +208,10 @@ const Searchbar: FC<SearchbarProps> = ({ className, onSearchAddress }) => {
                 <div ref={popoverRef}>
                   <SearchHistoryPopover
                     userInput={query}
-                    setUserInput={(newValue: string) => {
-                      setQuery(newValue);
-                      setIsUserHistoryPopoverOpen(false);
-                    }}
-                    userHistory={userHistory}
+                    onClickAddress={onSearchAddressHandler}
+                    userHistory={uniqueSearchHistory}
+                    selectedIndex={selectedUserHistoyIndex}
+                    setSelectedIndex={setSelectedUserHistoyIndex}
                   />
                 </div>
               ) : null
