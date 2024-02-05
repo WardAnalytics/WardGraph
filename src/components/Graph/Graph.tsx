@@ -541,6 +541,8 @@ const GraphProvided: FC<GraphProvidedProps> = ({
     filteredNodes: Node[];
     filteredEdges: Edge[];
   } {
+    if (nodes.length === 0) return { filteredNodes: [], filteredEdges: [] };
+
     const filteredNodes = nodes;
     const filteredEdges = edges.filter(
       (edge) =>
@@ -555,6 +557,8 @@ const GraphProvided: FC<GraphProvidedProps> = ({
     filteredNodes: Node[],
     filteredEdges: Edge[],
   ): Node[] {
+    if (filteredNodes.length === 0) return [];
+
     const newNodes = calculateLayoutedElements(filteredNodes, filteredEdges);
     setNodes(newNodes);
     return newNodes;
