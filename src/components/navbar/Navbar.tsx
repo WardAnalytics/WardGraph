@@ -23,7 +23,7 @@ const navigation = [
   { name: "Risk Feed", href: "dashboard", icon: ListBulletIcon },
   { name: "Automations", href: "automations", icon: BoltIcon },
   { name: "API", href: "api", icon: KeyIcon },
-  { name: "Your Graphs", href: "graph", icon: ShareIcon },
+  { name: "My Graphs", href: "graph", icon: ShareIcon },
 ];
 
 interface SideNavBarButton {
