@@ -1,17 +1,26 @@
 import { Popover } from "@headlessui/react";
 import { ArrowPathIcon } from "@heroicons/react/20/solid";
-import { FC, useMemo } from "react";
+import clsx from "clsx";
+import { FC, useMemo, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 
 interface SearchHistoryRowProps {
   address: string;
   setUserInput: (input: string) => void;
+  selected: boolean;
 }
 
-const SearchHistoryRow = ({ address, setUserInput }: SearchHistoryRowProps) => {
+const SearchHistoryRow = ({
+  address,
+  setUserInput,
+  selected,
+}: SearchHistoryRowProps) => {
   return (
     <div
-      className="flex flex-row items-center gap-x-2 rounded-lg p-2 text-gray-900 transition duration-150 ease-in-out hover:bg-gray-100 hover:text-blue-500 focus:outline-none focus-visible:ring focus-visible:ring-orange-500/50"
+      className={clsx(
+        "flex flex-row items-center gap-x-2 rounded-lg p-2 transition duration-150 ease-in-out hover:bg-gray-100 hover:text-blue-500 focus:outline-none focus-visible:ring focus-visible:ring-orange-500/50",
+        selected ? "bg-gray-100 text-blue-500" : "text-gray-900",
+      )}
       onClick={() => {
         setUserInput(address);
       }}
@@ -59,6 +68,8 @@ const SearchHistoryPopover: FC<SearchHistoryPopoverProps> = ({
     return uniqueHistory;
   }, [userHistory, userInput]);
 
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+
   return (
     filteredUserSearchHistory.length > 0 && (
       <div className="relative z-10 w-full">
@@ -71,6 +82,9 @@ const SearchHistoryPopover: FC<SearchHistoryPopoverProps> = ({
                     key={item.id}
                     address={item.address}
                     setUserInput={setUserInput}
+                    selected={
+                      selectedIndex === filteredUserSearchHistory.indexOf(item)
+                    }
                   />
                 ))}
               </div>
