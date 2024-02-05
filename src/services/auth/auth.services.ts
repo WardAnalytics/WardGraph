@@ -163,18 +163,20 @@ const resetUserPassword = async (
 
 const useAuthState = () => {
   const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     // This listener will be called whenever the user's sign-in state changes
     const unsubscribe = auth.onAuthStateChanged((currentUser) => {
       setUser(currentUser);
+      setIsLoading(false);
     });
 
     // Cleanup subscription on unmount
     return () => unsubscribe();
   }, []); // Empty array ensures this effect runs only once on mount
 
-  return user;
+  return { user, isLoading };
 };
 
 const authService = {

@@ -715,7 +715,7 @@ const PublicGraph: FC<GraphProps> = ({ initialAddresses, initialPaths }) => {
   const [searchedAddresses, setSearchedAddresses] =
     useState<string[]>(initialAddresses);
 
-  const user = authService.useAuthState();
+  const { user } = authService.useAuthState();
 
   const onSetSearchedAddress = (newAddress: string) => {
     setSearchedAddresses([newAddress]);

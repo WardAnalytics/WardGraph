@@ -14,7 +14,7 @@ interface NewAddressModalProps {
 const NewAddressModal: FC<NewAddressModalProps> = ({ isOpen, setOpen }) => {
   const { addNewAddressToCenter } = useContext(GraphContext);
 
-  const user = authService.useAuthState();
+  const { user } = authService.useAuthState();
 
   const handleSearchAddress = async (address: string) => {
     await storeAddress(address, user?.uid);

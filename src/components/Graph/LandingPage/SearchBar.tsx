@@ -54,7 +54,7 @@ const Searchbar: FC<SearchbarProps> = ({ className, onSearchAddress }) => {
 
   const isAddressValid = useMemo(() => isValidAddress(query), [query]);
 
-  const user = authService.useAuthState();
+  const { user } = authService.useAuthState();
 
   const uniqueSearchHistory = useMemo(() => {
     // Remove duplicates
