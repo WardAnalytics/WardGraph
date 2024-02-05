@@ -1,4 +1,3 @@
-import { UserCircleIcon } from "@heroicons/react/20/solid";
 import {
   BugAntIcon,
   MagnifyingGlassPlusIcon,
@@ -9,9 +8,6 @@ import {
 import clsx from "clsx";
 import { FC, useContext, useEffect, useMemo, useState } from "react";
 import { useKeyPress } from "reactflow";
-import useAuthState from "../../../hooks/useAuthState";
-import authService from "../../../services/auth/auth.services";
-import LoginDialog from "../../auth/AuthDialog";
 import { GraphContext } from "../Graph";
 import ShareDialog from "../LandingPage/ShareDialog";
 import NewAddressModal from "../NewAddressModal";
@@ -90,14 +86,7 @@ const Hotbar: FC = () => {
   const { doLayout, copyLink, getSharingLink, setShowTutorial } =
     useContext(GraphContext);
 
-  const user = useAuthState();
-
-  const isAutenticated = useMemo(() => {
-    return user && user?.emailVerified;
-  }, [user]);
-
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
-  const [isLoginDialogOpen, setIsLoginDialogOpen] = useState(false);
   const [isAddAddressModalOpen, setIsAddAddressModalOpen] = useState(false);
 
   const shareUrl = useMemo(() => getSharingLink(), []);
@@ -108,30 +97,6 @@ const Hotbar: FC = () => {
 
   const openShareDialog = () => {
     setIsShareDialogOpen(true);
-  };
-
-  // TODO: Move this to sidebar
-  const getSearchHistory = async () => {
-    const userSearchHistory = await getSearchHistory();
-
-    console.log(userSearchHistory);
-  };
-
-  const openLoginDialog = () => {
-    setIsLoginDialogOpen(true);
-  };
-
-  const onLogoutSuccess = () => {
-    console.log("Logout success");
-    window.location.reload();
-  };
-
-  const onLogoutError = () => {
-    console.log("Logout error");
-  };
-
-  const onLogout = () => {
-    authService.logout(onLogoutSuccess, onLogoutError);
   };
 
   return (
@@ -169,25 +134,10 @@ const Hotbar: FC = () => {
           />
         </HotbarButtonGroup>
         <HotbarButtonGroup className="pt-1">
-          {isAutenticated ? (
-            <>
-              <HotbarButton
-                Icon={UserCircleIcon}
-                name={"Logout"}
-                onClick={onLogout}
-              />
-            </>
-          ) : (
-            <HotbarButton
-              Icon={UserCircleIcon}
-              name="Login"
-              onClick={openLoginDialog}
-            />
-          )}
           <HotbarButton
             Icon={BugAntIcon}
             name="Report Bug / Give Feedback"
-            onClick={() => { }}
+            onClick={() => {}}
             href="https://forms.gle/yCFrDnKyUmPYPhfg8"
           />
         </HotbarButtonGroup>
@@ -197,10 +147,6 @@ const Hotbar: FC = () => {
         isOpen={isShareDialogOpen}
         setIsOpen={setIsShareDialogOpen}
         onShareUrl={onShareUrl}
-      />
-      <LoginDialog
-        isOpen={isLoginDialogOpen}
-        setIsOpen={setIsLoginDialogOpen}
       />
       <NewAddressModal
         isOpen={isAddAddressModalOpen}

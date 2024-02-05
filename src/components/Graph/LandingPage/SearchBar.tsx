@@ -1,3 +1,4 @@
+import { FC, useEffect, useMemo, useRef, useState } from "react";
 import { Transition } from "@headlessui/react";
 import {
   ArrowUpRightIcon,
@@ -5,13 +6,13 @@ import {
   XCircleIcon,
 } from "@heroicons/react/24/solid";
 import clsx from "clsx";
-import { FC, useEffect, useMemo, useRef, useState } from "react";
+
+import authService from "../../../services/auth/auth.services";
+import { getUserHistory } from "../../../services/firebase/search-history/search-history";
 
 import { HotKeysType } from "../../../types/hotKeys";
-import isValidAddress from "../../../utils/isValidAddress";
 
-import useAuthState from "../../../hooks/useAuthState";
-import { getUserHistory } from "../../../services/firebase/search-history/search-history";
+import isValidAddress from "../../../utils/isValidAddress";
 import SearchHistoryPopover from "./SearchHistoryPopover";
 
 const InvalidAddressPopover: FC = () => {
@@ -44,15 +45,15 @@ const Searchbar: FC<SearchbarProps> = ({ className, onSearchAddress }) => {
   const popoverRef = useRef<HTMLDivElement>(null);
 
   const [query, setQuery] = useState<string>("");
-  const [isUserHistoryPopoverOpen, setIsUserHistoryPopoverOpen] = useState(false);
-  const [showInvalidAddressPopover, setShowInvalidAddressPopover] = useState(
-    false
-  );
-  const [userHistory, setUserHistory] = useState<string[]>([])
+  const [isUserHistoryPopoverOpen, setIsUserHistoryPopoverOpen] =
+    useState(false);
+  const [showInvalidAddressPopover, setShowInvalidAddressPopover] =
+    useState(false);
+  const [userHistory, setUserHistory] = useState<string[]>([]);
 
   const isAddressValid = useMemo(() => isValidAddress(query), [query]);
 
-  const user = useAuthState();
+  const user = authService.useAuthState();
 
   const onSearchAddressHandler = () => {
     if (isAddressValid) {
@@ -80,10 +81,9 @@ const Searchbar: FC<SearchbarProps> = ({ className, onSearchAddress }) => {
 
   return (
     <>
-      <div className={clsx("flex flex-col w-full")}>
+      <div className={clsx("flex w-full flex-col")}>
         <div className={clsx("flex rounded-md shadow-sm", className)}>
-          <div className="flex flex-col w-full">
-
+          <div className="flex w-full flex-col">
             <div className="relative flex flex-grow items-stretch focus-within:z-10">
               {/* If the address is loading, show a loading icon. Else, show a magnifying glass instead */}
               <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
@@ -177,11 +177,10 @@ const Searchbar: FC<SearchbarProps> = ({ className, onSearchAddress }) => {
             onClick={() => {
               if (isAddressValid) {
                 setIsUserHistoryPopoverOpen(false);
-                onSearchAddress(query)
-              }
-              else {
+                onSearchAddress(query);
+              } else {
                 setShowInvalidAddressPopover(true);
-              };
+              }
             }}
             className="relative -ml-px inline-flex items-center gap-x-1.5 rounded-r-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 transition-all hover:bg-gray-50"
           >
