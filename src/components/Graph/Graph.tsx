@@ -10,7 +10,6 @@ import {
 } from "react";
 import ReactFlow, {
   Background,
-  Controls,
   Edge,
   Node,
   Panel,
@@ -696,13 +695,6 @@ const GraphProvided: FC<GraphProvidedProps> = ({
 
 /** Graph + Landing Page - These are combined into one component for easy
  * animated transitions between the two. */
-
-const useURLSearchParams = () => {
-  const urlParams = new URLSearchParams(window.location.search);
-  const addresses = urlParams.get("addresses")?.split(",") || [];
-  const paths = urlParams.get("paths")?.split(",") || [];
-  return { addresses, paths };
-};
 
 interface GraphProps {
   initialAddresses: string[];

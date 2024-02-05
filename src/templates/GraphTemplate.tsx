@@ -1,4 +1,4 @@
-import { FC, useMemo, useState } from "react";
+import { FC, useMemo } from "react";
 import authService from "../services/auth/auth.services";
 
 import { PublicGraph, PrivateGraph } from "../components/Graph";
