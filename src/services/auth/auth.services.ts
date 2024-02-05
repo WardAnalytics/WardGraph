@@ -1,3 +1,5 @@
+import { useState, useEffect } from "react";
+
 import {
   User,
   createUserWithEmailAndPassword,
@@ -159,6 +161,22 @@ const resetUserPassword = async (
     });
 };
 
+const useAuthState = () => {
+  const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    // This listener will be called whenever the user's sign-in state changes
+    const unsubscribe = auth.onAuthStateChanged((currentUser) => {
+      setUser(currentUser);
+    });
+
+    // Cleanup subscription on unmount
+    return () => unsubscribe();
+  }, []); // Empty array ensures this effect runs only once on mount
+
+  return user;
+};
+
 const authService = {
   signUp,
   login,
@@ -167,6 +185,7 @@ const authService = {
   getCurrentUser,
   isLoggedIn,
   resetUserPassword,
+  useAuthState,
 };
 
 export default authService;

@@ -69,7 +69,7 @@ const Legend: FC = () => {
       enter="transition-all duration-1000"
       enterFrom="opacity-0 scale-95 -translate-x-1/2"
       enterTo="opacity-100 scale-100 translate-x-0"
-      className="h-fit w-fit"
+      className="mt-5 h-fit w-fit"
     >
       <div className="flex h-fit w-32 flex-col items-center gap-y-3 divide-y divide-gray-300 bg-white/10 p-3 backdrop-blur-sm">
         <h2 className="flex flex-row items-center gap-x-1 text-xs font-semibold tracking-wide text-gray-600">

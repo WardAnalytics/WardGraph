@@ -1,3 +1,3 @@
-import Graph from "./Graph";
+import { PublicGraph, PrivateGraph } from "./Graph";
 
-export default Graph;
+export { PublicGraph, PrivateGraph };
