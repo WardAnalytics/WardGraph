@@ -8,7 +8,6 @@ import {
   setDoc,
   where,
 } from "firebase/firestore";
-import authService from "../../auth/auth.services";
 import { db } from "../firebase";
 
 export interface AddressHistoryAPIObject {
@@ -34,8 +33,6 @@ const storeAddress = async (address: string, userId?: string) => {
     // TODO: store the user that performed the search as well, if logged in
     await setDoc(doc(collection(db, "searchHistory")), newAddressObject);
 
-    console.log("Address stored in the database", address);
-
     return address;
   } catch (e) {
     console.error(e);
@@ -48,8 +45,6 @@ const storeAddress = async (address: string, userId?: string) => {
  * @returns The search history for the user
  */
 const getUserHistory = async (userId?: string, recordLimit: number = 5) => {
-  console.log("userId", userId);
-
   if (!userId) {
     return [];
   }
