@@ -1,6 +1,7 @@
 import { FC, useContext, useEffect, useState } from "react";
 import { InformationCircleIcon } from "@heroicons/react/16/solid";
 import { Transition } from "@headlessui/react";
+
 import { GraphContext } from "../Graph";
 
 import "./LegendPath.css";
@@ -12,7 +13,7 @@ const ForwardTip: FC = () => {
         <path
           d={`M5,10 H45`}
           fill="none"
-          className="animated-dotted-line animate-pulse stroke-blue-400"
+          className="animated-dotted-line stroke-blue-400"
           strokeWidth={7}
         />
         <path
@@ -35,7 +36,7 @@ const BackwardTip: FC = () => {
         <path
           d={`M5,10 H45`}
           fill="none"
-          className="animated-dotted-line-reverse animate-pulse stroke-orange-400"
+          className="animated-dotted-line-reverse stroke-orange-400"
           strokeWidth={7}
         />
         <path

@@ -1,9 +1,8 @@
-import { FC, useMemo } from "react";
+import { FC, useMemo, useState } from "react";
 import authService from "../services/auth/auth.services";
+import { PublicGraph, PrivateGraph } from "../components/graph/Graph";
 
-import { PublicGraph, PrivateGraph } from "../components/Graph";
-
-import Socials from "../components/Socials";
+import Socials from "../components/socials";
 import Banner from "../components/banner";
 import Navbar from "../components/navbar";
 
@@ -13,6 +12,19 @@ const getURLSearchParams = () => {
   const paths = urlParams.get("paths")?.split(",") || [];
   return { addresses, paths };
 };
+
+enum NavigationTabName {
+  DASHBOARD = "dashboard",
+  AUTOMATIONS = "automations",
+  API = "api",
+  MY_GRAPHS = "my-graphs",
+  GRAPH = "graph",
+}
+
+interface NavigationTab {
+  name: NavigationTabName;
+  href: string;
+}
 
 const GraphTemplate: FC = () => {
   // Get the current user
@@ -26,6 +38,11 @@ const GraphTemplate: FC = () => {
     const { addresses, paths } = getURLSearchParams();
     return { initialAddresses: addresses, initialPaths: paths };
   }, []);
+
+  // Current navigation tab
+  const [currentTab, setCurrentTab] = useState<NavigationTabName>(
+    NavigationTabName.GRAPH,
+  );
 
   return (
     <div className="h-screen w-screen">

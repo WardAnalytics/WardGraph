@@ -48,10 +48,10 @@ import analytics from "../../services/firebase/analytics";
 import firestore, { StoreUrlObject } from "../../services/firebase/firestore";
 import generateShortUrl from "../../utils/generateShortUrl";
 import TutorialPopup from "./tutorial/TutorialPopup";
-import DraggableWindow from "./AnalysisWindow/AnalysisWindow";
-import Hotbar from "./Hotbar";
-import LandingPage from "./LandingPage/LandingPage";
-import Legend from "./Legend";
+import DraggableWindow from "./analysis_window/AnalysisWindow";
+import Hotbar from "./hotbar";
+import LandingPage from "./landing_page/LandingPage";
+import Legend from "./legend";
 import TransactionTooltip, {
   TransactionTooltipProps,
 } from "./TransactionTooltip";
@@ -683,7 +683,7 @@ const GraphProvided: FC<GraphProvidedProps> = ({
                 />
               )}
             </Panel>
-            <Panel position="bottom-left">
+            <Panel position="bottom-right">
               <Hotbar />
             </Panel>
           </ReactFlow>
@@ -697,12 +697,15 @@ const GraphProvided: FC<GraphProvidedProps> = ({
  * animated transitions between the two. */
 
 interface GraphProps {
-  initialAddresses: string[];
-  initialPaths: string[];
+  initialAddresses?: string[];
+  initialPaths?: string[];
 }
 
 /** The public graph is the graph that gets shown to non-logged in users. It includes a landing page and a search bar. */
-const PublicGraph: FC<GraphProps> = ({ initialAddresses, initialPaths }) => {
+const PublicGraph: FC<GraphProps> = ({
+  initialAddresses = [],
+  initialPaths = [],
+}) => {
   const [searchedAddresses, setSearchedAddresses] =
     useState<string[]>(initialAddresses);
 
@@ -746,7 +749,10 @@ const PublicGraph: FC<GraphProps> = ({ initialAddresses, initialPaths }) => {
 };
 
 /** The private graph is the graph that gets shown to logged in users. It has no landing page and goes straight to the graph. */
-const PrivateGraph: FC<GraphProps> = ({ initialAddresses, initialPaths }) => {
+const PrivateGraph: FC<GraphProps> = ({
+  initialAddresses = [],
+  initialPaths = [],
+}) => {
   return (
     <GraphProvider
       initialAddresses={initialAddresses}

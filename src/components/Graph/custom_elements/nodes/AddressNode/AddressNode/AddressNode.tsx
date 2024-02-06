@@ -6,8 +6,8 @@ import { AddressAnalysis } from "../../../../../../api/model";
 import { useAnalysisAddressData } from "../../../../../../api/compliance/compliance";
 
 import EntityLogo from "../../../../../common/EntityLogo";
-import RiskIndicator from "../../../../AnalysisWindow/Header/components/RiskIndicator";
-import LabelList from "../../../../AnalysisWindow/Header/components/LabelList";
+import RiskIndicator from "../../../../../common/RiskIndicator";
+import LabelList from "../../../../../common/LabelList";
 
 import { GraphContext } from "../../../../Graph";
 
