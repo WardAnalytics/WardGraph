@@ -1,4 +1,4 @@
-import { XMarkIcon } from "@heroicons/react/20/solid";
+import { XMarkIcon, SparklesIcon } from "@heroicons/react/20/solid";
 import clsx from "clsx";
 import { FC, useContext } from "react";
 
@@ -125,6 +125,13 @@ const Header: FC<HeaderProps> = ({
           analysisMode={analysisMode}
           setAnalysisMode={setAnalysisMode}
         />
+        <button
+          type="button"
+          className="text-md flex flex-row items-center justify-center gap-x-1.5 rounded-md bg-white bg-gradient-to-r from-indigo-500 from-10% via-indigo-400 via-30% to-indigo-500 to-90% px-3 py-2.5 font-semibold text-white shadow-sm transition-all duration-300 hover:shadow-lg  hover:shadow-indigo-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+        >
+          <SparklesIcon className="h-6 w-6  " aria-hidden="true" />
+          Expand
+        </button>
         <a
           onClick={() => {
             onExit();
