@@ -1,4 +1,11 @@
-import { XMarkIcon, SparklesIcon } from "@heroicons/react/20/solid";
+import {
+  XMarkIcon,
+  SparklesIcon,
+  InformationCircleIcon,
+  ArrowsPointingInIcon,
+  ChevronDoubleDownIcon,
+  IdentificationIcon,
+} from "@heroicons/react/20/solid";
 import clsx from "clsx";
 import { FC, useContext, useCallback } from "react";
 
@@ -237,13 +244,33 @@ const Header: FC<HeaderProps> = ({
         />
         <button
           type="button"
-          className="text-md flex flex-row items-center justify-center gap-x-1.5 rounded-md bg-white bg-gradient-to-r from-indigo-500 from-10% via-indigo-400 via-30% to-indigo-500 to-90% px-3 py-2.5 font-semibold text-white shadow-sm transition-all duration-300 hover:shadow-lg  hover:shadow-indigo-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+          className="text-md group flex flex-row items-center justify-center gap-x-1.5 rounded-md bg-white bg-gradient-to-r from-indigo-500 from-10% via-indigo-400 via-30% to-indigo-500 to-90% px-3 py-2.5 font-semibold text-white shadow-sm transition-all duration-300 hover:shadow-lg  hover:shadow-indigo-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
           onClick={() => {
             expandWithAI(analysisData!);
           }}
         >
           <SparklesIcon className="h-6 w-6  " aria-hidden="true" />
           Expand
+          <div className="pointer-events-none absolute mb-48 mt-0.5 w-max origin-bottom scale-0 divide-y divide-gray-700 rounded-lg bg-gray-800 px-3 py-3 text-white opacity-0 shadow-sm transition-all duration-300 ease-in-out group-hover:scale-100 group-hover:opacity-100 dark:bg-gray-700 ">
+            <div className="flex flex-row items-center gap-x-1.5 pb-1">
+              <InformationCircleIcon className="h-5 w-5 text-indigo-200" />
+              <h1 className="text-base font-semibold leading-7">Expand w/AI</h1>
+            </div>
+            <div className="flex max-w-xs flex-col gap-y-1.5 pt-1 text-xs font-normal text-gray-400">
+              The AI algorithm will expand based on the following criteria:
+              <ul className="flex flex-col gap-y-2 pl-3 text-white">
+                <li className="flex flex-row items-center gap-x-1">
+                  <IdentificationIcon className="h-5 w-5 text-indigo-200" />
+                  <span className="font-bold">Highest risk</span>categories of
+                  addresses
+                </li>
+                <li className="flex flex-row items-center gap-x-1">
+                  <ArrowsPointingInIcon className="h-5 w-5 text-indigo-200" />
+                  <a className="font-bold">Most relevant</a> multi-hop paths
+                </li>
+              </ul>
+            </div>
+          </div>
         </button>
         <a
           onClick={() => {
