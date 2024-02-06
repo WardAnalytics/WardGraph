@@ -141,7 +141,6 @@ const Hotbar: FC = () => {
             name="Turn PRO"
             onClick={async () => {
               const priceId = import.meta.env.VITE_STRIPE_ONE_MONTH_SUBSCRIPTION_PRICE_ID as string;
-              console.log(priceId);
               const checkoutUrl = await getCheckoutUrl(priceId);
 
               window.location.href = checkoutUrl;
