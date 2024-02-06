@@ -13,6 +13,7 @@ import ShareDialog from "../LandingPage/ShareDialog";
 import NewAddressModal from "../NewAddressModal";
 import { CreditCardIcon } from "@heroicons/react/24/solid";
 import { getCheckoutUrl } from "../../../services/payments/payments.service";
+import authService from "../../../services/auth/auth.services";
 
 interface HotbarButton {
   onClick?: () => void;
@@ -91,6 +92,11 @@ const Hotbar: FC = () => {
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
   const [isAddAddressModalOpen, setIsAddAddressModalOpen] = useState(false);
 
+  const user = authService.useAuthState();
+  const isAuthenticated = useMemo(() => {
+    return user !== null;
+  }, [user]);
+
   const shareUrl = useMemo(() => getSharingLink(), []);
 
   const onShareUrl = () => {
@@ -135,18 +141,21 @@ const Hotbar: FC = () => {
             }}
           />
         </HotbarButtonGroup>
-        <HotbarButtonGroup className="pt-1">
-          <HotbarButton
-            Icon={CreditCardIcon}
-            name="Turn PRO"
-            onClick={async () => {
-              const priceId = import.meta.env.VITE_STRIPE_ONE_MONTH_SUBSCRIPTION_PRICE_ID as string;
-              const checkoutUrl = await getCheckoutUrl(priceId);
+        {
+          isAuthenticated &&
+          <HotbarButtonGroup className="pt-1">
+            <HotbarButton
+              Icon={CreditCardIcon}
+              name="Turn PRO"
+              onClick={async () => {
+                const priceId = import.meta.env.VITE_STRIPE_ONE_MONTH_SUBSCRIPTION_PRICE_ID as string;
+                const checkoutUrl = await getCheckoutUrl(priceId);
 
-              window.location.href = checkoutUrl;
-            }}
-          />
-        </HotbarButtonGroup>
+                window.location.href = checkoutUrl;
+              }}
+            />
+          </HotbarButtonGroup>
+        }
         <HotbarButtonGroup className="pt-1">
           <HotbarButton
             Icon={BugAntIcon}

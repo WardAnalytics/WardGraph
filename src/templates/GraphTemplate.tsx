@@ -17,7 +17,7 @@ const getURLSearchParams = () => {
 const GraphTemplate: FC = () => {
   // Get the current user
   const user = authService.useAuthState();
-  const isAutenticated = useMemo(() => {
+  const isAuthenticated = useMemo(() => {
     return user !== null;
   }, [user]);
 
@@ -29,7 +29,7 @@ const GraphTemplate: FC = () => {
 
   return (
     <div className="h-screen w-screen">
-      {isAutenticated ? (
+      {isAuthenticated ? (
         <div className="flex h-full flex-row">
           <Navbar />
           <PrivateGraph
