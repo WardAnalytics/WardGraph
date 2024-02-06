@@ -55,7 +55,7 @@ const TransactionRow: FC<TransactionRowProps> = ({
 
   return (
     <>
-      <td className="text-left text-sm font-normal text-gray-900">
+      <td className="text-left text-sm font-normal text-gray-900 ">
         <span className="flex flex-row items-center gap-x-1">
           {formattedDate}
           <BlockExplorerTransactionIcon blockchain={blockchain} hash={hash} />
@@ -90,6 +90,8 @@ const TRANSACTIONS_LIMIT = 50;
 
 const Transactions: FC = () => {
   const focusedAddressData = useContext(GraphContext).focusedAddressData!;
+  const addAddressPaths = useContext(GraphContext).addAddressPaths;
+
   const [transactionRows, setTransactionRows] = useState<TransactionRowProps[]>(
     [],
   );
@@ -192,11 +194,24 @@ const Transactions: FC = () => {
                 leave="transition-all ease-in-out transform duration-300 origin-left"
                 leaveFrom="translate-y-0 opacity-100 scale-100"
                 leaveTo="-translate-x-10 -translate-y-3 opacity-0 scale-50"
-                className="mr-2 h-10"
                 style={{
                   transitionDelay: `${index * (50 - index / 5)}ms`,
                 }}
+                className="mr-2 h-10 cursor-pointer duration-300 hover:bg-gray-100"
                 key={transaction.hash + focusedAddressData.address}
+                onClick={() => {
+                  const paths: string[][] = transaction.addresses.map(
+                    (address) => {
+                      return [focusedAddressData.address, address];
+                    },
+                  );
+
+                  addAddressPaths(
+                    paths,
+                    transaction.incoming,
+                    transaction.usdValue,
+                  );
+                }}
               >
                 <TransactionRow key={transaction.hash} {...transaction} />
               </Transition>
