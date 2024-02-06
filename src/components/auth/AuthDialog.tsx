@@ -152,8 +152,6 @@ const AuthDialog: FC<AuthDialogProps> = ({ isOpen, setIsOpen }) => {
    * @returns void
    */
   const onSignupError = (error: any) => {
-    console.log(error);
-
     switch (error.code) {
       case AuthApiErrors.EMAIL_ALREADY_EXISTS.code:
         setAuthApiErrorMessage(AuthApiErrors.EMAIL_ALREADY_EXISTS.message);
@@ -283,7 +281,7 @@ const AuthDialog: FC<AuthDialogProps> = ({ isOpen, setIsOpen }) => {
                     </h3>
 
                     <XMarkIcon
-                      className="h-7 w-7 cursor-pointer p-1 text-gray-400 hover:text-gray-500 focus:outline-none"
+                      className="h-11 w-11 cursor-pointer rounded-full p-1.5 text-gray-400 transition-all duration-300 hover:bg-gray-100"
                       aria-hidden="true"
                       onClick={closeDialog}
                     />

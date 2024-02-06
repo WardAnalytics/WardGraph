@@ -7,6 +7,7 @@ import {
   useMemo,
   useRef,
   useState,
+  memo,
 } from "react";
 import ReactFlow, {
   Background,
@@ -16,13 +17,15 @@ import ReactFlow, {
   ReactFlowProvider,
   SelectionMode,
   useEdgesState,
-  useNodesState,
   useKeyPress,
+  useNodesState,
   useOnSelectionChange,
   useReactFlow,
   useUpdateNodeInternals,
 } from "reactflow";
 import "reactflow/dist/style.css";
+
+import authService from "../../services/auth/auth.services";
 
 import { AddressAnalysis } from "../../api/model";
 
@@ -44,13 +47,16 @@ import {
   convertNodeListToRecord,
 } from "./graph_calculations";
 
-import analytics from "../../services/firebase/analytics";
-import firestore, { StoreUrlObject } from "../../services/firebase/firestore";
+import analytics from "../../services/firebase/analytics/analytics";
+import { storeAddress } from "../../services/firebase/search-history/search-history";
+import firestore, {
+  StoreUrlObject,
+} from "../../services/firebase/short-urls/short-urls";
 import generateShortUrl from "../../utils/generateShortUrl";
 import TutorialPopup from "./tutorial/TutorialPopup";
-import DraggableWindow from "./AnalysisWindow/AnalysisWindow";
+import DraggableWindow from "./analysis_window/AnalysisWindow";
 import Hotbar from "./hotbar";
-import LandingPage from "./LandingPage/LandingPage";
+import LandingPage from "./landing_page/LandingPage";
 import Legend from "./legend";
 import TransactionTooltip, {
   TransactionTooltipProps,
@@ -171,6 +177,8 @@ interface GraphProvidedProps {
   initialNodes: Node[];
   initialEdges: Edge[];
 }
+
+const MemoedDraggableWindow = memo(DraggableWindow);
 
 /** GraphProvided is the main component that renders the graph and handles
  * most logic. It is wrapped by GraphProvider for the ReactFlowProvider.
@@ -377,9 +385,9 @@ const GraphProvided: FC<GraphProvidedProps> = ({
     onAddressFocusOff();
   }
 
-  const onAddressFocusOff = () => {
+  const onAddressFocusOff = useCallback(() => {
     setFocusedAddressData(null);
-  };
+  }, []);
 
   // Key Press Handling -------------------------------------------------------
 
@@ -455,14 +463,13 @@ const GraphProvided: FC<GraphProvidedProps> = ({
     [nodes.length, edges.length],
   );
 
-  // useEffect: Whenever addAddressPaths changes, log it
-  useEffect(() => {
-    console.log("addAddressPaths changed");
-  }, [addAddressPaths]);
-
   const addEdges = useCallback(
     (newEdges: Edge[]) => {
-      const newStateEdges = calculateAddTransfershipEdges(edges, newEdges);
+      const newStateEdges = calculateAddTransfershipEdges(
+        edges,
+        nodesRecord,
+        newEdges,
+      );
       setEdges(newStateEdges);
     },
     [edges, nodes],
@@ -536,6 +543,8 @@ const GraphProvided: FC<GraphProvidedProps> = ({
     filteredNodes: Node[];
     filteredEdges: Edge[];
   } {
+    if (nodes.length === 0) return { filteredNodes: [], filteredEdges: [] };
+
     const filteredNodes = nodes;
     const filteredEdges = edges.filter(
       (edge) =>
@@ -550,6 +559,8 @@ const GraphProvided: FC<GraphProvidedProps> = ({
     filteredNodes: Node[],
     filteredEdges: Edge[],
   ): Node[] {
+    if (filteredNodes.length === 0) return [];
+
     const newNodes = calculateLayoutedElements(filteredNodes, filteredEdges);
     setNodes(newNodes);
     return newNodes;
@@ -589,8 +600,6 @@ const GraphProvided: FC<GraphProvidedProps> = ({
   async function copyLink(shortenedUrl: string): Promise<void> {
     const link = getLink();
     const key = shortenedUrl.split("/").pop()!;
-
-    console.log("link: ", shortenedUrl);
 
     const storeUrlObj: StoreUrlObject = {
       originalUrl: link,
@@ -639,7 +648,7 @@ const GraphProvided: FC<GraphProvidedProps> = ({
     <>
       <GraphContext.Provider value={graphContext}>
         <div className="h-full w-full">
-          <DraggableWindow
+          <MemoedDraggableWindow
             analysisData={focusedAddressData}
             onExit={onAddressFocusOff}
           />
@@ -683,7 +692,7 @@ const GraphProvided: FC<GraphProvidedProps> = ({
                 />
               )}
             </Panel>
-            <Panel position="bottom-left">
+            <Panel position="bottom-right">
               <Hotbar />
             </Panel>
           </ReactFlow>
@@ -697,17 +706,24 @@ const GraphProvided: FC<GraphProvidedProps> = ({
  * animated transitions between the two. */
 
 interface GraphProps {
-  initialAddresses: string[];
-  initialPaths: string[];
+  initialAddresses?: string[];
+  initialPaths?: string[];
 }
 
 /** The public graph is the graph that gets shown to non-logged in users. It includes a landing page and a search bar. */
-const PublicGraph: FC<GraphProps> = ({ initialAddresses, initialPaths }) => {
+const PublicGraph: FC<GraphProps> = ({
+  initialAddresses = [],
+  initialPaths = [],
+}) => {
   const [searchedAddresses, setSearchedAddresses] =
     useState<string[]>(initialAddresses);
 
+  const { user } = authService.useAuthState();
+
   const onSetSearchedAddress = (newAddress: string) => {
     setSearchedAddresses([newAddress]);
+
+    storeAddress(newAddress, user?.uid);
 
     analytics.logAnalyticsEvent("search_address", {
       address: newAddress,
@@ -746,7 +762,10 @@ const PublicGraph: FC<GraphProps> = ({ initialAddresses, initialPaths }) => {
 };
 
 /** The private graph is the graph that gets shown to logged in users. It has no landing page and goes straight to the graph. */
-const PrivateGraph: FC<GraphProps> = ({ initialAddresses, initialPaths }) => {
+const PrivateGraph: FC<GraphProps> = ({
+  initialAddresses = [],
+  initialPaths = [],
+}) => {
   return (
     <GraphProvider
       initialAddresses={initialAddresses}

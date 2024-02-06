@@ -1,6 +1,6 @@
 import {
   BugAntIcon,
-  MagnifyingGlassPlusIcon,
+  PlusCircleIcon,
   QuestionMarkCircleIcon,
   RectangleGroupIcon,
   ShareIcon,
@@ -9,8 +9,9 @@ import clsx from "clsx";
 import { FC, useContext, useEffect, useMemo, useState } from "react";
 import { useKeyPress } from "reactflow";
 import { GraphContext } from "../Graph";
-import ShareDialog from "../LandingPage/ShareDialog";
-import NewAddressModal from "../NewAddressModal";
+
+import ShareDialog from "./components/ShareDialog";
+import NewAddressModal from "./components/NewAddressModal";
 
 interface HotbarButton {
   onClick?: () => void;
@@ -44,18 +45,18 @@ const HotbarButton: FC<HotbarButton> = ({
         key={name}
         onClick={onClick}
       >
-        <Icon className="h-8 w-8 rounded-lg p-1 text-gray-400 transition-all duration-200 hover:bg-gray-700 hover:text-white" />
-        <span className="pointer-events-none absolute ml-8 mt-0.5 flex w-max flex-row rounded-lg bg-gray-800 px-3 py-2 text-sm font-medium text-white opacity-0 shadow-sm transition-opacity duration-300 group-hover:opacity-100 dark:bg-gray-700">
-          {name}
+        <span className="pointer-events-none absolute mr-[100%] mt-0.5 flex w-max translate-x-[-100%] flex-row rounded-lg bg-gray-800 px-3 py-2 text-sm font-medium text-white opacity-0 shadow-sm transition-opacity duration-300 group-hover:opacity-100 dark:bg-gray-700">
           {hotKey && (
             <span
-              className="ml-5 font-normal capitalize text-gray-400
-          "
+              className="mr-5 font-normal capitalize text-gray-400
+            "
             >
               {hotKey}
             </span>
           )}
+          {name}
         </span>
+        <Icon className="h-10 w-10 rounded-lg p-1 text-gray-400 transition-all duration-200 hover:bg-gray-700 hover:text-white" />
       </button>
     </a>
   );
@@ -101,10 +102,10 @@ const Hotbar: FC = () => {
 
   return (
     <>
-      <div className="flex h-fit w-fit flex-col gap-y-1 divide-y-2 divide-gray-600 rounded-lg bg-gray-800  p-2">
+      <div className="mb-3 flex h-fit w-fit flex-col gap-y-1 divide-y-2 divide-gray-600 rounded-lg bg-gray-800 p-2">
         <HotbarButtonGroup>
           <HotbarButton
-            Icon={MagnifyingGlassPlusIcon}
+            Icon={PlusCircleIcon}
             name="Search Address"
             onClick={() => {
               setIsAddAddressModalOpen(true);

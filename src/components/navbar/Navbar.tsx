@@ -1,6 +1,7 @@
 import { FC, useState } from "react";
 import authService from "../../services/auth/auth.services";
 import logo from "../../assets/ward-logo-blue.svg";
+import { useNavigate } from "react-router-dom";
 
 import clsx from "clsx";
 
@@ -20,7 +21,7 @@ import {
 
 // To add more tabs, simply add more objects to the navigation array. Href indicates the page to go to
 const navigation = [
-  { name: "Risk Feed", href: "dashboard", icon: ListBulletIcon },
+  { name: "Risk Feed", href: "risk-feed", icon: ListBulletIcon },
   { name: "Automations", href: "automations", icon: BoltIcon },
   { name: "API", href: "api", icon: KeyIcon },
   { name: "My Graphs", href: "graph", icon: ShareIcon },
@@ -30,20 +31,21 @@ interface SideNavBarButton {
   name: string;
   href: string;
   Icon: any;
+  onClick?: () => void;
 }
 
-const NavbarButton: FC<SideNavBarButton> = ({ name, href, Icon }) => {
+const NavbarButton: FC<SideNavBarButton> = ({ name, href, Icon, onClick }) => {
   const isCurrent: boolean = window.location.href.includes(href);
 
   return (
     <a
       key={name}
-      href={href}
+      onClick={onClick}
       className={clsx(
         isCurrent
           ? "bg-gray-50 text-blue-600"
           : "text-gray-700 hover:bg-gray-50 hover:text-blue-600",
-        "group flex gap-x-3 rounded-md p-1.5 text-sm font-semibold leading-6",
+        "group flex cursor-pointer gap-x-3 rounded-md p-1.5 text-sm font-semibold leading-6",
       )}
     >
       <Icon
@@ -62,10 +64,13 @@ const NavbarButton: FC<SideNavBarButton> = ({ name, href, Icon }) => {
 
 const Navbar: FC = () => {
   // Sign out functionality
+  const navigate = useNavigate();
   const handleSignOut = () => {
     authService.logout(onLogoutSuccess, onLogoutError);
   };
-  const onLogoutSuccess = () => {};
+  const onLogoutSuccess = () => {
+    console.log("Logged out");
+  };
   const onLogoutError = (error: any) => {
     console.log(error);
   };
@@ -83,10 +88,12 @@ const Navbar: FC = () => {
           }}
         />
         <div
-          className="absolute h-full w-44 overflow-hidden border-r border-gray-200 bg-white"
+          className="absolute h-full w-44 overflow-hidden truncate border-r border-gray-200 bg-white"
           style={{
             width: isHidden ? "0rem" : "11rem",
-            transition: "width 0.3s ease-in-out",
+            scale: isHidden ? "0.9" : "1",
+            opacity: isHidden ? "0" : "1",
+            transition: "all 0.3s ease-in-out",
           }}
         >
           <div className="flex h-full grow flex-col gap-y-5 overflow-hidden  bg-white px-6 pb-4">
@@ -103,6 +110,7 @@ const Navbar: FC = () => {
                           name={item.name}
                           href={item.href}
                           Icon={item.icon}
+                          onClick={() => navigate(item.href)}
                         />
                       </li>
                     ))}
