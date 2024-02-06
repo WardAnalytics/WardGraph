@@ -176,7 +176,7 @@ const Transactions: FC = () => {
         LATEST {TRANSACTIONS_LIMIT} CURRENCY TRANSACTIONS
       </h3>
       <div className="scrollbar flex flex-grow scroll-m-28 overflow-scroll overflow-x-hidden">
-        <table className="min-w-full flex-col divide-y divide-gray-300 ">
+        <table className="h-fit min-w-full flex-col divide-y divide-gray-300">
           <thead>
             <tr>
               <th
@@ -200,7 +200,7 @@ const Transactions: FC = () => {
               <th scope="col" className="relative w-1"></th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200 bg-white">
+          <tbody className="h-fit divide-y divide-gray-200 bg-white">
             {transactionRows.map((transaction, index) => (
               <Transition
                 appear={true}
