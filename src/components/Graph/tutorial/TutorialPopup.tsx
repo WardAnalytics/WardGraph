@@ -18,10 +18,10 @@ import {
 import { FC, Fragment, useState } from "react";
 import Tutorial from "./Tutorial";
 
-import introductionGIF from "../../assets/tutorial/introduction.gif";
-import inspectionGIF from "../../assets/tutorial/inspection.gif";
-import explorationGIF from "../../assets/tutorial/exploration.gif";
-import edgeManagementGIF from "../../assets/tutorial/edge-management.gif";
+import introductionGIF from "../../../assets/tutorial/introduction.gif";
+import inspectionGIF from "../../../assets/tutorial/inspection.gif";
+import explorationGIF from "../../../assets/tutorial/exploration.gif";
+import edgeManagementGIF from "../../../assets/tutorial/edge-management.gif";
 
 interface TutorialCardTitleProps {
   title: string;
@@ -172,21 +172,21 @@ const TutorialPopup: FC<TutorialPopupProps> = ({
       {/* Global notification live region, render this permanently at the end of the document */}
       <div
         aria-live="assertive"
-        className="pointer-events-none fixed inset-0 z-50 flex items-end px-4 py-6 sm:items-start sm:p-6"
+        className="pointer-events-none fixed inset-0 z-50 flex items-start px-4 py-6"
       >
-        <div className="flex w-full flex-col items-center space-y-4 sm:items-end">
+        <div className="flex w-full flex-col items-end space-y-4">
           {/* Notification panel, dynamically insert this into the live region when it needs to be displayed */}
           <Transition
             show={show}
             as={Fragment}
             enter="transform ease-out duration-300 transition"
-            enterFrom="translate-y-2 opacity-0 sm:translate-y-0 sm:translate-x-2"
-            enterTo="translate-y-0 opacity-100 sm:translate-x-0"
+            enterFrom="translate-y-2 opacity-0 translate-y-0 translate-x-2"
+            enterTo="translate-y-0 opacity-100 translate-x-0"
             leave="transition ease-in duration-100"
             leaveFrom="opacity-100"
             leaveTo="opacity-0"
           >
-            <div className="pointer-events-auto w-full max-w-sm overflow-hidden rounded-lg bg-white shadow-lg ring-1 ring-black ring-opacity-5">
+            <div className="pointer-events-auto mt-5 w-full max-w-sm overflow-hidden rounded-lg bg-white shadow-lg ring-1 ring-black ring-opacity-5">
               <div className="p-4">
                 <div className="flex items-start">
                   <div className="flex-shrink-0">
