@@ -9,7 +9,7 @@ import PublicApp from "./PublicApp";
 
 function App() {
   const queryClient = useCustomQueryClient();
-  const user = authService.useAuthState();
+  const user = authService.useAuthState().user;
 
   return (
     <QueryClientProvider client={queryClient}>

@@ -623,7 +623,7 @@ const GraphProvided: FC<GraphProvidedProps> = ({
   }
 
   // Tutorial
-  const [showTutorial, setShowTutorial] = useState<boolean>(true);
+  const [showTutorial, setShowTutorial] = useState<boolean>(false);
 
   // Set up the context
   const graphContext: GraphContextProps = {

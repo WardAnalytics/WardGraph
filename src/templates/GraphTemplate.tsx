@@ -14,19 +14,6 @@ const getURLSearchParams = () => {
   return { addresses, paths };
 };
 
-enum NavigationTabName {
-  DASHBOARD = "dashboard",
-  AUTOMATIONS = "automations",
-  API = "api",
-  MY_GRAPHS = "my-graphs",
-  GRAPH = "graph",
-}
-
-interface NavigationTab {
-  name: NavigationTabName;
-  href: string;
-}
-
 const GraphTemplate: FC = () => {
   // Get the current user
   const { user, isLoading } = authService.useAuthState();
@@ -40,33 +27,27 @@ const GraphTemplate: FC = () => {
     return { initialAddresses: addresses, initialPaths: paths };
   }, []);
 
-  // Current navigation tab
-  const [currentTab, setCurrentTab] = useState<NavigationTabName>(
-    NavigationTabName.GRAPH,
-  );
-
   return (
     <div className="h-screen w-screen">
-      {isLoading ?
+      {isLoading ? (
         <RedirectTemplate title="Loading..." />
-        :
-        isAutenticated ? (
-          <div className="flex h-full flex-row">
-            <Navbar />
-            <PrivateGraph
-              initialAddresses={initialAddresses}
-              initialPaths={initialPaths}
-            />
-          </div>
-        ) : (
-          <>
-            <Banner />
-            <PublicGraph
-              initialAddresses={initialAddresses}
-              initialPaths={initialPaths}
-            />
-          </>
-        )}
+      ) : isAutenticated ? (
+        <div className="flex h-full flex-row">
+          <Navbar />
+          <PrivateGraph
+            initialAddresses={initialAddresses}
+            initialPaths={initialPaths}
+          />
+        </div>
+      ) : (
+        <>
+          <Banner />
+          <PublicGraph
+            initialAddresses={initialAddresses}
+            initialPaths={initialPaths}
+          />
+        </>
+      )}
       <Socials className="absolute bottom-0 right-0 m-4" />
     </div>
   );

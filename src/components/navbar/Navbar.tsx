@@ -68,7 +68,9 @@ const Navbar: FC = () => {
   const handleSignOut = () => {
     authService.logout(onLogoutSuccess, onLogoutError);
   };
-  const onLogoutSuccess = () => {};
+  const onLogoutSuccess = () => {
+    console.log("Logged out");
+  };
   const onLogoutError = (error: any) => {
     console.log(error);
   };

@@ -41,7 +41,7 @@ interface SearchBarProps {
   onSearchAddress: (address: string) => void;
 }
 
-const Searchbar: FC<SearchBarProps> = ({ className, onSearchAddress }) => {
+const SearchBar: FC<SearchBarProps> = ({ className, onSearchAddress }) => {
   const popoverRef = useRef<HTMLDivElement>(null);
 
   const [query, setQuery] = useState<string>("");
@@ -129,8 +129,11 @@ const Searchbar: FC<SearchBarProps> = ({ className, onSearchAddress }) => {
   };
 
   useEffect(() => {
-    getUserHistory(user?.uid).then((userHistory) => {
+    if (user === null) return;
+
+    getUserHistory(user.uid).then((userHistory) => {
       if (userHistory) {
+        console.log("User history", userHistory);
         setUserHistory(userHistory);
       }
     });

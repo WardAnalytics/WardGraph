@@ -23,6 +23,13 @@ export interface AddressHistoryAPIObject {
  * @returns The address that was stored
  */
 const storeAddress = async (address: string, userId?: string) => {
+  if (!userId) {
+    console.error(
+      "User tried to store address in search history but was not logged in",
+    );
+    return;
+  }
+
   try {
     const newAddressObject: AddressHistoryAPIObject = {
       address,
