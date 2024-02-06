@@ -5,6 +5,7 @@ import { PublicGraph, PrivateGraph } from "../components/graph/Graph";
 import Socials from "../components/socials";
 import Banner from "../components/banner";
 import Navbar from "../components/navbar";
+import RedirectTemplate from "./RedirectTemplate";
 
 const getURLSearchParams = () => {
   const urlParams = new URLSearchParams(window.location.search);
@@ -28,7 +29,7 @@ interface NavigationTab {
 
 const GraphTemplate: FC = () => {
   // Get the current user
-  const user = authService.useAuthState();
+  const { user, isLoading } = authService.useAuthState();
   const isAutenticated = useMemo(() => {
     return user !== null;
   }, [user]);
@@ -46,23 +47,26 @@ const GraphTemplate: FC = () => {
 
   return (
     <div className="h-screen w-screen">
-      {isAutenticated ? (
-        <div className="flex h-full flex-row">
-          <Navbar />
-          <PrivateGraph
-            initialAddresses={initialAddresses}
-            initialPaths={initialPaths}
-          />
-        </div>
-      ) : (
-        <>
-          <Banner />
-          <PublicGraph
-            initialAddresses={initialAddresses}
-            initialPaths={initialPaths}
-          />
-        </>
-      )}
+      {isLoading ?
+        <RedirectTemplate title="Loading..." />
+        :
+        isAutenticated ? (
+          <div className="flex h-full flex-row">
+            <Navbar />
+            <PrivateGraph
+              initialAddresses={initialAddresses}
+              initialPaths={initialPaths}
+            />
+          </div>
+        ) : (
+          <>
+            <Banner />
+            <PublicGraph
+              initialAddresses={initialAddresses}
+              initialPaths={initialPaths}
+            />
+          </>
+        )}
       <Socials className="absolute bottom-0 right-0 m-4" />
     </div>
   );

@@ -17,13 +17,15 @@ import ReactFlow, {
   ReactFlowProvider,
   SelectionMode,
   useEdgesState,
-  useNodesState,
   useKeyPress,
+  useNodesState,
   useOnSelectionChange,
   useReactFlow,
   useUpdateNodeInternals,
 } from "reactflow";
 import "reactflow/dist/style.css";
+
+import authService from "../../services/auth/auth.services";
 
 import { AddressAnalysis } from "../../api/model";
 
@@ -45,8 +47,11 @@ import {
   convertNodeListToRecord,
 } from "./graph_calculations";
 
-import analytics from "../../services/firebase/analytics";
-import firestore, { StoreUrlObject } from "../../services/firebase/firestore";
+import analytics from "../../services/firebase/analytics/analytics";
+import { storeAddress } from "../../services/firebase/search-history/search-history";
+import firestore, {
+  StoreUrlObject,
+} from "../../services/firebase/short-urls/short-urls";
 import generateShortUrl from "../../utils/generateShortUrl";
 import TutorialPopup from "./tutorial/TutorialPopup";
 import DraggableWindow from "./analysis_window/AnalysisWindow";
@@ -538,6 +543,8 @@ const GraphProvided: FC<GraphProvidedProps> = ({
     filteredNodes: Node[];
     filteredEdges: Edge[];
   } {
+    if (nodes.length === 0) return { filteredNodes: [], filteredEdges: [] };
+
     const filteredNodes = nodes;
     const filteredEdges = edges.filter(
       (edge) =>
@@ -552,6 +559,8 @@ const GraphProvided: FC<GraphProvidedProps> = ({
     filteredNodes: Node[],
     filteredEdges: Edge[],
   ): Node[] {
+    if (filteredNodes.length === 0) return [];
+
     const newNodes = calculateLayoutedElements(filteredNodes, filteredEdges);
     setNodes(newNodes);
     return newNodes;
@@ -709,8 +718,12 @@ const PublicGraph: FC<GraphProps> = ({
   const [searchedAddresses, setSearchedAddresses] =
     useState<string[]>(initialAddresses);
 
+  const { user } = authService.useAuthState();
+
   const onSetSearchedAddress = (newAddress: string) => {
     setSearchedAddresses([newAddress]);
+
+    storeAddress(newAddress, user?.uid);
 
     analytics.logAnalyticsEvent("search_address", {
       address: newAddress,
