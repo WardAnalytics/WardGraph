@@ -1,9 +1,9 @@
 import { FC, useMemo } from "react";
 import authService from "../services/auth/auth.services";
 
-import { PublicGraph, PrivateGraph } from "../components/Graph";
+import { PublicGraph, PrivateGraph } from "../components/graph";
 
-import Socials from "../components/Socials";
+import Socials from "../components/socials";
 import Banner from "../components/banner";
 import Navbar from "../components/navbar";
 

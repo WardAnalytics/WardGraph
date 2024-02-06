@@ -49,9 +49,9 @@ import firestore, { StoreUrlObject } from "../../services/firebase/firestore";
 import generateShortUrl from "../../utils/generateShortUrl";
 import TutorialPopup from "./tutorial/TutorialPopup";
 import DraggableWindow from "./AnalysisWindow/AnalysisWindow";
-import Hotbar from "./Hotbar";
+import Hotbar from "./hotbar";
 import LandingPage from "./LandingPage/LandingPage";
-import Legend from "./Legend";
+import Legend from "./legend";
 import TransactionTooltip, {
   TransactionTooltipProps,
 } from "./TransactionTooltip";
