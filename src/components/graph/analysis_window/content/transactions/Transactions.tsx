@@ -3,6 +3,8 @@ import {
   BarsArrowDownIcon,
   ArrowDownLeftIcon,
   ArrowUpRightIcon,
+  PlusIcon,
+  CheckIcon,
 } from "@heroicons/react/16/solid";
 import { Transition } from "@headlessui/react";
 
@@ -19,7 +21,6 @@ import {
 } from "../../../../common/utility_icons";
 
 import { GraphContext } from "../../../Graph";
-
 import "../../../../common/Scrollbar.css";
 
 interface TransactionRowProps {
@@ -30,6 +31,7 @@ interface TransactionRowProps {
   hash: string;
   addresses: string[];
   currency: string;
+  expanded: boolean;
 }
 
 const TransactionRow: FC<TransactionRowProps> = ({
@@ -40,6 +42,7 @@ const TransactionRow: FC<TransactionRowProps> = ({
   addresses,
   currency,
   hash,
+  expanded,
 }) => {
   const date = new Date(timestamp * 1000);
   const formattedDate = date.toLocaleDateString("en-US", {
@@ -55,13 +58,13 @@ const TransactionRow: FC<TransactionRowProps> = ({
 
   return (
     <>
-      <td className="text-left text-sm font-normal text-gray-900 ">
+      <td className="text-left text-sm font-normal text-gray-900 group-hover:bg-gray-100 ">
         <span className="flex flex-row items-center gap-x-1">
           {formattedDate}
           <BlockExplorerTransactionIcon blockchain={blockchain} hash={hash} />
         </span>
       </td>
-      <td className="text-left">
+      <td className="text-left group-hover:bg-gray-100">
         <span className="flex flex-row items-center gap-x-1">
           <a className="font-mono text-sm font-normal text-gray-900">
             {addressText}
@@ -76,11 +79,24 @@ const TransactionRow: FC<TransactionRowProps> = ({
           />
         </span>
       </td>
-      <td className="text-left text-sm font-normal text-gray-900">
+      <td className="text-left text-sm font-normal text-gray-900 group-hover:bg-gray-100">
         <span className="flex flex-row items-center gap-x-1">
           <span>{formatNumber(usdValue)}</span>
           <span className="text-gray-500">{currency}</span>
         </span>
+      </td>
+      <td className="relative w-1 pr-5 group-hover:bg-gray-100">
+        {expanded ? (
+          <span className="flex flex-row items-center gap-x-1 font-normal text-gray-300">
+            Expanded
+            <CheckIcon className="h-4 w-4" />
+          </span>
+        ) : (
+          <span className="flex flex-row items-center gap-x-1 font-semibold text-blue-500 group-hover:underline">
+            Expand
+            <PlusIcon className="h-4 w-4" />
+          </span>
+        )}
       </td>
     </>
   );
@@ -136,6 +152,7 @@ const Transactions: FC = () => {
                 addresses: addresses,
                 currency: transaction.currency,
                 blockchain: focusedAddressData.blockchain,
+                expanded: false,
               };
             },
           );
@@ -180,6 +197,7 @@ const Transactions: FC = () => {
               >
                 Amount
               </th>
+              <th scope="col" className="relative w-1"></th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200 bg-white">
@@ -197,7 +215,7 @@ const Transactions: FC = () => {
                 style={{
                   transitionDelay: `${index * (50 - index / 5)}ms`,
                 }}
-                className="mr-2 h-10 cursor-pointer duration-300 hover:bg-gray-100"
+                className="group mr-2 h-10 cursor-pointer"
                 key={transaction.hash + focusedAddressData.address}
                 onClick={() => {
                   const paths: string[][] = transaction.addresses.map(
@@ -211,6 +229,20 @@ const Transactions: FC = () => {
                     transaction.incoming,
                     transaction.usdValue,
                   );
+
+                  const newTransactionRows = transactionRows.map(
+                    (row: TransactionRowProps) => {
+                      if (row.hash === transaction.hash) {
+                        return {
+                          ...row,
+                          expanded: true,
+                        };
+                      } else {
+                        return row;
+                      }
+                    },
+                  );
+                  setTransactionRows(newTransactionRows);
                 }}
               >
                 <TransactionRow key={transaction.hash} {...transaction} />

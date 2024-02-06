@@ -178,7 +178,7 @@ const AddressNode: FC<AddressNodeProps> = ({
           }}
           onMouseEnter={() => {
             // When the mouse enters the node, the node is no longer highlighted
-            setNodeHighlight(address, false);
+            if (highlight) setNodeHighlight(address, false);
           }}
         >
           {/* Address Risk inside a badge */}

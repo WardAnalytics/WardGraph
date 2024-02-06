@@ -148,7 +148,11 @@ const DraggableWindow: FC<DraggableWindowProps> = ({
                     : "50rem",
                 transition: "width 0.5s ease-in-out, opacity 0.2s ease-in-out",
               }}
-              onMouseEnter={() => setHasBeenHovered(true)}
+              onMouseEnter={() => {
+                if (!hasBeenHovered) {
+                  setHasBeenHovered(true);
+                }
+              }}
             >
               <div className="h-fit flex-none px-4 py-5">
                 <Header

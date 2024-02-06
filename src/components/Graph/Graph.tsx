@@ -7,6 +7,7 @@ import {
   useMemo,
   useRef,
   useState,
+  memo,
 } from "react";
 import ReactFlow, {
   Background,
@@ -172,6 +173,8 @@ interface GraphProvidedProps {
   initialEdges: Edge[];
 }
 
+const MemoedDraggableWindow = memo(DraggableWindow);
+
 /** GraphProvided is the main component that renders the graph and handles
  * most logic. It is wrapped by GraphProvider for the ReactFlowProvider.
  * @param initialNodes the initial nodes to start the graph with
@@ -183,6 +186,8 @@ const GraphProvided: FC<GraphProvidedProps> = ({
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const { fitView, screenToFlowPosition } = useReactFlow();
+
+  console.log("Re-rendered!");
 
   // Regularly update the node internals to make sure edges are consistent
   const updateNodeInternals = useUpdateNodeInternals();
@@ -377,9 +382,9 @@ const GraphProvided: FC<GraphProvidedProps> = ({
     onAddressFocusOff();
   }
 
-  const onAddressFocusOff = () => {
+  const onAddressFocusOff = useCallback(() => {
     setFocusedAddressData(null);
-  };
+  }, []);
 
   // Key Press Handling -------------------------------------------------------
 
@@ -614,7 +619,7 @@ const GraphProvided: FC<GraphProvidedProps> = ({
   }
 
   // Tutorial
-  const [showTutorial, setShowTutorial] = useState<boolean>(false);
+  const [showTutorial, setShowTutorial] = useState<boolean>(true);
 
   // Set up the context
   const graphContext: GraphContextProps = {
@@ -639,7 +644,7 @@ const GraphProvided: FC<GraphProvidedProps> = ({
     <>
       <GraphContext.Provider value={graphContext}>
         <div className="h-full w-full">
-          <DraggableWindow
+          <MemoedDraggableWindow
             analysisData={focusedAddressData}
             onExit={onAddressFocusOff}
           />
