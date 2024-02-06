@@ -188,6 +188,8 @@ const Header: FC<HeaderProps> = ({
       });
     }
 
+    console.log("Expanding the following paths: ", pathExpansionArgs);
+
     // Add the paths to the graph
     addMultipleDifferentPaths(pathExpansionArgs);
   }, []);

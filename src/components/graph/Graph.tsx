@@ -483,24 +483,28 @@ const GraphProvided: FC<GraphProvidedProps> = ({
         }
       });
 
-      // Calculate incoming first
-      const { nodes: incomingNodes, edges: incomingEdges } =
-        calculateNewAddressPath(nodes, edges, incomingPaths, true);
+      let newNodes: Node[] = nodes;
+      let newEdges: Edge[] = edges;
 
-      // Calculate outgoing next
-      const { nodes: outgoingNodes, edges: outgoingEdges } =
-        calculateNewAddressPath(
-          incomingNodes,
-          incomingEdges,
-          outgoingPaths,
-          false,
-        );
+      if (incomingPaths.length > 0) {
+        const { nodes: incomingNodes, edges: incomingEdges } =
+          calculateNewAddressPath(newNodes, newEdges, incomingPaths, true);
+        newNodes = incomingNodes;
+        newEdges = incomingEdges;
+      }
+
+      if (outgoingPaths.length > 0) {
+        const { nodes: outgoingNodes, edges: outgoingEdges } =
+          calculateNewAddressPath(newNodes, newEdges, outgoingPaths, false);
+        newNodes = outgoingNodes;
+        newEdges = outgoingEdges;
+      }
 
       // Set the new nodes and edges
-      setNodes(outgoingNodes);
-      setEdges(outgoingEdges);
+      setNodes(newNodes);
+      setEdges(newEdges);
     },
-    [nodes, edges],
+    [nodes.length, edges.length],
   );
 
   const addEdges = useCallback(

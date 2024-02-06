@@ -191,7 +191,6 @@ export function calculateNewAddressPath(
   const nodesList = [...nodes];
   const edgesRecord = convertEdgeListToRecord(edges);
   const edgesList = [...edges];
-
   /* Compute all edges between addresses and add them to the graph. We'll iterate
   over each path and add edges going from one address to another with a volume of -1
   as we can't quite know the quantity of each edge due to API limitations. When the 
