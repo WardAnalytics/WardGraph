@@ -75,6 +75,12 @@ const panOnDrag = [1, 2];
 const nodeTypes = { AddressNode: AddressNode };
 const edgeTypes = { TransfershipEdge: TransfershipEdge };
 
+/* For expanding paths */
+export interface PathExpansionArgs {
+  paths: string[][];
+  incoming: boolean;
+}
+
 /* Context for variable handling */
 interface GraphContextProps {
   addAddressPaths: (
@@ -95,6 +101,7 @@ interface GraphContextProps {
   getNodeCount: () => number;
   setShowTutorial: (show: boolean) => void;
   addNewAddressToCenter: (address: string) => void;
+  addMultipleDifferentPaths: (pathArgs: PathExpansionArgs[]) => void;
   focusedAddressData: AddressAnalysis | null;
 }
 
@@ -463,6 +470,39 @@ const GraphProvided: FC<GraphProvidedProps> = ({
     [nodes.length, edges.length],
   );
 
+  const addMultipleDifferentPaths = useCallback(
+    (pathArgs: PathExpansionArgs[]) => {
+      // Separate the paths into incoming and outgoing
+      const incomingPaths: string[][] = [];
+      const outgoingPaths: string[][] = [];
+      pathArgs.forEach((pathArg) => {
+        if (pathArg.incoming) {
+          incomingPaths.push(...pathArg.paths);
+        } else {
+          outgoingPaths.push(...pathArg.paths);
+        }
+      });
+
+      // Calculate incoming first
+      const { nodes: incomingNodes, edges: incomingEdges } =
+        calculateNewAddressPath(nodes, edges, incomingPaths, true);
+
+      // Calculate outgoing next
+      const { nodes: outgoingNodes, edges: outgoingEdges } =
+        calculateNewAddressPath(
+          incomingNodes,
+          incomingEdges,
+          outgoingPaths,
+          false,
+        );
+
+      // Set the new nodes and edges
+      setNodes(outgoingNodes);
+      setEdges(outgoingEdges);
+    },
+    [nodes, edges],
+  );
+
   const addEdges = useCallback(
     (newEdges: Edge[]) => {
       const newStateEdges = calculateAddTransfershipEdges(
@@ -641,6 +681,7 @@ const GraphProvided: FC<GraphProvidedProps> = ({
     getNodeCount,
     setShowTutorial,
     addNewAddressToCenter,
+    addMultipleDifferentPaths,
     focusedAddressData,
   };
 

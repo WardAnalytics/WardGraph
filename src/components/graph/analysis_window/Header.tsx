@@ -1,6 +1,6 @@
 import { XMarkIcon, SparklesIcon } from "@heroicons/react/20/solid";
 import clsx from "clsx";
-import { FC, useContext } from "react";
+import { FC, useContext, useCallback } from "react";
 
 import EntityLogo from "../../common/EntityLogo";
 import BlockExplorerAddressIcon from "../../common/utility_icons/BlockExplorerAddressIcon";
@@ -9,7 +9,13 @@ import LabelList from "../../common/LabelList";
 import RiskIndicator from "../../common/RiskIndicator";
 
 import { AnalysisContext } from "./AnalysisWindow";
+import { GraphContext } from "../Graph";
 import { AnalysisMode, AnalysisModes } from "./AnalysisWindow";
+import { AddressAnalysis, Category } from "../../../api/model";
+
+import { PathExpansionArgs } from "../Graph";
+
+import { CategoryClasses } from "../../../utils/categories";
 
 interface ModeButtonProps {
   isActive: boolean;
@@ -66,6 +72,38 @@ const ModeToggle: FC<ModeToggleProps> = ({ analysisMode, setAnalysisMode }) => {
   );
 };
 
+// Expand with AI -------------------------------------------------------------
+
+function getCategoryPaths(
+  originAddress: string,
+  category: Category,
+): string[][] {
+  const paths = [];
+  for (const e of category.entities) {
+    for (const a of e.addresses) {
+      if (a.paths) {
+        for (const p of a.paths) {
+          paths.push(p);
+        }
+      } else {
+        paths.push([originAddress, a.hash]);
+      }
+    }
+  }
+
+  return paths;
+}
+
+function getCategoryRisk(category: string): number {
+  const categoryClass = CategoryClasses[category];
+
+  if (!categoryClass) {
+    return 0;
+  }
+
+  return categoryClass.risk;
+}
+
 interface HeaderProps {
   onExit: () => void;
   setAnalysisMode: (mode: AnalysisMode) => void;
@@ -78,11 +116,81 @@ const Header: FC<HeaderProps> = ({
   analysisMode,
 }: HeaderProps) => {
   // Extract analysisData from context
+  const { addMultipleDifferentPaths } = useContext(GraphContext);
   const { analysisData, address } = useContext(AnalysisContext);
 
   // When minimized, the address hash should be sliced off
   const displayedAddress = address.slice(0, 8) + "..." + address.slice(-6);
   const risk = analysisData!.risk;
+
+  const expandWithAI = useCallback((analysisData: AddressAnalysis) => {
+    // We'll first do it for incoming and then for outgoing to get balanced results
+    const MAX_PATHS = 5; // How many paths for each direction will be shown
+    let pathExpansionArgs: PathExpansionArgs[] = [];
+
+    // Compile all categories in the analysisData
+    let categories: Category[] = [];
+    categories.push(...analysisData.incomingDirectExposure.categories);
+    categories.push(...analysisData.incomingIndirectExposure.categories);
+
+    // Now sort the categories by risk, starting from the highest risk
+    categories.sort(
+      (a, b) => getCategoryRisk(b.name) - getCategoryRisk(a.name),
+    );
+
+    // Now iterate through the first categories until at least 15 paths have been added
+    for (const category of categories) {
+      const paths: string[][] = getCategoryPaths(
+        analysisData.address,
+        category,
+      );
+
+      // If the paths plus the already added paths are more than the max paths, then trim the paths
+      const remainingPaths = MAX_PATHS - pathExpansionArgs.length;
+
+      // If no more can be added, just stop
+      if (remainingPaths === 0) {
+        break;
+      }
+      pathExpansionArgs.push({
+        paths: paths.slice(0, remainingPaths),
+        incoming: true,
+      });
+    }
+
+    // Now do the same for outgoing
+    categories = [];
+    categories.push(...analysisData.outgoingDirectExposure.categories);
+    categories.push(...analysisData.outgoingIndirectExposure.categories);
+
+    // Now sort the categories by risk, starting from the highest risk
+    categories.sort(
+      (a, b) => getCategoryRisk(b.name) - getCategoryRisk(a.name),
+    );
+
+    // Now iterate through the first categories until at least 15 paths have been added
+    for (const category of categories) {
+      const paths: string[][] = getCategoryPaths(
+        analysisData.address,
+        category,
+      );
+
+      // If the paths plus the already added paths are more than the max paths, then trim the paths
+      const remainingPaths = MAX_PATHS * 2 - pathExpansionArgs.length; // *2 because we already added the incoming paths
+
+      // If no more can be added, just stop
+      if (remainingPaths === 0) {
+        break;
+      }
+      pathExpansionArgs.push({
+        paths: paths.slice(0, remainingPaths),
+        incoming: false,
+      });
+    }
+
+    // Add the paths to the graph
+    addMultipleDifferentPaths(pathExpansionArgs);
+  }, []);
 
   return (
     <span className="flex cursor-move flex-row items-center justify-between gap-x-2">
@@ -128,6 +236,9 @@ const Header: FC<HeaderProps> = ({
         <button
           type="button"
           className="text-md flex flex-row items-center justify-center gap-x-1.5 rounded-md bg-white bg-gradient-to-r from-indigo-500 from-10% via-indigo-400 via-30% to-indigo-500 to-90% px-3 py-2.5 font-semibold text-white shadow-sm transition-all duration-300 hover:shadow-lg  hover:shadow-indigo-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+          onClick={() => {
+            expandWithAI(analysisData!);
+          }}
         >
           <SparklesIcon className="h-6 w-6  " aria-hidden="true" />
           Expand
