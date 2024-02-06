@@ -152,8 +152,6 @@ const AuthDialog: FC<AuthDialogProps> = ({ isOpen, setIsOpen }) => {
    * @returns void
    */
   const onSignupError = (error: any) => {
-    console.log(error);
-
     switch (error.code) {
       case AuthApiErrors.EMAIL_ALREADY_EXISTS.code:
         setAuthApiErrorMessage(AuthApiErrors.EMAIL_ALREADY_EXISTS.message);

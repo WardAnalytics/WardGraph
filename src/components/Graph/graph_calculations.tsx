@@ -134,15 +134,18 @@ function addEdgeAux(
 
 export function calculateAddTransfershipEdges(
   edges: Edge[],
+  nodesRecord: Record<string, Node>,
   newEdges: Edge[],
 ): Edge[] {
   // Compute edgeList and edgeRecord to not override old edge list and reduce duplicate checking time
   const edgesRecord = convertEdgeListToRecord(edges);
   const edgesList = [...edges];
 
-  // Add all edges
   newEdges.forEach((edge) => {
-    addEdgeAux(edgesRecord, edgesList, edge);
+    // Only add the edge if either the source or the destination node exists
+    if (nodesRecord[edge.source] && nodesRecord[edge.target]) {
+      addEdgeAux(edgesRecord, edgesList, edge);
+    }
   });
 
   return edgesList;

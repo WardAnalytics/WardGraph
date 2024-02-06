@@ -11,8 +11,6 @@ function App() {
   const queryClient = useCustomQueryClient();
   const user = authService.useAuthState();
 
-  console.log(user?.email);
-
   return (
     <QueryClientProvider client={queryClient}>
       {user ? <PrivateApp /> : <PublicApp />}

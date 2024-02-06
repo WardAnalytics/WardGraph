@@ -187,8 +187,6 @@ const GraphProvided: FC<GraphProvidedProps> = ({
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const { fitView, screenToFlowPosition } = useReactFlow();
 
-  console.log("Re-rendered!");
-
   // Regularly update the node internals to make sure edges are consistent
   const updateNodeInternals = useUpdateNodeInternals();
   const prevNodeWidths = useRef<Map<string, number | null | undefined>>(
@@ -460,14 +458,13 @@ const GraphProvided: FC<GraphProvidedProps> = ({
     [nodes.length, edges.length],
   );
 
-  // useEffect: Whenever addAddressPaths changes, log it
-  useEffect(() => {
-    console.log("addAddressPaths changed");
-  }, [addAddressPaths]);
-
   const addEdges = useCallback(
     (newEdges: Edge[]) => {
-      const newStateEdges = calculateAddTransfershipEdges(edges, newEdges);
+      const newStateEdges = calculateAddTransfershipEdges(
+        edges,
+        nodesRecord,
+        newEdges,
+      );
       setEdges(newStateEdges);
     },
     [edges, nodes],
@@ -594,8 +591,6 @@ const GraphProvided: FC<GraphProvidedProps> = ({
   async function copyLink(shortenedUrl: string): Promise<void> {
     const link = getLink();
     const key = shortenedUrl.split("/").pop()!;
-
-    console.log("link: ", shortenedUrl);
 
     const storeUrlObj: StoreUrlObject = {
       originalUrl: link,
