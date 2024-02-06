@@ -221,7 +221,7 @@ const Header: FC<HeaderProps> = ({
               />
             )}
           </span>
-          <span className="flex flex-row items-center gap-x-1.5">
+          <span className="flex w-60 flex-row items-center justify-start gap-x-1.5 overflow-x-auto">
             {/* List of labels using Badges shown underneath the address. */}
             <LabelList labels={analysisData!.labels} />
           </span>
