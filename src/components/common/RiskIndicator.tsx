@@ -55,7 +55,7 @@ const RiskIndicator: FC<RiskIndicatorProps> = ({
       )}
     >
       {isLoading ? <LoadingCircle className="p-3" /> : displayedRisk}
-      <div className="absolute mb-48 mt-0.5 w-max origin-bottom scale-0 divide-y divide-gray-700 rounded-lg bg-gray-800 px-3 py-3 text-white opacity-0 shadow-sm transition-all duration-300 ease-in-out group-hover:scale-100 group-hover:opacity-100 dark:bg-gray-700 ">
+      <div className="pointer-events-none absolute mb-48 mt-0.5 w-max origin-bottom scale-0 divide-y divide-gray-700 rounded-lg bg-gray-800 px-3 py-3 text-white opacity-0 shadow-sm transition-all duration-300 ease-in-out group-hover:scale-100 group-hover:opacity-100 dark:bg-gray-700 ">
         <div className="flex flex-row items-center gap-x-1.5 pb-1">
           <InformationCircleIcon className="h-5 w-5 text-blue-200" />
           <h1 className="text-base font-semibold leading-7">Risk Score</h1>

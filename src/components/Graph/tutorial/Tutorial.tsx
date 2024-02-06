@@ -140,7 +140,7 @@ const Tutorial: FC<TutorialProps> = ({
       <div className="w-[30rem]">
         <div className="mb-2 flex w-full justify-end">
           <XMarkIcon
-            className="h-7 w-7 cursor-pointer p-1 text-gray-400 hover:text-gray-500 focus:outline-none"
+            className="h-11 w-11 cursor-pointer rounded-full p-1.5 text-gray-400 transition-all duration-300 hover:bg-gray-100"
             aria-hidden="true"
             onClick={closeTutorial}
           />

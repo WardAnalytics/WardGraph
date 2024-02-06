@@ -233,7 +233,10 @@ const TutorialPopup: FC<TutorialPopupProps> = ({
                       }}
                     >
                       <span className="sr-only">Close</span>
-                      <XMarkIcon className="h-5 w-5" aria-hidden="true" />
+                      <XMarkIcon
+                        className="h-8 w-8 cursor-pointer rounded-full p-1.5 text-gray-400 transition-all duration-300 hover:bg-gray-100"
+                        aria-hidden="true"
+                      />
                     </button>
                   </div>
                 </div>

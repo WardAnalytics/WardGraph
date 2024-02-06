@@ -2,7 +2,6 @@ import { XMarkIcon } from "@heroicons/react/20/solid";
 import clsx from "clsx";
 import { FC, useContext } from "react";
 
-import BigButton from "../../common/BigButton";
 import EntityLogo from "../../common/EntityLogo";
 import BlockExplorerAddressIcon from "../../common/utility_icons/BlockExplorerAddressIcon";
 import CopyToClipboardIcon from "../../common/utility_icons/CopyToClipboardIcon";
@@ -29,7 +28,7 @@ const ModeButton: FC<ModeButtonProps> = ({
       className={clsx(
         "flex flex-row items-center gap-x-1 rounded-md px-3 py-2 text-sm font-semibold transition-all duration-300",
         {
-          "bg-white text-gray-900 shadow-sm": isActive,
+          "bg-white text-gray-900 shadow-md": isActive,
           "text-gray-700 hover:bg-gray-200": !isActive,
         },
       )}
@@ -54,7 +53,7 @@ interface ModeToggleProps {
 
 const ModeToggle: FC<ModeToggleProps> = ({ analysisMode, setAnalysisMode }) => {
   return (
-    <span className="flex flex-row gap-x-0.5 rounded-md bg-gray-100 p-0.5 shadow-inner">
+    <span className="flex flex-row gap-x-0.5 rounded-md bg-gray-100 p-1 shadow-inner ring-1 ring-inset ring-gray-300">
       {AnalysisModes.map((mode) => (
         <ModeButton
           key={mode.name}
@@ -126,7 +125,13 @@ const Header: FC<HeaderProps> = ({
           analysisMode={analysisMode}
           setAnalysisMode={setAnalysisMode}
         />
-        <BigButton onClick={onExit} Icon={XMarkIcon} text="Exit" />
+        <a
+          onClick={() => {
+            onExit();
+          }}
+        >
+          <XMarkIcon className="h-11 w-11 cursor-pointer rounded-full p-1.5 text-gray-400 transition-all duration-300 hover:bg-gray-100" />
+        </a>
       </span>
     </span>
   );
