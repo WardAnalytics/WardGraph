@@ -3,7 +3,6 @@ import {
   SparklesIcon,
   InformationCircleIcon,
   ArrowsPointingInIcon,
-  ChevronDoubleDownIcon,
   IdentificationIcon,
 } from "@heroicons/react/20/solid";
 import clsx from "clsx";
