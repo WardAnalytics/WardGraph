@@ -125,7 +125,7 @@ const Header: FC<HeaderProps> = ({
 
   const expandWithAI = useCallback((analysisData: AddressAnalysis) => {
     // We'll first do it for incoming and then for outgoing to get balanced results
-    const MAX_PATHS = 5; // How many paths for each direction will be shown
+    const MAX_PATHS = 7; // How many paths for each direction will be shown
     let pathExpansionArgs: PathExpansionArgs[] = [];
 
     // Compile all categories in the analysisData
