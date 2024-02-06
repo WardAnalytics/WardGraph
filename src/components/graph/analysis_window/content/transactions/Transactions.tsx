@@ -86,7 +86,7 @@ const TransactionRow: FC<TransactionRowProps> = ({
   );
 };
 
-const TRANSACTIONS_LIMIT = 25;
+const TRANSACTIONS_LIMIT = 50;
 
 const Transactions: FC = () => {
   const focusedAddressData = useContext(GraphContext).focusedAddressData!;
