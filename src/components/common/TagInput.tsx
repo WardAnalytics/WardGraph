@@ -1,54 +1,95 @@
 // This component uses react-select to create a label input field
 // More info: https://react-select.com/creatable
 
-import { FC, useEffect, useMemo, useRef, useState } from 'react';
+import { FC, useRef, useState, KeyboardEvent } from 'react';
 
 
-import { getCustomAddressesTags } from "../../services/firestore/graph/addresses/custom-tags";
 import TagsPopover from './TagsPopover';
+import { HotKeysType } from '../../types/hotKeys';
 
 interface TagInputProps {
-    address: string;
-    options?: string[];
+    options: string[];
+    addressCustomTags?: string[];
     onCreateCustomAddressTag: (tag: string) => void;
 }
 
 const TagInput: FC<TagInputProps> = ({
-    address,
     options,
+    addressCustomTags,
     onCreateCustomAddressTag,
 }) => {
     const popoverRef = useRef<HTMLDivElement>(null);
 
-    const [userCustomAddressTags, setUserCustomAddressTags] = useState<string[]>([]);
-    const [selectedTag, setSelectedTag] = useState<string>("");
+    const [userInput, setUserInput] = useState<string>("");
     const [isTagsPopoverOpen, setIsTagsPopoverOpen] = useState<boolean>(false);
-    const [selectedIndex, _] = useState<number | null>(null);
-
-    const filteredCustomAddressTags = useMemo(() => {
-        return options || []
-    }, [options, userCustomAddressTags]);
+    const [selectedIndex, setSelectedIndex] = useState<number>(0);
 
     const onSelectTagHandler = (input: string) => {
         onCreateCustomAddressTag(input);
-        setIsTagsPopoverOpen(false);
+        setUserInput("");
     };
 
-    useEffect(() => {
-        const fetchCustomAddressLabels = async () => {
-            const customAddressLabels = await getCustomAddressesTags(address);
-            setUserCustomAddressTags(customAddressLabels);
-        };
+    const moveSelectedIndexUp = () => {
+        const newIndex =
+            (selectedIndex - 1 + options.length) % options.length;
+        setSelectedIndex(newIndex);
 
-        fetchCustomAddressLabels();
-    }, [address]);
+    };
+    const moveSelectedIndexDown = () => {
+        const newIndex =
+            (selectedIndex + 1 + options.length) % options.length;
+        setSelectedIndex(newIndex);
+    };
+
+    // Hotkeys for moving up and down
+    const hotKeysMap: HotKeysType = {
+        SEARCH: {
+            key: "enter",
+            handler: (event: KeyboardEvent<HTMLElement>) => {
+                event.preventDefault();
+                if (userInput && !options.includes(userInput)) {
+                    onCreateCustomAddressTag(userInput);
+                    setUserInput("");
+                } else
+                    onSelectTagHandler(userInput);
+            },
+        },
+        ARROWUP: {
+            key: "arrowup",
+            handler: (event: KeyboardEvent<HTMLElement>) => {
+                event.preventDefault();
+                moveSelectedIndexUp();
+            },
+        },
+        ARROWDOWN: {
+            key: "arrowdown",
+            handler: (event: KeyboardEvent<HTMLElement>) => {
+                event.preventDefault();
+                moveSelectedIndexDown();
+            },
+        },
+    };
 
     return (
         <>
             <input
                 type="text"
-                value={selectedTag}
-                onChange={(e) => setSelectedTag(e.target.value)}
+                value={userInput}
+                onChange={(e) => setUserInput(e.target.value)}
+                onKeyDown={(event) => {
+                    const hotKey = event.key.toLocaleLowerCase();
+                    switch (hotKey) {
+                        case hotKeysMap.SEARCH.key:
+                            hotKeysMap.SEARCH.handler(event);
+                            break;
+                        case hotKeysMap.ARROWUP.key:
+                            hotKeysMap.ARROWUP.handler(event);
+                            break;
+                        case hotKeysMap.ARROWDOWN.key:
+                            hotKeysMap.ARROWDOWN.handler(event);
+                            break;
+                    }
+                }}
                 onFocus={() => {
                     setIsTagsPopoverOpen(true);
                 }}
@@ -63,10 +104,12 @@ const TagInput: FC<TagInputProps> = ({
                 }}
             />
             {
-                isTagsPopoverOpen && filteredCustomAddressTags.length > 0 ? (
+                isTagsPopoverOpen && options && options.length > 0 ? (
                     <div ref={popoverRef}>
                         <TagsPopover
-                            tags={filteredCustomAddressTags}
+                            userInput={userInput}
+                            tags={options}
+                            addressCustomTags={addressCustomTags}
                             onClickTags={onSelectTagHandler}
                             selectedIndex={selectedIndex} />
                     </div>

@@ -21,7 +21,7 @@ import { AnalysisContext, AnalysisMode, AnalysisModes } from "./AnalysisWindow";
 import { PathExpansionArgs } from "../Graph";
 
 import { deleteCustomAddressTag, getCustomAddressesTags, storeCustomAddressesTags } from "../../../services/firestore/graph/addresses/custom-tags";
-import { getCustomUserTags } from "../../../services/firestore/user/custom-tags";
+import { getCustomUserTags, storeCustomUserTags } from "../../../services/firestore/user/custom-tags";
 import { CategoryClasses } from "../../../utils/categories";
 import TagInput from "../../common/TagInput";
 import TagList from "../../common/TagList";
@@ -141,15 +141,22 @@ const Header: FC<HeaderProps> = ({
 
   const addCustomTag = useCallback((tag: string) => {
     console.log("Adding custom tag: ", tag);
+    if (!userCustomAddressTags.includes(tag)) {
+      const newUserCustomAddressTags = [...userCustomAddressTags, tag];
+      console.log("Storing new user tags: ", newUserCustomAddressTags);
+      storeCustomUserTags(newUserCustomAddressTags);
+      setUserCustomAddressTags(newUserCustomAddressTags);
+    }
+
     const newAddressCustomTags = [...addressCustomTags, tag];
-    console.log(addressCustomTags)
-    console.log("New tags: ", newAddressCustomTags);
+
     setAddressCustomTags(newAddressCustomTags);
     storeCustomAddressesTags(address, newAddressCustomTags);
-  }, [address, addressCustomTags]);
+
+  }, [address, addressCustomTags, userCustomAddressTags]);
 
   const deleteCustomTag = useCallback((tag: string) => {
-    console.log("Deleting custom tag: ", tag);
+
     setAddressCustomTags(addressCustomTags.filter((t) => t !== tag));
     deleteCustomAddressTag(address, tag);
   }, [address, addressCustomTags]);
@@ -271,7 +278,11 @@ const Header: FC<HeaderProps> = ({
             <LabelList labels={analysisData!.labels} />
             <TagList tags={addressCustomTags} onDeletTag={deleteCustomTag} />
           </span>
-          <TagInput address={address} options={filteredUserCustomAddressTags} onCreateCustomAddressTag={addCustomTag} />
+          <TagInput
+            options={filteredUserCustomAddressTags}
+            addressCustomTags={addressCustomTags}
+            onCreateCustomAddressTag={addCustomTag}
+          />
         </div>
       </span>
 
