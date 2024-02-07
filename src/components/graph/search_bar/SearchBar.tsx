@@ -255,7 +255,7 @@ const SearchBar: FC<SearchBarProps> = ({ className, onSearchAddress }) => {
                     ? " focus:outline-blue-200 focus:ring-blue-400"
                     : "  focus:outline-red-200 focus:ring-red-400")
                 }
-                placeholder="0x89c3ef557515934..."
+                placeholder="Company, domain.eth, or 0x89c3ef557515934..."
                 onFocus={() => {
                   setIsSearchResultPopoverOpen(true);
                 }}
