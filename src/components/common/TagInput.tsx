@@ -1,60 +1,78 @@
 // This component uses react-select to create a label input field
 // More info: https://react-select.com/creatable
 
-import { FC, useEffect, useMemo, useState } from 'react';
+import { FC, useEffect, useMemo, useRef, useState } from 'react';
 
-import CreatableSelect from 'react-select/creatable';
 
-import userCustomAddressesService from "../../services/firestore/graph/addresses/custom-tags";
+import { getCustomAddressesTags } from "../../services/firestore/graph/addresses/custom-tags";
+import TagsPopover from './TagsPopover';
 
 interface TagInputProps {
     address: string;
+    options?: string[];
+    onCreateCustomAddressTag: (tag: string) => void;
 }
 
-const TagInput: FC<TagInputProps> = ({ address }) => {
-    const [userCustomAddressLabels, setUserCustomAddressLabels] = useState<string[]>([]);
+const TagInput: FC<TagInputProps> = ({
+    address,
+    options,
+    onCreateCustomAddressTag,
+}) => {
+    const popoverRef = useRef<HTMLDivElement>(null);
 
-    const updateCustomAddressLabels = async (newLabels: string[]) => {
-        await userCustomAddressesService.storeCustomAddressesTags(address, newLabels);
-        setUserCustomAddressLabels(newLabels);
+    const [userCustomAddressTags, setUserCustomAddressTags] = useState<string[]>([]);
+    const [selectedTag, setSelectedTag] = useState<string>("");
+    const [isTagsPopoverOpen, setIsTagsPopoverOpen] = useState<boolean>(false);
+    const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+
+    const filteredCustomAddressTags = useMemo(() => {
+        return options || []
+    }, [options, userCustomAddressTags]);
+
+    const onSelectTagHandler = (input: string) => {
+        onCreateCustomAddressTag(input);
+        setIsTagsPopoverOpen(false);
     };
 
-    // TODO: Fetch the labels from the user and not from the address
-    // Fetch existing labels from the database
     useEffect(() => {
-        const fetchUserCustomAddressLabels = async () => {
-            const labels = await userCustomAddressesService.getCustomAddressesTags(address);
-            setUserCustomAddressLabels(labels);
+        const fetchCustomAddressLabels = async () => {
+            const customAddressLabels = await getCustomAddressesTags(address);
+            setUserCustomAddressTags(customAddressLabels);
         };
 
-        fetchUserCustomAddressLabels();
+        fetchCustomAddressLabels();
     }, [address]);
 
-    const existingLabels = useMemo(() => {
-        const existingLabels = userCustomAddressLabels.map((option) => {
-            return { value: option, label: option }
-
-        });
-
-        return existingLabels;
-    }, [userCustomAddressLabels]);
-
     return (
-        <CreatableSelect
-            isMulti
-            defaultValue={existingLabels}
-            styles={{
-                control: (styles) => ({ ...styles, backgroundColor: 'white', border: '1px solid #e5e7eb', borderRadius: '0.5rem', fontSize: '0.875rem', padding: '0.25rem 0.5rem' }),
-            }}
-            options={existingLabels}
-            isSearchable
-            backspaceRemovesValue={false}
-            placeholder="Add a label"
-            onChange={(e) => {
-                const newLabels = e ? e.map((option) => option.value) : [];
-                updateCustomAddressLabels(newLabels);
-            }}
-        />
+        <>
+            <input
+                type="text"
+                value={selectedTag}
+                onChange={(e) => setSelectedTag(e.target.value)}
+                onFocus={() => {
+                    setIsTagsPopoverOpen(true);
+                }}
+                onBlur={(event) => {
+                    // If the popover is open and the user clicks outside of the popover, close the popover
+                    if (
+                        popoverRef.current &&
+                        !popoverRef.current.contains(event.relatedTarget as Node)
+                    ) {
+                        setIsTagsPopoverOpen(false);
+                    }
+                }}
+            />
+            {
+                isTagsPopoverOpen && filteredCustomAddressTags.length > 0 ? (
+                    <div ref={popoverRef}>
+                        <TagsPopover
+                            tags={filteredCustomAddressTags}
+                            onClickTags={onSelectTagHandler}
+                            selectedIndex={selectedIndex} />
+                    </div>
+                ) : null
+            }
+        </>
     );
 }
 

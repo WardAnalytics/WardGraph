@@ -7,11 +7,11 @@ import {
 import clsx from "clsx";
 import { FC, KeyboardEvent, useEffect, useMemo, useRef, useState } from "react";
 
-import authService from "../../../services/auth/auth.services";
 import { getUserHistory } from "../../../services/firestore/user/search-history";
 
 import { HotKeysType } from "../../../types/hotKeys";
 
+import useAuthState from "../../../hooks/useAuthState";
 import isValidAddress from "../../../utils/isValidAddress";
 import SearchHistoryPopover from "./SearchHistoryPopover";
 
@@ -56,7 +56,7 @@ const SearchBar: FC<SearchBarProps> = ({ className, onSearchAddress }) => {
 
   const isAddressValid = useMemo(() => isValidAddress(query), [query]);
 
-  const { user } = authService.useAuthState();
+  const { user } = useAuthState();
 
   const uniqueSearchHistory = useMemo(() => {
     // Remove duplicates
@@ -131,9 +131,8 @@ const SearchBar: FC<SearchBarProps> = ({ className, onSearchAddress }) => {
   useEffect(() => {
     if (user === null) return;
 
-    getUserHistory(user.uid).then((userHistory) => {
+    getUserHistory().then((userHistory) => {
       if (userHistory) {
-        console.log("User history", userHistory);
         setUserHistory(userHistory);
       }
     });
@@ -217,7 +216,6 @@ const SearchBar: FC<SearchBarProps> = ({ className, onSearchAddress }) => {
                     onClickAddress={onSearchAddressHandler}
                     userHistory={uniqueSearchHistory}
                     selectedIndex={selectedUserHistoyIndex}
-                    setSelectedIndex={setSelectedUserHistoyIndex}
                   />
                 </div>
               ) : null

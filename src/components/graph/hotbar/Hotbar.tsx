@@ -12,7 +12,7 @@ import { useKeyPress } from "reactflow";
 import authService from "../../../services/auth/auth.services";
 import { GraphContext } from "../Graph";
 
-import { BookmarkIcon } from "@heroicons/react/24/solid";
+import useAuthState from "../../../hooks/useAuthState";
 import AuthDialog from "../../auth";
 import NewAddressModal from "./components/NewAddressModal";
 import ShareDialog from "./components/ShareDialog";
@@ -91,7 +91,7 @@ const Hotbar: FC = () => {
   const { doLayout, copyLink, getSharingLink, setShowTutorial } =
     useContext(GraphContext);
 
-  const { isAuthenticated } = authService.useAuthState();
+  const { isAuthenticated } = useAuthState();
 
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
   const [isLoginDialogOpen, setIsLoginDialogOpen] = useState(false);
@@ -106,13 +106,6 @@ const Hotbar: FC = () => {
   const openShareDialog = () => {
     setIsShareDialogOpen(true);
   };
-
-  // TODO: Move this to sidebar
-  const getSearchHistory = async () => {
-    const userSearchHistory = await getSearchHistory();
-
-    console.log(userSearchHistory);
-  }
 
   const openLoginDialog = () => {
     setIsLoginDialogOpen(true);
@@ -169,11 +162,6 @@ const Hotbar: FC = () => {
           {
             isAuthenticated ? (
               <>
-                <HotbarButton
-                  Icon={BookmarkIcon}
-                  name="Search History"
-                  onClick={getSearchHistory}
-                />
                 <HotbarButton
                   Icon={UserCircleIcon}
                   name={"Logout"}

@@ -9,6 +9,7 @@ import {
   where,
 } from "firebase/firestore";
 import { db } from "../../firebase";
+import authService from "../../auth/auth.services";
 
 export interface AddressHistoryAPIObject {
   address: string;
@@ -22,18 +23,20 @@ export interface AddressHistoryAPIObject {
  * @param address
  * @returns The address that was stored
  */
-const storeAddress = async (address: string, userId?: string) => {
-  if (!userId) {
-    console.error(
-      "User tried to store address in search history but was not logged in",
-    );
-    return;
+const storeAddress = async (address: string) => {
+  const isAuthenticated = authService.isAuthenticated();
+
+  if (!isAuthenticated) {
+    console.error("User tried to store address but was not logged in");
+    return address;
   }
+
+  const user = authService.getCurrentUser();
 
   try {
     const newAddressObject: AddressHistoryAPIObject = {
       address,
-      user: userId,
+      user: user?.uid,
       created_at: new Date(),
     };
 
@@ -51,14 +54,18 @@ const storeAddress = async (address: string, userId?: string) => {
  *
  * @returns The search history for the user
  */
-const getUserHistory = async (userId?: string, recordLimit: number = 5) => {
-  if (!userId) {
+const getUserHistory = async (recordLimit: number = 5) => {
+  const isAuthenticated = authService.isAuthenticated();
+
+  if (!isAuthenticated) {
     return [];
   }
 
+  const user = authService.getCurrentUser();
+
   const q = query(
     collection(db, "searchHistory"),
-    where("user", "==", userId),
+    where("user", "==", user?.uid),
     orderBy("created_at", "desc"),
     limit(recordLimit),
   );
@@ -71,7 +78,6 @@ const getUserHistory = async (userId?: string, recordLimit: number = 5) => {
 
   const addresses: string[] = [];
   querySnapshot.forEach((doc) => {
-    console.log(doc.id, " => ", doc.data());
     // doc.data() is never undefined for query doc snapshots
     const data = doc.data() as AddressHistoryAPIObject;
 

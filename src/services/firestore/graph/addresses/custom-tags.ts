@@ -1,23 +1,22 @@
 import {
+  addDoc,
   collection,
   doc,
   getDocs,
+  limit,
   query,
-  addDoc,
   updateDoc,
   where,
 } from "firebase/firestore";
 import authService from "../../../auth/auth.services";
 import { db } from "../../../firebase";
 
-export interface UserCustomAddressTag {
+export interface CustomAddressTag {
   address: string;
   user?: string;
   tags: string[];
   created_at: Date;
 }
-
-const { user } = authService.useAuthState();
 
 /**
  * Get user custom addresses tags
@@ -26,15 +25,28 @@ const { user } = authService.useAuthState();
  * @returns - tags of address
  */
 const getCustomAddressesTags = async (address: string): Promise<string[]> => {
+  const isAuthenticated = authService.isAuthenticated();
+
+  if (!isAuthenticated) {
+    return [];
+  }
+
+  const user = authService.getCurrentUser();
+
   try {
     const q = query(
       collection(db, "customAddressesTags"),
       where("address", "==", address),
       where("user", "==", user?.uid),
+      limit(1),
     );
     const querySnapshot = await getDocs(q);
-    const data = querySnapshot.docs.map((doc) => doc.data().tags);
-    return data;
+
+    if (!querySnapshot.empty) {
+      const data = querySnapshot.docs[0].data();
+      return data.tags;
+    }
+    return [];
   } catch (error) {
     console.log(error);
     return [];
@@ -49,6 +61,15 @@ const getCustomAddressesTags = async (address: string): Promise<string[]> => {
  * @param tags - tags to store
  */
 const storeCustomAddressesTags = async (address: string, tags: string[]) => {
+  const isAuthenticated = authService.isAuthenticated();
+
+  if (!isAuthenticated) {
+    console.error("User tried to store tags but was not logged in");
+    return;
+  }
+
+  const user = authService.getCurrentUser();
+
   let q;
   try {
     q = query(
@@ -76,7 +97,44 @@ const storeCustomAddressesTags = async (address: string, tags: string[]) => {
   }
 };
 
-export default {
+/**
+ * Delete user custom addresses tag
+ *
+ * @param address - address to delete tag
+ * @param tag - tag to delete
+ */
+const deleteCustomAddressTag = async (address: string, tag: string) => {
+  const isAuthenticated = authService.isAuthenticated();
+
+  if (!isAuthenticated) {
+    console.error("User tried to delete tag but was not logged in");
+    return;
+  }
+
+  const user = authService.getCurrentUser();
+
+  const q = query(
+    collection(db, "customAddressesTags"),
+    where("address", "==", address),
+    where("user", "==", user?.uid),
+  );
+  const querySnapshot = await getDocs(q);
+
+  console.log(querySnapshot.empty);
+
+  if (!querySnapshot.empty) {
+    const docRef = doc(db, "customAddressesTags", querySnapshot.docs[0].id);
+    const data = querySnapshot.docs[0].data();
+    const tags = data.tags.filter((t: string) => t !== tag);
+    console.log(tags);
+    await updateDoc(docRef, {
+      tags,
+    });
+  }
+};
+
+export {
+  deleteCustomAddressTag,
   getCustomAddressesTags,
   storeCustomAddressesTags,
 };

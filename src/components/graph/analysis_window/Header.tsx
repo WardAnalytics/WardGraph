@@ -1,27 +1,30 @@
 import {
-  XMarkIcon,
-  SparklesIcon,
-  InformationCircleIcon,
   ArrowsPointingInIcon,
   IdentificationIcon,
+  InformationCircleIcon,
+  SparklesIcon,
+  XMarkIcon,
 } from "@heroicons/react/20/solid";
 import clsx from "clsx";
-import { FC, useContext, useCallback } from "react";
+import { FC, useCallback, useContext, useEffect, useMemo, useState } from "react";
 
 import EntityLogo from "../../common/EntityLogo";
-import BlockExplorerAddressIcon from "../../common/utility_icons/BlockExplorerAddressIcon";
-import CopyToClipboardIcon from "../../common/utility_icons/CopyToClipboardIcon";
 import LabelList from "../../common/LabelList";
 import RiskIndicator from "../../common/RiskIndicator";
+import BlockExplorerAddressIcon from "../../common/utility_icons/BlockExplorerAddressIcon";
+import CopyToClipboardIcon from "../../common/utility_icons/CopyToClipboardIcon";
 
-import { AnalysisContext } from "./AnalysisWindow";
-import { GraphContext } from "../Graph";
-import { AnalysisMode, AnalysisModes } from "./AnalysisWindow";
 import { AddressAnalysis, Category } from "../../../api/model";
+import { GraphContext } from "../Graph";
+import { AnalysisContext, AnalysisMode, AnalysisModes } from "./AnalysisWindow";
 
 import { PathExpansionArgs } from "../Graph";
 
+import { deleteCustomAddressTag, getCustomAddressesTags, storeCustomAddressesTags } from "../../../services/firestore/graph/addresses/custom-tags";
+import { getCustomUserTags } from "../../../services/firestore/user/custom-tags";
 import { CategoryClasses } from "../../../utils/categories";
+import TagInput from "../../common/TagInput";
+import TagList from "../../common/TagList";
 
 interface ModeButtonProps {
   isActive: boolean;
@@ -124,10 +127,32 @@ const Header: FC<HeaderProps> = ({
   // Extract analysisData from context
   const { addMultipleDifferentPaths } = useContext(GraphContext);
   const { analysisData, address } = useContext(AnalysisContext);
+  const [userCustomAddressTags, setUserCustomAddressTags] = useState<string[]>([]);
+  const [addressCustomTags, setAddressCustomTags] = useState<string[]>([]);
+
+  // Filtered values without the tags that are already in the address
+  const filteredUserCustomAddressTags = useMemo(() => {
+    return userCustomAddressTags.filter((tag) => !addressCustomTags.includes(tag));
+  }, [address, userCustomAddressTags, addressCustomTags]);
 
   // When minimized, the address hash should be sliced off
   const displayedAddress = address.slice(0, 8) + "..." + address.slice(-6);
   const risk = analysisData!.risk;
+
+  const addCustomTag = useCallback((tag: string) => {
+    console.log("Adding custom tag: ", tag);
+    const newAddressCustomTags = [...addressCustomTags, tag];
+    console.log(addressCustomTags)
+    console.log("New tags: ", newAddressCustomTags);
+    setAddressCustomTags(newAddressCustomTags);
+    storeCustomAddressesTags(address, newAddressCustomTags);
+  }, [address, addressCustomTags]);
+
+  const deleteCustomTag = useCallback((tag: string) => {
+    console.log("Deleting custom tag: ", tag);
+    setAddressCustomTags(addressCustomTags.filter((t) => t !== tag));
+    deleteCustomAddressTag(address, tag);
+  }, [address, addressCustomTags]);
 
   const expandWithAI = useCallback((analysisData: AddressAnalysis) => {
     // We'll first do it for incoming and then for outgoing to get balanced results
@@ -200,6 +225,20 @@ const Header: FC<HeaderProps> = ({
     addMultipleDifferentPaths(pathExpansionArgs);
   }, []);
 
+  useEffect(() => {
+    getCustomUserTags().then((tags) => {
+      console.log("Custom tags: ", tags);
+      setUserCustomAddressTags(tags);
+    });
+  }, []);
+
+  useEffect(() => {
+    getCustomAddressesTags(address).then((tags) => {
+      console.log("Custom address tags: ", tags);
+      setAddressCustomTags(tags);
+    });
+  }, [address]);
+
   return (
     <span className="flex cursor-move flex-row items-center justify-between gap-x-2">
       <span className="flex flex-row items-center space-x-2">
@@ -227,10 +266,12 @@ const Header: FC<HeaderProps> = ({
               />
             )}
           </span>
-          <span className="flex w-60 flex-row items-center justify-start gap-x-1.5 overflow-x-auto">
+          <span className="flex w-60 flex-row items-center justify-start gap-x-1.5">
             {/* List of labels using Badges shown underneath the address. */}
             <LabelList labels={analysisData!.labels} />
+            <TagList tags={addressCustomTags} onDeletTag={deleteCustomTag} />
           </span>
+          <TagInput address={address} options={filteredUserCustomAddressTags} onCreateCustomAddressTag={addCustomTag} />
         </div>
       </span>
 

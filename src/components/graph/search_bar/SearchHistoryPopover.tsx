@@ -34,7 +34,6 @@ interface SearchHistoryPopoverProps {
   onClickAddress: (input: string) => void;
   userHistory: string[];
   selectedIndex: number | null;
-  setSelectedIndex: (index: number | null) => void;
 }
 
 const SearchHistoryPopover: FC<SearchHistoryPopoverProps> = ({
