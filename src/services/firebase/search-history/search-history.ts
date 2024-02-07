@@ -2,7 +2,7 @@ import {
   collection,
   doc,
   getDocs,
-  limitToLast,
+  limit,
   orderBy,
   query,
   setDoc,
@@ -53,7 +53,7 @@ const getUserHistory = async (userId?: string, recordLimit: number = 5) => {
     collection(db, "searchHistory"),
     where("user", "==", userId),
     orderBy("created_at", "desc"),
-    limitToLast(recordLimit),
+    limit(recordLimit),
   );
 
   const querySnapshot = await getDocs(q);
@@ -64,6 +64,7 @@ const getUserHistory = async (userId?: string, recordLimit: number = 5) => {
 
   const addresses: string[] = [];
   querySnapshot.forEach((doc) => {
+    console.log(doc.id, " => ", doc.data());
     // doc.data() is never undefined for query doc snapshots
     const data = doc.data() as AddressHistoryAPIObject;
 
