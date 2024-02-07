@@ -23,7 +23,7 @@ const TagInput: FC<TagInputProps> = ({
     const [userCustomAddressTags, setUserCustomAddressTags] = useState<string[]>([]);
     const [selectedTag, setSelectedTag] = useState<string>("");
     const [isTagsPopoverOpen, setIsTagsPopoverOpen] = useState<boolean>(false);
-    const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+    const [selectedIndex, _] = useState<number | null>(null);
 
     const filteredCustomAddressTags = useMemo(() => {
         return options || []

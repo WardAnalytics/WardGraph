@@ -248,32 +248,39 @@ paths:
                   tags:
                     type: array
                     items:
-                      type: string
-        "400":
-          description: Bad Request
+                      $ref: "#/components/schemas/Transaction"
+                    required:
+                      - transactions
+  /labels/search-labels:
+    post:
+      operationId: search-labels
+      description: Search labels and returns the labels that match the query limited by the set limit
+      tags:
+        - labels
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                query:
+                  type: string
+                limit:
+                  type: integer
+      responses:
+        "200":
+          description: OK
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
-        "401":
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-        "404":
-          description: Not Found
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-        "429":
-          description: Too Many Requests
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-  # TODO - Create endpoint to get tags of a specific address (Gabriel)
+                type: object
+                properties:
+                  labels:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Label"
+                    required:
+                      - labels
 
 components:
   schemas:
@@ -453,6 +460,21 @@ components:
       required:
         - addresses
 
+    # Labels
+    Label:
+      type: object
+      properties:
+        label:
+          type: string
+        description:
+          type: string
+        address:
+          type: string
+      required:
+        - name
+        - description
+        - address
+
     # Error
     ErrorResponse:
       type: object
@@ -471,3 +493,5 @@ tags:
     description: The error responses
   - name: transactions
     description: The transaction endpoints
+  - name: labels
+    description: The labels endpoints
