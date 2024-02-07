@@ -1,5 +1,5 @@
 {
-  "name": "graph",
+  "name": "WardGraph",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -57,7 +57,7 @@
     "typescript": "^5.2.2",
     "vite": "^5.0.10"
   },
-  "packageManager": "yarn@1.22.21",
+  "packageManager": "yarn@4.1.0",
   "prettier": {
     "plugins": [
       "prettier-plugin-tailwindcss"
