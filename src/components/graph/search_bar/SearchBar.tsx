@@ -8,7 +8,7 @@ import clsx from "clsx";
 import { FC, KeyboardEvent, useEffect, useMemo, useRef, useState } from "react";
 
 import authService from "../../../services/auth/auth.services";
-import { getUserHistory } from "../../../services/firebase/search-history/search-history";
+import { getUserHistory } from "../../../services/firebase/user/search-history";
 
 import { HotKeysType } from "../../../types/hotKeys";
 

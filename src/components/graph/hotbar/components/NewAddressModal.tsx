@@ -5,7 +5,8 @@ import Modal from "../../../common/Modal";
 import SearchBar from "../../search_bar";
 
 import authService from "../../../../services/auth/auth.services";
-import { storeAddress } from "../../../../services/firebase/search-history/search-history";
+import { storeAddress } from "../../../../services/firebase/user/search-history";
+
 
 interface NewAddressModalProps {
   isOpen: boolean;

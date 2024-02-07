@@ -7,8 +7,8 @@ import {
   updateDoc,
   where,
 } from "firebase/firestore";
-import authService from "../../auth/auth.services";
-import { db } from "../firebase";
+import authService from "../../../auth/auth.services";
+import { db } from "../../firebase";
 
 export interface UserCustomAddressTag {
   address: string;
@@ -17,7 +17,7 @@ export interface UserCustomAddressTag {
   created_at: Date;
 }
 
-const user = authService.getCurrentUser();
+const { user } = authService.useAuthState();
 
 /**
  * Get user custom addresses tags

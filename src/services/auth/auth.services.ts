@@ -160,6 +160,7 @@ const resetUserPassword = async (
 
 const useAuthState = () => {
   const [user, setUser] = useState<User | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -173,7 +174,11 @@ const useAuthState = () => {
     return () => unsubscribe();
   }, []); // Empty array ensures this effect runs only once on mount
 
-  return { user, isLoading };
+  useEffect(() => {
+    setIsAuthenticated(user?.emailVerified || false);
+  }, [user]);
+
+  return { user, isAuthenticated, isLoading };
 };
 
 const authService = {

@@ -2,12 +2,12 @@ import { Transition } from "@headlessui/react";
 import {
   FC,
   createContext,
+  memo,
   useCallback,
   useEffect,
   useMemo,
   useRef,
   useState,
-  memo,
 } from "react";
 import ReactFlow, {
   Edge,
@@ -24,7 +24,6 @@ import ReactFlow, {
 } from "reactflow";
 import "reactflow/dist/style.css";
 
-import authService from "../../services/auth/auth.services";
 
 import { AddressAnalysis } from "../../api/model";
 
@@ -49,18 +48,18 @@ import {
 import { logAnalyticsEvent } from "../../services/firebase/analytics/analytics";
 import {
   StoreUrlObject,
-} from "../../services/firebase/short-urls/short-urls";
+  storeUrl,
+} from "../../services/firebase/graph/short-urls";
+import { storeAddress } from "../../services/firebase/user/search-history";
 import generateShortUrl from "../../utils/generateShortUrl";
-import TutorialPopup from "./tutorial/TutorialPopup";
+import TransactionTooltip, {
+  TransactionTooltipProps,
+} from "./TransactionTooltip";
 import DraggableWindow from "./analysis_window/AnalysisWindow";
 import Hotbar from "./hotbar";
 import LandingPage from "./landing_page/LandingPage";
 import Legend from "./legend";
-import TransactionTooltip, {
-  TransactionTooltipProps,
-} from "./TransactionTooltip";
-import { storeUrl } from "../../services/firebase/graph/short-urls";
-import { storeAddress } from "../../services/firebase/search-history/search-history";
+import TutorialPopup from "./tutorial/TutorialPopup";
 
 enum HotKeyMap {
   DELETE = 1,

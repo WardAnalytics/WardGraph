@@ -2,12 +2,13 @@ import {
   collection,
   doc,
   getDocs,
+  limit,
+  orderBy,
   query,
   setDoc,
   where,
 } from "firebase/firestore";
 import { db } from "../firebase";
-import authService from "../../auth/auth.services";
 
 export interface AddressHistoryAPIObject {
   address: string;
@@ -15,26 +16,29 @@ export interface AddressHistoryAPIObject {
   created_at: Date;
 }
 
-const user = authService.getCurrentUser();
-
 /**
  * Stores the address searched in the database
  *
  * @param address
- * @returns
+ * @returns The address that was stored
  */
-const StoreAddress = async (address: string) => {
+const storeAddress = async (address: string, userId?: string) => {
+  if (!userId) {
+    console.error(
+      "User tried to store address in search history but was not logged in",
+    );
+    return;
+  }
+
   try {
     const newAddressObject: AddressHistoryAPIObject = {
       address,
-      user: user?.uid,
+      user: userId,
       created_at: new Date(),
     };
 
     // TODO: store the user that performed the search as well, if logged in
     await setDoc(doc(collection(db, "searchHistory")), newAddressObject);
-
-    console.log("Address stored in the database", address);
 
     return address;
   } catch (e) {
@@ -45,21 +49,33 @@ const StoreAddress = async (address: string) => {
 /**
  * Get user search history from the database
  *
- * @returns
+ * @returns The search history for the user
  */
-const GetUserHistory = async () => {
-  // TODO: get the user from the auth context
-  const userId = user?.uid;
-  const q = query(collection(db, "searchHistory"), where("user", "==", userId));
+const getUserHistory = async (userId?: string, recordLimit: number = 5) => {
+  if (!userId) {
+    return [];
+  }
+
+  const q = query(
+    collection(db, "searchHistory"),
+    where("user", "==", userId),
+    orderBy("created_at", "desc"),
+    limit(recordLimit),
+  );
 
   const querySnapshot = await getDocs(q);
 
-  const addresses: AddressHistoryAPIObject[] = [];
+  if (querySnapshot.empty) {
+    return [];
+  }
+
+  const addresses: string[] = [];
   querySnapshot.forEach((doc) => {
+    console.log(doc.id, " => ", doc.data());
     // doc.data() is never undefined for query doc snapshots
     const data = doc.data() as AddressHistoryAPIObject;
 
-    addresses.push(data);
+    addresses.push(data.address);
   });
 
   return addresses;
@@ -71,7 +87,7 @@ const GetUserHistory = async () => {
  * @param address The address to search for
  * @returns The search history for the address
  */
-const GetAddressHistory = async (address: string) => {
+const getAddressHistory = async (address: string) => {
   const q = query(
     collection(db, "searchHistory"),
     where("address", "==", address),
@@ -90,8 +106,4 @@ const GetAddressHistory = async (address: string) => {
   return addresses;
 };
 
-export default {
-  StoreAddress,
-  GetUserHistory,
-  GetAddressHistory,
-};
+export { getAddressHistory, getUserHistory, storeAddress };

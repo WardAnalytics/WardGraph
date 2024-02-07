@@ -9,20 +9,13 @@ import {
 import clsx from "clsx";
 import { FC, useContext, useEffect, useMemo, useState } from "react";
 import { useKeyPress } from "reactflow";
-import useAuthState from "../../../hooks/useAuthState";
 import authService from "../../../services/auth/auth.services";
 import { GraphContext } from "../Graph";
-<<<<<<< HEAD:src/components/Graph/Hotbar/Hotbar.tsx
-import { BookmarkIcon } from "@heroicons/react/24/solid";
-import searchHistoryService from "../../../services/firebase/user/search-history";
-import LoginDialog from "../LandingPage/AuthDialog";
-import ShareDialog from "../LandingPage/ShareDialog";
-import NewAddressModal from "../NewAddressModal";
-=======
 
-import ShareDialog from "./components/ShareDialog";
+import { BookmarkIcon } from "@heroicons/react/24/solid";
+import AuthDialog from "../../auth";
 import NewAddressModal from "./components/NewAddressModal";
->>>>>>> pro:src/components/graph/hotbar/Hotbar.tsx
+import ShareDialog from "./components/ShareDialog";
 
 interface HotbarButton {
   onClick?: () => void;
@@ -98,7 +91,7 @@ const Hotbar: FC = () => {
   const { doLayout, copyLink, getSharingLink, setShowTutorial } =
     useContext(GraphContext);
 
-  const {isAthenticated} = useAuthState();
+  const { isAuthenticated } = authService.useAuthState();
 
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
   const [isLoginDialogOpen, setIsLoginDialogOpen] = useState(false);
@@ -116,7 +109,7 @@ const Hotbar: FC = () => {
 
   // TODO: Move this to sidebar
   const getSearchHistory = async () => {
-    const userSearchHistory = await searchHistoryService.GetUserHistory();
+    const userSearchHistory = await getSearchHistory();
 
     console.log(userSearchHistory);
   }
@@ -174,7 +167,7 @@ const Hotbar: FC = () => {
         </HotbarButtonGroup>
         <HotbarButtonGroup className="pt-1">
           {
-            isAutenticated ? (
+            isAuthenticated ? (
               <>
                 <HotbarButton
                   Icon={BookmarkIcon}
@@ -209,7 +202,7 @@ const Hotbar: FC = () => {
         setIsOpen={setIsShareDialogOpen}
         onShareUrl={onShareUrl}
       />
-      <LoginDialog
+      <AuthDialog
         isOpen={isLoginDialogOpen}
         setIsOpen={setIsLoginDialogOpen} />
       <NewAddressModal
