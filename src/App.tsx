@@ -2,7 +2,7 @@ import { QueryClientProvider } from "react-query";
 import useCustomQueryClient from "./hooks/useCustomQueryClient";
 import authService from "./services/auth/auth.services";
 
-import "./services/firebase/firebase";
+import "./services/firebase";
 
 import PrivateApp from "./PrivateApp";
 import PublicApp from "./PublicApp";

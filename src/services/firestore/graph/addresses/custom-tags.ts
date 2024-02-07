@@ -8,7 +8,7 @@ import {
   where,
 } from "firebase/firestore";
 import authService from "../../../auth/auth.services";
-import { db } from "../../firebase";
+import { db } from "../../../firebase";
 
 export interface UserCustomAddressTag {
   address: string;

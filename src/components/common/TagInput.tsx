@@ -5,7 +5,7 @@ import { FC, useEffect, useMemo, useState } from 'react';
 
 import CreatableSelect from 'react-select/creatable';
 
-import userCustomAddressesService from "../../services/firebase/graph/addresses/custom-tags";
+import userCustomAddressesService from "../../services/firestore/graph/addresses/custom-tags";
 
 interface TagInputProps {
     address: string;

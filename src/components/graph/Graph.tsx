@@ -45,12 +45,12 @@ import {
   convertNodeListToRecord,
 } from "./graph_calculations";
 
-import { logAnalyticsEvent } from "../../services/firebase/analytics/analytics";
+import { logAnalyticsEvent } from "../../services/firestore/analytics/analytics";
 import {
   StoreUrlObject,
   storeUrl,
-} from "../../services/firebase/graph/short-urls";
-import { storeAddress } from "../../services/firebase/user/search-history";
+} from "../../services/firestore/graph/short-urls";
+import { storeAddress } from "../../services/firestore/user/search-history";
 import generateShortUrl from "../../utils/generateShortUrl";
 import TransactionTooltip, {
   TransactionTooltipProps,
