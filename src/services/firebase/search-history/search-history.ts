@@ -71,7 +71,6 @@ const getUserHistory = async (userId?: string, recordLimit: number = 5) => {
 
   const addresses: string[] = [];
   querySnapshot.forEach((doc) => {
-    console.log(doc.id, " => ", doc.data());
     // doc.data() is never undefined for query doc snapshots
     const data = doc.data() as AddressHistoryAPIObject;
 
