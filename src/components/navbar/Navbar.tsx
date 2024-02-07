@@ -123,7 +123,7 @@ const Navbar: FC = () => {
                     className="group -mx-2 flex cursor-pointer gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-700 hover:bg-gray-50 hover:text-red-600"
                   >
                     <ArrowUturnLeftIcon
-                      className="h-5 w-5 shrink-0  text-gray-400 group-hover:text-red-600"
+                      className="h-5 w-5 shrink-0 text-gray-400 group-hover:text-red-600"
                       aria-hidden="true"
                     />
                     Log Out
@@ -134,7 +134,7 @@ const Navbar: FC = () => {
           </div>
         </div>
         <div
-          className="pointer-events-none absolute z-50 flex h-full w-fit flex-row items-center justify-center align-middle"
+          className="pointer-events-none absolute z-10 flex h-full w-fit flex-row items-center justify-center align-middle"
           style={{
             marginLeft: isHidden ? "1rem" : "12rem",
             transition: "margin-left 0.3s ease-in-out",
