@@ -140,16 +140,15 @@ const Header: FC<HeaderProps> = ({
   const risk = analysisData!.risk;
 
   const addCustomTag = useCallback((tag: string) => {
-    console.log("Adding custom tag: ", tag);
     const newAddressCustomTags = [...addressCustomTags, tag];
-    console.log(addressCustomTags)
-    console.log("New tags: ", newAddressCustomTags);
+
     setAddressCustomTags(newAddressCustomTags);
     storeCustomAddressesTags(address, newAddressCustomTags);
+
   }, [address, addressCustomTags]);
 
   const deleteCustomTag = useCallback((tag: string) => {
-    console.log("Deleting custom tag: ", tag);
+
     setAddressCustomTags(addressCustomTags.filter((t) => t !== tag));
     deleteCustomAddressTag(address, tag);
   }, [address, addressCustomTags]);
@@ -271,7 +270,11 @@ const Header: FC<HeaderProps> = ({
             <LabelList labels={analysisData!.labels} />
             <TagList tags={addressCustomTags} onDeletTag={deleteCustomTag} />
           </span>
-          <TagInput address={address} options={filteredUserCustomAddressTags} onCreateCustomAddressTag={addCustomTag} />
+          <TagInput
+            options={filteredUserCustomAddressTags}
+            addressCustomTags={addressCustomTags}
+            onCreateCustomAddressTag={addCustomTag}
+          />
         </div>
       </span>
 
