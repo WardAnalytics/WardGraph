@@ -17,7 +17,7 @@ import SearchHistoryPopover from "./SearchHistoryPopover";
 
 const InvalidAddressPopover: FC = () => {
   return (
-    <div className="ring-300 absolute top-full mt-2 w-72 -translate-x-56 transform rounded-md bg-red-100 p-3 shadow-lg ring-1 ring-red-300 transition-opacity duration-300">
+    <div className="ring-300 absolute top-full mt-2 w-72 translate-x-[32rem] transform rounded-md bg-red-100 p-3 shadow-lg ring-1 ring-red-300 transition-opacity duration-300">
       <span className="flex items-center space-x-2">
         <XCircleIcon className="h-5 w-5 text-red-400" aria-hidden="true" />
         <h3 className="text-sm font-medium text-red-800">Invalid Address</h3>
@@ -139,6 +139,10 @@ const SearchBar: FC<SearchBarProps> = ({ className, onSearchAddress }) => {
     });
   }, [user]);
 
+  console.log("User history length: ", userHistory.length);
+  console.log("Is User history popover open: ", isUserHistoryPopoverOpen);
+  console.log("Boolean: ", isUserHistoryPopoverOpen && userHistory.length > 0);
+
   return (
     <>
       <div className={clsx("flex w-full flex-col")}>
@@ -176,10 +180,10 @@ const SearchBar: FC<SearchBarProps> = ({ className, onSearchAddress }) => {
                   }
                 }}
                 className={
-                  "block w-full rounded-none rounded-l-md border-0 py-1.5 pl-10 font-mono text-gray-900 ring-1 ring-inset ring-gray-300 transition-all placeholder:text-gray-400 focus:ring-2 focus:ring-inset sm:text-sm sm:leading-6" +
+                  "block w-full rounded-none rounded-l-md border-0  py-1.5 pl-10 font-mono text-sm leading-6 text-gray-900 ring-1 ring-inset ring-gray-300 transition-all placeholder:text-gray-400 focus:outline focus:outline-[3px] focus:ring-2" +
                   (isAddressValid || !query
-                    ? " focus:ring-blue-600"
-                    : " focus:ring-red-500")
+                    ? " focus:outline-blue-200 focus:ring-blue-400"
+                    : "  focus:outline-red-200 focus:ring-red-400")
                 }
                 placeholder="0x89c3ef557515934..."
                 onFocus={() => {
@@ -225,7 +229,11 @@ const SearchBar: FC<SearchBarProps> = ({ className, onSearchAddress }) => {
 
             <Transition
               appear={true}
-              show={showInvalidAddressPopover ? true : false}
+              show={
+                !isAddressValid &&
+                query.length > 0 &&
+                !(isUserHistoryPopoverOpen && userHistory.length > 0)
+              }
               enter={`transition-all duration-500`}
               enterFrom="opacity-0 scale-50"
               enterTo="opacity-100 scale-100"
