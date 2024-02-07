@@ -119,8 +119,10 @@ const signUpWithGoogle = async (
  *
  * @returns current user
  */
-const getCurrentUser = () => {
-  return auth.currentUser;
+const getCurrentUser = (callback: (user: User | null) => void) => {
+  return onAuthStateChanged(auth, (user) => {
+    callback(user);
+  });
 };
 
 /**
@@ -162,11 +164,13 @@ const resetUserPassword = async (
 const useAuthState = () => {
   const [user, setUser] = useState<User | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     // This listener will be called whenever the user's sign-in state changes
     const unsubscribe = auth.onAuthStateChanged((currentUser) => {
       setUser(currentUser);
+      setIsLoading(false);
     });
 
     // Cleanup subscription on unmount
@@ -177,7 +181,7 @@ const useAuthState = () => {
     setIsAuthenticated(user?.emailVerified || false);
   }, [user]);
 
-  return [user, isAuthenticated];
+  return { user, isAuthenticated, isLoading };
 };
 
 const authService = {
