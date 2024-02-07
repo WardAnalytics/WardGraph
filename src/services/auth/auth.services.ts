@@ -154,13 +154,14 @@ const resetUserPassword = async (
     .catch((error) => {
       const errorCode = error.code;
       const errorMessage = error.message;
-      console.log(errorCode, errorMessage);
+      console.error(errorCode, errorMessage);
       onError(error);
     });
 };
 
 const useAuthState = () => {
   const [user, setUser] = useState<User | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
 
   useEffect(() => {
     // This listener will be called whenever the user's sign-in state changes
@@ -172,7 +173,11 @@ const useAuthState = () => {
     return () => unsubscribe();
   }, []); // Empty array ensures this effect runs only once on mount
 
-  return user;
+  useEffect(() => {
+    setIsAuthenticated(user?.emailVerified || false);
+  }, [user]);
+
+  return [user, isAuthenticated];
 };
 
 const authService = {

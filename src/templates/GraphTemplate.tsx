@@ -16,10 +16,7 @@ const getURLSearchParams = () => {
 
 const GraphTemplate: FC = () => {
   // Get the current user
-  const user = authService.useAuthState();
-  const isAuthenticated = useMemo(() => {
-    return user !== null;
-  }, [user]);
+  const [_, isAuthenticated] = authService.useAuthState();
 
   // On initial load, get the addresses and paths from the URL
   const { initialAddresses, initialPaths } = useMemo(() => {
