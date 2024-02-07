@@ -1,11 +1,11 @@
 import { FC, useMemo } from "react";
 import authService from "../services/auth/auth.services";
+import { PublicGraph, PrivateGraph } from "../components/graph/Graph";
 
-import { PublicGraph, PrivateGraph } from "../components/Graph";
-
-import Socials from "../components/Socials";
+import Socials from "../components/socials";
 import Banner from "../components/banner";
 import Navbar from "../components/navbar";
+import RedirectTemplate from "./RedirectTemplate";
 
 const getURLSearchParams = () => {
   const urlParams = new URLSearchParams(window.location.search);
@@ -16,7 +16,7 @@ const getURLSearchParams = () => {
 
 const GraphTemplate: FC = () => {
   // Get the current user
-  const user = authService.useAuthState();
+  const { user, isLoading } = authService.useAuthState();
   const isAutenticated = useMemo(() => {
     return user !== null;
   }, [user]);
@@ -29,7 +29,9 @@ const GraphTemplate: FC = () => {
 
   return (
     <div className="h-screen w-screen">
-      {isAutenticated ? (
+      {isLoading ? (
+        <RedirectTemplate title="Loading..." />
+      ) : isAutenticated ? (
         <div className="flex h-full flex-row">
           <Navbar />
           <PrivateGraph
