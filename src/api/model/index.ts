@@ -17,5 +17,8 @@ export * from './getCombinedTransactions200';
 export * from './getCombinedTransactionsParams';
 export * from './getTransactionsBetweenAddresses200';
 export * from './getTransactionsBetweenAddressesParams';
+export * from './label';
 export * from './output';
+export * from './searchLabels200';
+export * from './searchLabelsBody';
 export * from './transaction';
