@@ -97,20 +97,13 @@ const AuthDialog: FC<AuthDialogProps> = ({ isOpen, setIsOpen }) => {
    * @returns void
    */
   const onLoginError = (error: any) => {
-    switch (error.code) {
-      case AuthApiErrors.INVALID_CREDENTIAL.code:
-        setAuthApiErrorMessage(AuthApiErrors.INVALID_CREDENTIAL.message);
-        break;
-      case AuthApiErrors.EMAIL_VERIFICATION_REQUIRED.code:
-        setAuthApiErrorMessage(
-          AuthApiErrors.EMAIL_VERIFICATION_REQUIRED.message,
-        );
-        break;
-      default:
-        setAuthApiErrorMessage(
-          "An error occured while logging in. Please try again later.",
-        );
-        break;
+    const errorCode = error.code;
+    if (errorCode in AuthApiErrors) {
+      setAuthApiErrorMessage(AuthApiErrors[errorCode].message);
+    } else {
+      setAuthApiErrorMessage(
+        "An error occured while logging in. Please try again later.",
+      );
     }
   };
 
@@ -130,15 +123,13 @@ const AuthDialog: FC<AuthDialogProps> = ({ isOpen, setIsOpen }) => {
    * @returns void
    */
   const onGoogleLoginError = (error: any) => {
-    switch (error.code) {
-      case AuthApiErrors.EMAIL_ALREADY_EXISTS.code:
-        setAuthApiErrorMessage(AuthApiErrors.EMAIL_ALREADY_EXISTS.message);
-        break;
-      default:
-        setAuthApiErrorMessage(
-          "An error occured while logging in. Please try again later.",
-        );
-        break;
+    const errorCode = error.code;
+    if (errorCode in AuthApiErrors) {
+      setAuthApiErrorMessage(AuthApiErrors[errorCode].message);
+    } else {
+      setAuthApiErrorMessage(
+        "An error occured while logging in. Please try again later.",
+      );
     }
   };
 
@@ -161,20 +152,13 @@ const AuthDialog: FC<AuthDialogProps> = ({ isOpen, setIsOpen }) => {
    * @returns void
    */
   const onSignupError = (error: any) => {
-    console.error(error);
-
-    switch (error.code) {
-      case AuthApiErrors.EMAIL_ALREADY_EXISTS.code:
-        setAuthApiErrorMessage(AuthApiErrors.EMAIL_ALREADY_EXISTS.message);
-        break;
-      case AuthApiErrors.EMAIL_ALREADY_IN_USE.code:
-        setAuthApiErrorMessage(AuthApiErrors.EMAIL_ALREADY_IN_USE.message);
-        break;
-      default:
-        setAuthApiErrorMessage(
-          "An error occured while signing up. Please try again later.",
-        );
-        break;
+    const errorCode = error.code;
+    if (errorCode in AuthApiErrors) {
+      setAuthApiErrorMessage(AuthApiErrors[errorCode].message);
+    } else {
+      setAuthApiErrorMessage(
+        "An error occured while logging in. Please try again later.",
+      );
     }
   };
 
@@ -194,15 +178,13 @@ const AuthDialog: FC<AuthDialogProps> = ({ isOpen, setIsOpen }) => {
    * @returns void
    */
   const onGoogleSignupError = (error: any) => {
-    switch (error.code) {
-      case AuthApiErrors.EMAIL_ALREADY_EXISTS.code:
-        setAuthApiErrorMessage(AuthApiErrors.EMAIL_ALREADY_EXISTS.message);
-        break;
-      default:
-        setAuthApiErrorMessage(
-          "An error occured while signing up. Please try again later.",
-        );
-        break;
+    const errorCode = error.code;
+    if (errorCode in AuthApiErrors) {
+      setAuthApiErrorMessage(AuthApiErrors[errorCode].message);
+    } else {
+      setAuthApiErrorMessage(
+        "An error occured while logging in. Please try again later.",
+      );
     }
   };
 
@@ -221,15 +203,13 @@ const AuthDialog: FC<AuthDialogProps> = ({ isOpen, setIsOpen }) => {
    * @param error
    */
   const onResetPasswordError = (error: any) => {
-    switch (error.code) {
-      case AuthApiErrors.INVALID_CREDENTIAL.code:
-        setAuthApiErrorMessage(AuthApiErrors.INVALID_CREDENTIAL.message);
-        break;
-      default:
-        setAuthApiErrorMessage(
-          "An error occured while logging in. Please try again later.",
-        );
-        break;
+    const errorCode = error.code;
+    if (errorCode in AuthApiErrors) {
+      setAuthApiErrorMessage(AuthApiErrors[errorCode].message);
+    } else {
+      setAuthApiErrorMessage(
+        "An error occured while logging in. Please try again later.",
+      );
     }
   };
 
