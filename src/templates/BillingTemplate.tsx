@@ -11,12 +11,18 @@ import {
 } from "@heroicons/react/20/solid";
 import BigButton from "../components/common/BigButton";
 
-const DiscoverPlan: FC = () => {
+interface PlanProps {
+  isPro: boolean;
+}
+
+const DiscoverPlan: FC<PlanProps> = ({ isPro }) => {
   return (
     <div className="my-5 flex w-72 flex-col rounded-3xl p-8 shadow-sm ring-1 ring-gray-200">
       <h3 className="flex flex-row items-center gap-x-2 text-lg font-semibold leading-8 text-gray-800">
         Discover
-        <Badge color={Colors.BLUE} text="Current" className="h-fit" />
+        {!isPro && (
+          <Badge color={Colors.BLUE} text="Current" className="h-fit" />
+        )}
       </h3>
       <p className="mt-1 text-sm leading-6 text-gray-600">
         Great for beginner investigators to satisfy their curiosity.
@@ -46,10 +52,15 @@ const DiscoverPlan: FC = () => {
   );
 };
 
-const ProPlan: FC = () => {
+const ProPlan: FC<PlanProps> = ({ isPro }) => {
   return (
     <div className="relative flex w-96 flex-col overflow-hidden rounded-3xl bg-gray-800 p-8 shadow-md">
-      <h3 className="text-lg font-semibold leading-8 text-white">Pro</h3>
+      <h3 className="flex flex-row items-center gap-x-2 text-lg font-semibold leading-8 text-white">
+        Pro
+        {isPro && (
+          <Badge color={Colors.BLUE_DARK} text="Current" className="h-fit" />
+        )}
+      </h3>
       <p className="mt-1 text-sm leading-6 text-gray-300">
         For investigators who want to speed up their workflow and take their
         analysis to the next level.
@@ -76,9 +87,13 @@ const ProPlan: FC = () => {
           </defs>
         </svg>
       </p>
-      <button className="mt-4 h-10 w-full rounded-md bg-blue-500 text-white transition-all duration-150 hover:bg-blue-400">
-        Buy plan
-      </button>
+      {isPro ? (
+        <div className="mt-4 h-[1px] w-full bg-gray-700" />
+      ) : (
+        <button className="mt-4 h-10 w-full rounded-md bg-blue-500 text-white transition-all duration-150 hover:bg-blue-400">
+          Buy plan
+        </button>
+      )}
       <div className="mt-4 flex flex-col gap-y-1.5 text-gray-300">
         <span className="flex flex-row items-center gap-x-1 ">
           <CheckIcon className="h-4 w-4 text-white" />
@@ -139,8 +154,8 @@ const BillingTemplate: FC = () => {
         )}
       </span>
       <span className="flex flex-row justify-center gap-x-5">
-        <DiscoverPlan />
-        <ProPlan />
+        <DiscoverPlan isPro={isPro} />
+        <ProPlan isPro={isPro} />
       </span>
     </div>
   );
