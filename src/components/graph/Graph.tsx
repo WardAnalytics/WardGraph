@@ -25,7 +25,7 @@ import ReactFlow, {
 } from "reactflow";
 import "reactflow/dist/style.css";
 
-import authService from "../../services/auth/auth.services";
+import useAuthState from "../../hooks/useAuthState";
 
 import { AddressAnalysis } from "../../api/model";
 
@@ -47,11 +47,9 @@ import {
   convertNodeListToRecord,
 } from "./graph_calculations";
 
-import analytics from "../../services/firebase/analytics/analytics";
-import { storeAddress } from "../../services/firebase/search-history/search-history";
-import firestore, {
-  StoreUrlObject,
-} from "../../services/firebase/short-urls/short-urls";
+import analytics from "../../services/firestore/analytics/analytics";
+import { storeAddress } from "../../services/firestore/user/search-history";
+
 import generateShortUrl from "../../utils/generateShortUrl";
 import TutorialPopup from "./tutorial/TutorialPopup";
 import DraggableWindow from "./analysis_window/AnalysisWindow";
@@ -642,22 +640,24 @@ const GraphProvided: FC<GraphProvidedProps> = ({
   }
 
   async function copyLink(shortenedUrl: string): Promise<void> {
-    const link = getLink();
-    const key = shortenedUrl.split("/").pop()!;
+    console.log(getLink());
+    console.log(shortenedUrl);
+    // const link = getLink();
+    // const key = shortenedUrl.split("/").pop()!;
 
-    const storeUrlObj: StoreUrlObject = {
-      originalUrl: link,
-      key: key,
-    };
+    // const storeUrlObj: StoreUrlObject = {
+    //   originalUrl: link,
+    //   key: key,
+    // };
 
-    await firestore.storeUrl(storeUrlObj).then(async (id) => {
-      if (id) {
-        await navigator.clipboard.writeText(shortenedUrl);
-        analytics.logAnalyticsEvent("copy_link", {
-          link: shortenedUrl,
-        });
-      }
-    });
+    // await firestore.storeUrl(storeUrlObj).then(async (id) => {
+    //   if (id) {
+    //     await navigator.clipboard.writeText(shortenedUrl);
+    //     analytics.logAnalyticsEvent("copy_link", {
+    //       link: shortenedUrl,
+    //     });
+    //   }
+    // });
   }
 
   // Getting the node count so that we can show the legend dynamically ---------
@@ -763,7 +763,7 @@ const PublicGraph: FC<GraphProps> = ({
   const [searchedAddresses, setSearchedAddresses] =
     useState<string[]>(initialAddresses);
 
-  const { user } = authService.useAuthState();
+  const { user } = useAuthState();
 
   const onSetSearchedAddress = (newAddress: string) => {
     setSearchedAddresses([newAddress]);

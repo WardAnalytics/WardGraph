@@ -5,23 +5,36 @@ import {
   ArrowsPointingInIcon,
   IdentificationIcon,
 } from "@heroicons/react/20/solid";
+
+import { XMarkIcon as XMarkSmallIcon } from "@heroicons/react/16/solid";
+
 import clsx from "clsx";
-import { FC, useContext, useCallback } from "react";
+import { FC, useContext, useCallback, useState, useEffect } from "react";
 
-import EntityLogo from "../../common/EntityLogo";
-import BlockExplorerAddressIcon from "../../common/utility_icons/BlockExplorerAddressIcon";
-import CopyToClipboardIcon from "../../common/utility_icons/CopyToClipboardIcon";
-import LabelList from "../../common/LabelList";
-import RiskIndicator from "../../common/RiskIndicator";
+import { AddressAnalysis, Category } from "../../../../api/model";
+import { CategoryClasses } from "../../../../utils/categories";
 
-import { AnalysisContext } from "./AnalysisWindow";
-import { GraphContext } from "../Graph";
-import { AnalysisMode, AnalysisModes } from "./AnalysisWindow";
-import { AddressAnalysis, Category } from "../../../api/model";
+import {
+  deleteCustomAddressTag,
+  getCustomAddressesTags,
+  storeCustomAddressesTags,
+} from "../../../../services/firestore/graph/addresses/custom-tags";
 
-import { PathExpansionArgs } from "../Graph";
+import { Colors } from "../../../../utils/colors";
 
-import { CategoryClasses } from "../../../utils/categories";
+import EntityLogo from "../../../common/EntityLogo";
+import BlockExplorerAddressIcon from "../../../common/utility_icons/BlockExplorerAddressIcon";
+import CopyToClipboardIcon from "../../../common/utility_icons/CopyToClipboardIcon";
+import Badge from "../../../common/Badge";
+import RiskIndicator from "../../../common/RiskIndicator";
+
+import { AnalysisContext } from "../AnalysisWindow";
+import { GraphContext } from "../../Graph";
+import { AnalysisMode, AnalysisModes } from "../AnalysisWindow";
+
+import { PathExpansionArgs } from "../../Graph";
+
+import TagInput from "./TagInput";
 
 interface ModeButtonProps {
   isActive: boolean;
@@ -53,7 +66,16 @@ const ModeButton: FC<ModeButtonProps> = ({
         })}
         aria-hidden="true"
       />
-      {analysisMode.name}
+      <a
+        className="w-fit overflow-hidden"
+        style={{
+          maxWidth: isActive ? "5rem" : "0px",
+          opacity: isActive ? 1 : 0,
+          transition: "all 0.3s ease-in-out",
+        }}
+      >
+        {analysisMode.name}
+      </a>
     </button>
   );
 };
@@ -109,6 +131,63 @@ function getCategoryRisk(category: string): number {
 
   return categoryClass.risk;
 }
+
+// Label + Tag + Tag Input Wrapped Component
+
+const LabelsAndTags: FC = () => {
+  const { analysisData, address } = useContext(AnalysisContext);
+
+  // Labels get displayed first in the flex-wrap
+  const labels = analysisData!.labels;
+
+  // Tags need to be fetched from firestore async
+  const [tags, setTags] = useState<string[]>([]);
+
+  async function fetchAddressTags(address: string) {
+    getCustomAddressesTags(address).then((tags) => {
+      setTags(tags);
+    });
+  }
+
+  useEffect(() => {
+    fetchAddressTags(address);
+  }, [address]);
+
+  const onCreateCustomAddressTag = useCallback(
+    (tag: string) => {
+      storeCustomAddressesTags(address, [...tags, tag]);
+      setTags([...tags, tag]);
+    },
+    [tags],
+  );
+
+  // Display everything and user input at the end in a flex-wrap
+  return (
+    <span className="flex w-96 flex-wrap items-center gap-x-1.5 gap-y-1">
+      {labels.map((label) => (
+        <Badge key={label} color={Colors.BLUE} text={label} />
+      ))}
+      {tags.map((tag) => (
+        <Badge
+          key={tag}
+          color={Colors.PURPLE}
+          text={tag}
+          Icon={XMarkSmallIcon}
+          onClick={() => {
+            deleteCustomAddressTag(address, tag);
+            const newTags = tags.filter((t) => t !== tag);
+            setTags(newTags);
+          }}
+        />
+      ))}
+      <TagInput
+        address={address}
+        initialTags={tags}
+        onCreateCustomAddressTag={onCreateCustomAddressTag}
+      />
+    </span>
+  );
+};
 
 interface HeaderProps {
   onExit: () => void;
@@ -227,9 +306,9 @@ const Header: FC<HeaderProps> = ({
               />
             )}
           </span>
-          <span className="flex w-60 flex-row items-center justify-start gap-x-1.5 overflow-x-auto">
+          <span className="flex flex-row items-center justify-start gap-x-1.5">
             {/* List of labels using Badges shown underneath the address. */}
-            <LabelList labels={analysisData!.labels} />
+            <LabelsAndTags />
           </span>
         </div>
       </span>

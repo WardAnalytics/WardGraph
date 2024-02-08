@@ -7,11 +7,12 @@ import {
 import clsx from "clsx";
 import { FC, KeyboardEvent, useMemo, useRef, useState, useEffect } from "react";
 
+import useAuthState from "../../../hooks/useAuthState";
+
 import { Label, SearchLabelsBody } from "../../../api/model";
 import { searchLabels } from "../../../api/labels/labels";
 
-import authService from "../../../services/auth/auth.services";
-import { getUserHistory } from "../../../services/firebase/search-history/search-history";
+import { getUserHistory } from "../../../services/firestore/user/search-history";
 
 import { HotKeysType } from "../../../types/hotKeys";
 
@@ -27,7 +28,6 @@ const InvalidAddressPopover: FC = () => {
       </span>
       <div className="mt-2 space-y-2 text-sm text-red-700">
         <p>
-          {" "}
           Your address is invalid. Please check if it is valid for the
           compatible blockchains:
         </p>
@@ -52,7 +52,7 @@ interface SearchBarProps {
 
 const SearchBar: FC<SearchBarProps> = ({ className, onSearchAddress }) => {
   const popoverRef = useRef<HTMLDivElement>(null); // Popever ref for hotkeys
-  const { user } = authService.useAuthState(); // Current user
+  const { user } = useAuthState(); // Current user
 
   // The current query the user is typing
   const [query, setQuery] = useState<string>("");
@@ -239,13 +239,13 @@ const SearchBar: FC<SearchBarProps> = ({ className, onSearchAddress }) => {
                   const hotKey = event.key.toLocaleLowerCase();
                   switch (hotKey) {
                     case hotKeysMap.SEARCH.key:
-                      hotKeysMap.SEARCH.handler(event);
+                      hotKeysMap.SEARCH.handler!(event);
                       break;
                     case hotKeysMap.ARROWUP.key:
-                      hotKeysMap.ARROWUP.handler(event);
+                      hotKeysMap.ARROWUP.handler!(event);
                       break;
                     case hotKeysMap.ARROWDOWN.key:
-                      hotKeysMap.ARROWDOWN.handler(event);
+                      hotKeysMap.ARROWDOWN.handler!(event);
                       break;
                   }
                 }}
