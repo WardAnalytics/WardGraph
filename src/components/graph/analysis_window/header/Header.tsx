@@ -139,9 +139,12 @@ function getCategoryRisk(category: string): number {
 
 // Label + Tag + Tag Input Wrapped Component
 
-const LabelsAndTags: FC = () => {
+interface LabelsAndTagsProps {
+  setNodeCustomTags: null | ((tags: string[]) => void);
+}
+
+const LabelsAndTags: FC<LabelsAndTagsProps> = ({ setNodeCustomTags }) => {
   const { analysisData, address } = useContext(AnalysisContext);
-  const { storedSetNodeCustomTags } = useContext(GraphContext);
 
   // Labels get displayed first in the flex-wrap
   const labels = analysisData!.labels;
@@ -198,8 +201,8 @@ const LabelsAndTags: FC = () => {
   );
 
   useEffect(() => {
-    if (storedSetNodeCustomTags && addressCustomTags !== null) {
-      storedSetNodeCustomTags(addressCustomTags);
+    if (setNodeCustomTags && addressCustomTags !== null) {
+      setNodeCustomTags(addressCustomTags);
     }
   }, [addressCustomTags]);
 
@@ -234,12 +237,14 @@ interface HeaderProps {
   onExit: () => void;
   setAnalysisMode: (mode: AnalysisMode) => void;
   analysisMode: AnalysisMode;
+  setNodeCustomTags: null | ((tags: string[]) => void);
 }
 
 const Header: FC<HeaderProps> = ({
   onExit,
   setAnalysisMode,
   analysisMode,
+  setNodeCustomTags,
 }: HeaderProps) => {
   // Extract analysisData from context
   const { addMultipleDifferentPaths } = useContext(GraphContext);
@@ -349,7 +354,7 @@ const Header: FC<HeaderProps> = ({
           </span>
           <span className="flex flex-row items-center justify-start gap-x-1.5">
             {/* List of labels using Badges shown underneath the address. */}
-            <LabelsAndTags />
+            <LabelsAndTags setNodeCustomTags={setNodeCustomTags} />
           </span>
         </div>
       </span>
