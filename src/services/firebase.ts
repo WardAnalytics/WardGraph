@@ -1,8 +1,17 @@
 // Import the functions you need from the SDKs you need
 import { Analytics, getAnalytics } from "firebase/analytics";
 import { FirebaseApp, initializeApp } from "firebase/app";
-import { Auth, getAuth, GoogleAuthProvider } from "firebase/auth";
-import { Firestore, getFirestore } from "firebase/firestore";
+import {
+  Auth,
+  connectAuthEmulator,
+  getAuth,
+  GoogleAuthProvider,
+} from "firebase/auth";
+import {
+  Firestore,
+  connectFirestoreEmulator,
+  getFirestore,
+} from "firebase/firestore";
 
 const {
   VITE_FIREBASE_API_KEY: apiKey,
@@ -27,9 +36,13 @@ const firebaseConfig = {
 // Initialize Firebase
 const app: FirebaseApp = initializeApp(firebaseConfig);
 const auth: Auth = getAuth(app);
-auth.useDeviceLanguage();
 const analytics: Analytics = getAnalytics(app);
 const db: Firestore = getFirestore(app);
+
+if (import.meta.env.MODE === "development") {
+  connectAuthEmulator(auth, "http://localhost:9099");
+  connectFirestoreEmulator(db, "localhost", 8080);
+}
 
 auth.useDeviceLanguage();
 

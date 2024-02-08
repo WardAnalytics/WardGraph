@@ -8,6 +8,7 @@
     "build": "tsc && vite build",
     "build:dev": "env-cmd -f .env.development yarn build && firebase deploy -P dev",
     "build:prod": "env-cmd -f .env.production yarn build && firebase deploy -P prod",
+    "start-emulators": "firebase emulators:start",
     "deploy": "yarn install && yarn build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
