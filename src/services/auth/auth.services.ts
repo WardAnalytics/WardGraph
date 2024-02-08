@@ -1,9 +1,5 @@
-import { useState, useEffect } from "react";
-
 import {
-  User,
   createUserWithEmailAndPassword,
-  onAuthStateChanged,
   signInWithEmailAndPassword,
   signInWithPopup,
   signOut,
@@ -119,22 +115,10 @@ const signUpWithGoogle = async (
  *
  * @returns current user
  */
-const getCurrentUser = (callback: (user: User | null) => void) => {
-  return onAuthStateChanged(auth, (user) => {
-    callback(user);
-  });
+const getCurrentUser = () => {
+  const user = auth.currentUser;
+  return user;
 };
-
-/**
- * Check if the user is logged in
- *
- * @param setUser - callback function to be executed on successful login
- */
-const isLoggedIn = (setUser: (user: User | null) => void) =>
-  onAuthStateChanged(auth, async (user) => {
-    await user?.reload();
-    setUser(user);
-  });
 
 /**
  * Send a password reset email
@@ -154,34 +138,18 @@ const resetUserPassword = async (
       onSuccess();
     })
     .catch((error) => {
-      const errorCode = error.code;
-      const errorMessage = error.message;
-      console.error(errorCode, errorMessage);
       onError(error);
     });
 };
 
-const useAuthState = () => {
-  const [user, setUser] = useState<User | null>(null);
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    // This listener will be called whenever the user's sign-in state changes
-    const unsubscribe = auth.onAuthStateChanged((currentUser) => {
-      setUser(currentUser);
-      setIsLoading(false);
-    });
-
-    // Cleanup subscription on unmount
-    return () => unsubscribe();
-  }, []); // Empty array ensures this effect runs only once on mount
-
-  useEffect(() => {
-    setIsAuthenticated(user?.emailVerified || false);
-  }, [user]);
-
-  return { user, isAuthenticated, isLoading };
+/**
+ * Check if the user is authenticated
+ *
+ * @returns true if the user is authenticated, false otherwise
+ */
+const isAuthenticated = async () => {
+  const user = getCurrentUser();
+  return user?.emailVerified;
 };
 
 const authService = {
@@ -190,9 +158,8 @@ const authService = {
   logout,
   signUpWithGoogle,
   getCurrentUser,
-  isLoggedIn,
   resetUserPassword,
-  useAuthState,
+  isAuthenticated,
 };
 
 export default authService;

@@ -4,7 +4,7 @@ import { GraphContext } from "../../Graph";
 import Modal from "../../../common/Modal";
 import SearchBar from "../../search_bar";
 
-import authService from "../../../../services/auth/auth.services";
+import useAuthState from "../../../../hooks/useAuthState";
 import { storeAddress } from "../../../../services/firebase/search-history/search-history";
 
 interface NewAddressModalProps {
@@ -15,7 +15,7 @@ interface NewAddressModalProps {
 const NewAddressModal: FC<NewAddressModalProps> = ({ isOpen, setOpen }) => {
   const { addNewAddressToCenter } = useContext(GraphContext);
 
-  const { user } = authService.useAuthState();
+  const { user } = useAuthState();
 
   const handleSearchAddress = async (address: string) => {
     await storeAddress(address, user?.uid);

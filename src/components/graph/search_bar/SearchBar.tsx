@@ -5,16 +5,16 @@ import {
   XCircleIcon,
 } from "@heroicons/react/24/solid";
 import clsx from "clsx";
-import { FC, KeyboardEvent, useMemo, useRef, useState, useEffect } from "react";
+import { FC, KeyboardEvent, useEffect, useMemo, useRef, useState } from "react";
 
-import { Label, SearchLabelsBody } from "../../../api/model";
 import { searchLabels } from "../../../api/labels/labels";
+import { Label, SearchLabelsBody } from "../../../api/model";
 
-import authService from "../../../services/auth/auth.services";
 import { getUserHistory } from "../../../services/firebase/search-history/search-history";
 
 import { HotKeysType } from "../../../types/hotKeys";
 
+import useAuthState from "../../../hooks/useAuthState";
 import isValidAddress from "../../../utils/isValidAddress";
 import SearchResultPopover from "./SearchResultPopover";
 
@@ -52,7 +52,7 @@ interface SearchBarProps {
 
 const SearchBar: FC<SearchBarProps> = ({ className, onSearchAddress }) => {
   const popoverRef = useRef<HTMLDivElement>(null); // Popever ref for hotkeys
-  const { user } = authService.useAuthState(); // Current user
+  const { user } = useAuthState(); // Current user
 
   // The current query the user is typing
   const [query, setQuery] = useState<string>("");

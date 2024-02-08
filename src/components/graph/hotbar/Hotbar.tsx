@@ -5,16 +5,16 @@ import {
   RectangleGroupIcon,
   ShareIcon,
 } from "@heroicons/react/24/outline";
+import { CreditCardIcon } from "@heroicons/react/24/solid";
 import clsx from "clsx";
 import { FC, useContext, useEffect, useMemo, useState } from "react";
 import { useKeyPress } from "reactflow";
-import { GraphContext } from "../Graph";
-import { CreditCardIcon } from "@heroicons/react/24/solid";
 import { getCheckoutUrl } from "../../../services/payments/payments.service";
-import authService from "../../../services/auth/auth.services";
+import { GraphContext } from "../Graph";
 
-import ShareDialog from "./components/ShareDialog";
+import useAuthState from "../../../hooks/useAuthState";
 import NewAddressModal from "./components/NewAddressModal";
+import ShareDialog from "./components/ShareDialog";
 
 interface HotbarButton {
   onClick?: () => void;
@@ -93,7 +93,9 @@ const Hotbar: FC = () => {
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
   const [isAddAddressModalOpen, setIsAddAddressModalOpen] = useState(false);
 
-  const { isAuthenticated } = authService.useAuthState();
+  const { isAuthenticated, isPremium } = useAuthState();
+
+  console.log(isPremium);
 
   const shareUrl = useMemo(() => getSharingLink(), []);
 

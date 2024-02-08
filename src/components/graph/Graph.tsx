@@ -2,12 +2,12 @@ import { Transition } from "@headlessui/react";
 import {
   FC,
   createContext,
+  memo,
   useCallback,
   useEffect,
   useMemo,
   useRef,
   useState,
-  memo,
 } from "react";
 import ReactFlow, {
   Background,
@@ -25,7 +25,6 @@ import ReactFlow, {
 } from "reactflow";
 import "reactflow/dist/style.css";
 
-import authService from "../../services/auth/auth.services";
 
 import { AddressAnalysis } from "../../api/model";
 
@@ -47,20 +46,21 @@ import {
   convertNodeListToRecord,
 } from "./graph_calculations";
 
+import useAuthState from "../../hooks/useAuthState";
 import analytics from "../../services/firebase/analytics/analytics";
 import { storeAddress } from "../../services/firebase/search-history/search-history";
 import firestore, {
   StoreUrlObject,
 } from "../../services/firebase/short-urls/short-urls";
 import generateShortUrl from "../../utils/generateShortUrl";
-import TutorialPopup from "./tutorial/TutorialPopup";
+import TransactionTooltip, {
+  TransactionTooltipProps,
+} from "./TransactionTooltip";
 import DraggableWindow from "./analysis_window/AnalysisWindow";
 import Hotbar from "./hotbar";
 import LandingPage from "./landing_page/LandingPage";
 import Legend from "./legend";
-import TransactionTooltip, {
-  TransactionTooltipProps,
-} from "./TransactionTooltip";
+import TutorialPopup from "./tutorial/TutorialPopup";
 
 enum HotKeyMap {
   DELETE = 1,
@@ -763,7 +763,7 @@ const PublicGraph: FC<GraphProps> = ({
   const [searchedAddresses, setSearchedAddresses] =
     useState<string[]>(initialAddresses);
 
-  const { user } = authService.useAuthState();
+  const { user } = useAuthState();
 
   const onSetSearchedAddress = (newAddress: string) => {
     setSearchedAddresses([newAddress]);
@@ -819,4 +819,5 @@ const PrivateGraph: FC<GraphProps> = ({
   );
 };
 
-export { PublicGraph, PrivateGraph };
+export { PrivateGraph, PublicGraph };
+
