@@ -10,7 +10,7 @@ import { Transition } from "@headlessui/react";
 import Draggable from "react-draggable";
 
 import { Advanced, Transactions, Overview } from "./content";
-import Header from "./Header";
+import Header from "./header/Header";
 
 import { AddressAnalysis } from "../../../api/model";
 
