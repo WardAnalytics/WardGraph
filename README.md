@@ -27,7 +27,7 @@ The project uses the following technologies:
 ## Roadmap
 
 - New blockchains: Bitcoin, Tron, Polygon, XRP.
-- Improvements to the UIUX
+- Improvements to the UI/UX
 - Improvements to the expansion algorithm heuristic
 
 ## Dataset
@@ -68,6 +68,32 @@ Run `yarn install` to install all dependencies.
 ### 4. Run the project
 
 Run `yarn dev` to start the development server.
+
+### (Optional) Config Firebase Emulators
+
+Run `yarn start-emulators` to start the firebase emulators.
+
+This project has the following emultors configured
+
+```json
+"emulators": {
+    "auth": {
+      "port": 9099
+    },
+    "firestore": {
+      "port": 8080
+    },
+    "ui": {
+      "enabled": true,
+      "port": 4000
+    },
+    "hosting": {
+      "port": 5000
+    }
+  }
+```
+
+_Note: The emulators need a [java](https://www.oracle.com/java/technologies/downloads/) version installed on local machine._
 
 ## How to contribute
 
