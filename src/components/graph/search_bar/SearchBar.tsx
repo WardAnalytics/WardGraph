@@ -107,7 +107,6 @@ const SearchBar: FC<SearchBarProps> = ({ className, onSearchAddress }) => {
       const res = await searchLabels(body);
       if (res.labels) {
         setEntitySearchResults(res.labels);
-        console.log(res.labels);
       } else {
         setEntitySearchResults([]);
       }
@@ -124,8 +123,6 @@ const SearchBar: FC<SearchBarProps> = ({ className, onSearchAddress }) => {
     results = userSearchHistory.map((address) => ({
       address,
     }));
-
-    console.log("Unique search history: ", userSearchHistory);
 
     // Add entity search results
     results = results.concat(
@@ -250,7 +247,7 @@ const SearchBar: FC<SearchBarProps> = ({ className, onSearchAddress }) => {
                   }
                 }}
                 className={
-                  "block w-full rounded-none rounded-l-md border-0  py-1.5 pl-10 font-mono text-sm leading-6 text-gray-900 ring-1 ring-inset ring-gray-300 transition-all placeholder:text-gray-400 focus:outline focus:outline-[3px] focus:ring-2" +
+                  "block w-full rounded-none rounded-l-md border-0 py-1.5 pl-10 font-mono text-sm leading-6 text-gray-900 ring-1 ring-inset ring-gray-300 transition-all placeholder:text-gray-400 focus:outline focus:outline-[3px] focus:ring-2" +
                   (isAddressValid || !query || searchResults.length !== 0
                     ? " focus:outline-blue-200 focus:ring-blue-400"
                     : "  focus:outline-red-200 focus:ring-red-400")

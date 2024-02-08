@@ -1,4 +1,11 @@
-import { FC, createContext, useContext, useState, useEffect } from "react";
+import {
+  FC,
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+} from "react";
 import clsx from "clsx";
 import { Position, Handle, Edge } from "reactflow";
 
@@ -66,6 +73,7 @@ const AddressNode: FC<AddressNodeProps> = ({
 }) => {
   const {
     setFocusedAddressData,
+    storeSetNodeCustomTags,
     addEdges,
     focusedAddressData,
     setNodeHighlight,
@@ -149,6 +157,17 @@ const AddressNode: FC<AddressNodeProps> = ({
     fetchAddressTags(address);
   }, [address]);
 
+  // Callback for setting the tags
+  const tagSetter = useCallback((tags: string[]) => {
+    if (tags === null || tags === undefined) {
+      const error: Error = new Error("Tags are null or undefined");
+      console.error(error.stack);
+      return;
+    }
+
+    setTags(tags);
+  }, []);
+
   // Context data is set to the analysis data
   const contextData = {
     analysisData,
@@ -207,6 +226,7 @@ const AddressNode: FC<AddressNodeProps> = ({
           )}
           onClick={() => {
             if (analysisData) {
+              storeSetNodeCustomTags(() => tagSetter);
               setFocusedAddressData(analysisData);
             }
           }}

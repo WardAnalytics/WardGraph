@@ -25,13 +25,11 @@ export interface CustomAddressTag {
  * @returns - tags of address
  */
 const getCustomAddressesTags = async (address: string): Promise<string[]> => {
-  const isAuthenticated = authService.isAuthenticated();
+  const user = authService.getCurrentUser();
 
-  if (!isAuthenticated) {
+  if (user === null) {
     return [];
   }
-
-  const user = authService.getCurrentUser();
 
   try {
     const q = query(
@@ -48,7 +46,14 @@ const getCustomAddressesTags = async (address: string): Promise<string[]> => {
     }
     return [];
   } catch (error) {
-    console.log(error);
+    console.log(
+      "Error getting custom addresses tags for address ",
+      address,
+      " \n User was ",
+      user,
+      " \n Error: ",
+      error,
+    );
     return [];
   }
 };
@@ -126,7 +131,6 @@ const deleteCustomAddressTag = async (address: string, tag: string) => {
     const docRef = doc(db, "customAddressesTags", querySnapshot.docs[0].id);
     const data = querySnapshot.docs[0].data();
     const tags = data.tags.filter((t: string) => t !== tag);
-    console.log(tags);
     await updateDoc(docRef, {
       tags,
     });
