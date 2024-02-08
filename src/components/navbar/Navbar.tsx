@@ -17,6 +17,7 @@ import {
   ShareIcon,
   ChevronDoubleLeftIcon,
   ChevronDoubleRightIcon,
+  CreditCardIcon,
 } from "@heroicons/react/24/outline";
 
 import { CubeTransparentIcon } from "@heroicons/react/16/solid";
@@ -160,13 +161,20 @@ const Navbar: FC = () => {
                   </ul>
                 </li>
 
-                <li className="mt-auto">
+                <li className="mt-auto flex flex-col gap-y-2.5">
+                  <NavbarButton
+                    name="Plan & Billing"
+                    href="billing"
+                    Icon={CreditCardIcon}
+                    isBeta={false}
+                    onClick={() => navigate("billing")}
+                  />
                   <a
                     onClick={handleSignOut}
-                    className="group -mx-2 flex cursor-pointer gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-700 hover:bg-gray-50 hover:text-red-600"
+                    className="group flex cursor-pointer gap-x-2 rounded-md p-1.5 text-sm font-semibold leading-6 text-gray-700 hover:bg-gray-100 hover:text-red-600"
                   >
                     <ArrowUturnLeftIcon
-                      className="h-5 w-5 shrink-0  text-gray-400 group-hover:text-red-600"
+                      className="mt-0.5 h-5 w-5 text-gray-400 group-hover:text-red-600"
                       aria-hidden="true"
                     />
                     Log Out

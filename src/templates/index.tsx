@@ -3,6 +3,7 @@ import PrivateGraphTemplate from "./PrivateGraphTemplate";
 import RedirectShortUrl from "./RedirectShortUrl";
 import RiskFeedTemplate from "./RiskFeedTemplate";
 import MobileWarningTemplate from "./MobileWarningTemplate";
+import BillingTemplate from "./BillingTemplate";
 
 export {
   PublicGraphTemplate,
@@ -10,4 +11,5 @@ export {
   RedirectShortUrl,
   RiskFeedTemplate,
   MobileWarningTemplate,
+  BillingTemplate,
 };
