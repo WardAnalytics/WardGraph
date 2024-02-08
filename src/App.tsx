@@ -1,20 +1,26 @@
-import { BrowserRouter as Router } from 'react-router-dom';
-import { QueryClientProvider } from 'react-query'
+import { QueryClientProvider } from "react-query";
+import useCustomQueryClient from "./hooks/useCustomQueryClient";
 
-import Routes from './Routes';
-import useCustomQueryClient from './hooks/useCustomQueryClient';
-import './firebase/firebase'
+import useAuthState from "./hooks/useAuthState";
+
+import PrivateApp from "./PrivateApp";
+import PublicApp from "./PublicApp";
+import { MobileWarningTemplate } from "./templates";
 
 function App() {
-  const queryClient = useCustomQueryClient()
+  const queryClient = useCustomQueryClient();
+  const { user } = useAuthState();
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <Router>
-        <Routes />
-      </Router>
-    </QueryClientProvider>
+    <>
+      <QueryClientProvider client={queryClient}>
+        <MobileWarningTemplate className="h-screen w-screen sm:hidden" />
+        <div className="hidden h-fit w-fit sm:block">
+          {user ? <PrivateApp /> : <PublicApp />}
+        </div>
+      </QueryClientProvider>
+    </>
   );
 }
 
-export default App
+export default App;
