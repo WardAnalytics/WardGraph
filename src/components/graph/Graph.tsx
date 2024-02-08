@@ -98,7 +98,6 @@ interface GraphContextProps {
   getNodeCount: () => number;
   setShowTutorial: (show: boolean) => void;
   addNewAddressToCenter: (address: string) => void;
-  storedSetNodeCustomTags: null | ((tags: string[]) => void);
   storeSetNodeCustomTags: (setter: (tags: string[]) => void) => void;
   addMultipleDifferentPaths: (pathArgs: PathExpansionArgs[]) => void;
   focusedAddressData: AddressAnalysis | null;
@@ -692,7 +691,6 @@ const GraphProvided: FC<GraphProvidedProps> = ({
     setShowTutorial,
     addNewAddressToCenter,
     addMultipleDifferentPaths,
-    storedSetNodeCustomTags,
     storeSetNodeCustomTags,
     focusedAddressData,
   };
@@ -704,6 +702,7 @@ const GraphProvided: FC<GraphProvidedProps> = ({
           <MemoedDraggableWindow
             analysisData={focusedAddressData}
             onExit={onAddressFocusOff}
+            setNodeCustomTags={storedSetNodeCustomTags}
           />
           <ReactFlow
             nodes={nodes}
