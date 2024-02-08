@@ -1,6 +1,5 @@
 import { FC, useState } from "react";
 import { CreditCardIcon } from "@heroicons/react/24/outline";
-import clsx from "clsx";
 import Badge from "../components/common/Badge";
 import { Colors } from "../utils/colors";
 import {
@@ -97,7 +96,7 @@ const ProPlan: FC<PlanProps> = ({ isPro }) => {
       <div className="mt-4 flex flex-col gap-y-1.5 text-gray-300">
         <span className="flex flex-row items-center gap-x-1 ">
           <CheckIcon className="h-4 w-4 text-white" />
-          Unlimited graphs
+          Multiple graphs
         </span>
         <span className="flex flex-row items-center gap-x-1 text-blue-200">
           <SparklesIcon className="h-4 w-4 text-blue-400" />
@@ -105,15 +104,52 @@ const ProPlan: FC<PlanProps> = ({ isPro }) => {
         </span>
         <span className="flex flex-row items-center gap-x-1">
           <CheckIcon className="h-4 w-4 text-white" />
-          Unlimited advanced analysis
+          Advanced analysis
         </span>
         <span className="flex flex-row items-center gap-x-1">
           <CheckIcon className="h-4 w-4 text-white" />
-          Unlimited API calls
+          API access
         </span>
         <span className="flex flex-row items-center gap-x-1">
           <CheckIcon className="h-4 w-4 text-white" />
-          Unlimited automations
+          Automations
+        </span>
+      </div>
+    </div>
+  );
+};
+
+const EnterprisePlan: FC = () => {
+  return (
+    <div className="my-5 flex w-72 flex-col rounded-3xl p-8 shadow-sm ring-1 ring-gray-200">
+      <h3 className="flex flex-row items-center gap-x-2 text-lg font-semibold leading-8 text-gray-800">
+        Enterprise
+      </h3>
+      <p className="mt-1 text-sm leading-6 text-gray-600">
+        Tailormade to your needs.
+      </p>
+      <p className="mt-4 text-4xl font-bold tracking-tight text-gray-800">
+        Custom
+      </p>
+      <button className="bg-white-500 mt-4 h-10 w-full rounded-md text-gray-600 shadow-sm ring-1 ring-inset ring-gray-200 transition-all duration-150 hover:bg-gray-50">
+        Contact Us
+      </button>
+      <div className="mt-4 flex flex-col gap-y-1.5 text-gray-700">
+        <span className="flex flex-row items-center gap-x-1">
+          <CheckIcon className="h-4 w-4 text-blue-400" />
+          Tailormade features
+        </span>
+        <span className="flex flex-row items-center gap-x-1">
+          <CheckIcon className="h-4 w-4 text-blue-400" />
+          Custom automations
+        </span>
+        <span className="flex flex-row items-center gap-x-1">
+          <CheckIcon className="h-4 w-4 text-blue-400" />
+          Dedicated support
+        </span>
+        <span className="flex flex-row items-center gap-x-1">
+          <CheckIcon className="h-4 w-4 text-blue-400" />
+          API integrations
         </span>
       </div>
     </div>
@@ -156,6 +192,7 @@ const BillingTemplate: FC = () => {
       <span className="flex flex-row justify-center gap-x-5">
         <DiscoverPlan isPro={isPro} />
         <ProPlan isPro={isPro} />
+        <EnterprisePlan />
       </span>
     </div>
   );
