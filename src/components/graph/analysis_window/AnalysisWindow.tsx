@@ -1,4 +1,4 @@
-import { FC, createContext, useRef, useState, useEffect } from "react";
+import { FC, createContext, memo, useRef, useState, useEffect } from "react";
 import clsx from "clsx";
 import {
   PresentationChartLineIcon,
@@ -39,17 +39,17 @@ export const AnalysisModes: AnalysisMode[] = [
   {
     name: AnalysisModeNames.Overview,
     icon: EyeIcon,
-    component: Overview,
+    component: memo(Overview),
   },
   {
     name: AnalysisModeNames.Transactions,
     icon: ArrowsRightLeftIcon,
-    component: Transactions,
+    component: memo(Transactions),
   },
   {
     name: AnalysisModeNames.Advanced,
     icon: PresentationChartLineIcon,
-    component: Advanced,
+    component: memo(Advanced),
   },
 ];
 
