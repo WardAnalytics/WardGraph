@@ -1,28 +1,22 @@
-import { FC, useRef, useState, KeyboardEvent, useMemo, useEffect } from "react";
+import { FC, useRef, useState, KeyboardEvent, useMemo } from "react";
 
 import TagsPopover from "./TagsPopover";
 import { HotKeysType } from "../../../../types/hotKeys";
 
-import {
-  getCustomAddressesTags,
-  storeCustomAddressesTags,
-} from "../../../../services/firestore/graph/addresses/custom-tags";
-import {
-  getCustomUserTags,
-  storeCustomUserTags,
-} from "../../../../services/firestore/user/custom-tags";
 import { PencilIcon } from "@heroicons/react/16/solid";
 
 interface TagInputProps {
-  address: string;
-  initialTags: string[];
-  onCreateCustomAddressTag?: (tag: string) => void;
+  currentAddressTags: string[];
+  currentUserTags: string[];
+  onCreateCustomAddressTag: (tag: string) => Promise<void>;
+  onDeleteCustomAddressTag: (tag: string) => Promise<void>;
 }
 
 const TagInput: FC<TagInputProps> = ({
-  address,
-  onCreateCustomAddressTag = () => {},
-  initialTags,
+  currentAddressTags,
+  currentUserTags,
+  onCreateCustomAddressTag,
+  onDeleteCustomAddressTag,
 }) => {
   // Ref for the popover hotkeys
   const popoverRef = useRef<HTMLDivElement>(null);
@@ -33,34 +27,9 @@ const TagInput: FC<TagInputProps> = ({
   // Whether or not to open the popover
   const [isTagsPopoverOpen, setIsTagsPopoverOpen] = useState<boolean>(false);
 
-  // Get existing address tags and user tags
-  const [addressCustomTags, setAddressCustomTags] =
-    useState<string[]>(initialTags);
-  const [userCustomTags, setUserCustomTags] = useState<string[]>([]);
-
-  // Fetch the address and user tags from the database
-  async function fetchAddressTags() {
-    getCustomAddressesTags(address).then((tags) => {
-      setAddressCustomTags(tags);
-      console.log("Address tags are ", tags);
-    });
-  }
-
-  async function fetchUserTags() {
-    getCustomUserTags().then((tags) => {
-      setUserCustomTags(tags);
-      console.log("User tags are ", tags);
-    });
-  }
-
-  useEffect(() => {
-    fetchAddressTags();
-    fetchUserTags();
-  }, []);
-
   // Options = user custom tags that include the user input - address custom tags (which already include the user input)
   const { options } = useMemo(() => {
-    const options = userCustomTags.filter((tag) =>
+    const options = currentUserTags.filter((tag) =>
       tag.toLowerCase().includes(userInput.toLowerCase()),
     );
 
@@ -69,26 +38,27 @@ const TagInput: FC<TagInputProps> = ({
 
     // Subtract already existing tags from the options
     return {
-      options: uniqueOptions.filter((tag) => !addressCustomTags.includes(tag)),
+      options: uniqueOptions.filter((tag) => !currentAddressTags.includes(tag)),
     };
-  }, [userInput, addressCustomTags, userCustomTags]);
+  }, [userInput, currentAddressTags, currentUserTags]);
 
   // When a tag is created, the user input is cleared and the component above is updated
   const onAddTagHandler = async (input: string) => {
     // If the tag is already in the address tags, return early
-    if (addressCustomTags.includes(input)) return;
+    if (currentAddressTags.includes(input)) {
+      setUserInput("");
+      return;
+    }
 
-    onCreateCustomAddressTag(input);
+    // If tag is "" or null, return early
+    if (!input) return;
 
-    // Store custom tags in the database
-    await storeCustomAddressesTags(address, [...addressCustomTags, input]);
-    await storeCustomUserTags([...userCustomTags, input]);
-
-    // Re-fetch the tags
-    await fetchAddressTags();
-    await fetchUserTags();
-
+    await onCreateCustomAddressTag(input);
     setUserInput("");
+  };
+
+  const onDeleteTagHandler = async (tag: string) => {
+    await onDeleteCustomAddressTag(tag);
   };
 
   // Hotkeys for moving up and down
@@ -164,6 +134,27 @@ const TagInput: FC<TagInputProps> = ({
         moveSelectedIndexDown();
       },
     },
+    BACKSPACE: {
+      key: "backspace",
+      handler: (event: KeyboardEvent<HTMLElement>) => {
+        if (userInput === "") {
+          event.preventDefault();
+          if (currentAddressTags.length > 0) {
+            onDeleteTagHandler(
+              currentAddressTags[currentAddressTags.length - 1],
+            );
+          }
+        }
+      },
+    },
+    ESCAPE: {
+      key: "escape",
+      handler: (event: KeyboardEvent<HTMLElement>) => {
+        event.preventDefault();
+        // Unfocus the input
+        event.currentTarget.blur();
+      },
+    },
   };
 
   return (
@@ -181,11 +172,17 @@ const TagInput: FC<TagInputProps> = ({
             case hotKeysMap.SEARCH.key:
               await hotKeysMap.SEARCH.asyncHandler!(event);
               break;
+            case hotKeysMap.BACKSPACE.key:
+              hotKeysMap.BACKSPACE.handler!(event);
+              break;
             case hotKeysMap.ARROWUP.key:
               hotKeysMap.ARROWUP.handler!(event);
               break;
             case hotKeysMap.ARROWDOWN.key:
               hotKeysMap.ARROWDOWN.handler!(event);
+              break;
+            case hotKeysMap.ESCAPE.key:
+              hotKeysMap.ESCAPE.handler!(event);
               break;
           }
         }}

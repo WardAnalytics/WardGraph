@@ -20,6 +20,11 @@ import {
   storeCustomAddressesTags,
 } from "../../../../services/firestore/graph/addresses/custom-tags";
 
+import {
+  getCustomUserTags,
+  storeCustomUserTags,
+} from "../../../../services/firestore/user/custom-tags";
+
 import { Colors } from "../../../../utils/colors";
 
 import EntityLogo from "../../../common/EntityLogo";
@@ -136,30 +141,67 @@ function getCategoryRisk(category: string): number {
 
 const LabelsAndTags: FC = () => {
   const { analysisData, address } = useContext(AnalysisContext);
+  const { storedSetNodeCustomTags } = useContext(GraphContext);
 
   // Labels get displayed first in the flex-wrap
   const labels = analysisData!.labels;
 
-  // Tags need to be fetched from firestore async
-  const [tags, setTags] = useState<string[]>([]);
+  // Get user and address already existing tags from Firestore
+  const [addressCustomTags, setAddressCustomTags] = useState<string[]>([]);
+  const [userCustomTags, setUserCustomTags] = useState<string[]>([]);
 
-  async function fetchAddressTags(address: string) {
+  async function fetchAddressTags() {
     getCustomAddressesTags(address).then((tags) => {
-      setTags(tags);
+      setAddressCustomTags(tags);
+    });
+  }
+
+  async function fetchUserTags() {
+    getCustomUserTags().then((tags) => {
+      setUserCustomTags(tags);
     });
   }
 
   useEffect(() => {
-    fetchAddressTags(address);
+    fetchAddressTags();
+    fetchUserTags();
+  }, []);
+
+  useEffect(() => {
+    fetchAddressTags();
+    fetchUserTags();
   }, [address]);
 
+  // Handlers for both creating and deleting tags
   const onCreateCustomAddressTag = useCallback(
-    (tag: string) => {
-      storeCustomAddressesTags(address, [...tags, tag]);
-      setTags([...tags, tag]);
+    async (tag: string) => {
+      // Add tag to address if it's not already there
+      if (!addressCustomTags.includes(tag)) {
+        await storeCustomAddressesTags(address, [...addressCustomTags, tag]);
+        setAddressCustomTags([...addressCustomTags, tag]);
+      }
+
+      if (!userCustomTags.includes(tag)) {
+        await storeCustomUserTags([...userCustomTags, tag]);
+        setUserCustomTags([...userCustomTags, tag]);
+      }
     },
-    [tags],
+    [addressCustomTags, userCustomTags],
   );
+
+  const onDeleteCustomAddressTag = useCallback(
+    async (tag: string) => {
+      await deleteCustomAddressTag(address, tag);
+      setAddressCustomTags(addressCustomTags.filter((t) => t !== tag));
+    },
+    [addressCustomTags],
+  );
+
+  useEffect(() => {
+    if (storedSetNodeCustomTags && addressCustomTags !== null) {
+      storedSetNodeCustomTags(addressCustomTags);
+    }
+  }, [addressCustomTags]);
 
   // Display everything and user input at the end in a flex-wrap
   return (
@@ -167,23 +209,22 @@ const LabelsAndTags: FC = () => {
       {labels.map((label) => (
         <Badge key={label} color={Colors.BLUE} text={label} />
       ))}
-      {tags.map((tag) => (
+      {addressCustomTags.map((tag) => (
         <Badge
           key={tag}
           color={Colors.PURPLE}
           text={tag}
           Icon={XMarkSmallIcon}
           onClick={() => {
-            deleteCustomAddressTag(address, tag);
-            const newTags = tags.filter((t) => t !== tag);
-            setTags(newTags);
+            onDeleteCustomAddressTag(tag);
           }}
         />
       ))}
       <TagInput
-        address={address}
-        initialTags={tags}
+        currentAddressTags={addressCustomTags}
+        currentUserTags={userCustomTags}
         onCreateCustomAddressTag={onCreateCustomAddressTag}
+        onDeleteCustomAddressTag={onDeleteCustomAddressTag}
       />
     </span>
   );
