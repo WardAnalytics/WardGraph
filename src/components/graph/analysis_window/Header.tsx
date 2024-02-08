@@ -140,10 +140,8 @@ const Header: FC<HeaderProps> = ({
   const risk = analysisData!.risk;
 
   const addCustomTag = useCallback((tag: string) => {
-    console.log("Adding custom tag: ", tag);
     if (!userCustomAddressTags.includes(tag)) {
       const newUserCustomAddressTags = [...userCustomAddressTags, tag];
-      console.log("Storing new user tags: ", newUserCustomAddressTags);
       storeCustomUserTags(newUserCustomAddressTags);
       setUserCustomAddressTags(newUserCustomAddressTags);
     }
