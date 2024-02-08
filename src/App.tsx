@@ -1,11 +1,10 @@
 import { QueryClientProvider } from "react-query";
 import useCustomQueryClient from "./hooks/useCustomQueryClient";
 
-import "./services/firebase/firebase";
+import useAuthState from "./hooks/useAuthState";
 
 import PrivateApp from "./PrivateApp";
 import PublicApp from "./PublicApp";
-import useAuthState from "./hooks/useAuthState";
 import { MobileWarningTemplate } from "./templates";
 
 function App() {

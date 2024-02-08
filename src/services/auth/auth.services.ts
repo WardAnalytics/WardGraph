@@ -6,7 +6,7 @@ import {
 } from "@firebase/auth";
 
 import { sendEmailVerification, sendPasswordResetEmail } from "firebase/auth";
-import { auth, googleProvider } from "../firebase/firebase";
+import { auth, googleProvider } from "../firebase";
 import AuthApiErrorCodes from "./auth.errors";
 
 /**

@@ -1,15 +1,26 @@
-import { FC, createContext, useContext, useState, useEffect } from "react";
+import {
+  FC,
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+} from "react";
 import clsx from "clsx";
 import { Position, Handle, Edge } from "reactflow";
 
 import { AddressAnalysis } from "../../../../../../api/model";
 import { useAnalysisAddressData } from "../../../../../../api/compliance/compliance";
 
+import { getCustomAddressesTags } from "../../../../../../services/firestore/graph/addresses/custom-tags";
+
 import EntityLogo from "../../../../../common/EntityLogo";
 import RiskIndicator from "../../../../../common/RiskIndicator";
-import LabelList from "../../../../../common/LabelList";
 
 import { GraphContext } from "../../../../Graph";
+
+import Badge from "../../../../../common/Badge";
+import { Colors } from "../../../../../../utils/colors";
 
 import {
   createTransfershipEdge,
@@ -38,11 +49,31 @@ interface AddressNodeProps {
   };
 }
 
+interface LabelsAndTagsProps {
+  labels: string[];
+  tags: string[];
+}
+
+const LabelsAndTags: FC<LabelsAndTagsProps> = ({ labels, tags }) => {
+  // Display everything and user input at the end in a flex-wrap
+  return (
+    <span className="flex max-w-md flex-wrap items-center gap-x-1.5 gap-y-1">
+      {labels.map((label) => (
+        <Badge key={label} color={Colors.BLUE} text={label} />
+      ))}
+      {tags.map((tag) => (
+        <Badge key={tag} color={Colors.PURPLE} text={tag} />
+      ))}
+    </span>
+  );
+};
+
 const AddressNode: FC<AddressNodeProps> = ({
   data: { address, highlight },
 }) => {
   const {
     setFocusedAddressData,
+    storeSetNodeCustomTags,
     addEdges,
     focusedAddressData,
     setNodeHighlight,
@@ -115,6 +146,28 @@ const AddressNode: FC<AddressNodeProps> = ({
     getAddressData();
   }, []);
 
+  // Get the tags of the address
+  const [tags, setTags] = useState<string[]>([]);
+  async function fetchAddressTags(address: string) {
+    getCustomAddressesTags(address).then((tags) => {
+      setTags(tags);
+    });
+  }
+  useEffect(() => {
+    fetchAddressTags(address);
+  }, [address]);
+
+  // Callback for setting the tags
+  const tagSetter = useCallback((tags: string[]) => {
+    if (tags === null || tags === undefined) {
+      const error: Error = new Error("Tags are null or undefined");
+      console.error(error.stack);
+      return;
+    }
+
+    setTags(tags);
+  }, []);
+
   // Context data is set to the analysis data
   const contextData = {
     analysisData,
@@ -173,6 +226,7 @@ const AddressNode: FC<AddressNodeProps> = ({
           )}
           onClick={() => {
             if (analysisData) {
+              storeSetNodeCustomTags(() => tagSetter);
               setFocusedAddressData(analysisData);
             }
           }}
@@ -198,7 +252,9 @@ const AddressNode: FC<AddressNodeProps> = ({
                 />
               )}
             </h1>
-            {analysisData && <LabelList labels={analysisData!.labels} />}
+            {analysisData && (
+              <LabelsAndTags labels={analysisData.labels} tags={tags} />
+            )}
           </div>
         </span>
       </Transition>

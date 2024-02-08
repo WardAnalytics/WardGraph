@@ -5,16 +5,17 @@ import {
   XCircleIcon,
 } from "@heroicons/react/24/solid";
 import clsx from "clsx";
-import { FC, KeyboardEvent, useEffect, useMemo, useRef, useState } from "react";
+import { FC, KeyboardEvent, useMemo, useRef, useState, useEffect } from "react";
 
-import { searchLabels } from "../../../api/labels/labels";
+import useAuthState from "../../../hooks/useAuthState";
+
 import { Label, SearchLabelsBody } from "../../../api/model";
+import { searchLabels } from "../../../api/labels/labels";
 
-import { getUserHistory } from "../../../services/firebase/search-history/search-history";
+import { getUserHistory } from "../../../services/firestore/user/search-history";
 
 import { HotKeysType } from "../../../types/hotKeys";
 
-import useAuthState from "../../../hooks/useAuthState";
 import isValidAddress from "../../../utils/isValidAddress";
 import SearchResultPopover from "./SearchResultPopover";
 
@@ -27,7 +28,6 @@ const InvalidAddressPopover: FC = () => {
       </span>
       <div className="mt-2 space-y-2 text-sm text-red-700">
         <p>
-          {" "}
           Your address is invalid. Please check if it is valid for the
           compatible blockchains:
         </p>
@@ -107,7 +107,6 @@ const SearchBar: FC<SearchBarProps> = ({ className, onSearchAddress }) => {
       const res = await searchLabels(body);
       if (res.labels) {
         setEntitySearchResults(res.labels);
-        console.log(res.labels);
       } else {
         setEntitySearchResults([]);
       }
@@ -124,8 +123,6 @@ const SearchBar: FC<SearchBarProps> = ({ className, onSearchAddress }) => {
     results = userSearchHistory.map((address) => ({
       address,
     }));
-
-    console.log("Unique search history: ", userSearchHistory);
 
     // Add entity search results
     results = results.concat(
@@ -239,18 +236,18 @@ const SearchBar: FC<SearchBarProps> = ({ className, onSearchAddress }) => {
                   const hotKey = event.key.toLocaleLowerCase();
                   switch (hotKey) {
                     case hotKeysMap.SEARCH.key:
-                      hotKeysMap.SEARCH.handler(event);
+                      hotKeysMap.SEARCH.handler!(event);
                       break;
                     case hotKeysMap.ARROWUP.key:
-                      hotKeysMap.ARROWUP.handler(event);
+                      hotKeysMap.ARROWUP.handler!(event);
                       break;
                     case hotKeysMap.ARROWDOWN.key:
-                      hotKeysMap.ARROWDOWN.handler(event);
+                      hotKeysMap.ARROWDOWN.handler!(event);
                       break;
                   }
                 }}
                 className={
-                  "block w-full rounded-none rounded-l-md border-0  py-1.5 pl-10 font-mono text-sm leading-6 text-gray-900 ring-1 ring-inset ring-gray-300 transition-all placeholder:text-gray-400 focus:outline focus:outline-[3px] focus:ring-2" +
+                  "block w-full rounded-none rounded-l-md border-0 py-1.5 pl-10 font-mono text-sm leading-6 text-gray-900 ring-1 ring-inset ring-gray-300 transition-all placeholder:text-gray-400 focus:outline focus:outline-[3px] focus:ring-2" +
                   (isAddressValid || !query || searchResults.length !== 0
                     ? " focus:outline-blue-200 focus:ring-blue-400"
                     : "  focus:outline-red-200 focus:ring-red-400")

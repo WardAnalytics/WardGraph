@@ -25,6 +25,7 @@ import ReactFlow, {
 } from "reactflow";
 import "reactflow/dist/style.css";
 
+import useAuthState from "../../hooks/useAuthState";
 
 import { AddressAnalysis } from "../../api/model";
 
@@ -46,21 +47,17 @@ import {
   convertNodeListToRecord,
 } from "./graph_calculations";
 
-import useAuthState from "../../hooks/useAuthState";
-import analytics from "../../services/firebase/analytics/analytics";
-import { storeAddress } from "../../services/firebase/search-history/search-history";
-import firestore, {
-  StoreUrlObject,
-} from "../../services/firebase/short-urls/short-urls";
+import { logAnalyticsEvent } from "../../services/firestore/analytics/analytics";
+import { storeAddress } from "../../services/firestore/user/search-history";
+
 import generateShortUrl from "../../utils/generateShortUrl";
-import TransactionTooltip, {
-  TransactionTooltipProps,
-} from "./TransactionTooltip";
+import TutorialPopup from "./tutorial/TutorialPopup";
 import DraggableWindow from "./analysis_window/AnalysisWindow";
 import Hotbar from "./hotbar";
 import LandingPage from "./landing_page/LandingPage";
 import Legend from "./legend";
-import TutorialPopup from "./tutorial/TutorialPopup";
+import TransactionTooltip from "./TransactionTooltip";
+import { TransactionTooltipProps } from "./TransactionTooltip";
 
 enum HotKeyMap {
   DELETE = 1,
@@ -101,6 +98,8 @@ interface GraphContextProps {
   getNodeCount: () => number;
   setShowTutorial: (show: boolean) => void;
   addNewAddressToCenter: (address: string) => void;
+  storedSetNodeCustomTags: null | ((tags: string[]) => void);
+  storeSetNodeCustomTags: (setter: (tags: string[]) => void) => void;
   addMultipleDifferentPaths: (pathArgs: PathExpansionArgs[]) => void;
   focusedAddressData: AddressAnalysis | null;
 }
@@ -527,6 +526,11 @@ const GraphProvided: FC<GraphProvidedProps> = ({
   const [focusedAddressData, setFocusedAddressData] =
     useState<AddressAnalysis | null>(null);
 
+  // We'll pass the setter to the node and the function [0] to the analysis window. When the analysis window updates, it updates the node too.
+  const [storedSetNodeCustomTags, storeSetNodeCustomTags] = useState<
+    null | ((tags: string[]) => void)
+  >(null);
+
   // New Address Highlighting -------------------------------------------------
 
   /** Sets the highlight of a node to either true or false.
@@ -642,22 +646,24 @@ const GraphProvided: FC<GraphProvidedProps> = ({
   }
 
   async function copyLink(shortenedUrl: string): Promise<void> {
-    const link = getLink();
-    const key = shortenedUrl.split("/").pop()!;
+    console.log(getLink());
+    console.log(shortenedUrl);
+    // const link = getLink();
+    // const key = shortenedUrl.split("/").pop()!;
 
-    const storeUrlObj: StoreUrlObject = {
-      originalUrl: link,
-      key: key,
-    };
+    // const storeUrlObj: StoreUrlObject = {
+    //   originalUrl: link,
+    //   key: key,
+    // };
 
-    await firestore.storeUrl(storeUrlObj).then(async (id) => {
-      if (id) {
-        await navigator.clipboard.writeText(shortenedUrl);
-        analytics.logAnalyticsEvent("copy_link", {
-          link: shortenedUrl,
-        });
-      }
-    });
+    // await firestore.storeUrl(storeUrlObj).then(async (id) => {
+    //   if (id) {
+    //     await navigator.clipboard.writeText(shortenedUrl);
+    //     analytics.logAnalyticsEvent("copy_link", {
+    //       link: shortenedUrl,
+    //     });
+    //   }
+    // });
   }
 
   // Getting the node count so that we can show the legend dynamically ---------
@@ -686,6 +692,8 @@ const GraphProvided: FC<GraphProvidedProps> = ({
     setShowTutorial,
     addNewAddressToCenter,
     addMultipleDifferentPaths,
+    storedSetNodeCustomTags,
+    storeSetNodeCustomTags,
     focusedAddressData,
   };
 
@@ -770,7 +778,7 @@ const PublicGraph: FC<GraphProps> = ({
 
     storeAddress(newAddress, user?.uid);
 
-    analytics.logAnalyticsEvent("search_address", {
+    logAnalyticsEvent("search_address", {
       address: newAddress,
     });
   };
@@ -819,5 +827,4 @@ const PrivateGraph: FC<GraphProps> = ({
   );
 };
 
-export { PrivateGraph, PublicGraph };
-
+export { PublicGraph, PrivateGraph };
