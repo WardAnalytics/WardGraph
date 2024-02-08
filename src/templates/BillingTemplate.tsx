@@ -48,7 +48,7 @@ const DiscoverPlan: FC = () => {
 
 const ProPlan: FC = () => {
   return (
-    <div className="flex w-96 flex-col rounded-3xl bg-gray-800 p-8 shadow-md">
+    <div className="relative flex w-96 flex-col overflow-hidden rounded-3xl bg-gray-800 p-8 shadow-md">
       <h3 className="text-lg font-semibold leading-8 text-white">Pro</h3>
       <p className="mt-1 text-sm leading-6 text-gray-300">
         For investigators who want to speed up their workflow and take their
@@ -57,6 +57,24 @@ const ProPlan: FC = () => {
       <p className="mt-4 text-4xl font-bold tracking-tight text-white">
         $49.99
         <span className="text-base font-normal text-gray-300">/mo</span>
+        <svg
+          viewBox="0 0 1208 1024"
+          className="pointer-events-none absolute top-0 h-[20rem] opacity-[7%] [mask-image:radial-gradient(closest-side,white,transparent)]"
+        >
+          <ellipse
+            cx={604}
+            cy={512}
+            fill="url(#6d1bd035-0dd1-437e-93fa-59d316231eb0)"
+            rx={604}
+            ry={512}
+          />
+          <defs>
+            <radialGradient id="6d1bd035-0dd1-437e-93fa-59d316231eb0">
+              <stop stopColor="#93c5fd" />
+              <stop offset={1} stopColor="#93c5fd" />
+            </radialGradient>
+          </defs>
+        </svg>
       </p>
       <button className="mt-4 h-10 w-full rounded-md bg-blue-500 text-white transition-all duration-150 hover:bg-blue-400">
         Buy plan
