@@ -100,6 +100,7 @@ interface GraphContextProps {
   addNewAddressToCenter: (address: string) => void;
   storeSetNodeCustomTags: (setter: (tags: string[]) => void) => void;
   addMultipleDifferentPaths: (pathArgs: PathExpansionArgs[]) => void;
+  deleteNodes: (ids: string[]) => void;
   focusedAddressData: AddressAnalysis | null;
 }
 
@@ -372,23 +373,26 @@ const GraphProvided: FC<GraphProvidedProps> = ({
   /** Deletes multiple nodes and all dangling edges connected to them
    * @param ids the ids of the nodes to delete
    */
-  function deleteNodes(ids: string[]) {
-    setNodes((nodes) => nodes.filter((node) => !ids.includes(node.id)));
-    setEdges((edges) =>
-      edges.filter(
-        (edge) =>
-          !ids.includes(edge.source) &&
-          !ids.includes(edge.target) &&
-          (nodesRecord[edge.source] || nodesRecord[edge.target]),
-      ),
-    );
-  }
+  const deleteNodes = useCallback(
+    (ids: string[]) => {
+      setNodes((nodes) => nodes.filter((node) => !ids.includes(node.id)));
+      setEdges((edges) =>
+        edges.filter(
+          (edge) =>
+            !ids.includes(edge.source) &&
+            !ids.includes(edge.target) &&
+            (nodesRecord[edge.source] || nodesRecord[edge.target]),
+        ),
+      );
+    },
+    [nodes.length],
+  );
 
   /** Deletes all selected nodes */
-  function deleteSelectedNodes() {
+  const deleteSelectedNodes = useCallback(() => {
     deleteNodes(selectedNodes);
     onAddressFocusOff();
-  }
+  }, [deleteNodes, selectedNodes]);
 
   const onAddressFocusOff = useCallback(() => {
     setFocusedAddressData(null);
@@ -692,6 +696,7 @@ const GraphProvided: FC<GraphProvidedProps> = ({
     addNewAddressToCenter,
     addMultipleDifferentPaths,
     storeSetNodeCustomTags,
+    deleteNodes,
     focusedAddressData,
   };
 
