@@ -39,10 +39,10 @@ const auth: Auth = getAuth(app);
 const analytics: Analytics = getAnalytics(app);
 const db: Firestore = getFirestore(app);
 
-if (import.meta.env.MODE === "development") {
+/* if (import.meta.env.MODE === "development") {
   connectAuthEmulator(auth, "http://localhost:9099");
   connectFirestoreEmulator(db, "localhost", 8080);
-}
+} */
 
 auth.useDeviceLanguage();
 
