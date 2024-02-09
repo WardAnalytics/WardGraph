@@ -1,10 +1,12 @@
 import {
-  XMarkIcon,
-  SparklesIcon,
   InformationCircleIcon,
   ArrowsPointingInIcon,
   IdentificationIcon,
 } from "@heroicons/react/20/solid";
+
+import { XMarkIcon, SparklesIcon } from "@heroicons/react/24/solid";
+
+import { TrashIcon } from "@heroicons/react/24/outline";
 
 import { XMarkIcon as XMarkSmallIcon } from "@heroicons/react/16/solid";
 
@@ -27,6 +29,7 @@ import {
 
 import { Colors } from "../../../../utils/colors";
 
+import AuthDialog from "../../../auth";
 import EntityLogo from "../../../common/EntityLogo";
 import BlockExplorerAddressIcon from "../../../common/utility_icons/BlockExplorerAddressIcon";
 import CopyToClipboardIcon from "../../../common/utility_icons/CopyToClipboardIcon";
@@ -178,6 +181,8 @@ const LabelsAndTags: FC<LabelsAndTagsProps> = ({ setNodeCustomTags }) => {
   // Handlers for both creating and deleting tags
   const onCreateCustomAddressTag = useCallback(
     async (tag: string) => {
+      // If the user is not logged in, show the auth dialog instead
+
       // Add tag to address if it's not already there
       if (!addressCustomTags.includes(tag)) {
         await storeCustomAddressesTags(address, [...addressCustomTags, tag]);
@@ -366,6 +371,7 @@ const Header: FC<HeaderProps> = ({
           analysisMode={analysisMode}
           setAnalysisMode={setAnalysisMode}
         />
+        {/* 
         <button
           type="button"
           className="text-md group flex flex-row items-center justify-center gap-x-1.5 rounded-md bg-purple-50 px-3 py-2.5 font-semibold text-indigo-600 shadow-sm ring-1 ring-inset ring-indigo-200 transition-all duration-300 hover:shadow-lg  hover:shadow-indigo-200/50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
@@ -398,14 +404,21 @@ const Header: FC<HeaderProps> = ({
               </ul>
             </div>
           </div>
-        </button>
-        <a
-          onClick={() => {
-            onExit();
-          }}
-        >
-          <XMarkIcon className="h-11 w-11 cursor-pointer rounded-full p-1.5 text-gray-400 transition-all duration-300 hover:bg-gray-100" />
-        </a>
+        </button>*/}
+        <span className="flex flex-row">
+          <SparklesIcon
+            onClick={onExit}
+            className="h-11 w-11 cursor-pointer rounded-md p-1.5 text-indigo-400 transition-all duration-300 hover:bg-indigo-50"
+          />
+          <TrashIcon
+            onClick={onExit}
+            className="h-11 w-11 cursor-pointer rounded-md p-1.5 text-gray-400 transition-all duration-300 hover:bg-red-50 hover:text-red-500"
+          />
+          <XMarkIcon
+            onClick={onExit}
+            className="h-11 w-11 cursor-pointer rounded-md p-1.5 text-gray-400 transition-all duration-300 hover:bg-gray-100"
+          />
+        </span>
       </span>
     </span>
   );
