@@ -1,36 +1,44 @@
-import { collection, getDocs, query, where } from "firebase/firestore";
-import { db } from "../../firebase";
+import { collection, onSnapshot, query, where } from "firebase/firestore";
 import authService from "../../auth/auth.services";
+import { db } from "../../firebase";
 
-/**
- * Get if user is premium
- *
- * @returns True if user is premium, false otherwise
- */
-
-const getIsPremiumUser = async (): Promise<boolean> => {
+const getPremiumStatus = async () => {
   const isAuthenticated = authService.isAuthenticated();
 
   if (!isAuthenticated) {
     return false;
   }
 
-  const uid = authService.getCurrentUser()?.uid;
+  const user = authService.getCurrentUser();
 
-  if (!uid) {
+  if (!user) {
     return false;
   }
 
-  const docRef = collection(db, "customers", `${uid}`, "subscriptions");
-  const q = query(docRef, where("status", "==", "active"));
+  const userId = user.uid;
 
-  const docSnap = await getDocs(q);
+  const subscriptionsRef = collection(db, "customers", userId, "subscriptions");
 
-  if (docSnap.empty) {
-    return false;
-  }
+  const q = query(
+    subscriptionsRef,
+    where("status", "in", ["trialing", "active"]),
+  );
 
-  return true;
+  return new Promise<boolean>((resolve, reject) => {
+    const unsubscribe = onSnapshot(
+      q,
+      (snapshot) => {
+        if (snapshot.docs.length === 0) {
+          resolve(false);
+        } else {
+          resolve(true);
+        }
+
+        unsubscribe();
+      },
+      reject,
+    );
+  });
 };
 
-export { getIsPremiumUser };
+export { getPremiumStatus };

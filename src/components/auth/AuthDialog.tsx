@@ -1,16 +1,16 @@
-import { FC, Fragment, createContext, useState, useEffect } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import {
-  XMarkIcon,
   ExclamationTriangleIcon,
+  XMarkIcon,
 } from "@heroicons/react/24/outline";
+import { FC, Fragment, createContext, useEffect, useState } from "react";
 
 import AuthApiErrors from "../../services/auth/auth.errors";
 
+import { EnvelopeIcon } from "@heroicons/react/24/solid";
 import ForgotPasswordForm from "./ForgotPasswordForm";
 import LoginForm from "./LoginForm";
 import SignupForm from "./SignupForm";
-import { EnvelopeIcon } from "@heroicons/react/24/solid";
 
 export enum AuthDialogState {
   LOGIN,
@@ -52,6 +52,7 @@ interface AuthDialogProps {
 }
 
 const AuthDialog: FC<AuthDialogProps> = ({ isOpen, setIsOpen }) => {
+
   const [authDialogState, setAuthDialogState] = useState(AuthDialogState.LOGIN);
   const [authApiErrorMessage, setAuthApiErrorMessage] = useState<string | null>(
     null,
@@ -88,6 +89,7 @@ const AuthDialog: FC<AuthDialogProps> = ({ isOpen, setIsOpen }) => {
    */
   const onLoginSuccess = () => {
     closeDialog();
+    window.location.reload();
   };
 
   /**

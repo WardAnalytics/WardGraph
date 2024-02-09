@@ -83,7 +83,7 @@ const storeCustomAddressesTags = async (address: string, tags: string[]) => {
       where("user", "==", user?.uid),
     );
   } catch (error) {
-    console.log(error);
+    console.error(error);
   }
   const querySnapshot = q ? await getDocs(q) : undefined;
 
@@ -124,8 +124,6 @@ const deleteCustomAddressTag = async (address: string, tag: string) => {
     where("user", "==", user?.uid),
   );
   const querySnapshot = await getDocs(q);
-
-  console.log(querySnapshot.empty);
 
   if (!querySnapshot.empty) {
     const docRef = doc(db, "customAddressesTags", querySnapshot.docs[0].id);

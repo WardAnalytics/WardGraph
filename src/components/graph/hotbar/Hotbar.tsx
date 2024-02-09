@@ -93,9 +93,7 @@ const Hotbar: FC = () => {
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
   const [isAddAddressModalOpen, setIsAddAddressModalOpen] = useState(false);
 
-  const { isAuthenticated, isPremium } = useAuthState();
-
-  console.log(isPremium);
+  const { isAuthenticated } = useAuthState();
 
   const shareUrl = useMemo(() => getSharingLink(), []);
 
