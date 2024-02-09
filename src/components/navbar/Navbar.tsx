@@ -185,7 +185,7 @@ const Navbar: FC = () => {
           </div>
         </div>
         <div
-          className="pointer-events-none absolute z-50 flex h-full w-fit flex-row items-center justify-center align-middle"
+          className="pointer-events-none absolute z-10 flex h-full w-fit flex-row items-center justify-center align-middle"
           style={{
             marginLeft: isHidden ? "1rem" : "16rem",
             transition: "margin-left 0.3s ease-in-out",
