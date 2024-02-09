@@ -147,7 +147,7 @@ const resetUserPassword = async (
  *
  * @returns true if the user is authenticated, false otherwise
  */
-const isAuthenticated = async () => {
+const isAuthenticated = () => {
   const user = getCurrentUser();
   return user?.emailVerified;
 };

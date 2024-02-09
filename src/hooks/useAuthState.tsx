@@ -1,51 +1,40 @@
 import { User } from "firebase/auth";
 import { useEffect, useState } from "react";
 import { auth } from "../services/firebase";
+import { getIsPremiumUser } from "../services/firestore/user/premium";
 
 const useAuthState = () => {
-  const [user, setUser] = useState<User | null>(null);
+  // Get user from local storage
+  const userFromLocalStorage = localStorage.getItem("user");
+
+  const [user, setUser] = useState<User | null>(userFromLocalStorage ? JSON.parse(userFromLocalStorage) : null);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isPremium, setIsPremium] = useState(false);
+
+  console.log(user);
+  console.log(isAuthenticated);
 
   useEffect(() => {
     // This listener will be called whenever the user's sign-in state changes
     const unsubscribe = auth.onAuthStateChanged((currentUser) => {
       setUser(currentUser);
       setIsLoading(false);
+      localStorage.setItem("user", JSON.stringify(currentUser));
     });
 
     // Cleanup subscription on unmount
     return () => unsubscribe();
-  }, []); // Empty array ensures this effect runs only once on mount
+  }, [user]); // Empty array ensures this effect runs only once on mount
 
   useEffect(() => {
     setIsAuthenticated(user?.emailVerified || false);
   }, [user]);
 
   useEffect(() => {
-    const getIsPremiumUser = async () => {
-      const isAuthenticated = user?.emailVerified;
-
-      if (!isAuthenticated) {
-        setIsPremium(false);
-        return;
-      }
-
-      const uid = user?.uid;
-
-      if (!uid) {
-        setIsPremium(false);
-        return;
-      }
-
-      // Get the user's subscription status
-      // ...
-
-      setIsPremium(true);
-    };
-
-    getIsPremiumUser();
+    getIsPremiumUser().then((result) => {
+      setIsPremium(result);
+    });
   }, [user]);
 
   return { user, isAuthenticated, isLoading, isPremium };

@@ -14,7 +14,7 @@ import ShareDialog from "./components/ShareDialog";
 import NewAddressModal from "./components/NewAddressModal";
 import useAuthState from "../../../hooks/useAuthState";
 import { CreditCardIcon } from "@heroicons/react/24/solid";
-import { getCheckoutUrl } from "../../../services/payments/payments.service";
+import { getCheckoutUrl } from "../../../services/payments/payments.services";
 
 interface HotbarButton {
   onClick?: () => void;
