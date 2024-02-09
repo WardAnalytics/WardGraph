@@ -5,7 +5,8 @@ import {
   SparklesIcon,
 } from "@heroicons/react/20/solid";
 import { CreditCardIcon } from "@heroicons/react/24/outline";
-import { FC } from "react";
+import clsx from "clsx";
+import { FC, useState } from "react";
 import Badge from "../components/common/Badge";
 import BigButton from "../components/common/BigButton";
 import useAuthState from "../hooks/useAuthState";
@@ -14,6 +15,8 @@ import { Colors } from "../utils/colors";
 
 interface PlanProps {
   isPro: boolean;
+  isLoading?: boolean;
+  setIsLoading?: (isLoading: boolean) => void;
 }
 
 const DiscoverPlan: FC<PlanProps> = ({ isPro }) => {
@@ -53,10 +56,12 @@ const DiscoverPlan: FC<PlanProps> = ({ isPro }) => {
   );
 };
 
-const ProPlan: FC<PlanProps> = ({ isPro }) => {
+const ProPlan: FC<PlanProps> = ({ isPro, isLoading = false, setIsLoading = () => { } }) => {
   const onBuyPlanClicked = () => {
     const priceId = import.meta.env.VITE_STRIPE_ONE_MONTH_SUBSCRIPTION_PRICE_ID
+    setIsLoading(true)
     getCheckoutUrl(priceId).then((url) => {
+      setIsLoading(false)
       window.location.href = url;
     })
   }
@@ -98,8 +103,10 @@ const ProPlan: FC<PlanProps> = ({ isPro }) => {
       {isPro ? (
         <div className="mt-4 h-[1px] w-full bg-gray-700" />
       ) : (
-        <button className="mt-4 h-10 w-full rounded-md bg-blue-500 text-white transition-all duration-150 hover:bg-blue-400"
+        <button className={clsx("mt-4 h-10 w-full rounded-md bg-blue-500 text-white transition-all duration-150 hover:bg-blue-400", isLoading && "bg-blue-900 hover:bg-blue-900 text-gray-3 hover:cursor-not-allowed")}
           onClick={onBuyPlanClicked}
+          type="button"
+          disabled={isLoading}
         >
           Buy plan
         </button>
@@ -131,7 +138,11 @@ const ProPlan: FC<PlanProps> = ({ isPro }) => {
   );
 };
 
-const EnterprisePlan: FC = () => {
+interface EnterprisePlanProps {
+  isLoading: boolean;
+}
+
+const EnterprisePlan: FC<EnterprisePlanProps> = ({ isLoading = false }) => {
   return (
     <div className="my-5 flex w-72 flex-col rounded-3xl p-8 shadow-sm ring-1 ring-gray-200">
       <h3 className="flex flex-row items-center gap-x-2 text-lg font-semibold leading-8 text-gray-800">
@@ -143,7 +154,7 @@ const EnterprisePlan: FC = () => {
       <p className="mt-4 text-4xl font-bold tracking-tight text-gray-800">
         Custom
       </p>
-      <button className="bg-white-500 mt-4 h-10 w-full rounded-md text-gray-600 shadow-sm ring-1 ring-inset ring-gray-200 transition-all duration-150 hover:bg-gray-50">
+      <button className={clsx("bg-white-500 mt-4 h-10 w-full rounded-md text-gray-600 shadow-sm ring-1 ring-inset ring-gray-200 transition-all duration-150 hover:bg-gray-50", isLoading && "bg-gray-300 hover:bg-gray-300 text-gray-3 hover:cursor-not-allowed")} disabled={isLoading}>
         Contact Us
       </button>
       <div className="mt-4 flex flex-col gap-y-1.5 text-gray-700">
@@ -171,8 +182,13 @@ const EnterprisePlan: FC = () => {
 const BillingTemplate: FC = () => {
   const { isPremium: isPro } = useAuthState()
 
+  const [isLoading, setIsLoading] = useState<boolean>(false)
+
   const onManageSubscriptionClicked = () => {
+    console.log("Manage subscription clicked")
+    setIsLoading(true)
     getCustomerPortalUrl().then((url) => {
+      setIsLoading(false)
       window.location.href = url;
     });
   }
@@ -207,8 +223,8 @@ const BillingTemplate: FC = () => {
       </span>
       <span className="flex flex-row justify-center gap-x-5">
         <DiscoverPlan isPro={isPro} />
-        <ProPlan isPro={isPro} />
-        <EnterprisePlan />
+        <ProPlan isPro={isPro} isLoading={isLoading} setIsLoading={setIsLoading} />
+        <EnterprisePlan isLoading={isLoading} />
       </span>
     </div>
   );
