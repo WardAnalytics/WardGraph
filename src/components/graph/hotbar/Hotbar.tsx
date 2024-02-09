@@ -5,6 +5,7 @@ import {
   RectangleGroupIcon,
   ShareIcon,
 } from "@heroicons/react/24/outline";
+
 import clsx from "clsx";
 import { FC, useContext, useEffect, useMemo, useState } from "react";
 import { useKeyPress } from "reactflow";
@@ -19,6 +20,7 @@ interface HotbarButton {
   Icon: any;
   name: string;
   className?: string;
+  iconColor?: string;
   hotKey?: string;
 }
 
@@ -27,6 +29,7 @@ const HotbarButton: FC<HotbarButton> = ({
   name,
   onClick,
   className,
+  iconColor,
   hotKey,
   href,
 }) => {
@@ -56,7 +59,14 @@ const HotbarButton: FC<HotbarButton> = ({
           )}
           {name}
         </span>
-        <Icon className="h-10 w-10 rounded-lg p-1 text-gray-400 transition-all duration-200 hover:bg-gray-700 hover:text-white" />
+        <Icon
+          className={clsx(
+            "h-10 w-10 rounded-lg p-1 transition-all duration-200",
+            iconColor
+              ? iconColor
+              : "text-gray-400 hover:bg-gray-700 hover:text-gray-200",
+          )}
+        />
       </button>
     </a>
   );
@@ -116,6 +126,7 @@ const Hotbar: FC = () => {
             Icon={RectangleGroupIcon}
             name="Organize Layout"
             onClick={doLayout}
+            iconColor="text-indigo-400 hover:bg-indigo-700 hover:text-indigo-200"
             hotKey="l"
           />
         </HotbarButtonGroup>
