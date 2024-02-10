@@ -103,7 +103,11 @@ interface GraphContextProps {
   storeSetNodeCustomTags: (setter: (tags: string[]) => void) => void;
   addMultipleDifferentPaths: (pathArgs: PathExpansionArgs[]) => void;
   deleteNodes: (ids: string[]) => void;
+  getAddressRisk: (address: string) => number;
+  registerAddressRisk: (address: string, risk: number) => void;
   focusedAddressData: AddressAnalysis | null;
+  isRiskVision: boolean;
+  setShowRiskVision: (show: boolean) => void;
 }
 
 export const GraphContext = createContext<GraphContextProps>(
@@ -681,6 +685,36 @@ const GraphProvided: FC<GraphProvidedProps> = ({
   const [hoveredTransferData, setHoveredTransferData] =
     useState<TransactionTooltipProps | null>(null);
 
+  // Node Risk Tracking & Risk Vision -----------------------------------------
+
+  /* When risk vision is on, we make the nodes colored based on their risk
+   * and we change the color of the edges so that they are instead based on
+   * the risk of the nodes they connect (with pretty gradients). */
+
+  const [isRiskVision, setIsRiskVision] = useState<boolean>(false);
+
+  /* This is required so that the edges in risk vision and easily have access
+   * to the risk of the nodes they are connected to.
+   *
+   * We do this by register of a node when its risk is known. */
+
+  const [nodeRisk, setNodeRisk] = useState<Map<string, number>>(new Map());
+
+  const registerAddressRisk = useCallback((address: string, risk: number) => {
+    setNodeRisk((nodeRisk) => {
+      const newNodeRisk = new Map(nodeRisk);
+      newNodeRisk.set(address, risk);
+      return newNodeRisk;
+    });
+  }, []);
+
+  const getAddressRisk = useCallback(
+    (address: string): number => {
+      return nodeRisk.get(address) ?? 0;
+    },
+    [nodeRisk],
+  );
+
   // Automatic Layout ---------------------------------------------------------
 
   function filterLayoutElements(): {
@@ -790,7 +824,11 @@ const GraphProvided: FC<GraphProvidedProps> = ({
     addMultipleDifferentPaths,
     storeSetNodeCustomTags,
     deleteNodes,
+    getAddressRisk,
+    registerAddressRisk,
     focusedAddressData,
+    isRiskVision,
+    setShowRiskVision: setIsRiskVision,
   };
 
   return (

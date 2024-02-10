@@ -4,6 +4,8 @@ import {
   QuestionMarkCircleIcon,
   RectangleGroupIcon,
   ShareIcon,
+  EyeIcon,
+  EyeSlashIcon,
 } from "@heroicons/react/24/outline";
 
 import clsx from "clsx";
@@ -94,8 +96,14 @@ const HotbarButtonGroup: FC<HotbarButtonGroupProps> = ({
 };
 
 const Hotbar: FC = () => {
-  const { doLayout, copyLink, getSharingLink, setShowTutorial } =
-    useContext(GraphContext);
+  const {
+    doLayout,
+    copyLink,
+    getSharingLink,
+    setShowTutorial,
+    isRiskVision,
+    setShowRiskVision,
+  } = useContext(GraphContext);
 
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
   const [isAddAddressModalOpen, setIsAddAddressModalOpen] = useState(false);
@@ -128,6 +136,14 @@ const Hotbar: FC = () => {
             onClick={doLayout}
             iconColor="text-indigo-400 hover:bg-indigo-700 hover:text-indigo-200"
             hotKey="l"
+          />
+          <HotbarButton
+            Icon={isRiskVision ? EyeIcon : EyeSlashIcon}
+            name="Risk Vision"
+            onClick={() => {
+              setShowRiskVision(!isRiskVision);
+            }}
+            hotKey="r"
           />
         </HotbarButtonGroup>
         <HotbarButtonGroup className="pt-1">

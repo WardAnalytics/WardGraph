@@ -5,6 +5,7 @@ import {
   useState,
   useEffect,
   useCallback,
+  useMemo,
 } from "react";
 import clsx from "clsx";
 import { Position, Handle, Edge } from "reactflow";
@@ -20,7 +21,7 @@ import RiskIndicator from "../../../../../common/RiskIndicator";
 import { GraphContext } from "../../../../Graph";
 
 import Badge from "../../../../../common/Badge";
-import { Colors } from "../../../../../../utils/colors";
+import { Colors, ColorClass } from "../../../../../../utils/colors";
 
 import {
   createTransfershipEdge,
@@ -77,6 +78,8 @@ const AddressNode: FC<AddressNodeProps> = ({
     addEdges,
     focusedAddressData,
     setNodeHighlight,
+    registerAddressRisk,
+    isRiskVision,
   } = useContext(GraphContext);
 
   // Analysis data is fetched into a useState hook from the Ward API using the Orval Hook and then passed into the context
@@ -99,6 +102,7 @@ const AddressNode: FC<AddressNodeProps> = ({
 
           onSuccess: (data) => {
             setAnalysisData(data);
+            registerAddressRisk(address, data.risk);
 
             let newEdges: Edge[] = [];
             for (const c in data.incomingDirectExposure.categories) {
@@ -168,6 +172,34 @@ const AddressNode: FC<AddressNodeProps> = ({
     setTags(tags);
   }, []);
 
+  // Based on the risk of the node, the color of the node for risk vision should change
+  let { riskColor } = useMemo(() => {
+    if (!isRiskVision || !analysisData)
+      return { riskColor: "bg-white hover:bg-gray-50 ring-gray-200" };
+    if (analysisData.risk >= 9)
+      // Severe risk
+      return {
+        riskColor:
+          "bg-red-200 hover:bg-red-200 ring-red-300 text-red-500 shadow-red-500/50 shadow-xl",
+      };
+    if (analysisData.risk >= 6)
+      // High risk
+      return {
+        riskColor:
+          "bg-red-100 hover:bg-red-200 ring-red-300 text-red-500 shadow-red-300/50 shadow-xl",
+      };
+    if (analysisData.risk >= 3)
+      // Medium risk
+      return {
+        riskColor:
+          "bg-yellow-50 hover:bg-yellow-100 ring-yellow-200 text-yellow-500",
+      };
+    return {
+      // Low risk
+      riskColor: "bg-green-50 hover:bg-green-100 ring-green-200 text-green-500",
+    };
+  }, [analysisData, isRiskVision]);
+
   // Context data is set to the analysis data
   const contextData = {
     analysisData,
@@ -217,7 +249,8 @@ const AddressNode: FC<AddressNodeProps> = ({
       >
         <span
           className={clsx(
-            "1transition-all flex flex-row items-center gap-x-2 rounded-lg bg-white px-4 py-5 ring-1 duration-150 hover:bg-gray-50",
+            "flex flex-row items-center gap-x-2 rounded-lg px-4 py-5 ring-1 transition-all duration-150",
+            riskColor,
             focusedAddressData?.address === address
               ? " scale-125 bg-blue-50 shadow-2xl shadow-blue-300 ring-4 ring-blue-400"
               : highlight
