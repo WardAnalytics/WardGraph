@@ -175,7 +175,7 @@ const AddressNode: FC<AddressNodeProps> = ({
   // Based on the risk of the node, the color of the node for risk vision should change
   let { riskColor } = useMemo(() => {
     if (!isRiskVision || !analysisData)
-      return { riskColor: "bg-white hover:bg-gray-50 ring-gray-200" };
+      return { riskColor: "bg-white hover:bg-gray-50" };
     if (analysisData.risk >= 9)
       // Severe risk
       return {
@@ -186,17 +186,18 @@ const AddressNode: FC<AddressNodeProps> = ({
       // High risk
       return {
         riskColor:
-          "bg-red-100 hover:bg-red-200 ring-red-300 text-red-500 shadow-red-300/50 shadow-xl",
+          "bg-orange-100 hover:bg-orange-200 ring-orange-300 text-orange-500 shadow-orange-300/50 shadow-xl",
       };
     if (analysisData.risk >= 3)
       // Medium risk
       return {
         riskColor:
-          "bg-yellow-50 hover:bg-yellow-100 ring-yellow-200 text-yellow-500",
+          "bg-yellow-50 hover:bg-yellow-100 ring-yellow-200 text-yellow-500 shadow-yellow-200/10",
       };
     return {
       // Low risk
-      riskColor: "bg-green-50 hover:bg-green-100 ring-green-200 text-green-500",
+      riskColor:
+        "bg-green-50 hover:bg-green-100 ring-green-200 text-green-500 shadow-green-200/10",
     };
   }, [analysisData, isRiskVision]);
 
