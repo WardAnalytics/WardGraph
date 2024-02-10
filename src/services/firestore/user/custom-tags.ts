@@ -46,7 +46,7 @@ const getCustomUserTags = async (): Promise<string[]> => {
     }
     return data;
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return [];
   }
 };
@@ -72,7 +72,7 @@ const storeCustomUserTags = async (tags: string[]) => {
   try {
     q = query(collection(db, "customUserTags"), where("user", "==", user?.uid));
   } catch (error) {
-    console.log(error);
+    console.error(error);
   }
   const querySnapshot = await getDocs(q);
   if (querySnapshot.empty) {

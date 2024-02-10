@@ -1,8 +1,8 @@
 import { FC } from "react";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 
-import { PrivateGraphTemplate, RiskFeedTemplate } from "./templates";
 import Navbar from "./components/navbar";
+import { BillingTemplate, PrivateGraphTemplate } from "./templates";
 
 const PrivateApp: FC = () => {
   return (
@@ -11,8 +11,9 @@ const PrivateApp: FC = () => {
         <Navbar />
         <Routes>
           <Route path="/graph" element={<PrivateGraphTemplate />} />
-          <Route path="/risk-feed" element={<RiskFeedTemplate />} />
-          <Route path="/*" element={<PrivateGraphTemplate />} />
+          <Route path="/billing" element={<BillingTemplate />} />
+          {/* <Route path="/risk-feed" element={<RiskFeedTemplate />} /> */}
+          <Route path="*" element={<Navigate to="/graph" />} />
         </Routes>
       </BrowserRouter>
     </div>

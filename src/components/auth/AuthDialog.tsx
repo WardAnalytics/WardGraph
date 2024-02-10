@@ -1,12 +1,13 @@
-import { FC, Fragment, createContext, useState, useEffect } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import {
-  XMarkIcon,
   ExclamationTriangleIcon,
+  XMarkIcon,
 } from "@heroicons/react/24/outline";
+import { FC, Fragment, createContext, useEffect, useState } from "react";
 
 import AuthApiErrors from "../../services/auth/auth.errors";
 
+import { EnvelopeIcon } from "@heroicons/react/24/solid";
 import ForgotPasswordForm from "./ForgotPasswordForm";
 import LoginForm from "./LoginForm";
 import SignupForm from "./SignupForm";
@@ -32,17 +33,17 @@ interface AuthContextProps {
 }
 
 export const AuthContext = createContext<AuthContextProps>({
-  onLoginSuccess: () => {},
-  onLoginError: () => {},
-  onGoogleLoginSucess: () => {},
-  onGoogleLoginError: () => {},
-  onSignupSuccess: () => {},
-  onSignupError: () => {},
-  onGoogleSignupSucess: () => {},
-  onGoogleSignupError: () => {},
-  onResetPasswordSuccess: () => {},
-  onResetPasswordError: () => {},
-  setAuthDialogState: () => {},
+  onLoginSuccess: () => { },
+  onLoginError: () => { },
+  onGoogleLoginSucess: () => { },
+  onGoogleLoginError: () => { },
+  onSignupSuccess: () => { },
+  onSignupError: () => { },
+  onGoogleSignupSucess: () => { },
+  onGoogleSignupError: () => { },
+  onResetPasswordSuccess: () => { },
+  onResetPasswordError: () => { },
+  setAuthDialogState: () => { },
 });
 
 interface AuthDialogProps {
@@ -51,8 +52,12 @@ interface AuthDialogProps {
 }
 
 const AuthDialog: FC<AuthDialogProps> = ({ isOpen, setIsOpen }) => {
+
   const [authDialogState, setAuthDialogState] = useState(AuthDialogState.LOGIN);
   const [authApiErrorMessage, setAuthApiErrorMessage] = useState<string | null>(
+    null,
+  );
+  const [verifyEmailMessage, setVerifyEmailMessage] = useState<string | null>(
     null,
   );
 
@@ -73,6 +78,8 @@ const AuthDialog: FC<AuthDialogProps> = ({ isOpen, setIsOpen }) => {
   const closeDialog = () => {
     setIsOpen(false);
     setAuthDialogState(AuthDialogState.LOGIN);
+    setAuthApiErrorMessage(null);
+    setVerifyEmailMessage(null);
   };
 
   /**
@@ -82,6 +89,7 @@ const AuthDialog: FC<AuthDialogProps> = ({ isOpen, setIsOpen }) => {
    */
   const onLoginSuccess = () => {
     closeDialog();
+    window.location.reload();
   };
 
   /**
@@ -91,20 +99,13 @@ const AuthDialog: FC<AuthDialogProps> = ({ isOpen, setIsOpen }) => {
    * @returns void
    */
   const onLoginError = (error: any) => {
-    switch (error.code) {
-      case AuthApiErrors.INVALID_CREDENTIAL.code:
-        setAuthApiErrorMessage(AuthApiErrors.INVALID_CREDENTIAL.message);
-        break;
-      case AuthApiErrors.EMAIL_VERIFICATION_REQUIRED.code:
-        setAuthApiErrorMessage(
-          AuthApiErrors.EMAIL_VERIFICATION_REQUIRED.message,
-        );
-        break;
-      default:
-        setAuthApiErrorMessage(
-          "An error occured while logging in. Please try again later.",
-        );
-        break;
+    const errorCode = error.code;
+    if (errorCode in AuthApiErrors) {
+      setAuthApiErrorMessage(AuthApiErrors[errorCode].message);
+    } else {
+      setAuthApiErrorMessage(
+        "An error occured while logging in. Please try again later.",
+      );
     }
   };
 
@@ -124,15 +125,13 @@ const AuthDialog: FC<AuthDialogProps> = ({ isOpen, setIsOpen }) => {
    * @returns void
    */
   const onGoogleLoginError = (error: any) => {
-    switch (error.code) {
-      case AuthApiErrors.EMAIL_ALREADY_EXISTS.code:
-        setAuthApiErrorMessage(AuthApiErrors.EMAIL_ALREADY_EXISTS.message);
-        break;
-      default:
-        setAuthApiErrorMessage(
-          "An error occured while logging in. Please try again later.",
-        );
-        break;
+    const errorCode = error.code;
+    if (errorCode in AuthApiErrors) {
+      setAuthApiErrorMessage(AuthApiErrors[errorCode].message);
+    } else {
+      setAuthApiErrorMessage(
+        "An error occured while logging in. Please try again later.",
+      );
     }
   };
 
@@ -143,6 +142,9 @@ const AuthDialog: FC<AuthDialogProps> = ({ isOpen, setIsOpen }) => {
    */
   const onSignupSuccess = () => {
     setAuthDialogState(AuthDialogState.LOGIN);
+    setVerifyEmailMessage(
+      "A verification email has been sent to your email address. Please verify your email address to continue.",
+    );
   };
 
   /**
@@ -152,18 +154,13 @@ const AuthDialog: FC<AuthDialogProps> = ({ isOpen, setIsOpen }) => {
    * @returns void
    */
   const onSignupError = (error: any) => {
-    switch (error.code) {
-      case AuthApiErrors.EMAIL_ALREADY_EXISTS.code:
-        setAuthApiErrorMessage(AuthApiErrors.EMAIL_ALREADY_EXISTS.message);
-        break;
-      case AuthApiErrors.EMAIL_ALREADY_IN_USE.code:
-        setAuthApiErrorMessage(AuthApiErrors.EMAIL_ALREADY_IN_USE.message);
-        break;
-      default:
-        setAuthApiErrorMessage(
-          "An error occured while signing up. Please try again later.",
-        );
-        break;
+    const errorCode = error.code;
+    if (errorCode in AuthApiErrors) {
+      setAuthApiErrorMessage(AuthApiErrors[errorCode].message);
+    } else {
+      setAuthApiErrorMessage(
+        "An error occured while logging in. Please try again later.",
+      );
     }
   };
 
@@ -183,15 +180,13 @@ const AuthDialog: FC<AuthDialogProps> = ({ isOpen, setIsOpen }) => {
    * @returns void
    */
   const onGoogleSignupError = (error: any) => {
-    switch (error.code) {
-      case AuthApiErrors.EMAIL_ALREADY_EXISTS.code:
-        setAuthApiErrorMessage(AuthApiErrors.EMAIL_ALREADY_EXISTS.message);
-        break;
-      default:
-        setAuthApiErrorMessage(
-          "An error occured while signing up. Please try again later.",
-        );
-        break;
+    const errorCode = error.code;
+    if (errorCode in AuthApiErrors) {
+      setAuthApiErrorMessage(AuthApiErrors[errorCode].message);
+    } else {
+      setAuthApiErrorMessage(
+        "An error occured while logging in. Please try again later.",
+      );
     }
   };
 
@@ -210,15 +205,13 @@ const AuthDialog: FC<AuthDialogProps> = ({ isOpen, setIsOpen }) => {
    * @param error
    */
   const onResetPasswordError = (error: any) => {
-    switch (error.code) {
-      case AuthApiErrors.INVALID_CREDENTIAL.code:
-        setAuthApiErrorMessage(AuthApiErrors.INVALID_CREDENTIAL.message);
-        break;
-      default:
-        setAuthApiErrorMessage(
-          "An error occured while logging in. Please try again later.",
-        );
-        break;
+    const errorCode = error.code;
+    if (errorCode in AuthApiErrors) {
+      setAuthApiErrorMessage(AuthApiErrors[errorCode].message);
+    } else {
+      setAuthApiErrorMessage(
+        "An error occured while logging in. Please try again later.",
+      );
     }
   };
 
@@ -291,6 +284,12 @@ const AuthDialog: FC<AuthDialogProps> = ({ isOpen, setIsOpen }) => {
                       <div className="justify-left mb-3 flex flex-row items-center gap-x-3 rounded-lg bg-red-50 p-4">
                         <ExclamationTriangleIcon className="h-7 w-7 text-red-500" />
                         <p className="text-red-800">{authApiErrorMessage}</p>
+                      </div>
+                    )}
+                    {verifyEmailMessage && (
+                      <div className="justify-left mb-3 flex flex-row items-center gap-x-3 rounded-lg bg-blue-50 p-4">
+                        <EnvelopeIcon className="h-7 w-7 text-blue-500" />
+                        <p className="text-blue-800">{verifyEmailMessage}</p>
                       </div>
                     )}
                     <AuthContext.Provider value={authContext}>

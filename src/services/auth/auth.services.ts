@@ -142,8 +142,13 @@ const resetUserPassword = async (
     });
 };
 
-const isAuthenticated = async () => {
-  const user = await auth.currentUser;
+/**
+ * Check if the user is authenticated
+ *
+ * @returns true if the user is authenticated, false otherwise
+ */
+const isAuthenticated = () => {
+  const user = getCurrentUser();
   return user?.emailVerified;
 };
 

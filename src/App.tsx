@@ -9,14 +9,14 @@ import { MobileWarningTemplate } from "./templates";
 
 function App() {
   const queryClient = useCustomQueryClient();
-  const { user } = useAuthState();
+  const { isAuthenticated } = useAuthState();
 
   return (
     <>
       <QueryClientProvider client={queryClient}>
         <MobileWarningTemplate className="h-screen w-screen sm:hidden" />
         <div className="hidden h-fit w-fit sm:block">
-          {user ? <PrivateApp /> : <PublicApp />}
+          {isAuthenticated ? <PrivateApp /> : <PublicApp />}
         </div>
       </QueryClientProvider>
     </>

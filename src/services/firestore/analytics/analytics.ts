@@ -11,6 +11,4 @@ const logAnalyticsEvent = (eventName: string, eventParams: any) => {
   logEvent(analytics, eventName, eventParams);
 };
 
-export default {
-  logAnalyticsEvent,
-};
+export { logAnalyticsEvent };

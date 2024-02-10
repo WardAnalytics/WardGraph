@@ -15,6 +15,9 @@ import { GraphContext } from "../Graph";
 
 import ShareDialog from "./components/ShareDialog";
 import NewAddressModal from "./components/NewAddressModal";
+import useAuthState from "../../../hooks/useAuthState";
+import { CreditCardIcon } from "@heroicons/react/24/solid";
+import { getCheckoutUrl } from "../../../services/payments/payments.services";
 
 interface HotbarButton {
   onClick?: () => void;
@@ -108,6 +111,8 @@ const Hotbar: FC = () => {
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
   const [isAddAddressModalOpen, setIsAddAddressModalOpen] = useState(false);
 
+  const { isAuthenticated } = useAuthState();
+
   const shareUrl = useMemo(() => getSharingLink(), []);
 
   const onShareUrl = () => {
@@ -161,11 +166,26 @@ const Hotbar: FC = () => {
             }}
           />
         </HotbarButtonGroup>
+        {
+          isAuthenticated &&
+          <HotbarButtonGroup className="pt-1">
+            <HotbarButton
+              Icon={CreditCardIcon}
+              name="Turn PRO"
+              onClick={async () => {
+                const priceId = import.meta.env.VITE_STRIPE_ONE_MONTH_SUBSCRIPTION_PRICE_ID as string;
+                const checkoutUrl = await getCheckoutUrl(priceId);
+
+                window.location.href = checkoutUrl;
+              }}
+            />
+          </HotbarButtonGroup>
+        }
         <HotbarButtonGroup className="pt-1">
           <HotbarButton
             Icon={BugAntIcon}
             name="Report Bug / Give Feedback"
-            onClick={() => {}}
+            onClick={() => { }}
             href="https://forms.gle/yCFrDnKyUmPYPhfg8"
           />
         </HotbarButtonGroup>

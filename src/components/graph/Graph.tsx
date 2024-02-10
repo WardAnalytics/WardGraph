@@ -2,12 +2,12 @@ import { Transition } from "@headlessui/react";
 import {
   FC,
   createContext,
+  memo,
   useCallback,
   useEffect,
   useMemo,
   useRef,
   useState,
-  memo,
 } from "react";
 import ReactFlow, {
   Background,
@@ -47,7 +47,7 @@ import {
   convertNodeListToRecord,
 } from "./graph_calculations";
 
-import analytics from "../../services/firestore/analytics/analytics";
+import { logAnalyticsEvent } from "../../services/firestore/analytics/analytics";
 import { storeAddress } from "../../services/firestore/user/search-history";
 
 import generateShortUrl from "../../utils/generateShortUrl";
@@ -913,7 +913,7 @@ const PublicGraph: FC<GraphProps> = ({
 
     storeAddress(newAddress, user?.uid);
 
-    analytics.logAnalyticsEvent("search_address", {
+    logAnalyticsEvent("search_address", {
       address: newAddress,
     });
   };

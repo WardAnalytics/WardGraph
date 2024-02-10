@@ -8,42 +8,42 @@
 
 */
 
-const AuthApiErrors = {
+const AuthApiErrors: any = {
   // Sign up errors
-  EMAIL_ALREADY_EXISTS: {
-    code: "auth/email-already-exists",
+  "auth/email-already-exists": {
+    code: "EMAIL_ALREADY_EXISTS",
     message:
       "An account with this email already exists. Please sign in with your email and password.",
   },
-  EMAIL_ALREADY_IN_USE: {
-    code: "auth/email-already-in-use",
+  "auth/email-already-in-use": {
+    code: "EMAIL_ALREADY_IN_USE",
     message:
       "An account with this email was created with a different sign in method. Please sign in with the same method (ex. Sign up with Google).",
   },
-  INVALID_EMAIL: { code: "auth/invalid-email", message: "Invalid email" },
-  WEAK_PASSWORD: {
-    code: "auth/weak-password",
+  "auth/invalid-email": { code: "INVALID_EMAIL", message: "Invalid email" },
+  "auth/weak-password": {
+    code: "WEAK_PASSWORD",
     message: "Password is too weak.",
   },
 
   // Login errors
-  INVALID_CREDENTIAL: {
-    code: "auth/invalid-credential",
-    message: "Wrong credentials.",
-  },
-  USER_NOT_FOUND: {
-    code: "auth/user-not-found",
+  "auth/user-not-found": {
+    code: "EMAIL_NOT_FOUND",
     message: "No user found with those credentials. Please register first.",
+  },
+  "auth/invalid-credential": {
+    code: "INVALID_CREDENTIAL",
+    message: "Wrong credentials.",
   },
 
   // Email verification errors
-  EMAIL_VERIFICATION_REQUIRED: {
-    code: "auth/email-not-verified",
+  "auth/email-not-verified": {
+    code: "EMAIL_VERIFICATION_REQUIRED",
     message: "Please verify your email first.",
   },
 
   // Other errors
-  UNKNOWN_ERROR: { code: "auth/unknown-error", message: "Unknown error" },
+  "auth/unknown-error": { code: "UNKNOWN_ERROR", message: "Unknown error" },
 };
 
 export default AuthApiErrors;
