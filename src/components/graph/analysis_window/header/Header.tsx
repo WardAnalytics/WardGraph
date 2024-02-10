@@ -1,10 +1,12 @@
 import {
-  XMarkIcon,
-  SparklesIcon,
   InformationCircleIcon,
   ArrowsPointingInIcon,
   IdentificationIcon,
 } from "@heroicons/react/20/solid";
+
+import { XMarkIcon, SparklesIcon } from "@heroicons/react/24/solid";
+
+import { TrashIcon } from "@heroicons/react/24/outline";
 
 import { XMarkIcon as XMarkSmallIcon } from "@heroicons/react/16/solid";
 
@@ -178,6 +180,8 @@ const LabelsAndTags: FC<LabelsAndTagsProps> = ({ setNodeCustomTags }) => {
   // Handlers for both creating and deleting tags
   const onCreateCustomAddressTag = useCallback(
     async (tag: string) => {
+      // If the user is not logged in, show the auth dialog instead
+
       // Add tag to address if it's not already there
       if (!addressCustomTags.includes(tag)) {
         await storeCustomAddressesTags(address, [...addressCustomTags, tag]);
@@ -247,7 +251,7 @@ const Header: FC<HeaderProps> = ({
   setNodeCustomTags,
 }: HeaderProps) => {
   // Extract analysisData from context
-  const { addMultipleDifferentPaths } = useContext(GraphContext);
+  const { addMultipleDifferentPaths, deleteNodes } = useContext(GraphContext);
   const { analysisData, address } = useContext(AnalysisContext);
 
   // When minimized, the address hash should be sliced off
@@ -319,8 +323,6 @@ const Header: FC<HeaderProps> = ({
       });
     }
 
-    console.log("Expanding the following paths: ", pathExpansionArgs);
-
     // Add the paths to the graph
     addMultipleDifferentPaths(pathExpansionArgs);
   }, []);
@@ -366,46 +368,60 @@ const Header: FC<HeaderProps> = ({
           analysisMode={analysisMode}
           setAnalysisMode={setAnalysisMode}
         />
-        <button
-          type="button"
-          className="text-md group flex flex-row items-center justify-center gap-x-1.5 rounded-md bg-purple-50 px-3 py-2.5 font-semibold text-indigo-600 shadow-sm ring-1 ring-inset ring-indigo-200 transition-all duration-300 hover:shadow-lg  hover:shadow-indigo-200/50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
-          onClick={() => {
-            expandWithAI(analysisData!);
-          }}
-        >
-          <SparklesIcon
-            className="h-6 w-6 text-indigo-400 "
-            aria-hidden="true"
-          />
-          Expand
-          <div className="pointer-events-none absolute mb-48 mt-0.5 w-max origin-bottom scale-0 divide-y divide-gray-700 rounded-lg bg-gray-800 px-3 py-3 text-white opacity-0 shadow-sm transition-all duration-300 ease-in-out group-hover:scale-100 group-hover:opacity-100 dark:bg-gray-700 ">
-            <div className="flex flex-row items-center gap-x-1.5 pb-1">
-              <InformationCircleIcon className="h-5 w-5 text-indigo-200" />
-              <h1 className="text-base font-semibold leading-7">Expand w/AI</h1>
+
+        <span className="flex flex-row">
+          <a className="group flex flex-row items-center justify-center">
+            <SparklesIcon
+              onClick={() => {
+                expandWithAI(analysisData!);
+              }}
+              className="h-11 w-11 cursor-pointer rounded-md p-1.5 text-indigo-400 transition-all duration-150 ease-in-out hover:bg-indigo-50 "
+            />
+            <div className="pointer-events-none absolute mb-48 mt-0.5 w-max origin-bottom scale-50 divide-y divide-gray-700 rounded-lg bg-gray-800 px-3 py-3 text-white opacity-0 shadow-sm transition-all duration-300 ease-in-out group-hover:scale-100 group-hover:opacity-100">
+              <div className="flex flex-row items-center gap-x-1.5 pb-1">
+                <InformationCircleIcon className="h-5 w-5 text-indigo-200" />
+                <h1 className="text-base font-semibold leading-7">
+                  Expand w/AI
+                </h1>
+              </div>
+              <div className="flex max-w-xs flex-col gap-y-1.5 pt-1 text-xs font-normal text-gray-400">
+                The AI algorithm will expand based on the following criteria:
+                <ul className="flex flex-col gap-y-2 pl-3 text-white">
+                  <li className="flex flex-row items-center gap-x-1">
+                    <IdentificationIcon className="h-5 w-5 text-indigo-200" />
+                    <span className="font-bold">Highest risk</span>categories of
+                    addresses
+                  </li>
+                  <li className="flex flex-row items-center gap-x-1">
+                    <ArrowsPointingInIcon className="h-5 w-5 text-indigo-200" />
+                    <a className="font-bold">Most relevant</a> multi-hop paths
+                  </li>
+                </ul>
+              </div>
             </div>
-            <div className="flex max-w-xs flex-col gap-y-1.5 pt-1 text-xs font-normal text-gray-400">
-              The AI algorithm will expand based on the following criteria:
-              <ul className="flex flex-col gap-y-2 pl-3 text-white">
-                <li className="flex flex-row items-center gap-x-1">
-                  <IdentificationIcon className="h-5 w-5 text-indigo-200" />
-                  <span className="font-bold">Highest risk</span>categories of
-                  addresses
-                </li>
-                <li className="flex flex-row items-center gap-x-1">
-                  <ArrowsPointingInIcon className="h-5 w-5 text-indigo-200" />
-                  <a className="font-bold">Most relevant</a> multi-hop paths
-                </li>
-              </ul>
+          </a>
+          <a className="group flex flex-row items-center justify-center">
+            <TrashIcon
+              onClick={() => {
+                deleteNodes([address]);
+                onExit();
+              }}
+              className="h-11 w-11 cursor-pointer rounded-md p-1.5 text-gray-400 transition-all duration-150 ease-in-out hover:bg-red-50 hover:text-red-500"
+            />
+            <div className="pointer-events-none absolute mb-24 mt-0.5 w-max origin-bottom scale-50 divide-y divide-gray-700 rounded-lg bg-gray-800 px-3 py-3 text-white opacity-0 shadow-sm transition-all duration-300 ease-in-out group-hover:scale-100 group-hover:opacity-100">
+              Delete
             </div>
-          </div>
-        </button>
-        <a
-          onClick={() => {
-            onExit();
-          }}
-        >
-          <XMarkIcon className="h-11 w-11 cursor-pointer rounded-full p-1.5 text-gray-400 transition-all duration-300 hover:bg-gray-100" />
-        </a>
+          </a>
+          <a className="group flex flex-row items-center justify-center">
+            <XMarkIcon
+              onClick={onExit}
+              className="h-11 w-11 cursor-pointer rounded-md p-1.5 text-gray-400 transition-all duration-150 ease-in-out hover:bg-gray-100"
+            />
+            <div className="pointer-events-none absolute mb-24 mt-0.5 w-max origin-bottom scale-50 divide-y divide-gray-700 rounded-lg bg-gray-800 px-3 py-3 text-white opacity-0 shadow-sm transition-all duration-300 ease-in-out group-hover:scale-100 group-hover:opacity-100">
+              Close
+            </div>
+          </a>
+        </span>
       </span>
     </span>
   );

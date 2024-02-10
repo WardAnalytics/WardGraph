@@ -63,6 +63,8 @@ enum HotKeyMap {
   DELETE = 1,
   BACKSPACE,
   ESCAPE,
+  UNDO,
+  REDO,
 }
 
 /* Pan on drag settings */
@@ -100,7 +102,12 @@ interface GraphContextProps {
   addNewAddressToCenter: (address: string) => void;
   storeSetNodeCustomTags: (setter: (tags: string[]) => void) => void;
   addMultipleDifferentPaths: (pathArgs: PathExpansionArgs[]) => void;
+  deleteNodes: (ids: string[]) => void;
+  getAddressRisk: (address: string) => number;
+  registerAddressRisk: (address: string, risk: number) => void;
   focusedAddressData: AddressAnalysis | null;
+  isRiskVision: boolean;
+  setShowRiskVision: (show: boolean) => void;
 }
 
 export const GraphContext = createContext<GraphContextProps>(
@@ -242,6 +249,76 @@ const GraphProvided: FC<GraphProvidedProps> = ({
     };
   }, [edges]);
 
+  // Undo and Redo -------------------------------------------------------------
+
+  /* For this, we'll use a simple undo and redo system. We'll store the
+   * previous state of the graph in a stack and whenever a change is made,
+   * we'll push the previous state onto the stack.
+   *
+   * When undo is pressed, we'll walk back one state from the last. If any
+   * change is recorded after that, we'll delete all the states after the current
+   * state and push the new state onto the stack. If none are pressed, the user
+   * can still redo to the last state. */
+
+  interface GraphState {
+    nodes: Node[];
+    edges: Edge[];
+  }
+
+  const [graphStates, setGraphStates] = useState<GraphState[]>([
+    { nodes: initialNodes, edges: initialEdges },
+  ]);
+  const [undoDepth, setUndoDepth] = useState<number>(0);
+  const [isUndoRedoAction, setIsUndoRedoAction] = useState<boolean>(false);
+
+  const addGraphState = useCallback(
+    (newState: GraphState) => {
+      if (isUndoRedoAction) {
+        setIsUndoRedoAction(false); // Reset flag after undo/redo action
+        return;
+      }
+
+      setGraphStates((prevStates) => {
+        const trimmedStates =
+          undoDepth > 0 ? prevStates.slice(0, -undoDepth) : prevStates;
+        const newStates =
+          trimmedStates.length >= 10
+            ? trimmedStates.slice(1).concat(newState)
+            : trimmedStates.concat(newState);
+        setUndoDepth(0); // Reset undo depth on new state
+        return newStates;
+      });
+    },
+    [undoDepth, isUndoRedoAction],
+  );
+
+  useEffect(() => {
+    addGraphState({ nodes, edges });
+  }, [nodes.length]);
+
+  const undo = useCallback(() => {
+    if (graphStates.length <= 1 || undoDepth >= graphStates.length - 1) return;
+
+    setUndoDepth((depth) => depth + 1);
+    setIsUndoRedoAction(true); // Set flag to prevent state save
+  }, [graphStates.length, undoDepth]);
+
+  const redo = useCallback(() => {
+    if (undoDepth <= 0) return;
+
+    setUndoDepth((depth) => Math.max(depth - 1, 0));
+    setIsUndoRedoAction(true); // Set flag to prevent state save
+  }, [undoDepth]);
+
+  // Assuming `setNodes` and `setEdges` modify the actual React state for nodes and edges
+  useEffect(() => {
+    if (undoDepth > 0) {
+      const currentState = graphStates[graphStates.length - 1 - undoDepth];
+      setNodes(currentState.nodes);
+      setEdges(currentState.edges);
+    }
+  }, [undoDepth, graphStates]);
+
   // Dynamic Edge Handles ------------------------------------------------------
 
   /* We want the edge handles to change dynamically depending on the position
@@ -372,23 +449,26 @@ const GraphProvided: FC<GraphProvidedProps> = ({
   /** Deletes multiple nodes and all dangling edges connected to them
    * @param ids the ids of the nodes to delete
    */
-  function deleteNodes(ids: string[]) {
-    setNodes((nodes) => nodes.filter((node) => !ids.includes(node.id)));
-    setEdges((edges) =>
-      edges.filter(
-        (edge) =>
-          !ids.includes(edge.source) &&
-          !ids.includes(edge.target) &&
-          (nodesRecord[edge.source] || nodesRecord[edge.target]),
-      ),
-    );
-  }
+  const deleteNodes = useCallback(
+    (ids: string[]) => {
+      setNodes((nodes) => nodes.filter((node) => !ids.includes(node.id)));
+      setEdges((edges) =>
+        edges.filter(
+          (edge) =>
+            !ids.includes(edge.source) &&
+            !ids.includes(edge.target) &&
+            (nodesRecord[edge.source] || nodesRecord[edge.target]),
+        ),
+      );
+    },
+    [nodes.length],
+  );
 
   /** Deletes all selected nodes */
-  function deleteSelectedNodes() {
+  const deleteSelectedNodes = useCallback(() => {
     deleteNodes(selectedNodes);
     onAddressFocusOff();
-  }
+  }, [deleteNodes, selectedNodes]);
 
   const onAddressFocusOff = useCallback(() => {
     setFocusedAddressData(null);
@@ -402,9 +482,24 @@ const GraphProvided: FC<GraphProvidedProps> = ({
     : false;
   const escapeKeyPressed = useKeyPress("Escape") ? HotKeyMap.ESCAPE : false;
 
+  // Ctrl Z and Ctrl Y for undo and redo
+  const undoPressed = useKeyPress(["z"]) ? HotKeyMap.UNDO : false;
+  const redoPressed = useKeyPress(["y"]) ? HotKeyMap.REDO : false;
+
   const keyPressed = useMemo(
-    () => deleteKeyPressed || backspaceKeyPressed || escapeKeyPressed,
-    [deleteKeyPressed, backspaceKeyPressed, escapeKeyPressed],
+    () =>
+      deleteKeyPressed ||
+      backspaceKeyPressed ||
+      escapeKeyPressed ||
+      undoPressed ||
+      redoPressed,
+    [
+      deleteKeyPressed,
+      backspaceKeyPressed,
+      escapeKeyPressed,
+      undoPressed,
+      redoPressed,
+    ],
   );
 
   useEffect(() => {
@@ -417,6 +512,12 @@ const GraphProvided: FC<GraphProvidedProps> = ({
       case HotKeyMap.ESCAPE:
         onAddressFocusOff();
         setSelectedNodes([]);
+        break;
+      case HotKeyMap.UNDO:
+        undo();
+        break;
+      case HotKeyMap.REDO:
+        redo();
         break;
       default:
         break;
@@ -584,6 +685,36 @@ const GraphProvided: FC<GraphProvidedProps> = ({
   const [hoveredTransferData, setHoveredTransferData] =
     useState<TransactionTooltipProps | null>(null);
 
+  // Node Risk Tracking & Risk Vision -----------------------------------------
+
+  /* When risk vision is on, we make the nodes colored based on their risk
+   * and we change the color of the edges so that they are instead based on
+   * the risk of the nodes they connect (with pretty gradients). */
+
+  const [isRiskVision, setIsRiskVision] = useState<boolean>(false);
+
+  /* This is required so that the edges in risk vision and easily have access
+   * to the risk of the nodes they are connected to.
+   *
+   * We do this by register of a node when its risk is known. */
+
+  const [nodeRisk, setNodeRisk] = useState<Map<string, number>>(new Map());
+
+  const registerAddressRisk = useCallback((address: string, risk: number) => {
+    setNodeRisk((nodeRisk) => {
+      const newNodeRisk = new Map(nodeRisk);
+      newNodeRisk.set(address, risk);
+      return newNodeRisk;
+    });
+  }, []);
+
+  const getAddressRisk = useCallback(
+    (address: string): number => {
+      return nodeRisk.get(address) ?? 0;
+    },
+    [nodeRisk],
+  );
+
   // Automatic Layout ---------------------------------------------------------
 
   function filterLayoutElements(): {
@@ -692,7 +823,12 @@ const GraphProvided: FC<GraphProvidedProps> = ({
     addNewAddressToCenter,
     addMultipleDifferentPaths,
     storeSetNodeCustomTags,
+    deleteNodes,
+    getAddressRisk,
+    registerAddressRisk,
     focusedAddressData,
+    isRiskVision,
+    setShowRiskVision: setIsRiskVision,
   };
 
   return (
