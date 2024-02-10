@@ -6,11 +6,12 @@ import {
 } from "@heroicons/react/20/solid";
 import { CreditCardIcon } from "@heroicons/react/24/outline";
 import clsx from "clsx";
-import { FC, useState } from "react";
+import { FC, useEffect, useMemo, useState } from "react";
 import Badge from "../components/common/Badge";
 import BigButton from "../components/common/BigButton";
 import useAuthState from "../hooks/useAuthState";
 import { getCheckoutUrl, getCustomerPortalUrl } from "../services/payments/payments.services";
+import { Product, getAllProducts } from "../services/products/products.services";
 import { Colors } from "../utils/colors";
 
 interface PlanProps {
@@ -56,9 +57,18 @@ const DiscoverPlan: FC<PlanProps> = ({ isPro }) => {
   );
 };
 
-const ProPlan: FC<PlanProps> = ({ isPro, isLoading = false, setIsLoading = () => { } }) => {
+interface ProPlanProps extends PlanProps {
+  product: Product;
+}
+
+const ProPlan: FC<ProPlanProps> = ({ isPro, product, isLoading = false, setIsLoading = () => { } }) => {
+  const price = useMemo(() => {
+    const priceAmount = Math.round((product.price.amount + Number.EPSILON) * 100) / 100
+    return `${priceAmount.toFixed(2)}`
+  }, [product])
+
   const onBuyPlanClicked = () => {
-    const priceId = import.meta.env.VITE_STRIPE_ONE_MONTH_SUBSCRIPTION_PRICE_ID
+    const priceId = product.price.id
     setIsLoading(true)
     getCheckoutUrl(priceId).then((url) => {
       setIsLoading(false)
@@ -69,17 +79,16 @@ const ProPlan: FC<PlanProps> = ({ isPro, isLoading = false, setIsLoading = () =>
   return (
     <div className="relative flex w-96 flex-col overflow-hidden rounded-3xl bg-gray-800 p-8 shadow-md">
       <h3 className="flex flex-row items-center gap-x-2 text-lg font-semibold leading-8 text-white">
-        Pro
+        {product.name}
         {isPro && (
           <Badge color={Colors.BLUE_DARK} text="Current" className="h-fit" />
         )}
       </h3>
       <p className="mt-1 text-sm leading-6 text-gray-300">
-        For investigators who want to speed up their workflow and take their
-        analysis to the next level.
+        {product.description}
       </p>
       <p className="mt-4 text-4xl font-bold tracking-tight text-white">
-        $49.99
+        {price}€
         <span className="text-base font-normal text-gray-300">/mo</span>
         <svg
           viewBox="0 0 1208 1024"
@@ -184,6 +193,14 @@ const BillingTemplate: FC = () => {
 
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
+  const [products, setProducts] = useState<Product[]>([])
+
+  useEffect(() => {
+    getAllProducts().then((products) => {
+      setProducts(products)
+    })
+  }, [])
+
   const onManageSubscriptionClicked = () => {
     setIsLoading(true)
     getCustomerPortalUrl().then((url) => {
@@ -222,7 +239,11 @@ const BillingTemplate: FC = () => {
       </span>
       <span className="flex flex-row justify-center gap-x-5">
         <DiscoverPlan isPro={isPro} />
-        <ProPlan isPro={isPro} isLoading={isLoading} setIsLoading={setIsLoading} />
+        {
+          products.map((product) => (
+            <ProPlan key={product.id} isPro={isPro} product={product} isLoading={isLoading} setIsLoading={setIsLoading} />
+          ))
+        }
         <EnterprisePlan isLoading={isLoading} />
       </span>
     </div>
