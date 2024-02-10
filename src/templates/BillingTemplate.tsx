@@ -185,7 +185,6 @@ const BillingTemplate: FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
   const onManageSubscriptionClicked = () => {
-    console.log("Manage subscription clicked")
     setIsLoading(true)
     getCustomerPortalUrl().then((url) => {
       setIsLoading(false)

@@ -17,6 +17,7 @@ const getCheckoutUrl = async (priceId: string): Promise<string> => {
 
   const docRef = await addDoc(checkoutSessionRef, {
     price: priceId,
+    allow_promotion_codes: true,
     success_url: window.location.origin,
     cancel_url: window.location.origin,
   });

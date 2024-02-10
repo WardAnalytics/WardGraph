@@ -46,7 +46,7 @@ const getCustomAddressesTags = async (address: string): Promise<string[]> => {
     }
     return [];
   } catch (error) {
-    console.log(
+    console.error(
       "Error getting custom addresses tags for address ",
       address,
       " \n User was ",
