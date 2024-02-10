@@ -21,7 +21,7 @@ import RiskIndicator from "../../../../../common/RiskIndicator";
 import { GraphContext } from "../../../../Graph";
 
 import Badge from "../../../../../common/Badge";
-import { Colors, ColorClass } from "../../../../../../utils/colors";
+import { Colors } from "../../../../../../utils/colors";
 
 import {
   createTransfershipEdge,
