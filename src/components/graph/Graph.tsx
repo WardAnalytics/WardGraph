@@ -63,6 +63,8 @@ enum HotKeyMap {
   DELETE = 1,
   BACKSPACE,
   ESCAPE,
+  UNDO,
+  REDO,
 }
 
 /* Pan on drag settings */
@@ -243,6 +245,76 @@ const GraphProvided: FC<GraphProvidedProps> = ({
     };
   }, [edges]);
 
+  // Undo and Redo -------------------------------------------------------------
+
+  /* For this, we'll use a simple undo and redo system. We'll store the
+   * previous state of the graph in a stack and whenever a change is made,
+   * we'll push the previous state onto the stack.
+   *
+   * When undo is pressed, we'll walk back one state from the last. If any
+   * change is recorded after that, we'll delete all the states after the current
+   * state and push the new state onto the stack. If none are pressed, the user
+   * can still redo to the last state. */
+
+  interface GraphState {
+    nodes: Node[];
+    edges: Edge[];
+  }
+
+  const [graphStates, setGraphStates] = useState<GraphState[]>([
+    { nodes: initialNodes, edges: initialEdges },
+  ]);
+  const [undoDepth, setUndoDepth] = useState<number>(0);
+  const [isUndoRedoAction, setIsUndoRedoAction] = useState<boolean>(false);
+
+  const addGraphState = useCallback(
+    (newState: GraphState) => {
+      if (isUndoRedoAction) {
+        setIsUndoRedoAction(false); // Reset flag after undo/redo action
+        return;
+      }
+
+      setGraphStates((prevStates) => {
+        const trimmedStates =
+          undoDepth > 0 ? prevStates.slice(0, -undoDepth) : prevStates;
+        const newStates =
+          trimmedStates.length >= 10
+            ? trimmedStates.slice(1).concat(newState)
+            : trimmedStates.concat(newState);
+        setUndoDepth(0); // Reset undo depth on new state
+        return newStates;
+      });
+    },
+    [undoDepth, isUndoRedoAction],
+  );
+
+  useEffect(() => {
+    addGraphState({ nodes, edges });
+  }, [nodes.length]);
+
+  const undo = useCallback(() => {
+    if (graphStates.length <= 1 || undoDepth >= graphStates.length - 1) return;
+
+    setUndoDepth((depth) => depth + 1);
+    setIsUndoRedoAction(true); // Set flag to prevent state save
+  }, [graphStates.length, undoDepth]);
+
+  const redo = useCallback(() => {
+    if (undoDepth <= 0) return;
+
+    setUndoDepth((depth) => Math.max(depth - 1, 0));
+    setIsUndoRedoAction(true); // Set flag to prevent state save
+  }, [undoDepth]);
+
+  // Assuming `setNodes` and `setEdges` modify the actual React state for nodes and edges
+  useEffect(() => {
+    if (undoDepth > 0) {
+      const currentState = graphStates[graphStates.length - 1 - undoDepth];
+      setNodes(currentState.nodes);
+      setEdges(currentState.edges);
+    }
+  }, [undoDepth, graphStates]);
+
   // Dynamic Edge Handles ------------------------------------------------------
 
   /* We want the edge handles to change dynamically depending on the position
@@ -406,9 +478,24 @@ const GraphProvided: FC<GraphProvidedProps> = ({
     : false;
   const escapeKeyPressed = useKeyPress("Escape") ? HotKeyMap.ESCAPE : false;
 
+  // Ctrl Z and Ctrl Y for undo and redo
+  const undoPressed = useKeyPress(["z"]) ? HotKeyMap.UNDO : false;
+  const redoPressed = useKeyPress(["y"]) ? HotKeyMap.REDO : false;
+
   const keyPressed = useMemo(
-    () => deleteKeyPressed || backspaceKeyPressed || escapeKeyPressed,
-    [deleteKeyPressed, backspaceKeyPressed, escapeKeyPressed],
+    () =>
+      deleteKeyPressed ||
+      backspaceKeyPressed ||
+      escapeKeyPressed ||
+      undoPressed ||
+      redoPressed,
+    [
+      deleteKeyPressed,
+      backspaceKeyPressed,
+      escapeKeyPressed,
+      undoPressed,
+      redoPressed,
+    ],
   );
 
   useEffect(() => {
@@ -421,6 +508,12 @@ const GraphProvided: FC<GraphProvidedProps> = ({
       case HotKeyMap.ESCAPE:
         onAddressFocusOff();
         setSelectedNodes([]);
+        break;
+      case HotKeyMap.UNDO:
+        undo();
+        break;
+      case HotKeyMap.REDO:
+        redo();
         break;
       default:
         break;
