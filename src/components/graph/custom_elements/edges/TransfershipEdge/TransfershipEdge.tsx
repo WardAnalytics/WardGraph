@@ -5,6 +5,11 @@ import CustomEdgePath from "../TransfershipEdge/CustomEdgePath";
 import TransfershipEdgeStates from "../TransfershipEdge/states";
 import { GraphContext } from "../../../Graph";
 
+export interface RiskVisionColors {
+  fillColor: string;
+  strokeColor: string;
+}
+
 const TransfershipEdge: FC<EdgeProps> = ({
   id,
   source,
@@ -25,8 +30,44 @@ const TransfershipEdge: FC<EdgeProps> = ({
     getEdgeHandleID,
     setHoveredTransferData,
     focusedAddressData,
+    getAddressRisk,
+    isRiskVision,
   } = useContext(GraphContext);
   const isHidden: boolean = data?.state === TransfershipEdgeStates.HIDDEN;
+
+  // If there is a risk vision, get the risk of the source and target addresses. Set the colors of the edges to reflect the highest risk of both
+  let riskVisionColors: undefined | RiskVisionColors = undefined;
+  if (isRiskVision) {
+    const sourceRisk = getAddressRisk(source);
+    const targetRisk = getAddressRisk(target);
+    const highestRisk = Math.max(sourceRisk, targetRisk);
+
+    riskVisionColors = {
+      fillColor: "fill-green-400",
+      strokeColor: "stroke-green-400",
+    };
+
+    if (highestRisk >= 4) {
+      riskVisionColors = {
+        fillColor: "fill-yellow-400",
+        strokeColor: "stroke-yellow-400",
+      };
+    }
+
+    if (highestRisk >= 7) {
+      riskVisionColors = {
+        fillColor: "fill-red-400",
+        strokeColor: "stroke-red-400",
+      };
+    }
+
+    if (highestRisk >= 9) {
+      riskVisionColors = {
+        fillColor: "fill-red-700",
+        strokeColor: "stroke-red-700",
+      };
+    }
+  }
 
   // If hidden, check whether the source or target node is focused. If none are focused, don't render the edge at all
   if (
@@ -85,6 +126,7 @@ const TransfershipEdge: FC<EdgeProps> = ({
         hoveredStyle={hoveredStyle}
         isHidden={isHidden}
         isClickable={isClickable}
+        riskVisionColors={riskVisionColors}
         onClick={() => {
           setEdgeState(
             id,

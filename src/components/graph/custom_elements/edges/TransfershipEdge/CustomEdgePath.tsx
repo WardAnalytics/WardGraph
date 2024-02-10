@@ -1,5 +1,6 @@
 import clsx from "clsx";
 import { CSSProperties } from "react";
+import { RiskVisionColors } from "./TransfershipEdge";
 
 import "./CustomEdgePath.css";
 
@@ -16,6 +17,7 @@ interface CustomEdgePathProps {
   isHidden: boolean;
   opacity: number;
   isClickable: boolean;
+  riskVisionColors?: RiskVisionColors;
 }
 
 const CustomEdgePath = ({
@@ -30,6 +32,7 @@ const CustomEdgePath = ({
   onMouseEnter,
   onMouseLeave,
   onClick,
+  riskVisionColors,
 }: CustomEdgePathProps) => {
   const triangleMarkerID: string = `triangle-${id}`;
 
@@ -52,9 +55,11 @@ const CustomEdgePath = ({
           className={clsx(
             isHidden
               ? "fill-gray-300"
-              : edgeHandleID === "a"
-                ? "fill-blue-400"
-                : "fill-orange-400",
+              : riskVisionColors
+                ? riskVisionColors.fillColor
+                : edgeHandleID === "a"
+                  ? "fill-blue-400"
+                  : "fill-orange-400",
           )}
         />
         <circle
@@ -65,9 +70,11 @@ const CustomEdgePath = ({
             "animate-pulse opacity-10",
             isHidden
               ? "fill-gray-300"
-              : edgeHandleID === "a"
-                ? "fill-blue-400"
-                : "fill-orange-400",
+              : riskVisionColors
+                ? riskVisionColors.fillColor
+                : edgeHandleID === "a"
+                  ? "fill-blue-400"
+                  : "fill-orange-400",
           )}
         />
       </marker>
@@ -80,9 +87,11 @@ const CustomEdgePath = ({
           "animated-dotted-line",
           isHidden
             ? "stroke-gray-300"
-            : edgeHandleID === "a"
-              ? "stroke-blue-400"
-              : "stroke-orange-400",
+            : riskVisionColors
+              ? riskVisionColors.strokeColor
+              : edgeHandleID === "a"
+                ? "stroke-blue-400"
+                : "stroke-orange-400",
         )}
         strokeWidth={strokeWidth}
         markerEnd={`url(#${triangleMarkerID})`}
@@ -98,9 +107,11 @@ const CustomEdgePath = ({
         className={clsx(
           isHidden
             ? "stroke-gray-300"
-            : edgeHandleID === "a"
-              ? "stroke-blue-400"
-              : "stroke-orange-400",
+            : riskVisionColors
+              ? riskVisionColors.strokeColor
+              : edgeHandleID === "a"
+                ? "stroke-blue-400"
+                : "stroke-orange-400",
         )}
         strokeWidth={strokeWidth * 1.1}
         style={{

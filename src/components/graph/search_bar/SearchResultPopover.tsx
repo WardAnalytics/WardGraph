@@ -13,12 +13,16 @@ interface SearchResultRowProps {
   result: SearchResult;
   selected: boolean;
   onClickAddress: () => void;
+  totalResults: number;
+  currentIndex: number;
 }
 
 const SearchResultRow = ({
   result,
   selected,
   onClickAddress,
+  totalResults,
+  currentIndex,
 }: SearchResultRowProps) => {
   return (
     <div
@@ -43,6 +47,11 @@ const SearchResultRow = ({
       {result.entity && (
         <Badge text={result.entity} color={Colors.BLUE} Icon={TagIcon} />
       )}
+      {selected && (
+        <p className="ml-auto mr-2 text-xs text-gray-400">
+          {currentIndex + 1}/{totalResults}
+        </p>
+      )}
     </div>
   );
 };
@@ -63,22 +72,46 @@ const SearchResultPopover: FC<SearchResultPopoverProps> = ({
     return null;
   }
 
+  // If the selected index is bigger than 3, we want to start scrolling the popover downwards.
+  // We only want to display 7 results at a time, and we want to keep the selected index in the middle of the popover unless it's near the bounds.
+  const { lowerBound, upperBound } = (() => {
+    if (selectedIndex === null) {
+      return { lowerBound: 0, upperBound: 7 };
+    }
+
+    if (selectedIndex < 3) {
+      return { lowerBound: 0, upperBound: 7 };
+    }
+
+    if (selectedIndex > results.length - 4) {
+      return { lowerBound: results.length - 7, upperBound: results.length };
+    }
+
+    return { lowerBound: selectedIndex - 3, upperBound: selectedIndex + 4 };
+  })();
+
   return (
     <div className="relative z-10 w-full">
       <Popover className="absolute w-full">
         <Popover.Panel static>
           <div className="overflow-hidden rounded-lg shadow-lg ring-1 ring-black/5">
             <div className="relative flex flex-col bg-white pt-3">
-              {results.map((item, index) => (
-                <SearchResultRow
-                  key={item.address}
-                  result={item}
-                  onClickAddress={() => {
-                    onClickAddress(item.address);
-                  }}
-                  selected={selectedIndex === index}
-                />
-              ))}
+              {results.map(
+                (item, index) =>
+                  index >= lowerBound &&
+                  index < upperBound && (
+                    <SearchResultRow
+                      key={item.address}
+                      result={item}
+                      onClickAddress={() => {
+                        onClickAddress(item.address);
+                      }}
+                      selected={selectedIndex === index}
+                      totalResults={results.length}
+                      currentIndex={index}
+                    />
+                  ),
+              )}
             </div>
           </div>
         </Popover.Panel>
