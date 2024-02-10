@@ -12,11 +12,6 @@ export const ColorMap: Record<string, ColorClass> = {
     background: "bg-blue-50",
     ring: "ring-blue-700/10",
   },
-  [Colors.BLUE_DARK]: {
-    text: "text-blue-400",
-    background: "bg-blue-400/10",
-    ring: "ring-blue-400/30",
-  },
   [Colors.RED]: {
     text: "text-red-700",
     background: "bg-red-50",

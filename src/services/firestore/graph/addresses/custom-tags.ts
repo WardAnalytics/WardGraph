@@ -46,7 +46,7 @@ const getCustomAddressesTags = async (address: string): Promise<string[]> => {
     }
     return [];
   } catch (error) {
-    console.error(
+    console.log(
       "Error getting custom addresses tags for address ",
       address,
       " \n User was ",
@@ -83,7 +83,7 @@ const storeCustomAddressesTags = async (address: string, tags: string[]) => {
       where("user", "==", user?.uid),
     );
   } catch (error) {
-    console.error(error);
+    console.log(error);
   }
   const querySnapshot = q ? await getDocs(q) : undefined;
 
@@ -124,6 +124,8 @@ const deleteCustomAddressTag = async (address: string, tag: string) => {
     where("user", "==", user?.uid),
   );
   const querySnapshot = await getDocs(q);
+
+  console.log(querySnapshot.empty);
 
   if (!querySnapshot.empty) {
     const docRef = doc(db, "customAddressesTags", querySnapshot.docs[0].id);

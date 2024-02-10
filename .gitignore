@@ -36,5 +36,3 @@ build
 *.sln
 *.sw?
 src/services/env.ts
-
-example.json
