@@ -50,6 +50,8 @@ interface SearchBarProps {
   onSearchAddress: (address: string) => void;
 }
 
+const MAX_SEARCH_HISTORY = 50;
+
 const SearchBar: FC<SearchBarProps> = ({ className, onSearchAddress }) => {
   const popoverRef = useRef<HTMLDivElement>(null); // Popever ref for hotkeys
   const { user } = useAuthState(); // Current user
@@ -100,7 +102,7 @@ const SearchBar: FC<SearchBarProps> = ({ className, onSearchAddress }) => {
 
     const body: SearchLabelsBody = {
       query: query,
-      limit: 7,
+      limit: MAX_SEARCH_HISTORY,
     };
 
     async function fetchLabels() {
@@ -141,8 +143,8 @@ const SearchBar: FC<SearchBarProps> = ({ className, onSearchAddress }) => {
         ),
     );
 
-    // Now limit to 10 results
-    results = results.slice(0, 7);
+    // Now limit to MAX_SEARCH_HISTORY results
+    results = results.slice(0, MAX_SEARCH_HISTORY);
 
     return results;
   }, [userSearchHistory, entitySearchResults]);
