@@ -1,7 +1,7 @@
 import { User } from "firebase/auth";
 import { useEffect, useState } from "react";
 import { auth } from "../services/firebase";
-import { getPremiumStatus } from "../services/firestore/user/premium";
+import { getPremiumStatus } from "../services/firestore/user/premium/premium";
 
 const useAuthState = () => {
   // Get user from local storage
@@ -10,9 +10,10 @@ const useAuthState = () => {
   const localIsPremium = localStorage.getItem("isPremium");
   const initialIsPremium = localIsPremium ? JSON.parse(localIsPremium) : false;
 
-
   const [user, setUser] = useState<User | null>(initialUser);
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(initialUser?.emailVerified || false);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(
+    initialUser?.emailVerified || false,
+  );
   const [isLoading, setIsLoading] = useState(true);
   const [isPremium, setIsPremium] = useState(initialIsPremium);
 
@@ -33,12 +34,12 @@ const useAuthState = () => {
     localStorage.setItem("user", JSON.stringify(user));
   }, [user]);
 
-  useEffect(() => {
-    getPremiumStatus().then((status) => {
-      setIsPremium(status);
-      localStorage.setItem("isPremium", JSON.stringify(status));
-    });
-  }, [user]);
+  // useEffect(() => {
+  //   getPremiumStatus().then((status) => {
+  //     setIsPremium(status);
+  //     localStorage.setItem("isPremium", JSON.stringify(status));
+  //   });
+  // }, [user]);
 
   return { user, isAuthenticated, isLoading, isPremium };
 };

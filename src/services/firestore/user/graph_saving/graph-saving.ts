@@ -5,7 +5,6 @@ import {
   limit,
   query,
   where,
-  orderBy,
 } from "firebase/firestore";
 import { db } from "../../../firebase";
 
@@ -105,7 +104,11 @@ export async function getPersonalGraphs(): Promise<PersonalGraph[]> {
     graphs.push(doc.data().graphData);
   });
 
-  return graphs;
+  const orderedGraphs = graphs.sort((a, b) => {
+    return a.last_modified < b.last_modified ? 1 : -1;
+  });
+
+  return orderedGraphs;
 }
 
 /** Retrieves the information for a specific graph by name

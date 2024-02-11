@@ -1,4 +1,5 @@
 import {
+  getDoc,
   doc,
   onSnapshot,
   DocumentReference,
@@ -13,39 +14,51 @@ import { db } from "../../../firebase";
 import { UserNotFoundError } from "../errors";
 import { UserData } from "../types";
 
-/** Adds a custom tag to a address' custom tags.
- * - If the address subcollection doesn't exist, create it.
- * - If the address document isn't in the subcollection, create it.
+/** Adds a custom tag to a user's custom tags. Always add it to the start of the array.
+ * - If it already exists, move it to the start instead.
+ * - If the user's customTags doesn't exist, create it.
  * @param tag The tag to add
  */
-export async function addCustomAddressTag(address: string, tag: string) {
+export async function addCustomUserTag(tag: string) {
   const user = getVerifiedUser();
 
-  // Get user document ref
-  const docRef = doc(db, "users", user.uid, "addressTags", address);
+  // Get user snapshot
+  const docRef = doc(db, "users", user.uid);
+  const docSnap = await getDoc(docRef);
 
-  // Update ite
-  await setDoc(docRef, { tags: arrayUnion(tag) }, { merge: true });
+  // If the user doesn't exist, throw an error
+  if (!docSnap.exists()) {
+    throw new UserNotFoundError(user.uid);
+  }
+
+  // Update data
+  await setDoc(docRef, { customTags: arrayUnion(tag) }, { merge: true });
 }
 
-/** Removes a custom tag from a address' custom tags.
+/** Removes a custom tag from a user's custom tags.
  * @param tag
  */
-export async function removeCustomAddressTag(address: string, tag: string) {
+export async function removeCustomUserTag(tag: string) {
   const user = getVerifiedUser();
 
-  // Get user document ref
-  const docRef = doc(db, "users", user.uid, "addressTags", address);
+  // Get user snapshot
+  const docRef = doc(db, "users", user.uid);
+  const docSnap = await getDoc(docRef);
 
-  // Update it
-  await setDoc(docRef, { tags: arrayRemove(tag) }, { merge: true });
+  // If the user doesn't exist, throw an error
+  if (!docSnap.exists()) {
+    throw new UserNotFoundError(user.uid);
+  }
+
+  // Modify data using arrayRemove
+  await setDoc(docRef, { customTags: arrayRemove(tag) }, { merge: true });
 }
 
 /** Retrieves the user's custom tags from the database. Whenever the tags are updated,
  * the returned tags will be updated as well.
- * @returns The user's custom address tags, a loading state, and an error state
+ * @returns The user's custom tags, a loading state, and an error state
  */
-export const useCustomAddressTags = ({ address }: { address: string }) => {
+export const useCustomUserTags = () => {
   const [tags, setTags] = useState<string[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<Error | null>(null);
@@ -56,7 +69,7 @@ export const useCustomAddressTags = ({ address }: { address: string }) => {
 
     try {
       userID = getVerifiedUser().uid;
-      docRef = doc(db, "users", userID, "addressTags", address);
+      docRef = doc(db, "users", userID);
     } catch (error) {
       setLoading(false);
       setError(error as Error);

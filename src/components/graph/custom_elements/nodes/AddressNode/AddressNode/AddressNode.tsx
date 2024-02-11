@@ -13,7 +13,7 @@ import { Position, Handle, Edge } from "reactflow";
 import { AddressAnalysis } from "../../../../../../api/model";
 import { useAnalysisAddressData } from "../../../../../../api/compliance/compliance";
 
-import { getCustomAddressesTags } from "../../../../../../services/firestore/user/custom_tags/address_tags";
+import { useCustomAddressTags } from "../../../../../../services/firestore/user/custom_tags";
 
 import EntityLogo from "../../../../../common/EntityLogo";
 import RiskIndicator from "../../../../../common/RiskIndicator";
@@ -151,15 +151,7 @@ const AddressNode: FC<AddressNodeProps> = ({
   }, []);
 
   // Get the tags of the address
-  const [tags, setTags] = useState<string[]>([]);
-  async function fetchAddressTags(address: string) {
-    getCustomAddressesTags(address).then((tags) => {
-      setTags(tags);
-    });
-  }
-  useEffect(() => {
-    fetchAddressTags(address);
-  }, [address]);
+  const { tags } = useCustomAddressTags({ address });
 
   // Callback for setting the tags
   const tagSetter = useCallback((tags: string[]) => {
@@ -169,7 +161,7 @@ const AddressNode: FC<AddressNodeProps> = ({
       return;
     }
 
-    setTags(tags);
+    // setTags(tags);
   }, []);
 
   // Based on the risk of the node, the color of the node for risk vision should change

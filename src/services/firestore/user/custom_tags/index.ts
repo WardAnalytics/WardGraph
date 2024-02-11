@@ -1,10 +1,10 @@
 export {
-  getCustomUserTags,
-  setCustomUserTags,
-  deleteCustomUserTag,
+  useCustomUserTags,
+  addCustomUserTag,
+  removeCustomUserTag,
 } from "./user_tags";
 export {
-  getCustomAddressesTags,
-  setCustomAddressesTags,
-  deleteCustomAddressTag,
+  useCustomAddressTags,
+  addCustomAddressTag,
+  removeCustomAddressTag,
 } from "./address_tags";

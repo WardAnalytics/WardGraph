@@ -17,15 +17,12 @@ import { AddressAnalysis, Category } from "../../../../api/model";
 import { CategoryClasses } from "../../../../utils/categories";
 
 import {
-  deleteCustomAddressTag,
-  getCustomAddressesTags,
-  setCustomAddressesTags,
-} from "../../../../services/firestore/user/custom_tags/address_tags";
-
-import {
-  getCustomUserTags,
+  addCustomAddressTag,
+  useCustomAddressTags,
+  removeCustomAddressTag,
+  useCustomUserTags,
   addCustomUserTag,
-} from "../../../../services/firestore/user/custom_tags/user_tags";
+} from "../../../../services/firestore/user/custom_tags/";
 
 import { Colors } from "../../../../utils/colors";
 
@@ -152,63 +149,26 @@ const LabelsAndTags: FC<LabelsAndTagsProps> = ({ setNodeCustomTags }) => {
   const labels = analysisData!.labels;
 
   // Get user and address already existing tags from Firestore
-  const [addressCustomTags, setAddressCustomTags] = useState<string[]>([]);
-  const [userCustomTags, setUserCustomTags] = useState<string[]>([]);
-
-  async function fetchAddressTags() {
-    getCustomAddressesTags(address).then((tags) => {
-      setAddressCustomTags(tags);
-    });
-  }
-
-  async function fetchUserTags() {
-    getCustomUserTags().then((tags) => {
-      setUserCustomTags(tags);
-    });
-  }
-
-  useEffect(() => {
-    fetchAddressTags();
-    fetchUserTags();
-  }, []);
-
-  useEffect(() => {
-    fetchAddressTags();
-    fetchUserTags();
-  }, [address]);
+  const { tags: userCustomTags } = useCustomUserTags();
+  const { tags: addressCustomTags } = useCustomAddressTags({ address });
 
   // Handlers for both creating and deleting tags
   const onCreateCustomAddressTag = useCallback(
     async (tag: string) => {
-      // If the user is not logged in, show the auth dialog instead
-
-      // Add tag to address if it's not already there
-      if (!addressCustomTags.includes(tag)) {
-        await setCustomAddressesTags(address, [...addressCustomTags, tag]);
-        setAddressCustomTags([...addressCustomTags, tag]);
-      }
-
-      if (!userCustomTags.includes(tag)) {
-        await addCustomUserTag(tag);
-        setUserCustomTags([...userCustomTags, tag]);
-      }
+      // TODO - Catch not authenticated errors and show the auth dialog instead
+      addCustomAddressTag(address, tag);
+      addCustomUserTag(tag);
     },
     [addressCustomTags, userCustomTags],
   );
 
   const onDeleteCustomAddressTag = useCallback(
     async (tag: string) => {
-      await deleteCustomAddressTag(address, tag);
-      setAddressCustomTags(addressCustomTags.filter((t) => t !== tag));
+      // TODO - Catch not authenticated errors and show the auth dialog instead
+      removeCustomAddressTag(address, tag);
     },
     [addressCustomTags],
   );
-
-  useEffect(() => {
-    if (setNodeCustomTags && addressCustomTags !== null) {
-      setNodeCustomTags(addressCustomTags);
-    }
-  }, [addressCustomTags]);
 
   // Display everything and user input at the end in a flex-wrap
   return (
