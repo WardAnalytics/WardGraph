@@ -8,28 +8,17 @@ import {
   updateDoc,
   where,
 } from "firebase/firestore";
-import authService from "../../../auth/auth.services";
-import { db } from "../../../firebase";
+import { db } from "../../firebase";
+import { getVerifiedUser } from "../../auth/auth.services";
 
-export interface CustomAddressTag {
-  address: string;
-  user?: string;
-  tags: string[];
-  created_at: Date;
-}
-
-/**
- * Get user custom addresses tags
- *
- * @param address - address to get tags
- * @returns - tags of address
+/** Gets an address' custom tags for the current user.
+ * @param address The address to get the tags for
+ * @returns The tags for the address
  */
-const getCustomAddressesTags = async (address: string): Promise<string[]> => {
-  const user = authService.getCurrentUser();
-
-  if (user === null) {
-    return [];
-  }
+export async function getCustomAddressesTags(
+  address: string,
+): Promise<string[]> {
+  const user = getVerifiedUser();
 
   try {
     const q = query(
@@ -56,24 +45,14 @@ const getCustomAddressesTags = async (address: string): Promise<string[]> => {
     );
     return [];
   }
-};
+}
 
-/**
- * Store user custom addresses tags if not exists
- * If exists, update tags
- *
- * @param address - address to store tags
- * @param tags - tags to store
+/** Sets an address' custom tags for the current user.
+ * @param address The address to set the tags for
+ * @param tags The tags to set
  */
-const storeCustomAddressesTags = async (address: string, tags: string[]) => {
-  const isAuthenticated = authService.isAuthenticated();
-
-  if (!isAuthenticated) {
-    console.error("User tried to store tags but was not logged in");
-    return;
-  }
-
-  const user = authService.getCurrentUser();
+export async function setCustomAddressesTags(address: string, tags: string[]) {
+  const user = getVerifiedUser();
 
   let q;
   try {
@@ -100,23 +79,14 @@ const storeCustomAddressesTags = async (address: string, tags: string[]) => {
       created_at: new Date(),
     });
   }
-};
+}
 
-/**
- * Delete user custom addresses tag
- *
- * @param address - address to delete tag
- * @param tag - tag to delete
+/** Deletes a specific tag from an address' custom tags for the current user.
+ * @param address The address to delete tag from
+ * @param tag The tag to delete
  */
-const deleteCustomAddressTag = async (address: string, tag: string) => {
-  const isAuthenticated = authService.isAuthenticated();
-
-  if (!isAuthenticated) {
-    console.error("User tried to delete tag but was not logged in");
-    return;
-  }
-
-  const user = authService.getCurrentUser();
+export async function deleteCustomAddressTag(address: string, tag: string) {
+  const user = getVerifiedUser();
 
   const q = query(
     collection(db, "customAddressesTags"),
@@ -133,10 +103,4 @@ const deleteCustomAddressTag = async (address: string, tag: string) => {
       tags,
     });
   }
-};
-
-export {
-  deleteCustomAddressTag,
-  getCustomAddressesTags,
-  storeCustomAddressesTags,
-};
+}

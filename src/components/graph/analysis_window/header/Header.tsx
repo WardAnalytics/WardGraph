@@ -19,13 +19,13 @@ import { CategoryClasses } from "../../../../utils/categories";
 import {
   deleteCustomAddressTag,
   getCustomAddressesTags,
-  storeCustomAddressesTags,
-} from "../../../../services/firestore/graph/addresses/custom-tags";
+  setCustomAddressesTags,
+} from "../../../../services/firestore/custom_tags/address_tags";
 
 import {
   getCustomUserTags,
-  storeCustomUserTags,
-} from "../../../../services/firestore/user/custom-tags";
+  addCustomUserTag,
+} from "../../../../services/firestore/custom_tags/user_tags";
 
 import { Colors } from "../../../../utils/colors";
 
@@ -184,12 +184,12 @@ const LabelsAndTags: FC<LabelsAndTagsProps> = ({ setNodeCustomTags }) => {
 
       // Add tag to address if it's not already there
       if (!addressCustomTags.includes(tag)) {
-        await storeCustomAddressesTags(address, [...addressCustomTags, tag]);
+        await setCustomAddressesTags(address, [...addressCustomTags, tag]);
         setAddressCustomTags([...addressCustomTags, tag]);
       }
 
       if (!userCustomTags.includes(tag)) {
-        await storeCustomUserTags([...userCustomTags, tag]);
+        await addCustomUserTag(tag);
         setUserCustomTags([...userCustomTags, tag]);
       }
     },

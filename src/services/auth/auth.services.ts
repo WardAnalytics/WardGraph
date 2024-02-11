@@ -4,6 +4,8 @@ import {
   signInWithPopup,
   signOut,
 } from "@firebase/auth";
+import { UserNotLoggedInError, UserEmailNotVerifiedError } from "./errors";
+import { User } from "firebase/auth";
 
 import { sendEmailVerification, sendPasswordResetEmail } from "firebase/auth";
 import { auth, googleProvider } from "../firebase";
@@ -151,6 +153,24 @@ const isAuthenticated = () => {
   const user = getCurrentUser();
   return user?.emailVerified;
 };
+
+/**
+ * Checks if the current user is logged in and their email is verified.
+ * Throws specific errors for each condition if not met.
+ * @returns The verified user.
+ * @throws {UserNotLoggedInError} If the user is not logged in.
+ * @throws {UserEmailNotVerifiedError} If the user's email is not verified.
+ */
+export function getVerifiedUser(): User {
+  const user = authService.getCurrentUser();
+  if (user === null) {
+    throw new UserNotLoggedInError();
+  }
+  if (!user.emailVerified) {
+    throw new UserEmailNotVerifiedError();
+  }
+  return user;
+}
 
 const authService = {
   signUp,

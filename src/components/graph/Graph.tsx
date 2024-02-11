@@ -48,7 +48,7 @@ import {
 } from "./graph_calculations";
 
 import { logAnalyticsEvent } from "../../services/firestore/analytics/analytics";
-import { storeAddress } from "../../services/firestore/user/search-history";
+import { storeAddress } from "../../services/firestore/search_history/search-history";
 
 import generateShortUrl from "../../utils/generateShortUrl";
 import TutorialPopup from "./tutorial/TutorialPopup";
