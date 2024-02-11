@@ -12,7 +12,7 @@ import useAuthState from "../../../hooks/useAuthState";
 import { Label, SearchLabelsBody } from "../../../api/model";
 import { searchLabels } from "../../../api/labels/labels";
 
-import { getUserHistory } from "../../../services/firestore/search_history/search-history";
+import { getUserHistory } from "../../../services/firestore/user/search_history/search-history";
 
 import { HotKeysType } from "../../../types/hotKeys";
 

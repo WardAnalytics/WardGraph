@@ -6,7 +6,7 @@ import SearchBar from "../../search_bar";
 
 import useAuthState from "../../../../hooks/useAuthState";
 
-import { storeAddress } from "../../../../services/firestore/search_history/search-history";
+import { storeAddress } from "../../../../services/firestore/user/search_history/search-history";
 
 interface NewAddressModalProps {
   isOpen: boolean;

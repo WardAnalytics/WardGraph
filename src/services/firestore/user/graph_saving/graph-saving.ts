@@ -50,9 +50,8 @@ export interface PersonalGraph {
  */
 async function isGraphNameUnique(userID: string, graphName: string) {
   const q = query(
-    collection(db, "personalGraphs"),
-    where("user", "==", userID),
-    where("graphName", "==", graphName),
+    collection(db, "users", userID, "graphs"),
+    where("name", "==", graphName),
     limit(1),
   );
   const querySnapshot = await getDocs(q);
@@ -72,7 +71,7 @@ async function isGraphNameUnique(userID: string, graphName: string) {
 export async function storePersonalGraph(
   graph: PersonalGraph,
   create: boolean = false,
-): Promise<void> {
+) {
   const user = getVerifiedUser();
 
   // Assure the graph is unique for that user if we're creating it (not updating)
@@ -82,16 +81,14 @@ export async function storePersonalGraph(
     );
   }
 
-  // If the graph is unique, we store it
-  try {
-    await addDoc(collection(db, "personalGraphs"), {
-      user: user.uid,
-      graphName: graph.name,
-      graphData: graph,
-    });
-  } catch (error) {
-    console.error("Error adding document: ", error);
-  }
+  // Update the last modified date
+  await addDoc(collection(db, "users", user.uid, "graphs"), {
+    name: graph.name,
+    user: user.uid,
+    created_at: graph.created_at,
+    last_modified: new Date(),
+    graphData: graph.data,
+  });
 }
 
 /** Retrieves all personal graphs from the database for the current user.
@@ -101,13 +98,8 @@ export async function getPersonalGraphs(): Promise<PersonalGraph[]> {
   const user = getVerifiedUser();
 
   // Get all personal graphs for the user
-  const q = query(
-    collection(db, "personalGraphs"),
-    where("user", "==", user.uid),
-    orderBy("last_modified", "desc"),
-  );
+  const q = query(collection(db, "users", user.uid, "graphs"));
   const querySnapshot = await getDocs(q);
-
   const graphs: PersonalGraph[] = [];
   querySnapshot.forEach((doc) => {
     graphs.push(doc.data().graphData);
@@ -128,16 +120,15 @@ export async function getPersonalGraph(
 
   // Get the graph for the user
   const q = query(
-    collection(db, "personalGraphs"),
-    where("user", "==", user.uid),
-    where("graphName", "==", graphName),
+    collection(db, "users", user.uid, "graphs"),
+    where("name", "==", graphName),
     limit(1),
   );
   const querySnapshot = await getDocs(q);
-
-  if (!querySnapshot.empty) {
-    return querySnapshot.docs[0].data().graphData;
+  if (querySnapshot.empty) {
+    throw new GraphNotFoundError("Graph " + graphName + " not found");
   }
 
-  throw new GraphNotFoundError("Graph " + graphName + " not found");
+  const graph: PersonalGraph = querySnapshot.docs[0].data().graphData;
+  return graph;
 }

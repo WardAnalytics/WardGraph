@@ -8,8 +8,8 @@ import {
   updateDoc,
   where,
 } from "firebase/firestore";
-import { db } from "../../firebase";
-import { getVerifiedUser } from "../../auth/auth.services";
+import { db } from "../../../firebase";
+import { getVerifiedUser } from "../../../auth/auth.services";
 
 /** Gets an address' custom tags for the current user.
  * @param address The address to get the tags for

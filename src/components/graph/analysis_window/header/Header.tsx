@@ -20,12 +20,12 @@ import {
   deleteCustomAddressTag,
   getCustomAddressesTags,
   setCustomAddressesTags,
-} from "../../../../services/firestore/custom_tags/address_tags";
+} from "../../../../services/firestore/user/custom_tags/address_tags";
 
 import {
   getCustomUserTags,
   addCustomUserTag,
-} from "../../../../services/firestore/custom_tags/user_tags";
+} from "../../../../services/firestore/user/custom_tags/user_tags";
 
 import { Colors } from "../../../../utils/colors";
 

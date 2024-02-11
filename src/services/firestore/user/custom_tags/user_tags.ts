@@ -7,8 +7,8 @@ import {
   updateDoc,
   where,
 } from "firebase/firestore";
-import { getVerifiedUser } from "../../auth/auth.services";
-import { db } from "../../firebase";
+import { getVerifiedUser } from "../../../auth/auth.services";
+import { db } from "../../../firebase";
 
 interface CustomUserTags {
   user: string;

@@ -13,7 +13,7 @@ import { Position, Handle, Edge } from "reactflow";
 import { AddressAnalysis } from "../../../../../../api/model";
 import { useAnalysisAddressData } from "../../../../../../api/compliance/compliance";
 
-import { getCustomAddressesTags } from "../../../../../../services/firestore/custom_tags/address_tags";
+import { getCustomAddressesTags } from "../../../../../../services/firestore/user/custom_tags/address_tags";
 
 import EntityLogo from "../../../../../common/EntityLogo";
 import RiskIndicator from "../../../../../common/RiskIndicator";
