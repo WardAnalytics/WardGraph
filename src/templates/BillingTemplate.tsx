@@ -6,16 +6,13 @@ import {
 } from "@heroicons/react/20/solid";
 import { CreditCardIcon } from "@heroicons/react/24/outline";
 import clsx from "clsx";
-import { FC, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import Badge from "../components/common/Badge";
 import BigButton from "../components/common/BigButton";
-import { usePremiumStatus } from "../services/firestore/user/premium/premium";
-import {
-  getCheckoutUrl,
-  getCustomerPortalUrl,
-} from "../services/payments/payments";
-import { Colors } from "../utils/colors";
 import useAuthState from "../hooks/useAuthState";
+import { usePremiumStatus } from "../services/firestore/user/premium/premium";
+import { useCheckoutSessionUrl, useCustomerPortalUrl } from "../services/payments";
+import { Colors } from "../utils/colors";
 
 interface PlanProps {
   isPro: boolean;
@@ -60,19 +57,32 @@ const DiscoverPlan: FC<PlanProps> = ({ isPro }) => {
   );
 };
 
-const ProPlan: FC<PlanProps> = ({
+interface ProPlanProps extends PlanProps {
+  userID: string;
+}
+
+const ProPlan: FC<ProPlanProps> = ({
   isPro,
-  isLoading = false,
-  setIsLoading = () => { },
+  userID
 }) => {
-  const onBuyPlanClicked = () => {
-    const priceId = import.meta.env.VITE_STRIPE_ONE_MONTH_SUBSCRIPTION_PRICE_ID;
-    setIsLoading(true);
-    getCheckoutUrl(priceId).then((url) => {
-      setIsLoading(false);
-      window.location.href = url;
-    });
-  };
+  const priceId = import.meta.env.VITE_STRIPE_ONE_MONTH_SUBSCRIPTION_PRICE_ID as string;
+
+  const [buyPlanClicked, setBuyPlanClicked] = useState<boolean>(false);
+
+  const { url: checkoutSessionUrl, loading: isLoadingCheckoutSession, refetch: getCheckoutSession } = useCheckoutSessionUrl(priceId, userID, { enabled: false });
+
+  useEffect(() => {
+    if (buyPlanClicked) {
+      getCheckoutSession();
+      setBuyPlanClicked(false);
+    }
+  }, [buyPlanClicked]);
+
+  useEffect(() => {
+    if (checkoutSessionUrl) {
+      window.location.href = checkoutSessionUrl;
+    }
+  }, [checkoutSessionUrl]);
 
   return (
     <div className="relative flex w-96 flex-col overflow-hidden rounded-3xl bg-gray-800 p-8 shadow-md">
@@ -114,12 +124,12 @@ const ProPlan: FC<PlanProps> = ({
         <button
           className={clsx(
             "mt-4 h-10 w-full rounded-md bg-blue-500 text-white transition-all duration-150 hover:bg-blue-400",
-            isLoading &&
+            isLoadingCheckoutSession &&
             "text-gray-3 bg-blue-900 hover:cursor-not-allowed hover:bg-blue-900",
           )}
-          onClick={onBuyPlanClicked}
+          onClick={() => setBuyPlanClicked(true)}
           type="button"
-          disabled={isLoading}
+          disabled={isLoadingCheckoutSession}
         >
           Buy plan
         </button>
@@ -199,19 +209,27 @@ const EnterprisePlan: FC<EnterprisePlanProps> = ({ isLoading = false }) => {
 };
 
 const BillingTemplate: FC = () => {
-  const [isLoadingPaymentService, setIsLoadingPaymentService] = useState<boolean>(false);
+  const [manageSubscriptionClicked, setManageSubscriptionClicked] = useState<boolean>(false);
 
   const { user } = useAuthState();
+  const userID = user?.uid || "";
 
-  const { isPremium: isPro, loading: isLoadingPremiumStatus } = usePremiumStatus(user?.uid || "");
+  const { isPremium: isPro, loading: isLoadingPremiumStatus } = usePremiumStatus(userID);
 
-  const onManageSubscriptionClicked = () => {
-    setIsLoadingPaymentService(true);
-    getCustomerPortalUrl().then((url) => {
-      setIsLoadingPaymentService(false);
-      window.location.href = url;
-    });
-  };
+  const { url: customerPortalUrl, loading: isLoadingCustomerPortalUrl, refetch: getCustomerPortalUrl } = useCustomerPortalUrl(userID, { enabled: false });
+
+  useEffect(() => {
+    if (manageSubscriptionClicked) {
+      getCustomerPortalUrl();
+      setManageSubscriptionClicked(false);
+    }
+  }, [manageSubscriptionClicked]);
+
+  useEffect(() => {
+    if (customerPortalUrl) {
+      window.location.href = customerPortalUrl;
+    }
+  }, [customerPortalUrl]);
 
   return (
     <div className="mx-14 my-10 flex w-full flex-col gap-y-5">
@@ -244,7 +262,7 @@ const BillingTemplate: FC = () => {
               {isPro && (
                 <BigButton
                   text="Manage Subscription"
-                  onClick={onManageSubscriptionClicked}
+                  onClick={() => setManageSubscriptionClicked(true)}
                   Icon={CreditCardSmallIcon}
                 />
               )}
@@ -253,10 +271,9 @@ const BillingTemplate: FC = () => {
               <DiscoverPlan isPro={isPro} />
               <ProPlan
                 isPro={isPro}
-                isLoading={isLoadingPaymentService}
-                setIsLoading={setIsLoadingPaymentService}
+                userID={userID}
               />
-              <EnterprisePlan isLoading={isLoadingPaymentService} />
+              <EnterprisePlan isLoading={isLoadingCustomerPortalUrl} />
             </span>
           </>
         )

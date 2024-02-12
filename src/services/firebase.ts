@@ -12,6 +12,8 @@ import {
   connectFirestoreEmulator,
   getFirestore,
 } from "firebase/firestore";
+import { connectFunctionsEmulator, getFunctions } from "firebase/functions";
+import { FIREBASE_CLOUD_FUNCTIONS_REGION } from "../utils/cloud_functions";
 
 const {
   VITE_FIREBASE_API_KEY: apiKey,
@@ -38,14 +40,16 @@ const app: FirebaseApp = initializeApp(firebaseConfig);
 const auth: Auth = getAuth(app);
 const analytics: Analytics = getAnalytics(app);
 const db: Firestore = getFirestore(app);
+const functions = getFunctions(app, FIREBASE_CLOUD_FUNCTIONS_REGION);
 
 if (import.meta.env.MODE === "development") {
   connectAuthEmulator(auth, "http://localhost:9099");
   connectFirestoreEmulator(db, "localhost", 8080);
+  connectFunctionsEmulator(functions, "localhost", 5001);
 }
 
 auth.useDeviceLanguage();
 
 const googleProvider = new GoogleAuthProvider();
 
-export { app, analytics, db, auth, googleProvider };
+export { app, analytics, db, auth, googleProvider, functions };

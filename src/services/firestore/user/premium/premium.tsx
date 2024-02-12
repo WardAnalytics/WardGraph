@@ -1,4 +1,4 @@
-import { CollectionReference, collection, onSnapshot } from "firebase/firestore";
+import { Query, collection, onSnapshot, query, where } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import { db } from "../../../firebase";
 import { UserNotFoundError } from "../errors";
@@ -18,10 +18,10 @@ export const usePremiumStatus = (userID: string) => {
 
 
   useEffect(() => {
-    let docRef: CollectionReference | null = null;
+    let queryRef: Query | null = null;
 
     try {
-      docRef = collection(db, "customers", userID, "subscriptions");
+      queryRef = query(collection(db, "customers", userID, "subscriptions"), where("status", "in", ["active", "trialing"]));
     } catch (error) {
       setLoading(false);
       setError(new UserNotFoundError(userID));
@@ -29,14 +29,13 @@ export const usePremiumStatus = (userID: string) => {
     }
 
     const unsubscribe = onSnapshot(
-      docRef,
-      (docSnap) => {
+      queryRef,
+      (collectionSnap) => {
         let isPremium = false;
-        if (docSnap.docs.length === 0) {
-          isPremium = false;
-        } else {
+        if (collectionSnap.docs.length > 0) {
           isPremium = true;
         }
+
         setIsPremium(isPremium);
         localStorage.setItem("isPremium", JSON.stringify(isPremium));
         setLoading(false);
