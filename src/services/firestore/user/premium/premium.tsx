@@ -1,6 +1,7 @@
 import { CollectionReference, collection, onSnapshot } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import { db } from "../../../firebase";
+import { UserNotFoundError } from "../errors";
 
 /** Checks if the user has a premium subscription.
  * Whenever the user's premium status is updated, the returned status will be updated as well.
@@ -23,19 +24,21 @@ export const usePremiumStatus = (userID: string) => {
       docRef = collection(db, "customers", userID, "subscriptions");
     } catch (error) {
       setLoading(false);
-      setError(error as Error);
+      setError(new UserNotFoundError(userID));
       return;
     }
 
     const unsubscribe = onSnapshot(
       docRef,
-      (snapshot) => {
-        if (snapshot.docs.length === 0) {
-          setIsPremium(false);
+      (docSnap) => {
+        let isPremium = false;
+        if (docSnap.docs.length === 0) {
+          isPremium = false;
         } else {
-          setIsPremium(true);
+          isPremium = true;
         }
-
+        setIsPremium(isPremium);
+        localStorage.setItem("isPremium", JSON.stringify(isPremium));
         setLoading(false);
       },
       (error) => {

@@ -62,7 +62,7 @@ export const useCustomUserTags = (userID: string) => {
         // If it doesn't exist throw an error
         if (!docSnap.exists()) {
           setLoading(false);
-          setError(new UserNotFoundError(userID!));
+          setError(new UserNotFoundError(userID));
         } else {
           // Else, set data appropriately
           const userData = docSnap.data() as UserData;

@@ -13,7 +13,7 @@ import { usePremiumStatus } from "../services/firestore/user/premium/premium";
 import {
   getCheckoutUrl,
   getCustomerPortalUrl,
-} from "../services/payments/payments.services";
+} from "../services/payments/payments";
 import { Colors } from "../utils/colors";
 import useAuthState from "../hooks/useAuthState";
 
