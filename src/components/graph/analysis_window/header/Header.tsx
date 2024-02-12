@@ -11,7 +11,7 @@ import { TrashIcon } from "@heroicons/react/24/outline";
 import { XMarkIcon as XMarkSmallIcon } from "@heroicons/react/16/solid";
 
 import clsx from "clsx";
-import { FC, useContext, useCallback, useState, useEffect } from "react";
+import { FC, useContext, useCallback } from "react";
 
 import { AddressAnalysis, Category } from "../../../../api/model";
 import { CategoryClasses } from "../../../../utils/categories";
@@ -39,6 +39,7 @@ import { AnalysisMode, AnalysisModes } from "../AnalysisWindow";
 import { PathExpansionArgs } from "../../Graph";
 
 import TagInput from "./TagInput";
+import useAuthState from "../../../../hooks/useAuthState";
 
 interface ModeButtonProps {
   isActive: boolean;
@@ -70,7 +71,7 @@ const ModeButton: FC<ModeButtonProps> = ({
         })}
         aria-hidden="true"
       />
-      <a
+      <p
         className="w-fit overflow-hidden"
         style={{
           maxWidth: isActive ? "5rem" : "0px",
@@ -79,7 +80,7 @@ const ModeButton: FC<ModeButtonProps> = ({
         }}
       >
         {analysisMode.name}
-      </a>
+      </p>
     </button>
   );
 };
@@ -138,26 +139,26 @@ function getCategoryRisk(category: string): number {
 
 // Label + Tag + Tag Input Wrapped Component
 
-interface LabelsAndTagsProps {
-  setNodeCustomTags: null | ((tags: string[]) => void);
-}
-
-const LabelsAndTags: FC<LabelsAndTagsProps> = ({ setNodeCustomTags }) => {
+const LabelsAndTags: FC = () => {
   const { analysisData, address } = useContext(AnalysisContext);
+  const { user } = useAuthState();
 
   // Labels get displayed first in the flex-wrap
   const labels = analysisData!.labels;
 
   // Get user and address already existing tags from Firestore
-  const { tags: userCustomTags } = useCustomUserTags();
-  const { tags: addressCustomTags } = useCustomAddressTags({ address });
+  const { tags: userCustomTags } = useCustomUserTags(user ? user.uid : "");
+  const { tags: addressCustomTags } = useCustomAddressTags({
+    userID: user ? user.uid : "",
+    address,
+  });
 
   // Handlers for both creating and deleting tags
   const onCreateCustomAddressTag = useCallback(
     async (tag: string) => {
       // TODO - Catch not authenticated errors and show the auth dialog instead
-      addCustomAddressTag(address, tag);
-      addCustomUserTag(tag);
+      addCustomAddressTag(user ? user.uid : "", address, tag);
+      addCustomUserTag(user ? user.uid : "", tag);
     },
     [addressCustomTags, userCustomTags],
   );
@@ -165,7 +166,7 @@ const LabelsAndTags: FC<LabelsAndTagsProps> = ({ setNodeCustomTags }) => {
   const onDeleteCustomAddressTag = useCallback(
     async (tag: string) => {
       // TODO - Catch not authenticated errors and show the auth dialog instead
-      removeCustomAddressTag(address, tag);
+      removeCustomAddressTag(user ? user.uid : "", address, tag);
     },
     [addressCustomTags],
   );
@@ -201,14 +202,12 @@ interface HeaderProps {
   onExit: () => void;
   setAnalysisMode: (mode: AnalysisMode) => void;
   analysisMode: AnalysisMode;
-  setNodeCustomTags: null | ((tags: string[]) => void);
 }
 
 const Header: FC<HeaderProps> = ({
   onExit,
   setAnalysisMode,
   analysisMode,
-  setNodeCustomTags,
 }: HeaderProps) => {
   // Extract analysisData from context
   const { addMultipleDifferentPaths, deleteNodes } = useContext(GraphContext);
@@ -316,7 +315,7 @@ const Header: FC<HeaderProps> = ({
           </span>
           <span className="flex flex-row items-center justify-start gap-x-1.5">
             {/* List of labels using Badges shown underneath the address. */}
-            <LabelsAndTags setNodeCustomTags={setNodeCustomTags} />
+            <LabelsAndTags />
           </span>
         </div>
       </span>
@@ -330,7 +329,7 @@ const Header: FC<HeaderProps> = ({
         />
 
         <span className="flex flex-row">
-          <a className="group flex flex-row items-center justify-center">
+          <div className="group flex flex-row items-center justify-center">
             <SparklesIcon
               onClick={() => {
                 expandWithAI(analysisData!);
@@ -354,13 +353,14 @@ const Header: FC<HeaderProps> = ({
                   </li>
                   <li className="flex flex-row items-center gap-x-1">
                     <ArrowsPointingInIcon className="h-5 w-5 text-indigo-200" />
-                    <a className="font-bold">Most relevant</a> multi-hop paths
+                    <span className="font-bold">Most relevant</span> multi-hop
+                    paths
                   </li>
                 </ul>
               </div>
             </div>
-          </a>
-          <a className="group flex flex-row items-center justify-center">
+          </div>
+          <div className="group flex flex-row items-center justify-center">
             <TrashIcon
               onClick={() => {
                 deleteNodes([address]);
@@ -371,8 +371,8 @@ const Header: FC<HeaderProps> = ({
             <div className="pointer-events-none absolute mb-24 mt-0.5 w-max origin-bottom scale-50 divide-y divide-gray-700 rounded-lg bg-gray-800 px-3 py-3 text-white opacity-0 shadow-sm transition-all duration-300 ease-in-out group-hover:scale-100 group-hover:opacity-100">
               Delete
             </div>
-          </a>
-          <a className="group flex flex-row items-center justify-center">
+          </div>
+          <div className="group flex flex-row items-center justify-center">
             <XMarkIcon
               onClick={onExit}
               className="h-11 w-11 cursor-pointer rounded-md p-1.5 text-gray-400 transition-all duration-150 ease-in-out hover:bg-gray-100"
@@ -380,7 +380,7 @@ const Header: FC<HeaderProps> = ({
             <div className="pointer-events-none absolute mb-24 mt-0.5 w-max origin-bottom scale-50 divide-y divide-gray-700 rounded-lg bg-gray-800 px-3 py-3 text-white opacity-0 shadow-sm transition-all duration-300 ease-in-out group-hover:scale-100 group-hover:opacity-100">
               Close
             </div>
-          </a>
+          </div>
         </span>
       </span>
     </span>

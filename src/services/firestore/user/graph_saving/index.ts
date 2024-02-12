@@ -1,7 +1,10 @@
-export { GraphNameNotUniqueError, GraphNotFoundError } from "./errors";
+export { GraphNotFoundError } from "./errors";
 export {
-  storePersonalGraph,
+  createPersonalGraph,
+  updatePersonalGraph,
+  getGraphHref,
+  removePersonalGraph,
+  usePersonalGraphs,
   getPersonalGraph,
-  getPersonalGraphs,
-} from "./graph-saving";
-export type { PersonalGraph, PersonalGraphInfo } from "./graph-saving";
+} from "./graph_saving";
+export type { PersonalGraph, PersonalGraphInfo } from "./graph_saving";

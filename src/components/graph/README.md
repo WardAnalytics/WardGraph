@@ -1,7 +1,3 @@
-## Folder & Graph Structure
-
-The graph app exports two components: **PublicGraph** and **PrivateGraph**. The public component is used for users that aren't signed in its entirity, while the private component is used for users that are signed in and is one of the routes of the app.
-
 ## Graph Manipulation Function Separation Policy
 
 A single workload should never use the setState hook more than once as this will completely break everything.

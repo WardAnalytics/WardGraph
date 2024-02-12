@@ -17,7 +17,7 @@ const CreateNewTagRow: FC<CreateNewTagRowProps> = ({
   return (
     <div
       className={clsx(
-        "flex flex-row items-center gap-x-2 rounded-lg p-2 transition duration-150 ease-in-out hover:cursor-pointer hover:bg-gray-100 hover:text-blue-500 focus:outline-none focus-visible:ring focus-visible:ring-orange-500/50",
+        "flex flex-row items-center gap-x-2 rounded-lg p-2 duration-0 hover:cursor-pointer hover:bg-gray-100 hover:text-blue-500 focus:outline-none focus-visible:ring focus-visible:ring-orange-500/50",
         selected ? "bg-gray-100 text-blue-500" : "text-gray-900",
       )}
       onClick={onClick}
@@ -38,7 +38,7 @@ const TagsRow: FC<TagsRowProps> = ({ onClick, selected, tag }) => {
   return (
     <div
       className={clsx(
-        "flex flex-row items-center gap-x-2 rounded-lg p-2 transition duration-150 ease-in-out hover:cursor-pointer hover:bg-gray-100 hover:text-blue-500 focus:outline-none focus-visible:ring focus-visible:ring-orange-500/50",
+        "flex flex-row items-center gap-x-2 rounded-lg p-2 hover:cursor-pointer hover:bg-gray-100 hover:text-blue-500 focus:outline-none focus-visible:ring focus-visible:ring-orange-500/50",
         selected ? "bg-gray-100 text-blue-500" : "text-gray-900",
       )}
       onClick={onClick}

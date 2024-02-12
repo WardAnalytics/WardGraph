@@ -56,7 +56,6 @@ export const AnalysisModes: AnalysisMode[] = [
 interface DraggableWindowProps {
   analysisData: AddressAnalysis | null;
   onExit: () => void;
-  setNodeCustomTags: null | ((tags: string[]) => void);
 }
 
 /** The draggable window that appears when an address is clicked on.
@@ -75,7 +74,6 @@ interface DraggableWindowProps {
 const DraggableWindow: FC<DraggableWindowProps> = ({
   analysisData,
   onExit,
-  setNodeCustomTags,
 }) => {
   const [hasBeenHovered, setHasBeenHovered] = useState<boolean>(false);
   const [analysisMode, setAnalysisMode] = useState<AnalysisMode>(
@@ -161,7 +159,6 @@ const DraggableWindow: FC<DraggableWindowProps> = ({
                   onExit={onExit}
                   setAnalysisMode={setAnalysisMode}
                   analysisMode={analysisMode}
-                  setNodeCustomTags={setNodeCustomTags}
                 />
               </div>
               <div className="relative flex-auto overflow-hidden">

@@ -1,5 +1,4 @@
 import {
-  getDoc,
   doc,
   onSnapshot,
   DocumentReference,
@@ -8,7 +7,6 @@ import {
   setDoc,
 } from "firebase/firestore";
 import { useState, useEffect } from "react";
-import { getVerifiedUser } from "../../../auth/auth.services";
 import { db } from "../../../firebase";
 
 import { UserNotFoundError } from "../errors";
@@ -19,17 +17,9 @@ import { UserData } from "../types";
  * - If the user's customTags doesn't exist, create it.
  * @param tag The tag to add
  */
-export async function addCustomUserTag(tag: string) {
-  const user = getVerifiedUser();
-
+export async function addCustomUserTag(userID: string, tag: string) {
   // Get user snapshot
-  const docRef = doc(db, "users", user.uid);
-  const docSnap = await getDoc(docRef);
-
-  // If the user doesn't exist, throw an error
-  if (!docSnap.exists()) {
-    throw new UserNotFoundError(user.uid);
-  }
+  const docRef = doc(db, "users", userID);
 
   // Update data
   await setDoc(docRef, { customTags: arrayUnion(tag) }, { merge: true });
@@ -38,17 +28,9 @@ export async function addCustomUserTag(tag: string) {
 /** Removes a custom tag from a user's custom tags.
  * @param tag
  */
-export async function removeCustomUserTag(tag: string) {
-  const user = getVerifiedUser();
-
+export async function removeCustomUserTag(userID: string, tag: string) {
   // Get user snapshot
-  const docRef = doc(db, "users", user.uid);
-  const docSnap = await getDoc(docRef);
-
-  // If the user doesn't exist, throw an error
-  if (!docSnap.exists()) {
-    throw new UserNotFoundError(user.uid);
-  }
+  const docRef = doc(db, "users", userID);
 
   // Modify data using arrayRemove
   await setDoc(docRef, { customTags: arrayRemove(tag) }, { merge: true });
@@ -58,17 +40,15 @@ export async function removeCustomUserTag(tag: string) {
  * the returned tags will be updated as well.
  * @returns The user's custom tags, a loading state, and an error state
  */
-export const useCustomUserTags = () => {
+export const useCustomUserTags = (userID: string) => {
   const [tags, setTags] = useState<string[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
     let docRef: DocumentReference | null = null;
-    let userID: string | null = null;
 
     try {
-      userID = getVerifiedUser().uid;
       docRef = doc(db, "users", userID);
     } catch (error) {
       setLoading(false);

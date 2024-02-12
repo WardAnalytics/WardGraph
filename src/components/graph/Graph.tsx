@@ -1,4 +1,3 @@
-import { Transition } from "@headlessui/react";
 import {
   FC,
   createContext,
@@ -24,8 +23,9 @@ import ReactFlow, {
   useUpdateNodeInternals,
 } from "reactflow";
 import "reactflow/dist/style.css";
+import debounce from "lodash/debounce";
 
-import useAuthState from "../../hooks/useAuthState";
+import { createSharableGraph } from "../../services/firestore/graph_sharing";
 
 import { AddressAnalysis } from "../../api/model";
 
@@ -38,7 +38,6 @@ import {
   AddressNodeState,
   createAddressNode,
 } from "./custom_elements/nodes/AddressNode";
-
 import {
   calculateAddTransfershipEdges,
   calculateLayoutedElements,
@@ -47,14 +46,9 @@ import {
   convertNodeListToRecord,
 } from "./graph_calculations";
 
-import { logAnalyticsEvent } from "../../services/firestore/analytics/analytics";
-import { storeAddress } from "../../services/firestore/user/search_history/search-history";
-
-import generateShortUrl from "../../utils/generateShortUrl";
 import TutorialPopup from "./tutorial/TutorialPopup";
 import DraggableWindow from "./analysis_window/AnalysisWindow";
 import Hotbar from "./hotbar";
-import LandingPage from "./landing_page/LandingPage";
 import Legend from "./legend";
 import TransactionTooltip from "./TransactionTooltip";
 import { TransactionTooltipProps } from "./TransactionTooltip";
@@ -93,14 +87,11 @@ interface GraphContextProps {
   getEdgeHandleID: (edgeID: string) => string;
   setFocusedAddressData: (data: AddressAnalysis | null) => void;
   setHoveredTransferData: (data: TransactionTooltipProps | null) => void;
-  getSharingLink: () => string;
-  copyLink: (url: string) => void;
   doLayout: () => void;
   setNodeHighlight: (address: string, highlight: boolean) => void;
   getNodeCount: () => number;
   setShowTutorial: (show: boolean) => void;
   addNewAddressToCenter: (address: string) => void;
-  storeSetNodeCustomTags: (setter: (tags: string[]) => void) => void;
   addMultipleDifferentPaths: (pathArgs: PathExpansionArgs[]) => void;
   deleteNodes: (ids: string[]) => void;
   getAddressRisk: (address: string) => number;
@@ -108,28 +99,37 @@ interface GraphContextProps {
   focusedAddressData: AddressAnalysis | null;
   isRiskVision: boolean;
   setShowRiskVision: (show: boolean) => void;
+  generateSharableLink: () => Promise<string>;
+  isSavedGraph: boolean;
 }
 
 export const GraphContext = createContext<GraphContextProps>(
   {} as GraphContextProps,
 );
 
-/* The ReactFlowProvider must be above the GraphProvided component in the tree for ReactFlow's internal context to work
-   Reference: https://reactflow.dev/api-reference/react-flow-provider#notes */
-interface GraphProviderProps {
+/*  */
+/** Graph + Landing Page - These are combined into one component for easy
+ * animated transitions between the two. */
+
+interface GraphProps {
   initialAddresses: string[];
   initialPaths: string[];
+  onAutoSave?: (addresses: string[], paths: string[]) => void;
 }
 
-/** GraphProvider simply wraps the ReactFlowProvider and provides the initial nodes
+/** Graph simply wraps the ReactFlowProvider and provides the initial nodes
  * for the graph to start. This is required due to the way ReactFlow works.
+ *
+ * The ReactFlowProvider must be above the GraphProvided component in the tree for ReactFlow's internal context to work.
+ * Reference: https://reactflow.dev/api-reference/react-flow-provider#notes
  * @param initialAddresses the addresses to start the graph with
  * @returns
  */
 
-const GraphProvider: FC<GraphProviderProps> = ({
+const Graph: FC<GraphProps> = ({
   initialAddresses,
   initialPaths,
+  onAutoSave,
 }) => {
   // Grab all initial addresses and create nodes for them
   const initialNodes = useMemo(() => {
@@ -178,6 +178,7 @@ const GraphProvider: FC<GraphProviderProps> = ({
           <GraphProvided
             initialNodes={initialLayoutedNodes}
             initialEdges={initialEdges}
+            onAutoSave={onAutoSave}
           />
         </ReactFlowProvider>
       </div>
@@ -188,6 +189,7 @@ const GraphProvider: FC<GraphProviderProps> = ({
 interface GraphProvidedProps {
   initialNodes: Node[];
   initialEdges: Edge[];
+  onAutoSave?: (addresses: string[], paths: string[]) => void;
 }
 
 const MemoedDraggableWindow = memo(DraggableWindow);
@@ -199,6 +201,7 @@ const MemoedDraggableWindow = memo(DraggableWindow);
 const GraphProvided: FC<GraphProvidedProps> = ({
   initialNodes,
   initialEdges,
+  onAutoSave,
 }) => {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
@@ -218,7 +221,7 @@ const GraphProvided: FC<GraphProvidedProps> = ({
     });
   }, [nodes]);
 
-  // For the first 3 seconds after mounting, we want to updateNodeInternals for all nodes every 100ms
+  // For the first 5 seconds after mounting, we want to updateNodeInternals for all nodes every 100ms
   const [firstUpdate, setFirstUpdate] = useState<boolean>(true);
   useEffect(() => {
     if (firstUpdate) {
@@ -226,11 +229,11 @@ const GraphProvided: FC<GraphProvidedProps> = ({
         nodes.forEach((node) => {
           updateNodeInternals(node.id);
         });
-      }, 100);
+      }, 1000);
       setTimeout(() => {
         clearInterval(interval);
         setFirstUpdate(false);
-      }, 10000);
+      }, 5000);
     }
   }, [firstUpdate]);
 
@@ -248,6 +251,36 @@ const GraphProvided: FC<GraphProvidedProps> = ({
       edgesRecord: convertEdgeListToRecord(edges),
     };
   }, [edges]);
+
+  // Auto Save -----------------------------------------------------------------
+
+  /* We want to save the graph whenever a change is made. We'll use a debounce
+   * to prevent too many saves from happening at once. */
+
+  const saveGraph = useCallback(
+    (addresses: string[], paths: string[]) => {
+      if (onAutoSave) {
+        onAutoSave(addresses, paths);
+      }
+    },
+    [nodes.length, edges.length],
+  );
+
+  const debouncedSave = useRef(
+    debounce((addresses: string[], paths: string[]) => {
+      saveGraph(addresses, paths);
+    }, 1000),
+  );
+
+  useEffect(() => {
+    if (nodes.length === 0) return;
+
+    const addresses: string[] = nodes.map((node) => node.id);
+    const paths: string[] = edges.map((edge) =>
+      [edge.source, edge.target].join("-"),
+    );
+    debouncedSave.current(addresses, paths);
+  }, [nodes.length, edges.length]);
 
   // Undo and Redo -------------------------------------------------------------
 
@@ -626,11 +659,6 @@ const GraphProvided: FC<GraphProvidedProps> = ({
   const [focusedAddressData, setFocusedAddressData] =
     useState<AddressAnalysis | null>(null);
 
-  // We'll pass the setter to the node and the function [0] to the analysis window. When the analysis window updates, it updates the node too.
-  const [storedSetNodeCustomTags, storeSetNodeCustomTags] = useState<
-    null | ((tags: string[]) => void)
-  >(null);
-
   // New Address Highlighting -------------------------------------------------
 
   /** Sets the highlight of a node to either true or false.
@@ -758,43 +786,15 @@ const GraphProvided: FC<GraphProvidedProps> = ({
 
   // Link Share ----------------------------------------------------------------
 
-  function getLink(): string {
-    const addressIDs: string[] = nodes.map((node) => node.id);
-    const addressPaths: string[] = edges
-      .filter(
-        (edge) =>
-          edge.data.state === TransfershipEdgeStates.REVEALED &&
-          nodesRecord[edge.source] &&
-          nodesRecord[edge.target],
-      )
-      .map((edge) => [edge.source, edge.target])
-      .filter((edge) => edge[0] && edge[1])
-      .map((edge) => edge.join("-"));
-    return `${window.location.origin}?addresses=${addressIDs.join(
-      ",",
-    )}&paths=${addressPaths.join(",")}`;
-  }
+  const generateSharableLink = useCallback(async () => {
+    const addresses: string[] = nodes.map((node) => node.id);
+    const paths: string[] = edges.map(
+      (edge) => `${edge.source}-${edge.target}`,
+    );
 
-  async function copyLink(shortenedUrl: string): Promise<void> {
-    console.log(getLink());
-    console.log(shortenedUrl);
-    // const link = getLink();
-    // const key = shortenedUrl.split("/").pop()!;
-
-    // const storeUrlObj: StoreUrlObject = {
-    //   originalUrl: link,
-    //   key: key,
-    // };
-
-    // await firestore.storeUrl(storeUrlObj).then(async (id) => {
-    //   if (id) {
-    //     await navigator.clipboard.writeText(shortenedUrl);
-    //     analytics.logAnalyticsEvent("copy_link", {
-    //       link: shortenedUrl,
-    //     });
-    //   }
-    // });
-  }
+    const link = createSharableGraph({ addresses, edges: paths });
+    return link;
+  }, [nodes.length, edges.length]);
 
   // Getting the node count so that we can show the legend dynamically ---------
 
@@ -815,20 +815,19 @@ const GraphProvided: FC<GraphProvidedProps> = ({
     setFocusedAddressData,
     setHoveredTransferData,
     doLayout,
-    getSharingLink: generateShortUrl,
-    copyLink,
+    generateSharableLink,
     setNodeHighlight,
     getNodeCount,
     setShowTutorial,
     addNewAddressToCenter,
     addMultipleDifferentPaths,
-    storeSetNodeCustomTags,
     deleteNodes,
     getAddressRisk,
     registerAddressRisk,
     focusedAddressData,
     isRiskVision,
     setShowRiskVision: setIsRiskVision,
+    isSavedGraph: onAutoSave !== undefined,
   };
 
   return (
@@ -838,7 +837,6 @@ const GraphProvided: FC<GraphProvidedProps> = ({
           <MemoedDraggableWindow
             analysisData={focusedAddressData}
             onExit={onAddressFocusOff}
-            setNodeCustomTags={storedSetNodeCustomTags}
           />
           <ReactFlow
             nodes={nodes}
@@ -890,76 +888,4 @@ const GraphProvided: FC<GraphProvidedProps> = ({
   );
 };
 
-/** Graph + Landing Page - These are combined into one component for easy
- * animated transitions between the two. */
-
-interface GraphProps {
-  initialAddresses?: string[];
-  initialPaths?: string[];
-}
-
-/** The public graph is the graph that gets shown to non-logged in users. It includes a landing page and a search bar. */
-const PublicGraph: FC<GraphProps> = ({
-  initialAddresses = [],
-  initialPaths = [],
-}) => {
-  const [searchedAddresses, setSearchedAddresses] =
-    useState<string[]>(initialAddresses);
-
-  const { user } = useAuthState();
-
-  const onSetSearchedAddress = (newAddress: string) => {
-    setSearchedAddresses([newAddress]);
-
-    storeAddress(newAddress, user?.uid);
-
-    logAnalyticsEvent("search_address", {
-      address: newAddress,
-    });
-  };
-
-  return (
-    <div className="h-full overflow-hidden">
-      <Transition
-        show={searchedAddresses.length === 0}
-        appear={true}
-        leave="transition-all duration-500"
-        leaveFrom="opacity-100 scale-100"
-        leaveTo="opacity-0 scale-50"
-        className="absolute flex h-full w-full flex-col items-center justify-center"
-      >
-        <LandingPage setSearchedAddress={onSetSearchedAddress} />
-      </Transition>
-      <Transition
-        show={searchedAddresses.length > 0}
-        appear={true}
-        enter="transition-all duration-500 delay-500"
-        enterFrom="opacity-0 scale-150"
-        enterTo="opacity-100 scale-100"
-        className="h-full w-full"
-      >
-        {searchedAddresses.length > 0 && (
-          <GraphProvider
-            initialAddresses={searchedAddresses}
-            initialPaths={initialPaths}
-          />
-        )}
-      </Transition>
-    </div>
-  );
-};
-
-/** The private graph is the graph that gets shown to logged in users. It has no landing page and goes straight to the graph. */
-const PrivateGraph: FC<GraphProps> = ({
-  initialAddresses = [],
-  initialPaths = [],
-}) => {
-  return (
-    <GraphProvider
-      initialAddresses={initialAddresses}
-      initialPaths={initialPaths}
-    />
-  );
-};
-
-export { PublicGraph, PrivateGraph };
+export { Graph };

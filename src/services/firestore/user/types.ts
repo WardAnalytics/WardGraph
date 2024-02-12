@@ -4,4 +4,5 @@ export interface AddressTags {
 
 export interface UserData {
   customTags?: string[];
+  searchHistory?: string[];
 }

@@ -1,5 +1,5 @@
 import { Dialog, Transition } from "@headlessui/react";
-import { FC, Fragment, useState } from "react";
+import { FC, Fragment, useEffect, useState } from "react";
 import {
   LinkedinIcon,
   LinkedinShareButton,
@@ -74,20 +74,33 @@ const CopyLinkButton: FC<CopyLinkButtonProps> = ({ onShareUrl }) => {
 };
 
 interface ShareDialogProps {
-  shareUrl: string;
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
-  onShareUrl: () => void;
+  generateSharableLink: () => Promise<string>;
 }
 
 const ShareDialog: FC<ShareDialogProps> = ({
-  shareUrl,
   isOpen,
   setIsOpen,
-  onShareUrl,
+  generateSharableLink,
 }) => {
   const closeDialog = () => {
     setIsOpen(false);
+  };
+
+  const [url, setUrl] = useState<string | null>(null);
+  useEffect(() => {
+    if (isOpen) {
+      generateSharableLink().then((url) => {
+        setUrl(`${window.location.origin}/graph/${url}`);
+      });
+    }
+  }, [isOpen, generateSharableLink]);
+
+  const copyToClipboard = () => {
+    if (url) {
+      navigator.clipboard.writeText(url);
+    }
   };
 
   return (
@@ -132,17 +145,17 @@ const ShareDialog: FC<ShareDialogProps> = ({
                   </div>
                   <div className="pt-3">
                     <div className="flex flex-row items-center justify-center gap-x-6 divide-x divide-gray-200 text-xs font-semibold text-gray-500">
-                      <CopyLinkButton onShareUrl={onShareUrl} />
+                      <CopyLinkButton onShareUrl={copyToClipboard} />
                       <span className="flex flex-row gap-x-6 pl-6">
                         <LinkedinShareButton
-                          url={shareUrl}
+                          url={url || ""}
                           className="flex flex-col items-center gap-y-1"
                         >
                           <LinkedinIcon size={32} round />
                           <p>LinkedIn</p>
                         </LinkedinShareButton>
                         <TwitterShareButton
-                          url={shareUrl}
+                          url={url || ""}
                           title=""
                           hashtags={[]}
                           related={[]}
@@ -152,7 +165,7 @@ const ShareDialog: FC<ShareDialogProps> = ({
                           <p>X</p>
                         </TwitterShareButton>
                         <TelegramShareButton
-                          url={shareUrl}
+                          url={url || ""}
                           title=""
                           className="flex flex-col items-center gap-y-1"
                         >
@@ -160,7 +173,7 @@ const ShareDialog: FC<ShareDialogProps> = ({
                           <p>Telegram</p>
                         </TelegramShareButton>
                         <WhatsappShareButton
-                          url={shareUrl}
+                          url={url || ""}
                           title=""
                           className="flex flex-col items-center gap-y-1"
                         >

@@ -10,7 +10,10 @@ import { FC, useState } from "react";
 import Badge from "../components/common/Badge";
 import BigButton from "../components/common/BigButton";
 import useAuthState from "../hooks/useAuthState";
-import { getCheckoutUrl, getCustomerPortalUrl } from "../services/payments/payments.services";
+import {
+  getCheckoutUrl,
+  getCustomerPortalUrl,
+} from "../services/payments/payments.services";
 import { Colors } from "../utils/colors";
 
 interface PlanProps {
@@ -56,15 +59,19 @@ const DiscoverPlan: FC<PlanProps> = ({ isPro }) => {
   );
 };
 
-const ProPlan: FC<PlanProps> = ({ isPro, isLoading = false, setIsLoading = () => { } }) => {
+const ProPlan: FC<PlanProps> = ({
+  isPro,
+  isLoading = false,
+  setIsLoading = () => {},
+}) => {
   const onBuyPlanClicked = () => {
-    const priceId = import.meta.env.VITE_STRIPE_ONE_MONTH_SUBSCRIPTION_PRICE_ID
-    setIsLoading(true)
+    const priceId = import.meta.env.VITE_STRIPE_ONE_MONTH_SUBSCRIPTION_PRICE_ID;
+    setIsLoading(true);
     getCheckoutUrl(priceId).then((url) => {
-      setIsLoading(false)
+      setIsLoading(false);
       window.location.href = url;
-    })
-  }
+    });
+  };
 
   return (
     <div className="relative flex w-96 flex-col overflow-hidden rounded-3xl bg-gray-800 p-8 shadow-md">
@@ -79,7 +86,7 @@ const ProPlan: FC<PlanProps> = ({ isPro, isLoading = false, setIsLoading = () =>
         analysis to the next level.
       </p>
       <p className="mt-4 text-4xl font-bold tracking-tight text-white">
-        $49.99
+        $99.99
         <span className="text-base font-normal text-gray-300">/mo</span>
         <svg
           viewBox="0 0 1208 1024"
@@ -103,15 +110,19 @@ const ProPlan: FC<PlanProps> = ({ isPro, isLoading = false, setIsLoading = () =>
       {isPro ? (
         <div className="mt-4 h-[1px] w-full bg-gray-700" />
       ) : (
-        <button className={clsx("mt-4 h-10 w-full rounded-md bg-blue-500 text-white transition-all duration-150 hover:bg-blue-400", isLoading && "bg-blue-900 hover:bg-blue-900 text-gray-3 hover:cursor-not-allowed")}
+        <button
+          className={clsx(
+            "mt-4 h-10 w-full rounded-md bg-blue-500 text-white transition-all duration-150 hover:bg-blue-400",
+            isLoading &&
+              "text-gray-3 bg-blue-900 hover:cursor-not-allowed hover:bg-blue-900",
+          )}
           onClick={onBuyPlanClicked}
           type="button"
           disabled={isLoading}
         >
           Buy plan
         </button>
-      )
-      }
+      )}
       <div className="mt-4 flex flex-col gap-y-1.5 text-gray-300">
         <span className="flex flex-row items-center gap-x-1 ">
           <CheckIcon className="h-4 w-4 text-white" />
@@ -134,7 +145,7 @@ const ProPlan: FC<PlanProps> = ({ isPro, isLoading = false, setIsLoading = () =>
           Automations
         </span>
       </div>
-    </div >
+    </div>
   );
 };
 
@@ -154,7 +165,14 @@ const EnterprisePlan: FC<EnterprisePlanProps> = ({ isLoading = false }) => {
       <p className="mt-4 text-4xl font-bold tracking-tight text-gray-800">
         Custom
       </p>
-      <button className={clsx("bg-white-500 mt-4 h-10 w-full rounded-md text-gray-600 shadow-sm ring-1 ring-inset ring-gray-200 transition-all duration-150 hover:bg-gray-50", isLoading && "bg-gray-300 hover:bg-gray-300 text-gray-3 hover:cursor-not-allowed")} disabled={isLoading}>
+      <button
+        className={clsx(
+          "bg-white-500 mt-4 h-10 w-full rounded-md text-gray-600 shadow-sm ring-1 ring-inset ring-gray-200 transition-all duration-150 hover:bg-gray-50",
+          isLoading &&
+            "text-gray-3 bg-gray-300 hover:cursor-not-allowed hover:bg-gray-300",
+        )}
+        disabled={isLoading}
+      >
         Contact Us
       </button>
       <div className="mt-4 flex flex-col gap-y-1.5 text-gray-700">
@@ -175,22 +193,20 @@ const EnterprisePlan: FC<EnterprisePlanProps> = ({ isLoading = false }) => {
           API integrations
         </span>
       </div>
-    </div >
+    </div>
   );
 };
 
 const BillingTemplate: FC = () => {
-  const { isPremium: isPro } = useAuthState()
-
-  const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const onManageSubscriptionClicked = () => {
-    setIsLoading(true)
+    setIsLoading(true);
     getCustomerPortalUrl().then((url) => {
-      setIsLoading(false)
+      setIsLoading(false);
       window.location.href = url;
     });
-  }
+  };
 
   return (
     <div className="mx-14 my-10 flex w-full flex-col gap-y-5">
@@ -222,7 +238,11 @@ const BillingTemplate: FC = () => {
       </span>
       <span className="flex flex-row justify-center gap-x-5">
         <DiscoverPlan isPro={isPro} />
-        <ProPlan isPro={isPro} isLoading={isLoading} setIsLoading={setIsLoading} />
+        <ProPlan
+          isPro={isPro}
+          isLoading={isLoading}
+          setIsLoading={setIsLoading}
+        />
         <EnterprisePlan isLoading={isLoading} />
       </span>
     </div>

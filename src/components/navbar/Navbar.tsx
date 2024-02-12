@@ -1,4 +1,4 @@
-import { FC, useState } from "react";
+import { FC, useMemo, useState } from "react";
 import authService from "../../services/auth/auth.services";
 import logo from "../../assets/ward-logo-blue.svg";
 import { useNavigate } from "react-router-dom";
@@ -21,13 +21,19 @@ import {
 } from "@heroicons/react/24/outline";
 
 import { CubeTransparentIcon } from "@heroicons/react/16/solid";
+import {
+  usePersonalGraphs,
+  getGraphHref,
+} from "../../services/firestore/user/graph_saving";
+import useAuthState from "../../hooks/useAuthState";
+import { Transition } from "@headlessui/react";
 
 // To add more tabs, simply add more objects to the navigation array. Href indicates the page to go to
 const navigation = [
   { name: "Risk Feed", href: "risk-feed", icon: ListBulletIcon, isBeta: false },
   { name: "Automations", href: "automations", icon: BoltIcon, isBeta: true },
   { name: "API", href: "api", icon: KeyIcon, isBeta: true },
-  { name: "My Graphs", href: "graph", icon: ShareIcon, isBeta: false },
+  { name: "My Graphs", href: "graphs", icon: ShareIcon, isBeta: false },
 ];
 
 interface SideNavBarButton {
@@ -76,6 +82,68 @@ const NavbarButton: FC<SideNavBarButton> = ({
           Icon={CubeTransparentIcon}
         />
       )}
+    </a>
+  );
+};
+
+interface SavedGraphRowProps {
+  name: string;
+  href: string;
+  isLast: boolean;
+}
+
+const SAVED_GRAPHS_LIMIT = 5;
+
+const SavedGraphs: FC = () => {
+  const { user } = useAuthState();
+  const { graphs } = usePersonalGraphs(user ? user.uid : "");
+  const { displayedGraphs } = useMemo(() => {
+    return {
+      displayedGraphs: graphs.slice(0, SAVED_GRAPHS_LIMIT),
+    };
+  }, [graphs]);
+
+  return (
+    <div className="flex flex-col gap-x-2.5 pl-[0.8rem]">
+      {displayedGraphs.map((graph, index) => (
+        <Transition
+          key={graph.uid}
+          show={true}
+          appear={true}
+          enter="transition-all duration-300"
+          enterFrom="opacity-0 -translate-y-5"
+          enterTo="opacity-100 translate-y-0"
+          style={{
+            transitionDelay: `${index * 50}ms`,
+          }}
+        >
+          <SavedGraphRow
+            name={graph.name}
+            href={getGraphHref(graph)}
+            isLast={index === displayedGraphs.length - 1}
+          />
+        </Transition>
+      ))}
+    </div>
+  );
+};
+
+const SavedGraphRow: FC<SavedGraphRowProps> = ({ name, href, isLast }) => {
+  return (
+    <a
+      href={href}
+      className="flex h-10 flex-row items-center gap-x-3 text-xs font-semibold text-gray-500"
+    >
+      <div className="relative flex h-full flex-row items-center">
+        {/* If it's the last, only display half a bar connecting upwards instead of a full bar. */}
+        {isLast ? (
+          <div className="mb-1 h-1/2 w-[1.5px] -translate-y-1/2 bg-gray-300" />
+        ) : (
+          <div className="h-full w-[1.5px] bg-gray-300" />
+        )}
+        <div className="absolute -left-[0.2rem] h-2 w-2 rounded-full bg-white ring-[1.5px] ring-gray-300" />
+      </div>
+      {name}
     </a>
   );
 };
@@ -134,29 +202,7 @@ const Navbar: FC = () => {
                       </li>
                     ))}
                     <li>
-                      <div className="flex flex-col gap-x-2.5 pl-[0.8rem]">
-                        <span className="flex h-10 flex-row items-center gap-x-3 text-xs font-semibold text-gray-500">
-                          <div className="relative flex h-full flex-row items-center">
-                            <div className="h-full w-[1.5px] bg-gray-300" />
-                            <div className="absolute -left-[0.2rem] h-2 w-2 rounded-full bg-white ring-[1.5px] ring-gray-300" />
-                          </div>
-                          SushiSwap Scam
-                        </span>
-                        <span className="flex h-10 flex-row items-center gap-x-3 text-xs font-semibold text-gray-500">
-                          <div className="relative flex h-full flex-row items-center">
-                            <div className="h-full w-[1.5px] bg-gray-300" />
-                            <div className="absolute -left-[0.2rem] h-2 w-2 rounded-full bg-white ring-[1.5px] ring-gray-300" />
-                          </div>
-                          Kyberswap Exploit
-                        </span>
-                        <span className="flex h-10 flex-row items-center gap-x-3 text-xs font-semibold text-gray-500">
-                          <div className="relative flex h-full flex-row items-center">
-                            <div className="mb-1 h-1/2 w-[1.5px] -translate-y-1/2 bg-gray-300" />
-                            <div className="absolute -left-[0.2rem] h-2 w-2 rounded-full bg-white ring-[1.5px] ring-gray-300" />
-                          </div>
-                          Ronin Hack
-                        </span>
-                      </div>
+                      <SavedGraphs />
                     </li>
                   </ul>
                 </li>

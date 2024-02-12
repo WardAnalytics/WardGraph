@@ -7,17 +7,16 @@ import {
 import clsx from "clsx";
 import { FC, KeyboardEvent, useMemo, useRef, useState, useEffect } from "react";
 
-import useAuthState from "../../../hooks/useAuthState";
-
 import { Label, SearchLabelsBody } from "../../../api/model";
 import { searchLabels } from "../../../api/labels/labels";
 
-import { getUserHistory } from "../../../services/firestore/user/search_history/search-history";
+import { useSearchHistory } from "../../../services/firestore/user/search_history/search_history";
 
 import { HotKeysType } from "../../../types/hotKeys";
 
 import isValidAddress from "../../../utils/isValidAddress";
 import SearchResultPopover from "./SearchResultPopover";
+import useAuthState from "../../../hooks/useAuthState";
 
 const InvalidAddressPopover: FC = () => {
   return (
@@ -54,7 +53,7 @@ const MAX_SEARCH_HISTORY = 50;
 
 const SearchBar: FC<SearchBarProps> = ({ className, onSearchAddress }) => {
   const popoverRef = useRef<HTMLDivElement>(null); // Popever ref for hotkeys
-  const { user } = useAuthState(); // Current user
+  const { user } = useAuthState();
 
   // The current query the user is typing
   const [query, setQuery] = useState<string>("");
@@ -66,30 +65,15 @@ const SearchBar: FC<SearchBarProps> = ({ className, onSearchAddress }) => {
   // Whether the currently searched address is valid
   const isAddressValid = useMemo(() => isValidAddress(query), [query]);
 
-  const [userSearchHistory, setUserSearchHistory] = useState<string[]>([]); // User search history
-
-  // Unique search history of the user's past searches
-  useEffect(() => {
-    if (user === null) return;
-
-    async function fetchUserHistory() {
-      const userHistory = await getUserHistory(user!.uid);
-
-      // Remove duplicates
-      const uniqueSearchHistory = userHistory.filter(
-        (value, index, self) => self.indexOf(value) === index,
-      );
-
-      // Now filter by query
-      const filteredHistory = uniqueSearchHistory.filter((address) =>
+  const { searchHistory } = useSearchHistory(user ? user.uid : "");
+  const filteredSearchHistory = useMemo(
+    // Filter so that only results that include the query are shown
+    () =>
+      searchHistory.filter((address) =>
         address.toLowerCase().includes(query.toLowerCase()),
-      );
-
-      setUserSearchHistory(filteredHistory);
-    }
-
-    fetchUserHistory();
-  }, [query, user]);
+      ),
+    [searchHistory, query],
+  );
 
   // Entity search results
   const [entitySearchResults, setEntitySearchResults] = useState<Label[]>([]);
@@ -122,7 +106,7 @@ const SearchBar: FC<SearchBarProps> = ({ className, onSearchAddress }) => {
     let results: SearchResult[] = [];
 
     // Add past search results
-    results = userSearchHistory.map((address) => ({
+    results = filteredSearchHistory.map((address) => ({
       address,
     }));
 
@@ -147,7 +131,7 @@ const SearchBar: FC<SearchBarProps> = ({ className, onSearchAddress }) => {
     results = results.slice(0, MAX_SEARCH_HISTORY);
 
     return results;
-  }, [userSearchHistory, entitySearchResults]);
+  }, [filteredSearchHistory, entitySearchResults]);
 
   // When an address is searched, make sure one last time that the address is valid
   const onSearchAddressHandler = (input: string) => {

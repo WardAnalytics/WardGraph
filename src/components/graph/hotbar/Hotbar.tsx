@@ -6,10 +6,11 @@ import {
   ShareIcon,
   EyeIcon,
   EyeSlashIcon,
+  BookmarkIcon,
 } from "@heroicons/react/24/outline";
 
 import clsx from "clsx";
-import { FC, useContext, useEffect, useMemo, useState } from "react";
+import { FC, useContext, useEffect, useState } from "react";
 import { useKeyPress } from "reactflow";
 import { GraphContext } from "../Graph";
 
@@ -101,23 +102,15 @@ const HotbarButtonGroup: FC<HotbarButtonGroupProps> = ({
 const Hotbar: FC = () => {
   const {
     doLayout,
-    copyLink,
-    getSharingLink,
+    generateSharableLink,
     setShowTutorial,
     isRiskVision,
     setShowRiskVision,
+    isSavedGraph,
   } = useContext(GraphContext);
 
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
   const [isAddAddressModalOpen, setIsAddAddressModalOpen] = useState(false);
-
-  const { isAuthenticated } = useAuthState();
-
-  const shareUrl = useMemo(() => getSharingLink(), []);
-
-  const onShareUrl = () => {
-    copyLink(shareUrl);
-  };
 
   const openShareDialog = () => {
     setIsShareDialogOpen(true);
@@ -152,6 +145,15 @@ const Hotbar: FC = () => {
           />
         </HotbarButtonGroup>
         <HotbarButtonGroup className="pt-1">
+          {!isSavedGraph && (
+            <HotbarButton
+              Icon={BookmarkIcon}
+              name="Save Graph"
+              onClick={() => {
+                console.log("Save Graph");
+              }}
+            />
+          )}
           <HotbarButton
             Icon={ShareIcon}
             name="Share"
@@ -166,35 +168,19 @@ const Hotbar: FC = () => {
             }}
           />
         </HotbarButtonGroup>
-        {
-          isAuthenticated &&
-          <HotbarButtonGroup className="pt-1">
-            <HotbarButton
-              Icon={CreditCardIcon}
-              name="Turn PRO"
-              onClick={async () => {
-                const priceId = import.meta.env.VITE_STRIPE_ONE_MONTH_SUBSCRIPTION_PRICE_ID as string;
-                const checkoutUrl = await getCheckoutUrl(priceId);
-
-                window.location.href = checkoutUrl;
-              }}
-            />
-          </HotbarButtonGroup>
-        }
         <HotbarButtonGroup className="pt-1">
           <HotbarButton
             Icon={BugAntIcon}
             name="Report Bug / Give Feedback"
-            onClick={() => { }}
+            onClick={() => {}}
             href="https://forms.gle/yCFrDnKyUmPYPhfg8"
           />
         </HotbarButtonGroup>
       </div>
       <ShareDialog
-        shareUrl={shareUrl}
         isOpen={isShareDialogOpen}
         setIsOpen={setIsShareDialogOpen}
-        onShareUrl={onShareUrl}
+        generateSharableLink={generateSharableLink}
       />
       <NewAddressModal
         isOpen={isAddAddressModalOpen}
