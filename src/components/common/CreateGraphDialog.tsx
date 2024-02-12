@@ -9,6 +9,9 @@ import { FC, Fragment, useCallback, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import useAuthState from "../../hooks/useAuthState";
 
+import BigButton from "./BigButton";
+import { BookmarkIcon } from "@heroicons/react/20/solid";
+
 interface CreateGraphDialogProps {
   isOpen: boolean;
   setOpen: (isOpen: boolean) => void;
@@ -88,21 +91,25 @@ const CreateGraphDialog: FC<CreateGraphDialogProps> = ({
                       onClick={closeDialog}
                     />
                   </div>
-                  <span className="mt-3">
+                  <span className="mt-3 flex flex-row gap-x-2">
                     {/** Graph name input and button to create. Either clicking the button or pressing enter will create the graph and navigate to the saved graph page */}
                     <input
                       type="text"
                       value={graphName}
                       onChange={(e) => setGraphName(e.target.value)}
                       placeholder="Graph name"
-                      className="h-10 w-full rounded-md border border-gray-300 p-2.5"
+                      className="w-full rounded-md border-0 px-3 text-sm font-semibold leading-6 text-gray-900 ring-1 ring-inset ring-gray-300 transition-all placeholder:text-gray-400 focus:outline focus:outline-[3px] focus:outline-blue-200 focus:ring-2 focus:ring-blue-400"
+                      onKeyDown={(event) => {
+                        if (event.key === "Enter") {
+                          createGraph();
+                        }
+                      }}
                     />
-                    <button
+                    <BigButton
                       onClick={createGraph}
-                      className="mt-3 h-10 w-full rounded-md bg-blue-600 text-white hover:bg-blue-700"
-                    >
-                      Create
-                    </button>
+                      Icon={BookmarkIcon}
+                      text="Create"
+                    />
                   </span>
                 </Dialog.Panel>
               </Transition.Child>
