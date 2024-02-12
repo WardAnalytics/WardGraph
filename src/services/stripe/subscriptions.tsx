@@ -33,15 +33,12 @@ export const useActiveSubscriptions = ({ enabled }: UserSubscriptionsOptions = {
         }
 
         const priceData = priceSnap.docs[0].data();
-        console.log(priceData);
         const price: Price = {
             id: priceSnap.docs[0].id,
             amount: priceData.unit_amount / 100,
         };
 
         subscription.price = price;
-
-        console.log(subscription);
 
         return subscription;
     }
@@ -56,8 +53,6 @@ export const useActiveSubscriptions = ({ enabled }: UserSubscriptionsOptions = {
             const subscription = doc.data() as Subscription;
             subscription.id = doc.id;
 
-            console.log(subscription);
-
             const newSubscription = await getProductPrice(subscription);
             subscriptions.push(newSubscription);
         }
@@ -70,7 +65,6 @@ export const useActiveSubscriptions = ({ enabled }: UserSubscriptionsOptions = {
             setLoading(true);
 
             getSubscriptions().then((subscriptions) => {
-                console.log(subscriptions);
                 setSubscriptions(subscriptions);
                 setLoading(false);
             }).catch((error) => {

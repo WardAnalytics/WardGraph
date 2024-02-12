@@ -6,13 +6,30 @@ import {
 } from "@heroicons/react/20/solid";
 import { CreditCardIcon } from "@heroicons/react/24/outline";
 import clsx from "clsx";
-import { FC, useEffect, useMemo, useState } from "react";
+import { FC, ReactNode, useEffect, useMemo, useState } from "react";
 import Badge from "../components/common/Badge";
 import BigButton from "../components/common/BigButton";
+import LoadingPulseMock from "../components/graph/analysis_window/content/advanced/PulseMock";
 import useAuthState from "../hooks/useAuthState";
 import { usePremiumStatus } from "../services/firestore/user/premium/premium";
 import { Subscription, useActiveSubscriptions, useCheckoutSessionUrl, useCustomerPortalUrl } from "../services/stripe";
 import { Colors } from "../utils/colors";
+
+interface PlanCardProps {
+  children: ReactNode;
+  className?: string;
+}
+
+const PlanCard: FC<PlanCardProps> = ({
+  children,
+  className = "",
+}) => {
+  return (
+    <div className={clsx("flex flex-col rounded-3xl p-8 shadow-sm", className)}>
+      {children}
+    </div>
+  )
+}
 
 interface PlanProps {
   isPro: boolean;
@@ -22,7 +39,8 @@ interface PlanProps {
 
 const DiscoverPlan: FC<PlanProps> = ({ isPro }) => {
   return (
-    <div className="my-5 flex w-72 flex-col rounded-3xl p-8 shadow-sm ring-1 ring-gray-200">
+    <PlanCard className="my-5 w-72 shadow-sm ring-1 ring-gray-200">
+
       <h3 className="flex flex-row items-center gap-x-2 text-lg font-semibold leading-8 text-gray-800">
         Discover
         {!isPro && (
@@ -53,7 +71,7 @@ const DiscoverPlan: FC<PlanProps> = ({ isPro }) => {
           Limited AI usage
         </span>
       </div>
-    </div>
+    </PlanCard>
   );
 };
 
@@ -67,9 +85,9 @@ const ProPlan: FC<ProPlanProps> = ({
   userID,
   subscription,
 }) => {
-  const priceId = import.meta.env.VITE_STRIPE_ONE_MONTH_SUBSCRIPTION_PRICE_ID as string;
-
   const [buyPlanClicked, setBuyPlanClicked] = useState<boolean>(false);
+
+  const priceId = useMemo(() => subscription.price.id, [subscription]);
 
   const { url: checkoutSessionUrl, loading: isLoadingCheckoutSession, refetch: getCheckoutSession } = useCheckoutSessionUrl(priceId, userID, { enabled: false });
 
@@ -87,7 +105,8 @@ const ProPlan: FC<ProPlanProps> = ({
   }, [checkoutSessionUrl]);
 
   return (
-    <div className="relative flex w-96 flex-col overflow-hidden rounded-3xl bg-gray-800 p-8 shadow-md">
+    <PlanCard className="w-96 relative overflow-hidden bg-gray-800 shadow-md">
+
       <h3 className="flex flex-row items-center gap-x-2 text-lg font-semibold leading-8 text-white">
         {subscription.name}
         {isPro && (
@@ -157,17 +176,17 @@ const ProPlan: FC<ProPlanProps> = ({
           Automations
         </span>
       </div>
-    </div>
+    </PlanCard>
   );
 };
 
 interface EnterprisePlanProps {
-  isLoading: boolean;
+  isLoading?: boolean;
 }
 
 const EnterprisePlan: FC<EnterprisePlanProps> = ({ isLoading = false }) => {
   return (
-    <div className="my-5 flex w-72 flex-col rounded-3xl p-8 shadow-sm ring-1 ring-gray-200">
+    <PlanCard className="my-5 w-72 ring-1 ring-gray-200">
       <h3 className="flex flex-row items-center gap-x-2 text-lg font-semibold leading-8 text-gray-800">
         Enterprise
       </h3>
@@ -205,7 +224,7 @@ const EnterprisePlan: FC<EnterprisePlanProps> = ({ isLoading = false }) => {
           API integrations
         </span>
       </div>
-    </div>
+    </PlanCard>
   );
 };
 
@@ -220,8 +239,6 @@ const BillingTemplate: FC = () => {
   const { url: customerPortalUrl, loading: isLoadingCustomerPortalUrl, refetch: getCustomerPortalUrl } = useCustomerPortalUrl(userID, { enabled: false });
 
   const { subscriptions, loading: isLoadingActiveSubscriptions } = useActiveSubscriptions();
-
-  console.log(subscriptions);
 
   const isLoading = useMemo(() => {
     return isLoadingPremiumStatus || isLoadingActiveSubscriptions || isLoadingCustomerPortalUrl;
@@ -250,48 +267,66 @@ const BillingTemplate: FC = () => {
 
       {
         // TODO: Replace for a loading component to standardize the loading state
-        isLoadingPremiumStatus ? (
-          <div className="flex flex-col items-center gap-y-2.5">
-            <p className="text-gray-500">Loading...</p>
-          </div>
-        ) : (
-          <>
-            <span className="flex flex-row justify-between">
-              <h3 className="flex flex-row items-center gap-x-2.5 text-xl font-semibold text-gray-700">
-                Plan:
-                {isPro ? (
-                  <p className=" flex flex-row items-center gap-x-1.5 rounded-lg bg-blue-100 px-2 py-1 font-bold text-blue-500 shadow-lg shadow-blue-200/50 ring-1 ring-inset ring-blue-300">
-                    <RocketLaunchIcon className="mt-0.5 inline-block h-5 w-5 text-blue-500" />
-                    Pro
-                  </p>
-                ) : (
-                  <p className="text-gray-500">Free</p>
-                )}
-              </h3>
-              {isPro && (
-                <BigButton
-                  text="Manage Subscription"
-                  onClick={() => setManageSubscriptionClicked(true)}
-                  Icon={CreditCardSmallIcon}
-                />
-              )}
-            </span>
-            <span className="flex flex-row justify-center gap-x-5">
-              <DiscoverPlan isPro={isPro} />
-              {subscriptions.length > 0 &&
-                subscriptions.map((subscription) => (
-                  <ProPlan
-                    key={subscription.id}
-                    isPro={isPro}
-                    userID={userID}
-                    subscription={subscription}
+
+        <>
+          <span className="flex flex-row justify-between">
+            <h3 className="flex flex-row items-center gap-x-2.5 text-xl font-semibold text-gray-700">
+              Plan:
+              {
+                isLoading ? (
+                  <div
+                    className="h-7 w-16 animate-pulse rounded-md bg-gray-200"
                   />
-                ))
-              }
-              <EnterprisePlan isLoading={isLoading} />
-            </span>
-          </>
-        )
+                ) :
+
+                  isPro ? (
+                    <p className=" flex flex-row items-center gap-x-1.5 rounded-lg bg-blue-100 px-2 py-1 font-bold text-blue-500 shadow-lg shadow-blue-200/50 ring-1 ring-inset ring-blue-300">
+                      <RocketLaunchIcon className="mt-0.5 inline-block h-5 w-5 text-blue-500" />
+                      Pro
+                    </p>
+                  ) : (
+                    <p className="text-gray-500">Free</p>
+                  )}
+            </h3>
+            {isPro && (
+              <BigButton
+                text="Manage Subscription"
+                onClick={() => setManageSubscriptionClicked(true)}
+                Icon={CreditCardSmallIcon}
+              />
+            )}
+          </span>
+          <span className="flex flex-row justify-center gap-x-5">
+            {
+              isLoading ? (
+                <>
+                  <PlanCard className="my-5 w-72 ring-1 ring-gray-200">
+                    <LoadingPulseMock size={"sm"} />
+                  </PlanCard>
+                  <PlanCard className="w-96 relative overflow-hidden bg-gray-800 shadow-md">
+                    <LoadingPulseMock size={"sm"} />
+                  </PlanCard>
+                  <PlanCard className="my-5 w-72 ring-1 ring-gray-200">
+                    <LoadingPulseMock size={"sm"} />
+                  </PlanCard>
+                </>
+              ) :
+                <>
+                  <DiscoverPlan isPro={isPro} />
+                  {subscriptions.length > 0 &&
+                    subscriptions.map((subscription) => (
+                      <ProPlan
+                        key={subscription.id}
+                        isPro={isPro}
+                        userID={userID}
+                        subscription={subscription}
+                      />
+                    ))}
+                  <EnterprisePlan />
+                </>
+            }
+          </span>
+        </>
       }
     </div>
   );
