@@ -9,12 +9,13 @@ import clsx from "clsx";
 import { FC, useState } from "react";
 import Badge from "../components/common/Badge";
 import BigButton from "../components/common/BigButton";
-import useAuthState from "../hooks/useAuthState";
+import { usePremiumStatus } from "../services/firestore/user/premium/premium";
 import {
   getCheckoutUrl,
   getCustomerPortalUrl,
 } from "../services/payments/payments.services";
 import { Colors } from "../utils/colors";
+import useAuthState from "../hooks/useAuthState";
 
 interface PlanProps {
   isPro: boolean;
@@ -198,13 +199,16 @@ const EnterprisePlan: FC<EnterprisePlanProps> = ({ isLoading = false }) => {
 };
 
 const BillingTemplate: FC = () => {
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const { isPremium: isPro } = useAuthState();
+  const [isLoadingPaymentService, setIsLoadingPaymentService] = useState<boolean>(false);
+
+  const { user } = useAuthState();
+
+  const { isPremium: isPro, loading: isLoadingPremiumStatus } = usePremiumStatus(user?.uid || "");
 
   const onManageSubscriptionClicked = () => {
-    setIsLoading(true);
+    setIsLoadingPaymentService(true);
     getCustomerPortalUrl().then((url) => {
-      setIsLoading(false);
+      setIsLoadingPaymentService(false);
       window.location.href = url;
     });
   };
@@ -217,35 +221,46 @@ const BillingTemplate: FC = () => {
       </h3>
       <div className="h-[1px] w-full bg-gray-200" />
 
-      <span className="flex flex-row justify-between">
-        <h3 className="flex flex-row items-center gap-x-2.5 text-xl font-semibold text-gray-700">
-          Plan:
-          {isPro ? (
-            <p className=" flex flex-row items-center gap-x-1.5 rounded-lg bg-blue-100 px-2 py-1 font-bold text-blue-500 shadow-lg shadow-blue-200/50 ring-1 ring-inset ring-blue-300">
-              <RocketLaunchIcon className="mt-0.5 inline-block h-5 w-5 text-blue-500" />
-              Pro
-            </p>
-          ) : (
-            <p className="text-gray-500">Free</p>
-          )}
-        </h3>
-        {isPro && (
-          <BigButton
-            text="Manage Subscription"
-            onClick={onManageSubscriptionClicked}
-            Icon={CreditCardSmallIcon}
-          />
-        )}
-      </span>
-      <span className="flex flex-row justify-center gap-x-5">
-        <DiscoverPlan isPro={isPro} />
-        <ProPlan
-          isPro={isPro}
-          isLoading={isLoading}
-          setIsLoading={setIsLoading}
-        />
-        <EnterprisePlan isLoading={isLoading} />
-      </span>
+      {
+        // TODO: Replace for a loading component to standardize the loading state
+        isLoadingPremiumStatus ? (
+          <div className="flex flex-col items-center gap-y-2.5">
+            <p className="text-gray-500">Loading...</p>
+          </div>
+        ) : (
+          <>
+            <span className="flex flex-row justify-between">
+              <h3 className="flex flex-row items-center gap-x-2.5 text-xl font-semibold text-gray-700">
+                Plan:
+                {isPro ? (
+                  <p className=" flex flex-row items-center gap-x-1.5 rounded-lg bg-blue-100 px-2 py-1 font-bold text-blue-500 shadow-lg shadow-blue-200/50 ring-1 ring-inset ring-blue-300">
+                    <RocketLaunchIcon className="mt-0.5 inline-block h-5 w-5 text-blue-500" />
+                    Pro
+                  </p>
+                ) : (
+                  <p className="text-gray-500">Free</p>
+                )}
+              </h3>
+              {isPro && (
+                <BigButton
+                  text="Manage Subscription"
+                  onClick={onManageSubscriptionClicked}
+                  Icon={CreditCardSmallIcon}
+                />
+              )}
+            </span>
+            <span className="flex flex-row justify-center gap-x-5">
+              <DiscoverPlan isPro={isPro} />
+              <ProPlan
+                isPro={isPro}
+                isLoading={isLoadingPaymentService}
+                setIsLoading={setIsLoadingPaymentService}
+              />
+              <EnterprisePlan isLoading={isLoadingPaymentService} />
+            </span>
+          </>
+        )
+      }
     </div>
   );
 };

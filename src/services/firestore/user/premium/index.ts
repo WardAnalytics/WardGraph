@@ -1,3 +1,3 @@
-import { getPremiumStatus } from "./premium";
+import { usePremiumStatus } from "./premium";
 
-export { getPremiumStatus };
+export { usePremiumStatus };
