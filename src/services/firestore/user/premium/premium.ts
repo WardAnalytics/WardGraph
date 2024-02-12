@@ -1,25 +1,32 @@
-// import { collection, onSnapshot, query } from "firebase/firestore";
-// import { db } from "../../../firebase";
-// import { getVerifiedUser } from "../../../auth/auth.services";
-// import { User } from "firebase/auth";
+import { collection, onSnapshot, query, where } from "firebase/firestore";
+import { db } from "../../../firebase";
 
-// export enum Subscription {
-//   TRIAL = "trial",
-//   PRO = "pro",
-//   ENTERPRISE = "enterprise",
-// }
+/** Checks if the user has a premium subscription.
+ * This function checks the status of the user's subscription from the stripe database.
+ * @param userID The user ID to check
+ * @returns A promise that resolves to true if the user has a premium subscription, and false otherwise
+ */
+export const getPremiumStatus = async (userID: string) => {
+  const subscriptionsRef = collection(db, "customers", userID, "subscriptions");
 
-// /** Returns all the current subscriptions for the user.
-//  * @returns The user's subscriptions
-//  */
+  const q = query(
+    subscriptionsRef,
+    where("status", "in", ["trialing", "active"]),
+  );
 
-// export async function getUserSubscriptions(): Promise<Subscription[]> {
-//   const user: User = getVerifiedUser();
+  return new Promise<boolean>((resolve, reject) => {
+    const unsubscribe = onSnapshot(
+      q,
+      (snapshot) => {
+        if (snapshot.docs.length === 0) {
+          resolve(false);
+        } else {
+          resolve(true);
+        }
 
-//   const subscriptionsRef = collection(db, "users", user.uid, "subscriptions");
-//   const q = query(subscriptionsRef);
-//   const subscriptions: Subscription[] = [];
-
-// }
-
-// export { getPremiumStatus };
+        unsubscribe();
+      },
+      reject,
+    );
+  });
+};

@@ -62,7 +62,7 @@ const DiscoverPlan: FC<PlanProps> = ({ isPro }) => {
 const ProPlan: FC<PlanProps> = ({
   isPro,
   isLoading = false,
-  setIsLoading = () => {},
+  setIsLoading = () => { },
 }) => {
   const onBuyPlanClicked = () => {
     const priceId = import.meta.env.VITE_STRIPE_ONE_MONTH_SUBSCRIPTION_PRICE_ID;
@@ -114,7 +114,7 @@ const ProPlan: FC<PlanProps> = ({
           className={clsx(
             "mt-4 h-10 w-full rounded-md bg-blue-500 text-white transition-all duration-150 hover:bg-blue-400",
             isLoading &&
-              "text-gray-3 bg-blue-900 hover:cursor-not-allowed hover:bg-blue-900",
+            "text-gray-3 bg-blue-900 hover:cursor-not-allowed hover:bg-blue-900",
           )}
           onClick={onBuyPlanClicked}
           type="button"
@@ -169,7 +169,7 @@ const EnterprisePlan: FC<EnterprisePlanProps> = ({ isLoading = false }) => {
         className={clsx(
           "bg-white-500 mt-4 h-10 w-full rounded-md text-gray-600 shadow-sm ring-1 ring-inset ring-gray-200 transition-all duration-150 hover:bg-gray-50",
           isLoading &&
-            "text-gray-3 bg-gray-300 hover:cursor-not-allowed hover:bg-gray-300",
+          "text-gray-3 bg-gray-300 hover:cursor-not-allowed hover:bg-gray-300",
         )}
         disabled={isLoading}
       >
@@ -199,6 +199,7 @@ const EnterprisePlan: FC<EnterprisePlanProps> = ({ isLoading = false }) => {
 
 const BillingTemplate: FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const { isPremium: isPro } = useAuthState();
 
   const onManageSubscriptionClicked = () => {
     setIsLoading(true);
