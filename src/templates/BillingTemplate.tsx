@@ -6,12 +6,12 @@ import {
 } from "@heroicons/react/20/solid";
 import { CreditCardIcon } from "@heroicons/react/24/outline";
 import clsx from "clsx";
-import { FC, useEffect, useState } from "react";
+import { FC, useEffect, useMemo, useState } from "react";
 import Badge from "../components/common/Badge";
 import BigButton from "../components/common/BigButton";
 import useAuthState from "../hooks/useAuthState";
 import { usePremiumStatus } from "../services/firestore/user/premium/premium";
-import { useCheckoutSessionUrl, useCustomerPortalUrl } from "../services/payments";
+import { Subscription, useActiveSubscriptions, useCheckoutSessionUrl, useCustomerPortalUrl } from "../services/stripe";
 import { Colors } from "../utils/colors";
 
 interface PlanProps {
@@ -59,11 +59,13 @@ const DiscoverPlan: FC<PlanProps> = ({ isPro }) => {
 
 interface ProPlanProps extends PlanProps {
   userID: string;
+  subscription: Subscription;
 }
 
 const ProPlan: FC<ProPlanProps> = ({
   isPro,
-  userID
+  userID,
+  subscription,
 }) => {
   const priceId = import.meta.env.VITE_STRIPE_ONE_MONTH_SUBSCRIPTION_PRICE_ID as string;
 
@@ -87,17 +89,16 @@ const ProPlan: FC<ProPlanProps> = ({
   return (
     <div className="relative flex w-96 flex-col overflow-hidden rounded-3xl bg-gray-800 p-8 shadow-md">
       <h3 className="flex flex-row items-center gap-x-2 text-lg font-semibold leading-8 text-white">
-        Pro
+        {subscription.name}
         {isPro && (
           <Badge color={Colors.BLUE_DARK} text="Current" className="h-fit" />
         )}
       </h3>
       <p className="mt-1 text-sm leading-6 text-gray-300">
-        For investigators who want to speed up their workflow and take their
-        analysis to the next level.
+        {subscription.description}
       </p>
       <p className="mt-4 text-4xl font-bold tracking-tight text-white">
-        $99.99
+        €{subscription.price.amount.toFixed(2)}
         <span className="text-base font-normal text-gray-300">/mo</span>
         <svg
           viewBox="0 0 1208 1024"
@@ -218,6 +219,14 @@ const BillingTemplate: FC = () => {
 
   const { url: customerPortalUrl, loading: isLoadingCustomerPortalUrl, refetch: getCustomerPortalUrl } = useCustomerPortalUrl(userID, { enabled: false });
 
+  const { subscriptions, loading: isLoadingActiveSubscriptions } = useActiveSubscriptions();
+
+  console.log(subscriptions);
+
+  const isLoading = useMemo(() => {
+    return isLoadingPremiumStatus || isLoadingActiveSubscriptions || isLoadingCustomerPortalUrl;
+  }, [isLoadingPremiumStatus, isLoadingActiveSubscriptions, isLoadingCustomerPortalUrl]);
+
   useEffect(() => {
     if (manageSubscriptionClicked) {
       getCustomerPortalUrl();
@@ -269,11 +278,17 @@ const BillingTemplate: FC = () => {
             </span>
             <span className="flex flex-row justify-center gap-x-5">
               <DiscoverPlan isPro={isPro} />
-              <ProPlan
-                isPro={isPro}
-                userID={userID}
-              />
-              <EnterprisePlan isLoading={isLoadingCustomerPortalUrl} />
+              {subscriptions.length > 0 &&
+                subscriptions.map((subscription) => (
+                  <ProPlan
+                    key={subscription.id}
+                    isPro={isPro}
+                    userID={userID}
+                    subscription={subscription}
+                  />
+                ))
+              }
+              <EnterprisePlan isLoading={isLoading} />
             </span>
           </>
         )

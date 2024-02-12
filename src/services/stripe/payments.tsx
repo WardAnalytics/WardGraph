@@ -54,13 +54,11 @@ export const useCheckoutSessionUrl = (priceId: string, userId: string, {
         }
         if (url) {
           setUrl(url);
+          setLoading(false);
         }
       });
     }).catch((error) => {
       setError(error as Error);
-    }
-    ).finally(() => {
-      setLoading(false);
     });
   }
 
@@ -113,14 +111,14 @@ export const useCustomerPortalUrl = (userID: string, {
         const data = result.data as { url: string };
         if (data.url) {
           setUrl(data.url);
+          setLoading(false);
         } else {
+          setLoading(false);
           throw new Error("Customer portal URL not found");
         }
       }).catch((error) => {
         setError(error as Error);
-      }).finally(() => {
-        setLoading(false);
-      });
+      })
     } catch (error) {
       setError(error as Error);
       setLoading(false);
