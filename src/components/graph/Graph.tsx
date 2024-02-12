@@ -52,6 +52,7 @@ import Hotbar from "./hotbar";
 import Legend from "./legend";
 import TransactionTooltip from "./TransactionTooltip";
 import { TransactionTooltipProps } from "./TransactionTooltip";
+import { PersonalGraphInfo } from "../../services/firestore/user/graph_saving";
 
 enum HotKeyMap {
   DELETE = 1,
@@ -101,6 +102,7 @@ interface GraphContextProps {
   setShowRiskVision: (show: boolean) => void;
   generateSharableLink: () => Promise<string>;
   isSavedGraph: boolean;
+  personalGraphInfo: PersonalGraphInfo;
 }
 
 export const GraphContext = createContext<GraphContextProps>(
@@ -114,7 +116,7 @@ export const GraphContext = createContext<GraphContextProps>(
 interface GraphProps {
   initialAddresses: string[];
   initialPaths: string[];
-  onAutoSave?: (addresses: string[], paths: string[]) => void;
+  onAutoSave?: (graphInfo: PersonalGraphInfo) => void;
 }
 
 /** Graph simply wraps the ReactFlowProvider and provides the initial nodes
@@ -189,7 +191,7 @@ const Graph: FC<GraphProps> = ({
 interface GraphProvidedProps {
   initialNodes: Node[];
   initialEdges: Edge[];
-  onAutoSave?: (addresses: string[], paths: string[]) => void;
+  onAutoSave?: (graphInfo: PersonalGraphInfo) => void;
 }
 
 const MemoedDraggableWindow = memo(DraggableWindow);
@@ -257,29 +259,49 @@ const GraphProvided: FC<GraphProvidedProps> = ({
   /* We want to save the graph whenever a change is made. We'll use a debounce
    * to prevent too many saves from happening at once. */
 
+  const { personalGraphInfo } = useMemo<{
+    personalGraphInfo: PersonalGraphInfo;
+  }>(() => {
+    // Only non-hidden edges should be included in the graph info
+    const addresses = nodes.map((node) => node.id);
+    const paths = edges
+      .filter((edge) => {
+        return (
+          edge.data.state === TransfershipEdgeStates.REVEALED &&
+          (nodesRecord[edge.source] || nodesRecord[edge.target])
+        );
+      })
+      .map((edge) => `${edge.source}-${edge.target}`);
+
+    return {
+      personalGraphInfo: {
+        addresses: addresses,
+        edges: paths,
+        tags: [],
+        averageRisk: 0,
+        totalVolume: 0,
+      },
+    };
+  }, [nodes.length, edges.length]);
+
   const saveGraph = useCallback(
-    (addresses: string[], paths: string[]) => {
+    (graphInfo: PersonalGraphInfo) => {
       if (onAutoSave) {
-        onAutoSave(addresses, paths);
+        onAutoSave(graphInfo);
       }
     },
     [nodes.length, edges.length],
   );
 
   const debouncedSave = useRef(
-    debounce((addresses: string[], paths: string[]) => {
-      saveGraph(addresses, paths);
+    debounce((graphInfo: PersonalGraphInfo) => {
+      saveGraph(graphInfo);
     }, 1000),
   );
 
   useEffect(() => {
     if (nodes.length === 0) return;
-
-    const addresses: string[] = nodes.map((node) => node.id);
-    const paths: string[] = edges.map((edge) =>
-      [edge.source, edge.target].join("-"),
-    );
-    debouncedSave.current(addresses, paths);
+    debouncedSave.current(personalGraphInfo);
   }, [nodes.length, edges.length]);
 
   // Undo and Redo -------------------------------------------------------------
@@ -788,9 +810,13 @@ const GraphProvided: FC<GraphProvidedProps> = ({
 
   const generateSharableLink = useCallback(async () => {
     const addresses: string[] = nodes.map((node) => node.id);
-    const paths: string[] = edges.map(
-      (edge) => `${edge.source}-${edge.target}`,
-    );
+    const paths: string[] = edges
+      .filter(
+        (edge) =>
+          edge.data.state === TransfershipEdgeStates.REVEALED &&
+          (nodesRecord[edge.source] || nodesRecord[edge.target]),
+      )
+      .map((edge) => `${edge.source}-${edge.target}`);
 
     const link = createSharableGraph({ addresses, edges: paths });
     return link;
@@ -828,6 +854,7 @@ const GraphProvided: FC<GraphProvidedProps> = ({
     isRiskVision,
     setShowRiskVision: setIsRiskVision,
     isSavedGraph: onAutoSave !== undefined,
+    personalGraphInfo,
   };
 
   return (

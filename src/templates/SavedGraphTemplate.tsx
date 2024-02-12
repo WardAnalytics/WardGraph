@@ -3,6 +3,7 @@ import { FC, useCallback, useEffect, useState } from "react";
 import {
   updatePersonalGraph,
   getPersonalGraph,
+  PersonalGraphInfo,
 } from "../services/firestore/user/graph_saving";
 
 import { Graph } from "../components/graph/Graph";
@@ -25,29 +26,19 @@ const SavedGraphTemplate: FC = () => {
     }
 
     getPersonalGraph(user.uid, uid).then((graph) => {
-      console.log("Fetched graph:", graph);
       setGraph(graph);
     });
   }, [uid, user]);
 
   const saveGraph = useCallback(
-    (addresses: string[], edges: string[]) => {
+    (graphInfo: PersonalGraphInfo) => {
       if (!graph) {
         console.error("No graph found for saving");
         return;
       }
 
-      console.log(
-        "Attempting to insert {} addresses and {} edges",
-        addresses.length,
-        edges.length,
-      );
-
       const newGraph = graph;
-      newGraph.data.addresses = addresses;
-      newGraph.data.edges = edges;
-
-      console.log("Saving a new graph:", newGraph);
+      newGraph.data = graphInfo;
 
       updatePersonalGraph(user!.uid, newGraph);
     },
@@ -62,6 +53,7 @@ const SavedGraphTemplate: FC = () => {
       initialAddresses={graph.data.addresses}
       initialPaths={graph.data.edges}
       onAutoSave={saveGraph}
+      key={graph.uid}
     />
   );
 };

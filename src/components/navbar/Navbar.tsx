@@ -1,14 +1,13 @@
 import { FC, useMemo, useState } from "react";
 import authService from "../../services/auth/auth.services";
 import logo from "../../assets/ward-logo-blue.svg";
-import { useNavigate } from "react-router-dom";
 
 import Badge from "../common/Badge";
 import { Colors } from "../../utils/colors";
+import { useNavigate } from "react-router-dom";
 
 import clsx from "clsx";
 
-// Icons from Heroicons
 import {
   ArrowUturnLeftIcon,
   ListBulletIcon,
@@ -129,10 +128,15 @@ const SavedGraphs: FC = () => {
 };
 
 const SavedGraphRow: FC<SavedGraphRowProps> = ({ name, href, isLast }) => {
+  const navigate = useNavigate();
+
   return (
     <a
-      href={href}
-      className="flex h-10 flex-row items-center gap-x-3 text-xs font-semibold text-gray-500"
+      key={name}
+      onClick={() => navigate(href)}
+      className={clsx(
+        "flex h-10 cursor-pointer flex-row items-center gap-x-3 text-xs font-semibold text-gray-500",
+      )}
     >
       <div className="relative flex h-full flex-row items-center">
         {/* If it's the last, only display half a bar connecting upwards instead of a full bar. */}

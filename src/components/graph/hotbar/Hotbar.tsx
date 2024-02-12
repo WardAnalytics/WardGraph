@@ -16,9 +16,8 @@ import { GraphContext } from "../Graph";
 
 import ShareDialog from "./components/ShareDialog";
 import NewAddressModal from "./components/NewAddressModal";
-import useAuthState from "../../../hooks/useAuthState";
-import { CreditCardIcon } from "@heroicons/react/24/solid";
-import { getCheckoutUrl } from "../../../services/payments/payments.services";
+
+import CreateGraphDialog from "../../common/CreateGraphDialog";
 
 interface HotbarButton {
   onClick?: () => void;
@@ -107,10 +106,12 @@ const Hotbar: FC = () => {
     isRiskVision,
     setShowRiskVision,
     isSavedGraph,
+    personalGraphInfo,
   } = useContext(GraphContext);
 
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
   const [isAddAddressModalOpen, setIsAddAddressModalOpen] = useState(false);
+  const [isCreateGraphDialogOpen, setIsCreateGraphDialogOpen] = useState(false);
 
   const openShareDialog = () => {
     setIsShareDialogOpen(true);
@@ -150,7 +151,7 @@ const Hotbar: FC = () => {
               Icon={BookmarkIcon}
               name="Save Graph"
               onClick={() => {
-                console.log("Save Graph");
+                setIsCreateGraphDialogOpen(true);
               }}
             />
           )}
@@ -185,6 +186,11 @@ const Hotbar: FC = () => {
       <NewAddressModal
         isOpen={isAddAddressModalOpen}
         setOpen={setIsAddAddressModalOpen}
+      />
+      <CreateGraphDialog
+        isOpen={isCreateGraphDialogOpen}
+        setOpen={setIsCreateGraphDialogOpen}
+        graphInfo={personalGraphInfo}
       />
     </>
   );

@@ -53,7 +53,7 @@ export function getGraphHref(graph: PersonalGraph) {
 export async function createPersonalGraph(
   userID: string,
   graph: PersonalGraph,
-) {
+): Promise<string> {
   // Set the created_at and last_modified fields
   graph.created_at = Timestamp.now();
   graph.last_modified = Timestamp.now();
@@ -64,6 +64,9 @@ export async function createPersonalGraph(
 
   // Update data
   await setDoc(docRef, graph);
+
+  // Returns the unique ID of the graph
+  return graph.uid;
 }
 
 /** Updates the personal graph data for the user.
