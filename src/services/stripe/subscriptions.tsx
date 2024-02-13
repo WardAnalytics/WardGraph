@@ -2,7 +2,7 @@ import { collection, getDocs, limit, query, where } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import { db } from "../firebase";
 
-interface UserSubscriptionsOptions {
+interface UserSubscriptionOptions {
     enabled?: boolean; // If the hook should be enabled. This prevents the hook from fireing if it's not needed
 }
 
@@ -18,18 +18,18 @@ interface Price {
     amount: number;
 }
 
-export const useActiveSubscriptions = ({ enabled }: UserSubscriptionsOptions = { enabled: true }) => {
-    const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
+export const useActiveSubscription = ({ enabled }: UserSubscriptionOptions = { enabled: true }) => {
+    const [subscription, setSubscription] = useState<Subscription | null>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<Error | null>(null);
 
-    const getProductPrice = async (subscription: Subscription) => {
+    const getSubscriptionPrice = async (subscription: Subscription) => {
         const priceQuery = query(collection(db, "products", subscription.id, "prices"), where("active", "==", true), limit(1));
 
 
         const priceSnap = await getDocs(priceQuery);
         if (priceSnap.empty) {
-            throw new Error("No active prices found for product");
+            throw new Error("No active prices found for subscription");
         }
 
         const priceData = priceSnap.docs[0].data();
@@ -43,29 +43,30 @@ export const useActiveSubscriptions = ({ enabled }: UserSubscriptionsOptions = {
         return subscription;
     }
 
-    const getSubscriptions = async () => {
-        const subscriptions: Subscription[] = [];
-
+    const getSubscription = async () => {
         const queryRef = query(collection(db, "products"), where("active", "==", true));
         const collectionSnap = await getDocs(queryRef);
 
         for (const doc of collectionSnap.docs) {
-            const subscription = doc.data() as Subscription;
-            subscription.id = doc.id;
+            const subscriptionObj = doc.data() as Subscription;
+            subscriptionObj.id = doc.id;
 
-            const newSubscription = await getProductPrice(subscription);
-            subscriptions.push(newSubscription);
+            const subscription = await getSubscriptionPrice(subscriptionObj);
+
+            return subscription;
         }
 
-        return subscriptions;
+        return null;
     }
 
     useEffect(() => {
         if (enabled) {
             setLoading(true);
 
-            getSubscriptions().then((subscriptions) => {
-                setSubscriptions(subscriptions);
+            getSubscription().then((subscription) => {
+                if (subscription) {
+                    setSubscription(subscription);
+                }
                 setLoading(false);
             }).catch((error) => {
                 setLoading(false);
@@ -74,6 +75,6 @@ export const useActiveSubscriptions = ({ enabled }: UserSubscriptionsOptions = {
         }
     }, []);
 
-    return { subscriptions, loading, error };
+    return { subscription, loading, error };
 
 }

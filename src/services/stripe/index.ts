@@ -1,6 +1,6 @@
 import { useCheckoutSessionUrl, useCustomerPortalUrl } from "./payments";
-import { Subscription, useActiveSubscriptions } from "./subscriptions";
+import { Subscription, useActiveSubscription } from "./subscriptions";
 
-export { useCheckoutSessionUrl, useCustomerPortalUrl, useActiveSubscriptions };
+export { useCheckoutSessionUrl, useCustomerPortalUrl, useActiveSubscription };
 
 export type { Subscription };
