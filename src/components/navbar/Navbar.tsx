@@ -19,7 +19,10 @@ import {
   CreditCardIcon,
 } from "@heroicons/react/24/outline";
 
-import { CubeTransparentIcon } from "@heroicons/react/16/solid";
+import {
+  PlusCircleIcon,
+  WrenchScrewdriverIcon,
+} from "@heroicons/react/16/solid";
 import {
   usePersonalGraphs,
   getGraphHref,
@@ -29,7 +32,7 @@ import { Transition } from "@headlessui/react";
 
 // To add more tabs, simply add more objects to the navigation array. Href indicates the page to go to
 const navigation = [
-  { name: "Risk Feed", href: "risk-feed", icon: ListBulletIcon, isBeta: false },
+  { name: "Risk Feed", href: "risk-feed", icon: ListBulletIcon, isBeta: true },
   { name: "Automations", href: "automations", icon: BoltIcon, isBeta: true },
   { name: "API", href: "api", icon: KeyIcon, isBeta: true },
   { name: "My Graphs", href: "graphs", icon: ShareIcon, isBeta: false },
@@ -55,19 +58,23 @@ const NavbarButton: FC<SideNavBarButton> = ({
   return (
     <a
       key={name}
-      onClick={onClick}
+      onClick={isBeta ? undefined : onClick}
       className={clsx(
-        isCurrent
-          ? "gap-x-2.5 rounded-lg bg-blue-50 text-blue-600 shadow-lg shadow-blue-200/25 ring-1 ring-blue-200"
-          : "gap-x-2 rounded-md text-gray-700 hover:bg-blue-50 hover:text-blue-600",
-        "group flex cursor-pointer p-1.5 text-sm font-semibold leading-6 transition-all duration-200 ease-in-out",
+        isBeta
+          ? "gap-x-2 rounded-md text-gray-400 "
+          : isCurrent
+            ? "gap-x-2.5 rounded-lg bg-blue-50 text-blue-600 shadow-lg shadow-blue-200/25 ring-1 ring-blue-200"
+            : "cursor-pointer gap-x-2 rounded-md text-gray-700 hover:bg-blue-50 hover:text-blue-600",
+        "group flex p-1.5 text-sm font-semibold leading-6 transition-all duration-200 ease-in-out",
       )}
     >
       <Icon
         className={clsx(
-          isCurrent
-            ? "text-blue-600"
-            : "text-gray-400 group-hover:text-blue-600",
+          isBeta
+            ? "text-gray-400"
+            : isCurrent
+              ? "text-blue-600"
+              : "text-gray-400 group-hover:text-blue-600",
           "mt-0.5 h-5 w-5 shrink-0 transition-all duration-200 ease-in-out",
         )}
         aria-hidden="true"
@@ -75,10 +82,10 @@ const NavbarButton: FC<SideNavBarButton> = ({
       {name}
       {isBeta && (
         <Badge
-          text="BETA"
+          text="Soon"
           color={Colors.PURPLE}
           className="px-1 py-0 text-xs"
-          Icon={CubeTransparentIcon}
+          Icon={WrenchScrewdriverIcon}
         />
       )}
     </a>
@@ -94,6 +101,7 @@ interface SavedGraphRowProps {
 const SAVED_GRAPHS_LIMIT = 5;
 
 const SavedGraphs: FC = () => {
+  const navigate = useNavigate();
   const { user } = useAuthState();
   const { graphs } = usePersonalGraphs(user ? user.uid : "");
   const { displayedGraphs } = useMemo(() => {
@@ -123,29 +131,59 @@ const SavedGraphs: FC = () => {
           />
         </Transition>
       ))}
+      <a
+        key="New Graph"
+        onClick={() => navigate("graph")}
+        className="group -mb-10 flex h-10 cursor-pointer flex-row items-center gap-x-4 text-xs font-semibold text-gray-500 transition-all  duration-150 hover:gap-x-[1.1rem] hover:text-gray-700"
+      >
+        <div className="mb-1 h-1/2 w-[1.5px] -translate-y-1/2 bg-gray-300" />
+        <PlusCircleIcon
+          className="absolute h-5 w-5 -translate-x-[0.6rem] rounded-full bg-white p-[0.06rem] text-gray-400 ring-[1.5px] ring-gray-300 transition-all duration-150 group-hover:text-gray-500"
+          aria-hidden="true"
+        />
+        New Graph
+      </a>
     </div>
   );
 };
 
-const SavedGraphRow: FC<SavedGraphRowProps> = ({ name, href, isLast }) => {
+const SavedGraphRow: FC<SavedGraphRowProps> = ({ name, href }) => {
   const navigate = useNavigate();
+  const isCurrent = window.location.href.includes(href);
 
   return (
     <a
       key={name}
       onClick={() => navigate(href)}
       className={clsx(
-        "flex h-10 cursor-pointer flex-row items-center gap-x-3 text-xs font-semibold text-gray-500",
+        isCurrent ? "text-blue-500" : "text-gray-500 hover:text-gray-700",
+        "group flex h-10 cursor-pointer flex-row items-center gap-x-3 text-xs font-semibold transition-all duration-150 hover:gap-x-3.5",
       )}
     >
       <div className="relative flex h-full flex-row items-center">
         {/* If it's the last, only display half a bar connecting upwards instead of a full bar. */}
-        {isLast ? (
-          <div className="mb-1 h-1/2 w-[1.5px] -translate-y-1/2 bg-gray-300" />
-        ) : (
-          <div className="h-full w-[1.5px] bg-gray-300" />
-        )}
-        <div className="absolute -left-[0.2rem] h-2 w-2 rounded-full bg-white ring-[1.5px] ring-gray-300" />
+        <div
+          className={clsx(
+            "h-full w-[1.5px] transition-all duration-150",
+            isCurrent
+              ? "bg-gradient-to-t from-gray-300 via-blue-400 to-gray-300 "
+              : "bg-gradient-to-t from-gray-300 to-gray-300",
+          )}
+        />
+        <div
+          className={clsx(
+            "transtion-all absolute -left-[0.2rem] h-2 w-2 rounded-full bg-white ring-[1.5px] duration-150",
+            isCurrent ? "ring-blue-500" : "ring-gray-300",
+          )}
+        />
+        <div
+          className={clsx(
+            "absolute -left-[0.2rem] h-2 w-2 rounded-full  ring-inset ring-white transition-all duration-150",
+            isCurrent
+              ? "bg-blue-400 opacity-100 ring-1"
+              : "bg-gray-300 opacity-0 ring-0 group-hover:opacity-100",
+          )}
+        />
       </div>
       {name}
     </a>

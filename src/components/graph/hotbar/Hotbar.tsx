@@ -17,7 +17,7 @@ import { GraphContext } from "../Graph";
 import ShareDialog from "./components/ShareDialog";
 import NewAddressModal from "./components/NewAddressModal";
 
-import CreateGraphDialog from "../../common/CreateGraphDialog";
+import CreateGraphDialog from "./components/CreateGraphDialog";
 
 interface HotbarButton {
   onClick?: () => void;
@@ -172,7 +172,7 @@ const Hotbar: FC = () => {
         <HotbarButtonGroup className="pt-1">
           <HotbarButton
             Icon={BugAntIcon}
-            name="Report Bug / Give Feedback"
+            name="Report Bug / Submit Feedback"
             onClick={() => {}}
             href="https://forms.gle/yCFrDnKyUmPYPhfg8"
           />

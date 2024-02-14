@@ -5,7 +5,15 @@ import {
   XCircleIcon,
 } from "@heroicons/react/24/solid";
 import clsx from "clsx";
-import { FC, KeyboardEvent, useMemo, useRef, useState, useEffect } from "react";
+import {
+  FC,
+  KeyboardEvent,
+  useMemo,
+  useRef,
+  useState,
+  useEffect,
+  useCallback,
+} from "react";
 
 import { Label, SearchLabelsBody } from "../../../api/model";
 import { searchLabels } from "../../../api/labels/labels";
@@ -17,6 +25,7 @@ import { HotKeysType } from "../../../types/hotKeys";
 import isValidAddress from "../../../utils/isValidAddress";
 import SearchResultPopover from "./SearchResultPopover";
 import useAuthState from "../../../hooks/useAuthState";
+import { debounce } from "lodash";
 
 const InvalidAddressPopover: FC = () => {
   return (
@@ -78,27 +87,32 @@ const SearchBar: FC<SearchBarProps> = ({ className, onSearchAddress }) => {
   // Entity search results
   const [entitySearchResults, setEntitySearchResults] = useState<Label[]>([]);
 
-  useEffect(() => {
+  const fetchLabels = useCallback(async (query: string) => {
+    const res = await searchLabels({ query, limit: MAX_SEARCH_HISTORY });
+    if (res.labels) {
+      setEntitySearchResults(res.labels);
+    } else {
+      setEntitySearchResults([]);
+    }
+  }, []);
+
+  const searchQuery = useCallback((query: string) => {
     if (!query) {
       setEntitySearchResults([]);
       return;
     }
 
-    const body: SearchLabelsBody = {
-      query: query,
-      limit: MAX_SEARCH_HISTORY,
-    };
+    fetchLabels(query);
+  }, []);
 
-    async function fetchLabels() {
-      const res = await searchLabels(body);
-      if (res.labels) {
-        setEntitySearchResults(res.labels);
-      } else {
-        setEntitySearchResults([]);
-      }
-    }
-
-    fetchLabels();
+  useEffect(() => {
+    debounce(
+      () => {
+        searchQuery(query);
+      },
+      300,
+      { trailing: true },
+    );
   }, [query]);
 
   // Combine uniqueSearchHistory and entitySearchResults into a single list of search results
@@ -238,7 +252,7 @@ const SearchBar: FC<SearchBarProps> = ({ className, onSearchAddress }) => {
                     ? " focus:outline-blue-200 focus:ring-blue-400"
                     : "  focus:outline-red-200 focus:ring-red-400")
                 }
-                placeholder="Company, domain.eth, or 0x89c3ef557515934..."
+                placeholder="Entity, domain.eth, or 0x89c3ef557515934..."
                 onFocus={() => {
                   setIsSearchResultPopoverOpen(true);
                 }}

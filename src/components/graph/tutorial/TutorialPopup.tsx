@@ -200,7 +200,8 @@ const TutorialPopup: FC<TutorialPopupProps> = ({
                       Need help?
                     </p>
                     <p className="mt-1 text-sm text-gray-500">
-                      Do a 30 second tutorial to learn how to use Ward Graph.
+                      Complete a 30 second tutorial to learn how to use Ward
+                      Graph.
                     </p>
                     <div className="mt-3 flex space-x-7">
                       <button

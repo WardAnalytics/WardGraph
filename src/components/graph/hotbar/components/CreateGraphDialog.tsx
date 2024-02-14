@@ -1,16 +1,16 @@
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { FC, useCallback, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import useAuthState from "../../hooks/useAuthState";
+import useAuthState from "../../../../hooks/useAuthState";
 import {
   PersonalGraph,
   PersonalGraphInfo,
   createPersonalGraph,
-} from "../../services/firestore/user/graph_saving";
+} from "../../../../services/firestore/user/graph_saving";
 
 import { BookmarkIcon } from "@heroicons/react/20/solid";
-import BigButton from "./BigButton";
-import Modal from "./Modal";
+import BigButton from "../../../common/BigButton";
+import Modal from "../../../common/Modal";
 
 interface CreateGraphDialogProps {
   isOpen: boolean;
@@ -51,7 +51,7 @@ const CreateGraphDialog: FC<CreateGraphDialogProps> = ({
   }, [graphName]);
 
   return (
-    <Modal isOpen={isOpen} closeModal={closeDialog}>
+    <Modal isOpen={isOpen} closeModal={closeDialog} size="md">
       <div className="flex items-center justify-between border-b border-gray-200 pb-3">
         <h3 className="flex flex-row items-center gap-x-1.5 text-lg font-semibold leading-6 text-gray-900">
           Create a new graph
@@ -77,11 +77,7 @@ const CreateGraphDialog: FC<CreateGraphDialogProps> = ({
             }
           }}
         />
-        <BigButton
-          onClick={createGraph}
-          Icon={BookmarkIcon}
-          text="Create"
-        />
+        <BigButton onClick={createGraph} Icon={BookmarkIcon} text="Create" />
       </span>
     </Modal>
   );
