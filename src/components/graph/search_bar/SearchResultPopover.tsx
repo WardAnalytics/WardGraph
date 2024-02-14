@@ -1,13 +1,15 @@
 import { Popover } from "@headlessui/react";
 import { ArrowPathIcon } from "@heroicons/react/20/solid";
 import clsx from "clsx";
-import { FC } from "react";
+import { FC, useRef } from "react";
 import { SearchResult } from "./SearchBar";
 import { TagIcon } from "@heroicons/react/16/solid";
 
 import Badge from "../../common/Badge";
 import EntityLogo from "../../common/EntityLogo";
 import { Colors } from "../../../utils/colors";
+
+import "../../../../src/components/common/Scrollbar.css";
 
 interface SearchResultRowProps {
   result: SearchResult;
@@ -27,8 +29,8 @@ const SearchResultRow = ({
   return (
     <div
       className={clsx(
-        "flex flex-row items-center gap-x-2 rounded-lg p-1.5 transition duration-[25ms] ease-in-out hover:cursor-pointer hover:bg-gray-100 hover:text-blue-500 focus:outline-none focus-visible:ring focus-visible:ring-orange-500/50",
-        selected ? "bg-gray-100 text-blue-500" : "ml-1 text-gray-900",
+        "flex flex-row scrollbar scrollbar-md-28 items-center gap-x-2 rounded-lg p-1.5 transition duration-[25ms] ease-in-out hover:cursor-pointer hover:bg-gray-100 hover:text-blue-500 focus:outline-none focus-visible:ring focus-visible:ring-orange-500/50",
+        selected ? "bg-gray-100 text-blue-500 active" : "ml-1 text-gray-900",
       )}
       onClick={onClickAddress}
     >
@@ -72,23 +74,19 @@ const SearchResultPopover: FC<SearchResultPopoverProps> = ({
     return null;
   }
 
+  const selectRef = useRef<HTMLUListElement>(null);
+
   // If the selected index is bigger than 3, we want to start scrolling the popover downwards.
   // We only want to display 7 results at a time, and we want to keep the selected index in the middle of the popover unless it's near the bounds.
-  const { lowerBound, upperBound } = (() => {
-    if (selectedIndex === null) {
-      return { lowerBound: 0, upperBound: 7 };
+  const setChange = () => {
+    const selected = selectRef?.current?.querySelector(".active");
+    if (selected) {
+      selected?.scrollIntoView({
+        behavior: "smooth",
+        block: "center"
+      });
     }
-
-    if (selectedIndex < 3) {
-      return { lowerBound: 0, upperBound: 7 };
-    }
-
-    if (selectedIndex > results.length - 4) {
-      return { lowerBound: results.length - 7, upperBound: results.length };
-    }
-
-    return { lowerBound: selectedIndex - 3, upperBound: selectedIndex + 4 };
-  })();
+  }
 
   return (
     <div className="relative z-10 w-full">
@@ -96,22 +94,28 @@ const SearchResultPopover: FC<SearchResultPopoverProps> = ({
         <Popover.Panel static>
           <div className="overflow-hidden rounded-lg shadow-lg ring-1 ring-black/5">
             <div className="relative flex flex-col bg-white pt-3">
-              {results.map(
-                (item, index) =>
-                  index >= lowerBound &&
-                  index < upperBound && (
-                    <SearchResultRow
-                      key={item.address}
-                      result={item}
-                      onClickAddress={() => {
-                        onClickAddress(item.address);
-                      }}
-                      selected={selectedIndex === index}
-                      totalResults={results.length}
-                      currentIndex={index}
-                    />
-                  ),
-              )}
+              <ul className="scrollbar flex flex-grow scroll-m-28 flex-col gap-y-1.5 overflow-scroll overflow-x-hidden max-h-80" ref={selectRef}>
+                {results.map(
+                  (item, index) => {
+                    setTimeout(() => {
+                      setChange();
+                    }, 100);
+
+                    return (
+                      <SearchResultRow
+                        key={item.address}
+                        result={item}
+                        onClickAddress={() => {
+                          onClickAddress(item.address);
+                        }}
+                        selected={selectedIndex === index}
+                        totalResults={results.length}
+                        currentIndex={index}
+                      />
+                    )
+                  }
+                )}
+              </ul>
             </div>
           </div>
         </Popover.Panel>
