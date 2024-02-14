@@ -11,6 +11,7 @@ import { db } from "../../../firebase";
 
 import { UserNotFoundError } from "../errors";
 import { AddressTags } from "../types";
+import { USERS_COLLECTION } from "../constants";
 
 /** Adds a custom tag to a address' custom tags.
  * - If the address subcollection doesn't exist, create it.
@@ -23,7 +24,7 @@ export async function addCustomAddressTag(
   tag: string,
 ) {
   // Get user document ref
-  const docRef = doc(db, "users", userID, "addressTags", address);
+  const docRef = doc(db, USERS_COLLECTION, userID, "addressTags", address);
 
   // Update ite
   await setDoc(docRef, { tags: arrayUnion(tag) }, { merge: true });
@@ -38,7 +39,7 @@ export async function removeCustomAddressTag(
   tag: string,
 ) {
   // Get user document ref
-  const docRef = doc(db, "users", userID, "addressTags", address);
+  const docRef = doc(db, USERS_COLLECTION, userID, "addressTags", address);
 
   // Update it
   await setDoc(docRef, { tags: arrayRemove(tag) }, { merge: true });
@@ -63,7 +64,7 @@ export const useCustomAddressTags = ({
     let docRef: DocumentReference | null = null;
 
     try {
-      docRef = doc(db, "users", userID, "addressTags", address);
+      docRef = doc(db, USERS_COLLECTION, userID, "addressTags", address);
     } catch (error) {
       setLoading(false);
       setError(error as Error);

@@ -10,6 +10,7 @@ import { useState, useEffect } from "react";
 import { UserNotFoundError } from "../errors";
 import { db } from "../../../firebase";
 import { UserData } from "../types";
+import { USERS_COLLECTION } from "../constants";
 
 // The maximum amount of search results to store in the user history
 const USER_HISTORY_LIMIT = 5;
@@ -19,7 +20,7 @@ const USER_HISTORY_LIMIT = 5;
  * @returns The address that was stored
  */
 export async function storeSearchedAddress(userID: string, address: string) {
-  const userRef = doc(db, "users", userID);
+  const userRef = doc(db, USERS_COLLECTION, userID);
   let searchHistory: string[] = [];
 
   try {
@@ -52,7 +53,7 @@ export const useSearchHistory = (userID: string) => {
     let docRef: DocumentReference | null = null;
 
     try {
-      docRef = doc(db, "users", userID);
+      docRef = doc(db, USERS_COLLECTION, userID);
     } catch (error) {
       setLoading(false);
       setError(error as Error);

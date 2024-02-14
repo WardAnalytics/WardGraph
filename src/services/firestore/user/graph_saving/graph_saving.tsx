@@ -12,6 +12,7 @@ import { v4 } from "uuid";
 import { useState, useEffect } from "react";
 import { db } from "../../../firebase";
 import { GraphNotFoundError } from ".";
+import { USERS_COLLECTION } from "../constants";
 
 /** The information pertaining to a personal graph.
  * - **addresses**: The addresses in the graph
@@ -60,7 +61,7 @@ export async function createPersonalGraph(
   graph.uid = v4();
 
   // Get user snapshot
-  const docRef = doc(db, "users", userID, "graphs", graph.uid!);
+  const docRef = doc(db, USERS_COLLECTION, userID, "graphs", graph.uid!);
 
   // Update data
   await setDoc(docRef, graph);
@@ -77,7 +78,7 @@ export async function updatePersonalGraph(
   graph: PersonalGraph,
 ) {
   // Get user snapshot
-  const docRef = doc(db, "users", userID, "graphs", graph.uid!);
+  const docRef = doc(db, USERS_COLLECTION, userID, "graphs", graph.uid!);
 
   // Update the last_modified field
   graph.last_modified = Timestamp.now();
@@ -91,7 +92,7 @@ export async function updatePersonalGraph(
  */
 export async function removePersonalGraph(userID: string, uid: string) {
   // Get user snapshot
-  const docRef = doc(db, "users", userID, "graphs", uid);
+  const docRef = doc(db, USERS_COLLECTION, userID, "graphs", uid);
 
   // Update data
   await deleteDoc(docRef);
@@ -110,7 +111,7 @@ export const usePersonalGraphs = (userID: string) => {
     let ref: CollectionReference | null;
 
     try {
-      ref = collection(db, "users", userID, "graphs");
+      ref = collection(db, USERS_COLLECTION, userID, "graphs");
     } catch (error) {
       setLoading(false);
       setError(error as Error);
@@ -150,7 +151,7 @@ export async function getPersonalGraph(
   userID: string,
   uid: string,
 ): Promise<PersonalGraph> {
-  const docRef = doc(db, "users", userID, "graphs", uid);
+  const docRef = doc(db, USERS_COLLECTION, userID, "graphs", uid);
   const docSnap = await getDoc(docRef);
 
   if (!docSnap.exists()) {
