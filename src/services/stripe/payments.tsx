@@ -42,7 +42,7 @@ export const useCheckoutSessionUrl = (priceId: string, userId: string, {
       price: priceId,
       allow_promotion_codes: true,
       success_url: window.location.origin,
-      cancel_url: window.location.origin,
+      cancel_url: `${window.location.origin}/billing`,
     }).then((docRef) => {
       onSnapshot(docRef, (doc) => {
         const { error, url } = doc.data() as {
