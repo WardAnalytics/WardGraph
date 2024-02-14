@@ -11,6 +11,7 @@ import { db } from "../../../firebase";
 
 import { UserNotFoundError } from "../errors";
 import { UserData } from "../types";
+import { USERS_COLLECTION } from "../constants";
 
 /** Adds a custom tag to a user's custom tags. Always add it to the start of the array.
  * - If it already exists, move it to the start instead.
@@ -19,7 +20,7 @@ import { UserData } from "../types";
  */
 export async function addCustomUserTag(userID: string, tag: string) {
   // Get user snapshot
-  const docRef = doc(db, "users", userID);
+  const docRef = doc(db, USERS_COLLECTION, userID);
 
   // Update data
   await setDoc(docRef, { customTags: arrayUnion(tag) }, { merge: true });
@@ -30,7 +31,7 @@ export async function addCustomUserTag(userID: string, tag: string) {
  */
 export async function removeCustomUserTag(userID: string, tag: string) {
   // Get user snapshot
-  const docRef = doc(db, "users", userID);
+  const docRef = doc(db, USERS_COLLECTION, userID);
 
   // Modify data using arrayRemove
   await setDoc(docRef, { customTags: arrayRemove(tag) }, { merge: true });
@@ -49,7 +50,7 @@ export const useCustomUserTags = (userID: string) => {
     let docRef: DocumentReference | null = null;
 
     try {
-      docRef = doc(db, "users", userID);
+      docRef = doc(db, USERS_COLLECTION, userID);
     } catch (error) {
       setLoading(false);
       setError(error as Error);
