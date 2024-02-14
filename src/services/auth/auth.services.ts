@@ -4,9 +4,12 @@ import {
   signInWithPopup,
   signOut,
 } from "@firebase/auth";
+import { User } from "firebase/auth";
+import { UserEmailNotVerifiedError, UserNotLoggedInError } from "./errors";
 
 import { sendEmailVerification, sendPasswordResetEmail } from "firebase/auth";
 import { auth, googleProvider } from "../firebase";
+import { createUserInDatabase } from "../firestore/user";
 import AuthApiErrorCodes from "./auth.errors";
 
 /**
@@ -64,8 +67,13 @@ const login = async (
         return;
       }
 
-      localStorage.setItem("user", JSON.stringify(userCredential.user));
-      onSuccess();
+      localStorage.setItem("user", JSON.stringify(user));
+
+      // Saves user in the firestore database
+      // This function is called here and not in signUp to save already existing users in production
+      createUserInDatabase(user).then(() => {
+        onSuccess();
+      });
     })
     .catch((error) => {
       onError(error);
@@ -103,7 +111,11 @@ const signUpWithGoogle = async (
   await signInWithPopup(auth, googleProvider)
     .then((userCredential) => {
       localStorage.setItem("user", JSON.stringify(userCredential.user));
-      onSuccess();
+
+      // Saves user in the firestore database
+      createUserInDatabase(userCredential.user).then(() => {
+        onSuccess();
+      });
     })
     .catch((error) => {
       onError(error);
@@ -151,6 +163,24 @@ const isAuthenticated = () => {
   const user = getCurrentUser();
   return user?.emailVerified;
 };
+
+/**
+ * Checks if the current user is logged in and their email is verified.
+ * Throws specific errors for each condition if not met.
+ * @returns The verified user.
+ * @throws {UserNotLoggedInError} If the user is not logged in.
+ * @throws {UserEmailNotVerifiedError} If the user's email is not verified.
+ */
+export function getVerifiedUser(): User {
+  const user = authService.getCurrentUser();
+  if (user === null) {
+    throw new UserNotLoggedInError();
+  }
+  if (!user.emailVerified) {
+    throw new UserEmailNotVerifiedError();
+  }
+  return user;
+}
 
 const authService = {
   signUp,

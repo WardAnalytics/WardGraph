@@ -4,9 +4,8 @@ import { GraphContext } from "../../Graph";
 import Modal from "../../../common/Modal";
 import SearchBar from "../../search_bar";
 
+import { storeSearchedAddress } from "../../../../services/firestore/user/search_history";
 import useAuthState from "../../../../hooks/useAuthState";
-
-import { storeAddress } from "../../../../services/firestore/user/search-history";
 
 interface NewAddressModalProps {
   isOpen: boolean;
@@ -15,11 +14,10 @@ interface NewAddressModalProps {
 
 const NewAddressModal: FC<NewAddressModalProps> = ({ isOpen, setOpen }) => {
   const { addNewAddressToCenter } = useContext(GraphContext);
-
   const { user } = useAuthState();
 
   const handleSearchAddress = async (address: string) => {
-    await storeAddress(address, user?.uid);
+    if (user) storeSearchedAddress(user.uid, address); // Fire and forget, we don't care about the result. TODO - Handle user searching without being logged in
     addNewAddressToCenter(address);
     setOpen(false);
   };

@@ -6,18 +6,18 @@ import {
   ShareIcon,
   EyeIcon,
   EyeSlashIcon,
+  BookmarkIcon,
 } from "@heroicons/react/24/outline";
 
 import clsx from "clsx";
-import { FC, useContext, useEffect, useMemo, useState } from "react";
+import { FC, useContext, useEffect, useState } from "react";
 import { useKeyPress } from "reactflow";
 import { GraphContext } from "../Graph";
 
 import ShareDialog from "./components/ShareDialog";
 import NewAddressModal from "./components/NewAddressModal";
-import useAuthState from "../../../hooks/useAuthState";
-import { CreditCardIcon } from "@heroicons/react/24/solid";
-import { getCheckoutUrl } from "../../../services/payments/payments.services";
+
+import CreateGraphDialog from "./components/CreateGraphDialog";
 
 interface HotbarButton {
   onClick?: () => void;
@@ -101,23 +101,17 @@ const HotbarButtonGroup: FC<HotbarButtonGroupProps> = ({
 const Hotbar: FC = () => {
   const {
     doLayout,
-    copyLink,
-    getSharingLink,
+    generateSharableLink,
     setShowTutorial,
     isRiskVision,
     setShowRiskVision,
+    isSavedGraph,
+    personalGraphInfo,
   } = useContext(GraphContext);
 
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
   const [isAddAddressModalOpen, setIsAddAddressModalOpen] = useState(false);
-
-  const { isAuthenticated } = useAuthState();
-
-  const shareUrl = useMemo(() => getSharingLink(), []);
-
-  const onShareUrl = () => {
-    copyLink(shareUrl);
-  };
+  const [isCreateGraphDialogOpen, setIsCreateGraphDialogOpen] = useState(false);
 
   const openShareDialog = () => {
     setIsShareDialogOpen(true);
@@ -152,6 +146,15 @@ const Hotbar: FC = () => {
           />
         </HotbarButtonGroup>
         <HotbarButtonGroup className="pt-1">
+          {!isSavedGraph && (
+            <HotbarButton
+              Icon={BookmarkIcon}
+              name="Save Graph"
+              onClick={() => {
+                setIsCreateGraphDialogOpen(true);
+              }}
+            />
+          )}
           <HotbarButton
             Icon={ShareIcon}
             name="Share"
@@ -166,39 +169,28 @@ const Hotbar: FC = () => {
             }}
           />
         </HotbarButtonGroup>
-        {
-          isAuthenticated &&
-          <HotbarButtonGroup className="pt-1">
-            <HotbarButton
-              Icon={CreditCardIcon}
-              name="Turn PRO"
-              onClick={async () => {
-                const priceId = import.meta.env.VITE_STRIPE_ONE_MONTH_SUBSCRIPTION_PRICE_ID as string;
-                const checkoutUrl = await getCheckoutUrl(priceId);
-
-                window.location.href = checkoutUrl;
-              }}
-            />
-          </HotbarButtonGroup>
-        }
         <HotbarButtonGroup className="pt-1">
           <HotbarButton
             Icon={BugAntIcon}
-            name="Report Bug / Give Feedback"
-            onClick={() => { }}
+            name="Report Bug / Submit Feedback"
+            onClick={() => {}}
             href="https://forms.gle/yCFrDnKyUmPYPhfg8"
           />
         </HotbarButtonGroup>
       </div>
       <ShareDialog
-        shareUrl={shareUrl}
         isOpen={isShareDialogOpen}
         setIsOpen={setIsShareDialogOpen}
-        onShareUrl={onShareUrl}
+        generateSharableLink={generateSharableLink}
       />
       <NewAddressModal
         isOpen={isAddAddressModalOpen}
         setOpen={setIsAddAddressModalOpen}
+      />
+      <CreateGraphDialog
+        isOpen={isCreateGraphDialogOpen}
+        setOpen={setIsCreateGraphDialogOpen}
+        graphInfo={personalGraphInfo}
       />
     </>
   );

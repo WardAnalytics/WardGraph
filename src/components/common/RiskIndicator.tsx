@@ -66,7 +66,7 @@ const RiskIndicator: FC<RiskIndicatorProps> = ({
           <ul className="flex flex-col gap-y-2 pl-3 text-white">
             <li className="flex flex-row items-center gap-x-1">
               <IdentificationIcon className="h-5 w-5 text-blue-200" />
-              <span className="font-bold">Known labels</span>of the address
+              <span className="font-bold">Labeled data</span>of the address
             </li>
             <li className="flex flex-row items-center gap-x-1">
               <ArrowsPointingInIcon className="h-5 w-5 text-blue-200" />

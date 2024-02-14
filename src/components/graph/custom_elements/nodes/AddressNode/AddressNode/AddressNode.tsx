@@ -4,7 +4,6 @@ import {
   useContext,
   useState,
   useEffect,
-  useCallback,
   useMemo,
 } from "react";
 import clsx from "clsx";
@@ -13,7 +12,7 @@ import { Position, Handle, Edge } from "reactflow";
 import { AddressAnalysis } from "../../../../../../api/model";
 import { useAnalysisAddressData } from "../../../../../../api/compliance/compliance";
 
-import { getCustomAddressesTags } from "../../../../../../services/firestore/graph/addresses/custom-tags";
+import { useCustomAddressTags } from "../../../../../../services/firestore/user/custom_tags";
 
 import EntityLogo from "../../../../../common/EntityLogo";
 import RiskIndicator from "../../../../../common/RiskIndicator";
@@ -28,6 +27,7 @@ import {
   TransfershipEdgeStates,
 } from "../../../edges/TransfershipEdge";
 import { Transition } from "@headlessui/react";
+import useAuthState from "../../../../../../hooks/useAuthState";
 
 /** Context data for the AddressNode */
 
@@ -74,7 +74,6 @@ const AddressNode: FC<AddressNodeProps> = ({
 }) => {
   const {
     setFocusedAddressData,
-    storeSetNodeCustomTags,
     addEdges,
     focusedAddressData,
     setNodeHighlight,
@@ -144,6 +143,7 @@ const AddressNode: FC<AddressNodeProps> = ({
         },
       },
     );
+  const { user } = useAuthState();
 
   // The first time a node is created, the address data is fetched
   useEffect(() => {
@@ -151,26 +151,10 @@ const AddressNode: FC<AddressNodeProps> = ({
   }, []);
 
   // Get the tags of the address
-  const [tags, setTags] = useState<string[]>([]);
-  async function fetchAddressTags(address: string) {
-    getCustomAddressesTags(address).then((tags) => {
-      setTags(tags);
-    });
-  }
-  useEffect(() => {
-    fetchAddressTags(address);
-  }, [address]);
-
-  // Callback for setting the tags
-  const tagSetter = useCallback((tags: string[]) => {
-    if (tags === null || tags === undefined) {
-      const error: Error = new Error("Tags are null or undefined");
-      console.error(error.stack);
-      return;
-    }
-
-    setTags(tags);
-  }, []);
+  const { tags } = useCustomAddressTags({
+    userID: user ? user.uid : "",
+    address,
+  });
 
   // Based on the risk of the node, the color of the node for risk vision should change
   let { riskColor } = useMemo(() => {
@@ -260,7 +244,6 @@ const AddressNode: FC<AddressNodeProps> = ({
           )}
           onClick={() => {
             if (analysisData) {
-              storeSetNodeCustomTags(() => tagSetter);
               setFocusedAddressData(analysisData);
             }
           }}

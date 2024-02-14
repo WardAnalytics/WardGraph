@@ -1,0 +1,3 @@
+import { FIREBASE_CLOUD_FUNCTIONS_REGION } from "./regions";
+
+export { FIREBASE_CLOUD_FUNCTIONS_REGION };

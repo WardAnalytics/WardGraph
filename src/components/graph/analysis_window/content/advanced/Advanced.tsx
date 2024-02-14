@@ -56,7 +56,7 @@ const Advanced: FC = () => {
   const [selectedTab, setSelectedStep] = useState(0);
 
   if (!analysisData) {
-    return <LoadingPulseMock />;
+    return <LoadingPulseMock size="xl" />;
   }
 
   // Use Effect: When analysisData changes, reset the selected tab to 0

@@ -1,5 +1,5 @@
-import { Dialog, Transition } from "@headlessui/react";
-import { FC, Fragment, useState } from "react";
+import { Transition } from "@headlessui/react";
+import { FC, useEffect, useState } from "react";
 import {
   LinkedinIcon,
   LinkedinShareButton,
@@ -13,8 +13,9 @@ import {
 
 import { XMarkIcon } from "@heroicons/react/20/solid";
 
+import { CheckIcon, LinkIcon, ShareIcon } from "@heroicons/react/24/solid";
 import BigButton from "../../../common/BigButton";
-import { LinkIcon, CheckIcon, ShareIcon } from "@heroicons/react/24/solid";
+import Modal from "../../../common/Modal";
 
 interface CopyLinkButtonProps {
   onShareUrl: () => void;
@@ -74,109 +75,90 @@ const CopyLinkButton: FC<CopyLinkButtonProps> = ({ onShareUrl }) => {
 };
 
 interface ShareDialogProps {
-  shareUrl: string;
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
-  onShareUrl: () => void;
+  generateSharableLink: () => Promise<string>;
 }
 
 const ShareDialog: FC<ShareDialogProps> = ({
-  shareUrl,
   isOpen,
   setIsOpen,
-  onShareUrl,
+  generateSharableLink,
 }) => {
   const closeDialog = () => {
     setIsOpen(false);
   };
 
+  const [url, setUrl] = useState<string | null>(null);
+  useEffect(() => {
+    if (isOpen) {
+      generateSharableLink().then((url) => {
+        setUrl(`${window.location.origin}/graph/${url}`);
+      });
+    }
+  }, [isOpen, generateSharableLink]);
+
+  const copyToClipboard = () => {
+    if (url) {
+      navigator.clipboard.writeText(url);
+    }
+  };
+
   return (
-    <>
-      <Transition appear show={isOpen} as={Fragment}>
-        <Dialog as="div" className="relative z-10" onClose={closeDialog}>
-          <Transition.Child
-            as={Fragment}
-            enter="ease-out duration-300"
-            enterFrom="opacity-0"
-            enterTo="opacity-100"
-            leave="ease-in duration-200"
-            leaveFrom="opacity-100"
-            leaveTo="opacity-0"
-          >
-            <div className="fixed inset-0 bg-black/25" />
-          </Transition.Child>
+    <Modal isOpen={isOpen} closeModal={closeDialog}>
+      <div className="flex items-center justify-between pb-3">
+        <h3 className="flex flex-row items-center gap-x-1.5 text-base font-semibold leading-6 text-gray-900">
+          <ShareIcon className="h-7 w-7 text-gray-400" />
+          Share graph
+        </h3>
 
-          <div className="fixed inset-0 overflow-y-auto">
-            <div className="flex min-h-full items-center justify-center p-4 text-center">
-              <Transition.Child
-                as={Fragment}
-                enter="ease-out duration-300"
-                enterFrom="opacity-0 scale-95"
-                enterTo="opacity-100 scale-100"
-                leave="ease-in duration-200"
-                leaveFrom="opacity-100 scale-100"
-                leaveTo="opacity-0 scale-95"
-              >
-                <Dialog.Panel className="flex w-full max-w-md transform flex-col divide-y divide-gray-200 overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
-                  <div className="flex items-center justify-between pb-3">
-                    <h3 className="flex flex-row items-center gap-x-1.5 text-base font-semibold leading-6 text-gray-900">
-                      <ShareIcon className="h-7 w-7 text-gray-400" />
-                      Share graph
-                    </h3>
-
-                    <BigButton
-                      onClick={closeDialog}
-                      text="Close"
-                      Icon={XMarkIcon}
-                    />
-                  </div>
-                  <div className="pt-3">
-                    <div className="flex flex-row items-center justify-center gap-x-6 divide-x divide-gray-200 text-xs font-semibold text-gray-500">
-                      <CopyLinkButton onShareUrl={onShareUrl} />
-                      <span className="flex flex-row gap-x-6 pl-6">
-                        <LinkedinShareButton
-                          url={shareUrl}
-                          className="flex flex-col items-center gap-y-1"
-                        >
-                          <LinkedinIcon size={32} round />
-                          <p>LinkedIn</p>
-                        </LinkedinShareButton>
-                        <TwitterShareButton
-                          url={shareUrl}
-                          title=""
-                          hashtags={[]}
-                          related={[]}
-                          className="flex flex-col items-center gap-y-1"
-                        >
-                          <XIcon size={32} round />
-                          <p>X</p>
-                        </TwitterShareButton>
-                        <TelegramShareButton
-                          url={shareUrl}
-                          title=""
-                          className="flex flex-col items-center gap-y-1"
-                        >
-                          <TelegramIcon size={32} round />
-                          <p>Telegram</p>
-                        </TelegramShareButton>
-                        <WhatsappShareButton
-                          url={shareUrl}
-                          title=""
-                          className="flex flex-col items-center gap-y-1"
-                        >
-                          <WhatsappIcon size={32} round />
-                          <p>Whatsapp</p>
-                        </WhatsappShareButton>
-                      </span>
-                    </div>
-                  </div>
-                </Dialog.Panel>
-              </Transition.Child>
-            </div>
-          </div>
-        </Dialog>
-      </Transition>
-    </>
+        <BigButton
+          onClick={closeDialog}
+          text="Close"
+          Icon={XMarkIcon}
+        />
+      </div>
+      <div className="pt-3">
+        <div className="flex flex-row items-center justify-center gap-x-6 divide-x divide-gray-200 text-xs font-semibold text-gray-500">
+          <CopyLinkButton onShareUrl={copyToClipboard} />
+          <span className="flex flex-row gap-x-6 pl-6">
+            <LinkedinShareButton
+              url={url || ""}
+              className="flex flex-col items-center gap-y-1"
+            >
+              <LinkedinIcon size={32} round />
+              <p>LinkedIn</p>
+            </LinkedinShareButton>
+            <TwitterShareButton
+              url={url || ""}
+              title=""
+              hashtags={[]}
+              related={[]}
+              className="flex flex-col items-center gap-y-1"
+            >
+              <XIcon size={32} round />
+              <p>X</p>
+            </TwitterShareButton>
+            <TelegramShareButton
+              url={url || ""}
+              title=""
+              className="flex flex-col items-center gap-y-1"
+            >
+              <TelegramIcon size={32} round />
+              <p>Telegram</p>
+            </TelegramShareButton>
+            <WhatsappShareButton
+              url={url || ""}
+              title=""
+              className="flex flex-col items-center gap-y-1"
+            >
+              <WhatsappIcon size={32} round />
+              <p>Whatsapp</p>
+            </WhatsappShareButton>
+          </span>
+        </div>
+      </div>
+    </Modal>
   );
 };
 
