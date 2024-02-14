@@ -5,6 +5,7 @@ import {
   SparklesIcon,
 } from "@heroicons/react/20/solid";
 import { CreditCardIcon } from "@heroicons/react/24/outline";
+import clsx from "clsx";
 import { FC, useEffect, useMemo, useState } from "react";
 import Badge from "../components/common/Badge";
 import BigButton from "../components/common/BigButton";
@@ -128,7 +129,7 @@ const ProPlan: FC<ProPlanProps> = ({ isPro, userID, subscription }) => {
         <div className="mt-4 h-[1px] w-full bg-gray-700" />
       ) : (
         <button
-          className="mt-4 h-10 w-full rounded-md bg-blue-500 text-white transition-all duration-150 hover:bg-blue-400"
+          className={clsx("mt-4 h-10 w-full rounded-md bg-blue-500 text-white transition-all duration-150 hover:bg-blue-400", isLoadingCheckoutSession && "bg-blue-900 hover:bg-blue-900 text-gray-3 hover:cursor-not-allowed")}
           onClick={() => setBuyPlanClicked(true)}
           type="button"
           disabled={isLoadingCheckoutSession}
