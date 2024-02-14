@@ -15,7 +15,7 @@ import {
   useCallback,
 } from "react";
 
-import { Label, SearchLabelsBody } from "../../../api/model";
+import { Label } from "../../../api/model";
 import { searchLabels } from "../../../api/labels/labels";
 
 import { useSearchHistory } from "../../../services/firestore/user/search_history/search_history";
