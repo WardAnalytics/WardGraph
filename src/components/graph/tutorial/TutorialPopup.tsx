@@ -1,27 +1,27 @@
 import { Transition } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/20/solid";
 import {
-  QuestionMarkCircleIcon,
-  RocketLaunchIcon,
-  MagnifyingGlassIcon,
-  PlusCircleIcon,
   ArrowTrendingUpIcon,
   FireIcon,
+  MagnifyingGlassIcon,
+  PlusCircleIcon,
+  QuestionMarkCircleIcon,
+  RocketLaunchIcon,
 } from "@heroicons/react/24/outline";
 
 import {
-  EyeSlashIcon,
-  CursorArrowRaysIcon,
   ArrowPathIcon,
+  CursorArrowRaysIcon,
+  EyeSlashIcon,
 } from "@heroicons/react/16/solid";
 
-import { FC, Fragment, useEffect, useState } from "react";
+import { FC, Fragment, useState } from "react";
 import Tutorial from "./Tutorial";
 
-import introductionGIF from "../../../assets/tutorial/introduction.gif";
-import inspectionGIF from "../../../assets/tutorial/inspection.gif";
-import explorationGIF from "../../../assets/tutorial/exploration.gif";
 import edgeManagementGIF from "../../../assets/tutorial/edge-management.gif";
+import explorationGIF from "../../../assets/tutorial/exploration.gif";
+import inspectionGIF from "../../../assets/tutorial/inspection.gif";
+import introductionGIF from "../../../assets/tutorial/introduction.gif";
 import useAuthState from "../../../hooks/useAuthState";
 
 interface TutorialCardTitleProps {
@@ -61,9 +61,8 @@ const TutorialImage: FC<TutorialImageProps> = ({ src, alt }) => {
       <img
         src={src}
         alt={alt}
-        className={`h-full w-full rounded-lg shadow ${
-          imageLoaded ? "block" : "hidden"
-        }`}
+        className={`h-full w-full rounded-lg shadow ${imageLoaded ? "block" : "hidden"
+          }`}
         onLoad={() => setImageLoaded(true)}
       />
     </div>
