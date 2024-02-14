@@ -68,7 +68,7 @@ const ProPlan: FC<ProPlanProps> = ({ isPro, userID, subscription }) => {
   const [buyPlanClicked, setBuyPlanClicked] = useState<boolean>(false);
 
   const priceId = useMemo(
-    () => (subscription ? subscription.price.id : "0"),
+    () => (subscription ? subscription.price.id : import.meta.env.VITE_PRO_PRICE_ID),
     [subscription],
   );
 

@@ -20,6 +20,9 @@ env:
   # For Google Analytics
   VITE_FIREBASE_MEASUREMENT_ID: "G-V2S9JPMH7S"
 
+  # Stripe
+  VITE_PRO_PRICE_ID: ${{ secrets.VITE_PRO_PRICE_ID_DEV }}
+
 jobs:
   build_and_deploy:
     runs-on: ubuntu-latest
