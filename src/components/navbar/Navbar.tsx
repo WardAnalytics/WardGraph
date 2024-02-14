@@ -198,6 +198,8 @@ const Navbar: FC = () => {
     authService.logout(onLogoutSuccess, onLogoutError);
   };
   const onLogoutSuccess = () => {
+    localStorage.clear()
+    sessionStorage.clear()
     console.log("Logged out");
   };
   const onLogoutError = (error: any) => {

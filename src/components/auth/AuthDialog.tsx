@@ -12,6 +12,8 @@ import ForgotPasswordForm from "./ForgotPasswordForm";
 import LoginForm from "./LoginForm";
 import SignupForm from "./SignupForm";
 import { logAnalyticsEvent } from "../../services/firestore/analytics/analytics";
+import { useNavigate } from "react-router";
+
 
 export enum AuthDialogState {
   LOGIN,
@@ -53,6 +55,7 @@ interface AuthDialogProps {
 }
 
 const AuthDialog: FC<AuthDialogProps> = ({ isOpen, setIsOpen }) => {
+  const navigate = useNavigate();
 
   const [authDialogState, setAuthDialogState] = useState(AuthDialogState.LOGIN);
   const [authApiErrorMessage, setAuthApiErrorMessage] = useState<string | null>(
@@ -91,7 +94,7 @@ const AuthDialog: FC<AuthDialogProps> = ({ isOpen, setIsOpen }) => {
   const onLoginSuccess = () => {
     logAnalyticsEvent("login", { method: "email" });
     closeDialog();
-    window.location.reload();
+    navigate("/graph");
   };
 
   /**
