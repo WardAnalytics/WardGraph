@@ -16,6 +16,7 @@ import { XMarkIcon } from "@heroicons/react/20/solid";
 import { CheckIcon, LinkIcon, ShareIcon } from "@heroicons/react/24/solid";
 import BigButton from "../../../common/BigButton";
 import Modal from "../../../common/Modal";
+import { logAnalyticsEvent } from "../../../../services/firestore/analytics/analytics";
 
 interface CopyLinkButtonProps {
   onShareUrl: () => void;
@@ -94,6 +95,7 @@ const ShareDialog: FC<ShareDialogProps> = ({
     if (isOpen) {
       generateSharableLink().then((url) => {
         setUrl(`${window.location.origin}/graph/${url}`);
+        logAnalyticsEvent("share_graph_url_generated", { url });
       });
     }
   }, [isOpen, generateSharableLink]);
@@ -101,6 +103,7 @@ const ShareDialog: FC<ShareDialogProps> = ({
   const copyToClipboard = () => {
     if (url) {
       navigator.clipboard.writeText(url);
+      logAnalyticsEvent("share_graph_url_copied", { url });
     }
   };
 
@@ -122,39 +125,47 @@ const ShareDialog: FC<ShareDialogProps> = ({
         <div className="flex flex-row items-center justify-center gap-x-6 divide-x divide-gray-200 text-xs font-semibold text-gray-500">
           <CopyLinkButton onShareUrl={copyToClipboard} />
           <span className="flex flex-row gap-x-6 pl-6">
-            <LinkedinShareButton
-              url={url || ""}
-              className="flex flex-col items-center gap-y-1"
-            >
-              <LinkedinIcon size={32} round />
-              <p>LinkedIn</p>
-            </LinkedinShareButton>
-            <TwitterShareButton
-              url={url || ""}
-              title=""
-              hashtags={[]}
-              related={[]}
-              className="flex flex-col items-center gap-y-1"
-            >
-              <XIcon size={32} round />
-              <p>X</p>
-            </TwitterShareButton>
-            <TelegramShareButton
-              url={url || ""}
-              title=""
-              className="flex flex-col items-center gap-y-1"
-            >
-              <TelegramIcon size={32} round />
-              <p>Telegram</p>
-            </TelegramShareButton>
-            <WhatsappShareButton
-              url={url || ""}
-              title=""
-              className="flex flex-col items-center gap-y-1"
-            >
-              <WhatsappIcon size={32} round />
-              <p>Whatsapp</p>
-            </WhatsappShareButton>
+            <div onClick={() => logAnalyticsEvent("share_graph_linkedin")}>
+              <LinkedinShareButton
+                url={url || ""}
+                className="flex flex-col items-center gap-y-1"
+              >
+                <LinkedinIcon size={32} round />
+                <p>LinkedIn</p>
+              </LinkedinShareButton>
+            </div>
+            <div onClick={() => logAnalyticsEvent("share_graph_twitter")}>
+              <TwitterShareButton
+                url={url || ""}
+                title=""
+                hashtags={[]}
+                related={[]}
+                className="flex flex-col items-center gap-y-1"
+              >
+                <XIcon size={32} round />
+                <p>X</p>
+              </TwitterShareButton>
+            </div>
+            <div onClick={() => logAnalyticsEvent("share_graph_telegram")}>
+              <TelegramShareButton
+                url={url || ""}
+                title=""
+                className="flex flex-col items-center gap-y-1"
+              >
+                <TelegramIcon size={32} round />
+                <p>Telegram</p>
+              </TelegramShareButton>
+            </div>
+            <div onClick={() => logAnalyticsEvent("share_graph_whatsapp")}>
+              <WhatsappShareButton
+                url={url || ""}
+                title=""
+                className="flex flex-col items-center gap-y-1"
+              >
+                <WhatsappIcon size={32} round />
+                <p>Whatsapp</p>
+              </WhatsappShareButton>
+            </div>
           </span>
         </div>
       </div>

@@ -29,6 +29,7 @@ import {
 } from "../../services/firestore/user/graph_saving";
 import useAuthState from "../../hooks/useAuthState";
 import { Transition } from "@headlessui/react";
+import { logAnalyticsEvent } from "../../services/firestore/analytics/analytics";
 
 // To add more tabs, simply add more objects to the navigation array. Href indicates the page to go to
 const navigation = [
@@ -238,7 +239,10 @@ const Navbar: FC = () => {
                           name={item.name}
                           href={item.href}
                           Icon={item.icon}
-                          onClick={() => navigate(item.href)}
+                          onClick={() => {
+                            logAnalyticsEvent("navbar_option_clicked", { name: item.name });
+                            navigate(item.href)
+                          }}
                           isBeta={item.isBeta}
                         />
                       </li>
@@ -255,7 +259,10 @@ const Navbar: FC = () => {
                     href="billing"
                     Icon={CreditCardIcon}
                     isBeta={false}
-                    onClick={() => navigate("billing")}
+                    onClick={() => {
+                      logAnalyticsEvent("navbar_option_clicked", { name: "Plan & Billing" });
+                      navigate("billing")
+                    }}
                   />
                   <a
                     onClick={handleSignOut}

@@ -3,6 +3,7 @@ import { FC } from "react";
 
 import logo from "../../../assets/ward-logo-blue-full.svg";
 import SearchBar from "../search_bar";
+import { logAnalyticsEvent } from "../../../services/firestore/analytics/analytics";
 
 const PossibleAddresses: string[] = [
   "0x1f9090aaE28b8a3dCeaDf281B0F12828e676c326",
@@ -20,6 +21,7 @@ const LandingPage: FC<LandingPageProps> = ({ setSearchedAddress }) => {
   function selectRandomAddress() {
     const randomIndex = Math.floor(Math.random() * PossibleAddresses.length);
     setSearchedAddress(PossibleAddresses[randomIndex]);
+    logAnalyticsEvent("landing_page_random_address", { address: PossibleAddresses[randomIndex] });
   }
 
   return (

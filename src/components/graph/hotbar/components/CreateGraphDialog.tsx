@@ -11,6 +11,7 @@ import {
 import { BookmarkIcon } from "@heroicons/react/20/solid";
 import BigButton from "../../../common/BigButton";
 import Modal from "../../../common/Modal";
+import { logAnalyticsEvent } from "../../../../services/firestore/analytics/analytics";
 
 interface CreateGraphDialogProps {
   isOpen: boolean;
@@ -45,6 +46,7 @@ const CreateGraphDialog: FC<CreateGraphDialogProps> = ({
       },
     };
     createPersonalGraph(user.uid, graph).then((uid) => {
+      logAnalyticsEvent("graph_created", { graphName });
       setOpen(false);
       navigate(`/saved-graph/${uid}`);
     });
@@ -74,6 +76,7 @@ const CreateGraphDialog: FC<CreateGraphDialogProps> = ({
           onKeyDown={(event) => {
             if (event.key === "Enter") {
               createGraph();
+              logAnalyticsEvent("graph_created_enter_key_pressed", { graphName });
             }
           }}
         />

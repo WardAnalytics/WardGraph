@@ -22,6 +22,7 @@ import {
 
 import { GraphContext } from "../../../Graph";
 import "../../../../common/Scrollbar.css";
+import { logAnalyticsEvent } from "../../../../../services/firestore/analytics/analytics";
 
 interface TransactionRowProps {
   usdValue: number;
@@ -218,6 +219,7 @@ const Transactions: FC = () => {
                 className="group mr-2 h-10 cursor-pointer"
                 key={transaction.hash + focusedAddressData.address}
                 onClick={() => {
+                  logAnalyticsEvent("expand_address", { page: "transactions", address: focusedAddressData.address });
                   const paths: string[][] = transaction.addresses.map(
                     (address) => {
                       return [focusedAddressData.address, address];

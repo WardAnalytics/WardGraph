@@ -29,6 +29,7 @@ import { GraphContext } from "../../../Graph";
 import { AnalysisContext } from "../../AnalysisWindow";
 
 import "../../../../common/Scrollbar.css";
+import { logAnalyticsEvent } from "../../../../../services/firestore/analytics/analytics";
 
 /** There can be 3 incoming states for an entity row:
  * - **Outgoing**: The address is sending funds to the entity
@@ -212,7 +213,7 @@ const EntityRow: FC<EntityRowProps> = ({
         </span>
       </span>
       {showExpandButton ? (
-        <BigButton text={expandButtonText} Icon={PlusIcon} onClick={() => {}} />
+        <BigButton text={expandButtonText} Icon={PlusIcon} onClick={() => { }} />
       ) : (
         <h3 className="flex flex-row items-center gap-x-1 text-sm font-semibold tracking-wide text-gray-400">
           <CheckIcon className="h-5 w-5 rounded-full  text-gray-400" />
@@ -291,13 +292,17 @@ const Overview: FC = () => {
             }}
             key={row.entity + focusedAddressData.address}
           >
-            <EntityRow
-              entity={row.entity}
-              totalIncoming={row.totalIncoming}
-              totalOutgoing={row.totalOutgoing}
-              paths={row.paths}
-              key={row.entity + focusedAddressData.address}
-            />
+            <div onClick={() => {
+              logAnalyticsEvent("expand_address", { page: "overview", address: focusedAddressData.address })
+            }}>
+              <EntityRow
+                entity={row.entity}
+                totalIncoming={row.totalIncoming}
+                totalOutgoing={row.totalOutgoing}
+                paths={row.paths}
+                key={row.entity + focusedAddressData.address}
+              />
+            </div>
           </Transition>
         ))}
       </ul>

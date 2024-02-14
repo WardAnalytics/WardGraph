@@ -40,6 +40,7 @@ import { PathExpansionArgs } from "../../Graph";
 
 import TagInput from "./TagInput";
 import useAuthState from "../../../../hooks/useAuthState";
+import { logAnalyticsEvent } from "../../../../services/firestore/analytics/analytics";
 
 interface ModeButtonProps {
   isActive: boolean;
@@ -333,6 +334,7 @@ const Header: FC<HeaderProps> = ({
             <SparklesIcon
               onClick={() => {
                 expandWithAI(analysisData!);
+                logAnalyticsEvent("expand_addresses_with_AI")
               }}
               className="h-11 w-11 cursor-pointer rounded-md p-1.5 text-indigo-400 transition-all duration-150 ease-in-out hover:bg-indigo-50 "
             />

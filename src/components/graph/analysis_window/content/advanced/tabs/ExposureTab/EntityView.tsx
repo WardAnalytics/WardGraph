@@ -12,6 +12,7 @@ import BigButton from "../../../../../../common/BigButton";
 import { GraphContext } from "../../../../../Graph";
 import { AnalysisContext } from "../../../../AnalysisWindow";
 import { ExposureTabContext } from "./ExposureTabGeneric";
+import { logAnalyticsEvent } from "../../../../../../../services/firestore/analytics/analytics";
 
 // Address Row _________________________________________________________________
 
@@ -45,6 +46,7 @@ const AddressRow: FC<AddressRowProps> = ({ address }) => {
         className="flex w-full cursor-pointer flex-row items-center justify-between rounded-md p-2 transition-all duration-100 hover:bg-gray-100"
         onClick={() => {
           expand();
+          logAnalyticsEvent("expand_address", { page: "advanced", address: address.hash })
         }}
       >
         <div className="flex items-center gap-x-2 text-xs text-gray-500">
@@ -58,7 +60,7 @@ const AddressRow: FC<AddressRowProps> = ({ address }) => {
             </p>
           </span>
         </div>
-        <BigButton text="Expand" Icon={ShareIcon} onClick={() => {}} />
+        <BigButton text="Expand" Icon={ShareIcon} onClick={() => { }} />
       </div>
     </li>
   );
