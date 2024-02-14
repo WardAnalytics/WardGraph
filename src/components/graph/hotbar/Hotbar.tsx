@@ -17,7 +17,7 @@ import { GraphContext } from "../Graph";
 import ShareDialog from "./components/ShareDialog";
 import NewAddressModal from "./components/NewAddressModal";
 
-import CreateGraphDialog from "./components/CreateGraphDialog";
+import CreateGraphDialog from "../../common/CreateGraphDialog";
 
 interface HotbarButton {
   onClick?: () => void;

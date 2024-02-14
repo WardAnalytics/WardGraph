@@ -1,16 +1,16 @@
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { FC, useCallback, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import useAuthState from "../../../../hooks/useAuthState";
+import useAuthState from "../../hooks/useAuthState";
 import {
   PersonalGraph,
   PersonalGraphInfo,
   createPersonalGraph,
-} from "../../../../services/firestore/user/graph_saving";
+} from "../../services/firestore/user/graph_saving";
 
 import { BookmarkIcon } from "@heroicons/react/20/solid";
-import BigButton from "../../../common/BigButton";
-import Modal from "../../../common/Modal";
+import BigButton from "./BigButton";
+import Modal from "./Modal";
 
 interface CreateGraphDialogProps {
   isOpen: boolean;
