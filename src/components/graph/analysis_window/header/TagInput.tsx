@@ -4,6 +4,7 @@ import TagsPopover from "./TagsPopover";
 import { HotKeysType } from "../../../../types/hotKeys";
 
 import { PencilIcon } from "@heroicons/react/16/solid";
+import { logAnalyticsEvent } from "../../../../services/firestore/analytics/analytics";
 
 interface TagInputProps {
   currentAddressTags: string[];
@@ -55,10 +56,12 @@ const TagInput: FC<TagInputProps> = ({
 
     await onCreateCustomAddressTag(input);
     setUserInput("");
+    logAnalyticsEvent("create_custom_address_tag", { tag: input });
   };
 
   const onDeleteTagHandler = async (tag: string) => {
     await onDeleteCustomAddressTag(tag);
+    logAnalyticsEvent("delete_custom_address_tag", { tag });
   };
 
   // Hotkeys for moving up and down
@@ -118,6 +121,7 @@ const TagInput: FC<TagInputProps> = ({
             : options[selectedOptionIndex];
 
         await onAddTagHandler(input);
+        logAnalyticsEvent("create_custom_address_tag_enter_key_pressed", { tag: input });
       },
     },
     ARROWUP: {
@@ -125,6 +129,7 @@ const TagInput: FC<TagInputProps> = ({
       handler: (event: KeyboardEvent<HTMLElement>) => {
         event.preventDefault();
         moveSelectedIndexUp();
+        logAnalyticsEvent("move_selected_index", { page: "tag_input", direction: "up" });
       },
     },
     ARROWDOWN: {
@@ -132,6 +137,7 @@ const TagInput: FC<TagInputProps> = ({
       handler: (event: KeyboardEvent<HTMLElement>) => {
         event.preventDefault();
         moveSelectedIndexDown();
+        logAnalyticsEvent("move_selected_index", { page: "tag_input", direction: "down" });
       },
     },
     BACKSPACE: {

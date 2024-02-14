@@ -17,6 +17,7 @@ import { HotKeysType } from "../../../types/hotKeys";
 import isValidAddress from "../../../utils/isValidAddress";
 import SearchResultPopover from "./SearchResultPopover";
 import useAuthState from "../../../hooks/useAuthState";
+import { logAnalyticsEvent } from "../../../services/firestore/analytics/analytics";
 
 const InvalidAddressPopover: FC = () => {
   return (
@@ -137,6 +138,7 @@ const SearchBar: FC<SearchBarProps> = ({ className, onSearchAddress }) => {
   const onSearchAddressHandler = (input: string) => {
     if (isValidAddress(input)) {
       onSearchAddress(input);
+      logAnalyticsEvent("search_address_clicked", { address: input });
     }
   };
 
@@ -178,6 +180,9 @@ const SearchBar: FC<SearchBarProps> = ({ className, onSearchAddress }) => {
           // @ts-ignore
           onSearchAddressHandler(event.target.value);
         }
+        logAnalyticsEvent("search_address_enter_pressed", {
+          address: query,
+        });
       },
     },
     ARROWUP: {
@@ -185,6 +190,10 @@ const SearchBar: FC<SearchBarProps> = ({ className, onSearchAddress }) => {
       handler: (event: KeyboardEvent<HTMLElement>) => {
         event.preventDefault();
         moveSelectedIndexUp();
+        logAnalyticsEvent("move_selected_index", {
+          page: "search_bar",
+          direction: "up",
+        });
       },
     },
     ARROWDOWN: {
@@ -192,6 +201,10 @@ const SearchBar: FC<SearchBarProps> = ({ className, onSearchAddress }) => {
       handler: (event: KeyboardEvent<HTMLElement>) => {
         event.preventDefault();
         moveSelectedIndexDown();
+        logAnalyticsEvent("move_selected_index", {
+          page: "search_bar",
+          direction: "down"
+        });
       },
     },
   };
@@ -302,6 +315,7 @@ const SearchBar: FC<SearchBarProps> = ({ className, onSearchAddress }) => {
               if (isAddressValid) {
                 setIsSearchResultPopoverOpen(false);
                 onSearchAddress(query);
+                logAnalyticsEvent("search_address_button_clicked", { address: query });
               }
             }}
             className="relative -ml-px inline-flex items-center gap-x-1.5 rounded-r-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 transition-all hover:bg-gray-50"

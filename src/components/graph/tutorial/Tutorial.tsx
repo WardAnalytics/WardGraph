@@ -11,6 +11,7 @@ import {
 import Modal from "../../common/Modal";
 import TutorialStepCard from "./TutorialStepCard";
 import { useKeyPress } from "reactflow";
+import { logAnalyticsEvent } from "../../../services/firestore/analytics/analytics";
 
 enum HotKeyMap {
   ARROW_LEFT = 1,
@@ -121,9 +122,11 @@ const Tutorial: FC<TutorialProps> = ({
     switch (keyPressed) {
       case HotKeyMap.ARROW_LEFT:
         decreaseSlide();
+        logAnalyticsEvent("tutorial_arrow_left");
         break;
       case HotKeyMap.ARROW_RIGHT:
         increaseSlide();
+        logAnalyticsEvent("tutorial_arrow_right");
         break;
       default:
         break;
@@ -133,6 +136,7 @@ const Tutorial: FC<TutorialProps> = ({
   const closeTutorial = () => {
     setIsTutorialOpen(false);
     setCurrentStep(0);
+    logAnalyticsEvent("tutorial_closed");
   };
 
   return (

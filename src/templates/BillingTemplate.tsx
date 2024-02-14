@@ -10,6 +10,7 @@ import { FC, useEffect, useMemo, useState } from "react";
 import Badge from "../components/common/Badge";
 import BigButton from "../components/common/BigButton";
 import useAuthState from "../hooks/useAuthState";
+import { logAnalyticsEvent } from "../services/firestore/analytics/analytics";
 import { usePremiumStatus } from "../services/firestore/user/premium/premium";
 import {
   Subscription,
@@ -81,6 +82,7 @@ const ProPlan: FC<ProPlanProps> = ({ isPro, userID, subscription }) => {
 
   useEffect(() => {
     if (buyPlanClicked) {
+      logAnalyticsEvent("buy_pro_plan_clicked");
       getCheckoutSession();
       setBuyPlanClicked(false);
     }
@@ -182,13 +184,15 @@ const EnterprisePlan: FC = () => {
       <p className="mt-4 text-4xl font-bold tracking-tight text-gray-800">
         Custom
       </p>
-      <a
-        className="bg-white-500 mt-4 flex h-10 w-full flex-row items-center justify-center rounded-md p-5 align-middle text-gray-600 shadow-sm ring-1 ring-inset ring-gray-200 transition-all duration-150 hover:bg-gray-50"
-        href="https://exqt63fqk9e.typeform.com/to/Oa827WkM"
-        target="_blank"
-      >
-        Contact Us
-      </a>
+      <div onClick={() => logAnalyticsEvent("enterprise_plan_contact_us_button_clicked")}>
+        < a
+          className="bg-white-500 mt-4 flex h-10 w-full flex-row items-center justify-center rounded-md p-5 align-middle text-gray-600 shadow-sm ring-1 ring-inset ring-gray-200 transition-all duration-150 hover:bg-gray-50"
+          href="https://exqt63fqk9e.typeform.com/to/Oa827WkM"
+          target="_blank"
+        >
+          Contact Us
+        </a>
+      </div >
       <div className="mt-4 flex flex-col gap-y-1.5 text-gray-700">
         <span className="flex flex-row items-center gap-x-1">
           <CheckIcon className="h-4 w-4 text-blue-400" />
@@ -207,7 +211,7 @@ const EnterprisePlan: FC = () => {
           API integrations
         </span>
       </div>
-    </div>
+    </div >
   );
 };
 
@@ -244,6 +248,7 @@ const BillingTemplate: FC = () => {
 
   useEffect(() => {
     if (manageSubscriptionClicked) {
+      logAnalyticsEvent("click_manage_subscription");
       getCustomerPortalUrl();
       setManageSubscriptionClicked(false);
     }

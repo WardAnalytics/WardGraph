@@ -18,6 +18,7 @@ import ShareDialog from "./components/ShareDialog";
 import NewAddressModal from "./components/NewAddressModal";
 
 import CreateGraphDialog from "./components/CreateGraphDialog";
+import { logAnalyticsEvent } from "../../../services/firestore/analytics/analytics";
 
 interface HotbarButton {
   onClick?: () => void;
@@ -113,10 +114,6 @@ const Hotbar: FC = () => {
   const [isAddAddressModalOpen, setIsAddAddressModalOpen] = useState(false);
   const [isCreateGraphDialogOpen, setIsCreateGraphDialogOpen] = useState(false);
 
-  const openShareDialog = () => {
-    setIsShareDialogOpen(true);
-  };
-
   return (
     <>
       <div className="mb-3 flex h-fit w-fit flex-col gap-y-1 divide-y-2 divide-gray-600 rounded-lg bg-gray-800 p-2">
@@ -132,7 +129,10 @@ const Hotbar: FC = () => {
           <HotbarButton
             Icon={RectangleGroupIcon}
             name="Organize Layout"
-            onClick={doLayout}
+            onClick={() => {
+              doLayout()
+              logAnalyticsEvent("organize_layout_clicked");
+            }}
             iconColor="text-indigo-400 hover:bg-indigo-700 hover:text-indigo-200"
             hotKey="l"
           />
@@ -141,6 +141,7 @@ const Hotbar: FC = () => {
             name="Risk Vision"
             onClick={() => {
               setShowRiskVision(!isRiskVision);
+              logAnalyticsEvent("risk_vision_clicked", { active: !isRiskVision });
             }}
             hotKey="r"
           />
@@ -152,13 +153,17 @@ const Hotbar: FC = () => {
               name="Save Graph"
               onClick={() => {
                 setIsCreateGraphDialogOpen(true);
+                logAnalyticsEvent("save_graph_modal_opened");
               }}
             />
           )}
           <HotbarButton
             Icon={ShareIcon}
             name="Share"
-            onClick={openShareDialog}
+            onClick={() => {
+              setIsShareDialogOpen(true);
+              logAnalyticsEvent("share_graph_modal_opened");
+            }}
             hotKey="s"
           />
           <HotbarButton
@@ -166,6 +171,7 @@ const Hotbar: FC = () => {
             name="Tutorial"
             onClick={() => {
               setShowTutorial(true);
+              logAnalyticsEvent("tutorial_opened");
             }}
           />
         </HotbarButtonGroup>
@@ -173,7 +179,7 @@ const Hotbar: FC = () => {
           <HotbarButton
             Icon={BugAntIcon}
             name="Report Bug / Submit Feedback"
-            onClick={() => {}}
+            onClick={() => { logAnalyticsEvent("report_bug_clicked") }}
             href="https://forms.gle/yCFrDnKyUmPYPhfg8"
           />
         </HotbarButtonGroup>

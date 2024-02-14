@@ -11,6 +11,7 @@ import Modal from "../common/Modal";
 import ForgotPasswordForm from "./ForgotPasswordForm";
 import LoginForm from "./LoginForm";
 import SignupForm from "./SignupForm";
+import { logAnalyticsEvent } from "../../services/firestore/analytics/analytics";
 
 export enum AuthDialogState {
   LOGIN,
@@ -88,6 +89,7 @@ const AuthDialog: FC<AuthDialogProps> = ({ isOpen, setIsOpen }) => {
    * @returns void
    */
   const onLoginSuccess = () => {
+    logAnalyticsEvent("login", { method: "email" });
     closeDialog();
     window.location.reload();
   };
@@ -99,6 +101,7 @@ const AuthDialog: FC<AuthDialogProps> = ({ isOpen, setIsOpen }) => {
    * @returns void
    */
   const onLoginError = (error: any) => {
+    logAnalyticsEvent("login_error", { method: "email", error });
     const errorCode = error.code;
     if (errorCode in AuthApiErrors) {
       setAuthApiErrorMessage(AuthApiErrors[errorCode].message);
@@ -115,6 +118,7 @@ const AuthDialog: FC<AuthDialogProps> = ({ isOpen, setIsOpen }) => {
    * @returns void
    */
   const onGoogleLoginSucess = () => {
+    logAnalyticsEvent("login", { method: "google" });
     closeDialog();
   };
 
@@ -125,6 +129,7 @@ const AuthDialog: FC<AuthDialogProps> = ({ isOpen, setIsOpen }) => {
    * @returns void
    */
   const onGoogleLoginError = (error: any) => {
+    logAnalyticsEvent("login_error", { method: "google", error });
     const errorCode = error.code;
     if (errorCode in AuthApiErrors) {
       setAuthApiErrorMessage(AuthApiErrors[errorCode].message);
@@ -141,6 +146,7 @@ const AuthDialog: FC<AuthDialogProps> = ({ isOpen, setIsOpen }) => {
    * @returns void
    */
   const onSignupSuccess = () => {
+    logAnalyticsEvent("signup", { method: "email" });
     setAuthDialogState(AuthDialogState.LOGIN);
     setVerifyEmailMessage(
       "A verification email has been sent to your email address. Please verify your email address to continue.",
@@ -154,6 +160,7 @@ const AuthDialog: FC<AuthDialogProps> = ({ isOpen, setIsOpen }) => {
    * @returns void
    */
   const onSignupError = (error: any) => {
+    logAnalyticsEvent("signup_error", { method: "email", error });
     const errorCode = error.code;
     if (errorCode in AuthApiErrors) {
       setAuthApiErrorMessage(AuthApiErrors[errorCode].message);
@@ -170,6 +177,7 @@ const AuthDialog: FC<AuthDialogProps> = ({ isOpen, setIsOpen }) => {
    * @returns void
    */
   const onGoogleSignupSucess = () => {
+    logAnalyticsEvent("signup", { method: "google" });
     setAuthDialogState(AuthDialogState.LOGIN);
   };
 
@@ -180,6 +188,7 @@ const AuthDialog: FC<AuthDialogProps> = ({ isOpen, setIsOpen }) => {
    * @returns void
    */
   const onGoogleSignupError = (error: any) => {
+    logAnalyticsEvent("signup_error", { method: "google", error });
     const errorCode = error.code;
     if (errorCode in AuthApiErrors) {
       setAuthApiErrorMessage(AuthApiErrors[errorCode].message);
@@ -196,6 +205,7 @@ const AuthDialog: FC<AuthDialogProps> = ({ isOpen, setIsOpen }) => {
    * @returns void
    */
   const onResetPasswordSuccess = () => {
+    logAnalyticsEvent("reset_password");
     setAuthDialogState(AuthDialogState.LOGIN);
   };
 
@@ -205,6 +215,7 @@ const AuthDialog: FC<AuthDialogProps> = ({ isOpen, setIsOpen }) => {
    * @param error
    */
   const onResetPasswordError = (error: any) => {
+    logAnalyticsEvent("reset_password_error", { error });
     const errorCode = error.code;
     if (errorCode in AuthApiErrors) {
       setAuthApiErrorMessage(AuthApiErrors[errorCode].message);
