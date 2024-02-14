@@ -14,7 +14,7 @@ const TransactionTooltip: FC<TransactionTooltipProps> = ({
   volume,
 }: TransactionTooltipProps) => {
   return (
-    <div className="flex h-fit w-fit flex-col items-center gap-y-1 divide-y divide-gray-600/20 rounded-lg bg-gray-50/50 px-5 py-2  backdrop-blur-sm">
+    <div className="mt-5 flex h-fit w-fit flex-col items-center gap-y-1 divide-y divide-gray-600/20 rounded-lg bg-gray-50/50 px-5 py-2  backdrop-blur-sm">
       <div>
         <span className="flex h-full w-full flex-row items-center justify-center gap-x-2">
           <h3 className="font-mono text-xs font-medium text-gray-400">
