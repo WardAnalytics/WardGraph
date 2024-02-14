@@ -53,6 +53,7 @@ import Legend from "./legend";
 import TransactionTooltip from "./TransactionTooltip";
 import { TransactionTooltipProps } from "./TransactionTooltip";
 import { PersonalGraphInfo } from "../../services/firestore/user/graph_saving";
+import Socials from "../socials";
 
 enum HotKeyMap {
   DELETE = 1,
@@ -865,6 +866,7 @@ const GraphProvided: FC<GraphProvidedProps> = ({
             analysisData={focusedAddressData}
             onExit={onAddressFocusOff}
           />
+          <Socials className="absolute bottom-0 z-10 mb-3 ml-3 transition-all duration-300 ease-in-out" />
           <ReactFlow
             nodes={nodes}
             onNodesChange={onNodesChange}

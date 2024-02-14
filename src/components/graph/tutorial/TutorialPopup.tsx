@@ -15,13 +15,14 @@ import {
   ArrowPathIcon,
 } from "@heroicons/react/16/solid";
 
-import { FC, Fragment, useState } from "react";
+import { FC, Fragment, useEffect, useState } from "react";
 import Tutorial from "./Tutorial";
 
 import introductionGIF from "../../../assets/tutorial/introduction.gif";
 import inspectionGIF from "../../../assets/tutorial/inspection.gif";
 import explorationGIF from "../../../assets/tutorial/exploration.gif";
 import edgeManagementGIF from "../../../assets/tutorial/edge-management.gif";
+import useAuthState from "../../../hooks/useAuthState";
 
 interface TutorialCardTitleProps {
   title: string;
@@ -157,7 +158,7 @@ const TutorialPopup: FC<TutorialPopupProps> = ({
   showTutorial,
   setShowTutorial,
 }) => {
-  const [show, setShow] = useState(true);
+  const [show, setShow] = useState(!useAuthState().isAuthenticated);
 
   const tutorialSteps = [
     IntroductionCard,
