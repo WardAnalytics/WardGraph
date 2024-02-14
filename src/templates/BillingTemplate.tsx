@@ -211,7 +211,7 @@ const EnterprisePlan: FC = () => {
           API integrations
         </span>
       </div>
-    </div >
+    </div>
   );
 };
 
