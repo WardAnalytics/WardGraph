@@ -1,35 +1,36 @@
 import { FC, useMemo, useState } from "react";
-import authService from "../../services/auth/auth.services";
 import logo from "../../assets/ward-logo-blue.svg";
+import authService from "../../services/auth/auth.services";
 
-import Badge from "../common/Badge";
-import { Colors } from "../../utils/colors";
 import { useNavigate } from "react-router-dom";
+import { Colors } from "../../utils/colors";
+import Badge from "../common/Badge";
 
 import clsx from "clsx";
 
 import {
   ArrowUturnLeftIcon,
-  ListBulletIcon,
-  KeyIcon,
   BoltIcon,
-  ShareIcon,
   ChevronDoubleLeftIcon,
   ChevronDoubleRightIcon,
   CreditCardIcon,
+  KeyIcon,
+  ListBulletIcon,
+  ShareIcon,
 } from "@heroicons/react/24/outline";
 
+import { Transition } from "@headlessui/react";
 import {
   PlusCircleIcon,
   WrenchScrewdriverIcon,
 } from "@heroicons/react/16/solid";
-import {
-  usePersonalGraphs,
-  getGraphHref,
-} from "../../services/firestore/user/graph_saving";
 import useAuthState from "../../hooks/useAuthState";
-import { Transition } from "@headlessui/react";
 import { logAnalyticsEvent } from "../../services/firestore/analytics/analytics";
+import {
+  getGraphHref,
+  usePersonalGraphs,
+} from "../../services/firestore/user/graph_saving";
+
 
 // To add more tabs, simply add more objects to the navigation array. Href indicates the page to go to
 const navigation = [
@@ -103,6 +104,7 @@ const SAVED_GRAPHS_LIMIT = 3;
 
 const SavedGraphs: FC = () => {
   const navigate = useNavigate();
+
   const { user } = useAuthState();
   const { graphs } = usePersonalGraphs(user ? user.uid : "");
   const { displayedGraphs } = useMemo(() => {
@@ -110,6 +112,20 @@ const SavedGraphs: FC = () => {
       displayedGraphs: graphs.slice(0, SAVED_GRAPHS_LIMIT),
     };
   }, [graphs]);
+
+  const createNewGraph = () => {
+    logAnalyticsEvent("navbar_option_clicked", { name: "New Graph" });
+    sessionStorage.removeItem("graph");
+    // If we are already on the graph page, we want to reset the graph
+    if (window.location.href.includes("/graph/new")) {
+      // Reloads the page
+      navigate(0)
+      return;
+    }
+
+    // If we are on a saved graph, we want to navigate to the new graph page
+    navigate("/graph/new");
+  }
 
   return (
     <div className="flex flex-col gap-x-2.5 pl-[0.8rem]">
@@ -134,7 +150,7 @@ const SavedGraphs: FC = () => {
       ))}
       <a
         key="New Graph"
-        onClick={() => navigate("graph")}
+        onClick={createNewGraph}
         className="group -mb-10 flex h-10 cursor-pointer flex-row items-center gap-x-4 text-xs font-semibold text-gray-500 transition-all  duration-150 hover:gap-x-[1.1rem] hover:text-gray-700"
       >
         <div className="mb-1 h-1/2 w-[1.5px] -translate-y-1/2 bg-gray-300" />

@@ -23,6 +23,7 @@ const PrivateApp: FC = () => {
             path="/graph"
             element={<UnsavedGraphTemplate showLandingPage={false} />}
           />
+          <Route path="/graph/new" element={<UnsavedGraphTemplate showLandingPage={false} />} />
           <Route path="/saved-graph/:uid" element={<SavedGraphTemplate />} />
           <Route path="/billing" element={<BillingTemplate />} />
           <Route path="/graphs" element={<SavedGraphsTemplate />} />

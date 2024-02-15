@@ -1,14 +1,14 @@
-import { useParams } from "react-router-dom";
 import { FC, useCallback, useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 import {
-  updatePersonalGraph,
-  getPersonalGraph,
   PersonalGraphInfo,
+  getPersonalGraph,
+  updatePersonalGraph,
 } from "../services/firestore/user/graph_saving";
 
 import { Graph } from "../components/graph/Graph";
-import { PersonalGraph } from "../services/firestore/user/graph_saving";
 import useAuthState from "../hooks/useAuthState";
+import { PersonalGraph } from "../services/firestore/user/graph_saving";
 
 const SavedGraphTemplate: FC = () => {
   const { user } = useAuthState();

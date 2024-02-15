@@ -3,9 +3,9 @@ import { useParams } from "react-router-dom";
 import { SharableGraph, getSharableGraph } from "../services/firestore/graph_sharing";
 
 import { Transition } from "@headlessui/react";
+import { UnauthenticatedTimeContext } from "../PublicApp";
 import { Graph } from "../components/graph/Graph";
 import LandingPage from "../components/graph/landing_page/LandingPage";
-import { UnauthenticatedTimeContext } from "../PublicApp";
 
 interface UnsavedGraphTemplateProps {
   showLandingPage?: boolean;

@@ -557,6 +557,7 @@ const GraphProvided: FC<GraphProvidedProps> = ({
   }, [deleteNodes, selectedNodes]);
 
   const onAddressFocusOff = useCallback(() => {
+    sessionStorage.removeItem("focusedAddressData");
     setFocusedAddressData(null);
   }, []);
 
@@ -724,11 +725,17 @@ const GraphProvided: FC<GraphProvidedProps> = ({
   // Save the focused address data to session storage to keep it on refresh
   // This is required because the focused address data is not part of the graph state
   useEffect(() => {
-    if (focusedAddressData) {
-      sessionStorage.setItem(
-        "focusedAddressData",
-        JSON.stringify(focusedAddressData),
-      );
+    // If there are no nodes, remove the focused address data
+    if (nodes.length === 0) {
+      onAddressFocusOff();
+    } else {
+      // Save the focused address data to session storage
+      if (focusedAddressData) {
+        sessionStorage.setItem(
+          "focusedAddressData",
+          JSON.stringify(focusedAddressData),
+        );
+      }
     }
   }, [focusedAddressData]);
 
