@@ -13,6 +13,7 @@ import LoginForm from "./LoginForm";
 import SignupForm from "./SignupForm";
 import { logAnalyticsEvent } from "../../services/firestore/analytics/analytics";
 import { useNavigate } from "react-router";
+import { RedirectUrl } from "../../WithAuth";
 
 
 export enum AuthDialogState {
@@ -52,9 +53,10 @@ export const AuthContext = createContext<AuthContextProps>({
 interface AuthDialogProps {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
+  redirectUrl?: RedirectUrl;
 }
 
-const AuthDialog: FC<AuthDialogProps> = ({ isOpen, setIsOpen }) => {
+const AuthDialog: FC<AuthDialogProps> = ({ isOpen, setIsOpen, redirectUrl }) => {
   const navigate = useNavigate();
 
   const [authDialogState, setAuthDialogState] = useState(AuthDialogState.LOGIN);
@@ -94,7 +96,10 @@ const AuthDialog: FC<AuthDialogProps> = ({ isOpen, setIsOpen }) => {
   const onLoginSuccess = () => {
     logAnalyticsEvent("login", { method: "email" });
     closeDialog();
-    navigate("/graph");
+    if (redirectUrl) {
+      navigate(redirectUrl);
+      return;
+    }
   };
 
   /**

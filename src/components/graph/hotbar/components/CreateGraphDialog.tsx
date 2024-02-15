@@ -9,9 +9,9 @@ import {
 } from "../../../../services/firestore/user/graph_saving";
 
 import { BookmarkIcon } from "@heroicons/react/20/solid";
+import { logAnalyticsEvent } from "../../../../services/firestore/analytics/analytics";
 import BigButton from "../../../common/BigButton";
 import Modal from "../../../common/Modal";
-import { logAnalyticsEvent } from "../../../../services/firestore/analytics/analytics";
 
 interface CreateGraphDialogProps {
   isOpen: boolean;
@@ -26,15 +26,14 @@ const CreateGraphDialog: FC<CreateGraphDialogProps> = ({
 }) => {
   const navigate = useNavigate();
   const { user } = useAuthState();
+
   const closeDialog = () => {
     setOpen(false);
   };
   const [graphName, setGraphName] = useState<string>("");
 
-  const createGraph = useCallback(async () => {
-    if (!user) {
-      throw new Error("No user found for creating graph");
-    }
+  const createGraph = useCallback(() => {
+
     const graph: PersonalGraph = {
       name: graphName,
       data: graphInfo || {
@@ -45,7 +44,7 @@ const CreateGraphDialog: FC<CreateGraphDialogProps> = ({
         totalVolume: 0,
       },
     };
-    createPersonalGraph(user.uid, graph).then((uid) => {
+    createPersonalGraph(user!.uid, graph).then((uid) => {
       logAnalyticsEvent("graph_created", { graphName });
       setOpen(false);
       navigate(`/saved-graph/${uid}`);

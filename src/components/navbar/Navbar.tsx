@@ -201,6 +201,7 @@ const Navbar: FC = () => {
     localStorage.clear()
     sessionStorage.clear()
     console.log("Logged out");
+    navigate("/");
   };
   const onLogoutError = (error: any) => {
     console.error(error);
