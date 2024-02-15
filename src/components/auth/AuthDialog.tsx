@@ -56,7 +56,7 @@ interface AuthDialogProps {
   redirectUrl?: RedirectUrl;
 }
 
-const AuthDialog: FC<AuthDialogProps> = ({ isOpen, setIsOpen, redirectUrl = "graph" }) => {
+const AuthDialog: FC<AuthDialogProps> = ({ isOpen, setIsOpen, redirectUrl = { pathname: "graph" } }) => {
   const navigate = useNavigate();
 
   const [authDialogState, setAuthDialogState] = useState(AuthDialogState.LOGIN);
@@ -97,7 +97,19 @@ const AuthDialog: FC<AuthDialogProps> = ({ isOpen, setIsOpen, redirectUrl = "gra
     logAnalyticsEvent("login", { method: "email" });
     closeDialog();
     if (redirectUrl) {
-      navigate(redirectUrl);
+      const { pathname, queryParams } = redirectUrl;
+
+      const url: { pathname: string; search: string } = {
+        pathname,
+        search: ""
+      }
+
+      if (queryParams) {
+        const searchParams = new URLSearchParams(queryParams);
+        url.search = searchParams.toString();
+      }
+
+      navigate(url);
       return;
     }
   };

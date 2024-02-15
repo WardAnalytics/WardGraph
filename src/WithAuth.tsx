@@ -6,18 +6,18 @@ import { UserNotLoggedInError } from './services/auth/errors';
 /**
  * pathname: The path to redirect to
  * 
- * search: The query string to append to the URL
+ * queryParams: The query parameters to include in the redirect URL
  * 
  * @example
  * const redirectUrl: RedirectUrl = {
  * pathname: 'graph',
- * search: createSearchParams({
+ * queryParams: {
         foo: "bar"
-    }).toString()
+    }
  */
 export interface RedirectUrl {
   pathname: string;
-  search?: string;
+  queryParams?: { [key: string]: string };
 }
 
 export interface WithAuthProps {
@@ -68,9 +68,9 @@ const WithAuth = <P extends WithAuthProps>(WrappedComponent: React.ComponentType
      * const handleSaveGraph = () => {
      *    handleActionRequiringAuth({
      *      pathname: 'graph',
-     *      search: createSearchParams({
+     *      queryParams: {
      *        save_graph: "true"
-     *      }).toString()
+     *      }
      *    });
      * 
      *    // Save the graph
