@@ -1,46 +1,46 @@
 import {
-  InformationCircleIcon,
   ArrowsPointingInIcon,
   IdentificationIcon,
+  InformationCircleIcon,
 } from "@heroicons/react/20/solid";
 
-import { XMarkIcon, SparklesIcon } from "@heroicons/react/24/solid";
+import { SparklesIcon, XMarkIcon } from "@heroicons/react/24/solid";
 
 import { TrashIcon } from "@heroicons/react/24/outline";
 
 import { XMarkIcon as XMarkSmallIcon } from "@heroicons/react/16/solid";
 
 import clsx from "clsx";
-import { FC, useContext, useCallback } from "react";
+import { FC, useCallback, useContext } from "react";
 
 import { AddressAnalysis, Category } from "../../../../api/model";
 import { CategoryClasses } from "../../../../utils/categories";
 
 import {
   addCustomAddressTag,
-  useCustomAddressTags,
-  removeCustomAddressTag,
-  useCustomUserTags,
   addCustomUserTag,
+  removeCustomAddressTag,
+  useCustomAddressTags,
+  useCustomUserTags,
 } from "../../../../services/firestore/user/custom_tags/";
 
 import { Colors } from "../../../../utils/colors";
 
+import Badge from "../../../common/Badge";
 import EntityLogo from "../../../common/EntityLogo";
+import RiskIndicator from "../../../common/RiskIndicator";
 import BlockExplorerAddressIcon from "../../../common/utility_icons/BlockExplorerAddressIcon";
 import CopyToClipboardIcon from "../../../common/utility_icons/CopyToClipboardIcon";
-import Badge from "../../../common/Badge";
-import RiskIndicator from "../../../common/RiskIndicator";
 
-import { AnalysisContext } from "../AnalysisWindow";
 import { GraphContext } from "../../Graph";
-import { AnalysisMode, AnalysisModes } from "../AnalysisWindow";
+import { AnalysisContext, AnalysisMode, AnalysisModes } from "../AnalysisWindow";
 
 import { PathExpansionArgs } from "../../Graph";
 
-import TagInput from "./TagInput";
+import WithAuth, { WithAuthProps } from "../../../../WithAuth";
 import useAuthState from "../../../../hooks/useAuthState";
 import { logAnalyticsEvent } from "../../../../services/firestore/analytics/analytics";
+import TagInput from "./TagInput";
 
 interface ModeButtonProps {
   isActive: boolean;
@@ -93,7 +93,7 @@ interface ModeToggleProps {
 
 const ModeToggle: FC<ModeToggleProps> = ({ analysisMode, setAnalysisMode }) => {
   return (
-    <span className="flex flex-row gap-x-0.5 rounded-md bg-gray-100 p-1 shadow-inner ring-1 ring-inset ring-gray-300">
+    <span className="flex flex-row gap-x-0.5 rounded-lg border border-gray-300 bg-gray-100 p-1 shadow-inner ring-1 ring-inset ring-white">
       {AnalysisModes.map((mode) => (
         <ModeButton
           key={mode.name}
@@ -138,11 +138,13 @@ function getCategoryRisk(category: string): number {
   return categoryClass.risk;
 }
 
+interface LabelsAndTagsProps extends WithAuthProps { }
+
 // Label + Tag + Tag Input Wrapped Component
 
-const LabelsAndTags: FC = () => {
+const LabelsAndTags: FC<LabelsAndTagsProps> = ({ handleActionRequiringAuth }) => {
   const { analysisData, address } = useContext(AnalysisContext);
-  const { user } = useAuthState();
+  const { user, isAuthenticated } = useAuthState();
 
   // Labels get displayed first in the flex-wrap
   const labels = analysisData!.labels;
@@ -189,15 +191,28 @@ const LabelsAndTags: FC = () => {
           }}
         />
       ))}
-      <TagInput
-        currentAddressTags={addressCustomTags}
-        currentUserTags={userCustomTags}
-        onCreateCustomAddressTag={onCreateCustomAddressTag}
-        onDeleteCustomAddressTag={onDeleteCustomAddressTag}
-      />
-    </span>
+      <div onClick={() => {
+        if (!isAuthenticated) {
+          sessionStorage.setItem("focusedAddressData", JSON.stringify(analysisData));
+          handleActionRequiringAuth({
+            pathname: "graph",
+          })
+        }
+      }}>
+        <TagInput
+          currentAddressTags={addressCustomTags}
+          currentUserTags={userCustomTags}
+          onCreateCustomAddressTag={onCreateCustomAddressTag}
+          onDeleteCustomAddressTag={onDeleteCustomAddressTag}
+        />
+      </div>
+    </span >
   );
 };
+
+// Labels and Tags with authentication
+// The tag input will only be shown if the user is authenticated
+const LabelsAndTagsWithAuth = WithAuth(LabelsAndTags);
 
 interface HeaderProps {
   onExit: () => void;
@@ -316,7 +331,7 @@ const Header: FC<HeaderProps> = ({
           </span>
           <span className="flex flex-row items-center justify-start gap-x-1.5">
             {/* List of labels using Badges shown underneath the address. */}
-            <LabelsAndTags />
+            <LabelsAndTagsWithAuth />
           </span>
         </div>
       </span>

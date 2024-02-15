@@ -42,7 +42,7 @@ const SavedGraphTemplate: FC = () => {
 
       updatePersonalGraph(user!.uid, newGraph);
     },
-    [graph, user],
+    [graph, user]
   );
 
   // If no graph has been loaded, don't return anything yet. TODO - Add loading screen

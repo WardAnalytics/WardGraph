@@ -1,10 +1,10 @@
+import { FC, useCallback, useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
-import { FC, useEffect, useState } from "react";
-import { getSharableGraph } from "../services/firestore/graph_sharing";
+import { SharableGraph, getSharableGraph } from "../services/firestore/graph_sharing";
 
+import { Transition } from "@headlessui/react";
 import { Graph } from "../components/graph/Graph";
 import LandingPage from "../components/graph/landing_page/LandingPage";
-import { Transition } from "@headlessui/react";
 
 interface UnsavedGraphTemplateProps {
   showLandingPage?: boolean;
@@ -14,23 +14,62 @@ const UnsavedGraphTemplate: FC<UnsavedGraphTemplateProps> = ({
   showLandingPage = true,
 }) => {
   const { uid } = useParams<{ uid: string }>();
-  const [initialAddresses, setInitialAddresses] = useState<string[]>([]);
-  const [initialPaths, setInitialPaths] = useState<string[]>([]);
-  const [loading, setLoading] = useState(uid ? true : false);
+  const [loading, setLoading] = useState(true);
+  const [graph, setGraph] = useState<SharableGraph>({ addresses: [], edges: [] });
+
+  const initialAddresses = useMemo(() => {
+    if (graph) {
+      return graph.addresses;
+    }
+
+    return [];
+  }, [graph]);
+
+  const initialPaths = useMemo(() => {
+    if (graph) {
+      return graph.edges;
+    }
+
+    return [];
+  }, [graph]);
+
+  // Save the graph to local storage
+  const saveGraph = useCallback(
+    (newGraph: SharableGraph) => {
+      if (!graph) {
+        console.error("No graph found for saving");
+        return;
+      }
+
+      sessionStorage.setItem("graph", JSON.stringify(newGraph));
+    }, [graph])
 
   useEffect(() => {
+    // If there is no uid, it checks the local storage for a graph
     if (!uid) {
-      console.log(
-        "No uid found for fetching graph, defaulting to an empty graph instead.",
-      );
       setLoading(false);
+
+      // Check if there is a graph in local storage
+      const graph = sessionStorage.getItem("graph");
+
+      // If there is no graph in local storage, default to an empty graph
+      if (!graph) {
+        console.log(
+          "No uid found for fetching graph, defaulting to an empty graph instead.",
+        );
+        return
+      }
+
+      // If there is a graph in local storage, set it as the graph
+      setGraph(JSON.parse(graph) as SharableGraph);
+
       return;
     }
 
+    // If there is a uid, fetch the graph from the database
     getSharableGraph(uid)
       .then((graph) => {
-        setInitialAddresses(graph.addresses);
-        setInitialPaths(graph.edges);
+        setGraph(graph)
         setLoading(false);
       })
       .catch((error) => {
@@ -53,7 +92,7 @@ const UnsavedGraphTemplate: FC<UnsavedGraphTemplateProps> = ({
       >
         <LandingPage
           setSearchedAddress={(address: string) => {
-            setInitialAddresses([address]);
+            setGraph({ addresses: [address], edges: [] });
           }}
         />
       </Transition>
@@ -68,6 +107,7 @@ const UnsavedGraphTemplate: FC<UnsavedGraphTemplateProps> = ({
         <Graph
           initialAddresses={initialAddresses}
           initialPaths={initialPaths}
+          onLocalSave={saveGraph}
         />
       </Transition>
     </div>

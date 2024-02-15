@@ -1,3 +1,4 @@
+import debounce from "lodash/debounce";
 import {
   FC,
   createContext,
@@ -23,9 +24,8 @@ import ReactFlow, {
   useUpdateNodeInternals,
 } from "reactflow";
 import "reactflow/dist/style.css";
-import debounce from "lodash/debounce";
 
-import { createSharableGraph } from "../../services/firestore/graph_sharing";
+import { SharableGraph, createSharableGraph } from "../../services/firestore/graph_sharing";
 
 import { AddressAnalysis } from "../../api/model";
 
@@ -46,14 +46,13 @@ import {
   convertNodeListToRecord,
 } from "./graph_calculations";
 
-import TutorialPopup from "./tutorial/TutorialPopup";
+import { PersonalGraphInfo } from "../../services/firestore/user/graph_saving";
+import Socials from "../socials";
+import TransactionTooltip, { TransactionTooltipProps } from "./TransactionTooltip";
 import DraggableWindow from "./analysis_window/AnalysisWindow";
 import Hotbar from "./hotbar";
 import Legend from "./legend";
-import TransactionTooltip from "./TransactionTooltip";
-import { TransactionTooltipProps } from "./TransactionTooltip";
-import { PersonalGraphInfo } from "../../services/firestore/user/graph_saving";
-import Socials from "../socials";
+import TutorialPopup from "./tutorial/TutorialPopup";
 
 enum HotKeyMap {
   DELETE = 1,
@@ -118,6 +117,7 @@ interface GraphProps {
   initialAddresses: string[];
   initialPaths: string[];
   onAutoSave?: (graphInfo: PersonalGraphInfo) => void;
+  onLocalSave?: (graphInfo: SharableGraph) => void;
 }
 
 /** Graph simply wraps the ReactFlowProvider and provides the initial nodes
@@ -133,6 +133,7 @@ const Graph: FC<GraphProps> = ({
   initialAddresses,
   initialPaths,
   onAutoSave,
+  onLocalSave,
 }) => {
   // Grab all initial addresses and create nodes for them
   const initialNodes = useMemo(() => {
@@ -142,6 +143,7 @@ const Graph: FC<GraphProps> = ({
         createAddressNode(address, AddressNodeState.MINIMIZED, true, 0, 0),
       );
     });
+
     return nodes;
   }, [initialAddresses]);
 
@@ -182,6 +184,7 @@ const Graph: FC<GraphProps> = ({
             initialNodes={initialLayoutedNodes}
             initialEdges={initialEdges}
             onAutoSave={onAutoSave}
+            onLocalSave={onLocalSave}
           />
         </ReactFlowProvider>
       </div>
@@ -193,6 +196,7 @@ interface GraphProvidedProps {
   initialNodes: Node[];
   initialEdges: Edge[];
   onAutoSave?: (graphInfo: PersonalGraphInfo) => void;
+  onLocalSave?: (graphInfo: SharableGraph) => void;
 }
 
 const MemoedDraggableWindow = memo(DraggableWindow);
@@ -205,6 +209,7 @@ const GraphProvided: FC<GraphProvidedProps> = ({
   initialNodes,
   initialEdges,
   onAutoSave,
+  onLocalSave
 }) => {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
@@ -291,8 +296,17 @@ const GraphProvided: FC<GraphProvidedProps> = ({
         onAutoSave(graphInfo);
       }
     },
-    [nodes.length, edges.length],
+    [nodes.length, edges.length]
   );
+
+  const saveGraphLocal = useCallback(
+    (graphInfo: SharableGraph) => {
+      if (onLocalSave) {
+        onLocalSave(graphInfo);
+      }
+    },
+    [nodes.length, edges.length]
+  )
 
   const debouncedSave = useRef(
     debounce((graphInfo: PersonalGraphInfo) => {
@@ -300,9 +314,25 @@ const GraphProvided: FC<GraphProvidedProps> = ({
     }, 1000),
   );
 
+  const debounceSaveLocal = useRef(
+    debounce((graphInfo: SharableGraph) => {
+      saveGraphLocal(graphInfo);
+    }, 1000),
+  );
+
   useEffect(() => {
     if (nodes.length === 0) return;
     debouncedSave.current(personalGraphInfo);
+  }, [nodes.length, edges.length]);
+
+  useEffect(() => {
+    if (nodes.length === 0) return;
+
+    const newLocalGraph: SharableGraph = {
+      addresses: personalGraphInfo.addresses,
+      edges: personalGraphInfo.edges
+    }
+    debounceSaveLocal.current(newLocalGraph);
   }, [nodes.length, edges.length]);
 
   // Undo and Redo -------------------------------------------------------------
@@ -676,11 +706,31 @@ const GraphProvided: FC<GraphProvidedProps> = ({
 
   // Address Focusing ---------------------------------------------------------
 
-  /* One address can be focused at a time. This is tracked using a useState.
+  /* One address can be focused at a time. This is tracked using a useState and SessionStorage.
    * When an address is focused, it shows up on the AnalysisWindow overlaid
    * on top of the graph. */
   const [focusedAddressData, setFocusedAddressData] =
     useState<AddressAnalysis | null>(null);
+
+  const initialFocusedAddressData = sessionStorage.getItem("focusedAddressData");
+
+  // Load the focused address data from session storage
+  useEffect(() => {
+    if (initialFocusedAddressData) {
+      setFocusedAddressData(JSON.parse(initialFocusedAddressData));
+    }
+  }, [initialFocusedAddressData]);
+
+  // Save the focused address data to session storage to keep it on refresh
+  // This is required because the focused address data is not part of the graph state
+  useEffect(() => {
+    if (focusedAddressData) {
+      sessionStorage.setItem(
+        "focusedAddressData",
+        JSON.stringify(focusedAddressData),
+      );
+    }
+  }, [focusedAddressData]);
 
   // New Address Highlighting -------------------------------------------------
 
@@ -819,6 +869,8 @@ const GraphProvided: FC<GraphProvidedProps> = ({
       )
       .map((edge) => `${edge.source}-${edge.target}`);
 
+    // TODO: Save this on session storage
+    // Only save the graph when the user wants to share the graph i.e., when the user opens the sharing dialog
     const link = createSharableGraph({ addresses, edges: paths });
     return link;
   }, [nodes.length, edges.length]);

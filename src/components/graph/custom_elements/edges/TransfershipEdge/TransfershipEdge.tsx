@@ -1,14 +1,11 @@
-import { FC, useContext } from "react";
+import { FC, useContext, useMemo } from "react";
 import { EdgeProps, getBezierPath } from "reactflow";
 
 import CustomEdgePath from "../TransfershipEdge/CustomEdgePath";
 import TransfershipEdgeStates from "../TransfershipEdge/states";
 import { GraphContext } from "../../../Graph";
 
-export interface RiskVisionColors {
-  fillColor: string;
-  strokeColor: string;
-}
+import { getRiskLevelColors } from "../../../../../utils/risk_levels";
 
 const TransfershipEdge: FC<EdgeProps> = ({
   id,
@@ -36,38 +33,17 @@ const TransfershipEdge: FC<EdgeProps> = ({
   const isHidden: boolean = data?.state === TransfershipEdgeStates.HIDDEN;
 
   // If there is a risk vision, get the risk of the source and target addresses. Set the colors of the edges to reflect the highest risk of both
-  let riskVisionColors: undefined | RiskVisionColors = undefined;
-  if (isRiskVision) {
-    const sourceRisk = getAddressRisk(source);
-    const targetRisk = getAddressRisk(target);
-    const highestRisk = Math.max(sourceRisk, targetRisk);
+  const { riskVisionColors } = useMemo(() => {
+    if (isRiskVision) {
+      const sourceRisk = getAddressRisk(source);
+      const targetRisk = getAddressRisk(target);
+      const highestRisk = Math.max(sourceRisk, targetRisk);
 
-    riskVisionColors = {
-      fillColor: "fill-green-400",
-      strokeColor: "stroke-green-400",
-    };
-
-    if (highestRisk >= 4) {
-      riskVisionColors = {
-        fillColor: "fill-yellow-400",
-        strokeColor: "stroke-yellow-400",
-      };
+      return { riskVisionColors: getRiskLevelColors(highestRisk) };
     }
 
-    if (highestRisk >= 7) {
-      riskVisionColors = {
-        fillColor: "fill-red-400",
-        strokeColor: "stroke-red-400",
-      };
-    }
-
-    if (highestRisk >= 9) {
-      riskVisionColors = {
-        fillColor: "fill-red-700",
-        strokeColor: "stroke-red-700",
-      };
-    }
-  }
+    return { riskVisionColors: null };
+  }, [isRiskVision, getAddressRisk, source, target]);
 
   // If hidden, check whether the source or target node is focused. If none are focused, don't render the edge at all
   if (

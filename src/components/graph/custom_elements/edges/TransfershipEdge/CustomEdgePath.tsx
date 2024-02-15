@@ -1,6 +1,6 @@
 import clsx from "clsx";
 import { CSSProperties } from "react";
-import { RiskVisionColors } from "./TransfershipEdge";
+import { RiskLevelColors } from "../../../../../utils/risk_levels";
 
 import "./CustomEdgePath.css";
 
@@ -17,7 +17,7 @@ interface CustomEdgePathProps {
   isHidden: boolean;
   opacity: number;
   isClickable: boolean;
-  riskVisionColors?: RiskVisionColors;
+  riskVisionColors: RiskLevelColors | null;
 }
 
 const CustomEdgePath = ({

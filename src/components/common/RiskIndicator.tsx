@@ -8,7 +8,8 @@ import {
 import clsx from "clsx";
 
 import LoadingCircle from "./LoadingCircle";
-import { ColorMap, Colors } from "../../utils/colors";
+import { getRiskLevelColors, RiskLevelColors } from "../../utils/risk_levels";
+import { round } from "lodash";
 
 interface RiskIndicatorProps {
   isLoading: boolean;
@@ -24,37 +25,19 @@ const RiskIndicator: FC<RiskIndicatorProps> = ({
   isLoading,
   risk,
 }: RiskIndicatorProps) => {
-  let color = Colors.GRAY;
-  let displayedRisk = "";
-
-  if (risk !== undefined) {
-    color = Colors.GREEN;
-
-    if (risk > 2) {
-      color = Colors.YELLOW;
-    }
-    if (risk > 5) {
-      color = Colors.ORANGE;
-    }
-    if (risk > 8) {
-      color = Colors.RED;
-    }
-
-    displayedRisk = (Math.round(risk * 10) / 10).toString();
-  }
-
-  const { text, background, ring } = ColorMap[color];
+  const color: RiskLevelColors | null = risk ? getRiskLevelColors(risk) : null;
 
   return (
     <span
       className={clsx(
-        "group my-1 flex h-11 w-11 items-center justify-center rounded-md text-lg font-semibold ring-1",
-        text,
-        background,
-        ring,
+        "group my-1 flex h-11 w-11 items-center justify-center rounded-md text-lg font-semibold shadow-sm ring-1",
+        color?.textColor,
+        color?.backgroundColor,
+        color?.hoveredBackgroundColor,
+        color?.ringColor,
       )}
     >
-      {isLoading ? <LoadingCircle className="p-3" /> : displayedRisk}
+      {isLoading ? <LoadingCircle className="p-3" /> : round(risk!, 1)}
       <div className="pointer-events-none absolute mb-48 mt-0.5 w-max origin-bottom scale-0 divide-y divide-gray-700 rounded-lg bg-gray-800 px-3 py-3 text-white opacity-0 shadow-sm transition-all duration-300 ease-in-out group-hover:scale-100 group-hover:opacity-100 dark:bg-gray-700 ">
         <div className="flex flex-row items-center gap-x-1.5 pb-1">
           <InformationCircleIcon className="h-5 w-5 text-blue-200" />

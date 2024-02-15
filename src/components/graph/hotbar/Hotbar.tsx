@@ -1,24 +1,26 @@
 import {
+  BookmarkIcon,
   BugAntIcon,
+  EyeIcon,
+  EyeSlashIcon,
   PlusCircleIcon,
   QuestionMarkCircleIcon,
   RectangleGroupIcon,
   ShareIcon,
-  EyeIcon,
-  EyeSlashIcon,
-  BookmarkIcon,
 } from "@heroicons/react/24/outline";
 
 import clsx from "clsx";
-import { FC, useContext, useEffect, useState } from "react";
+import { FC, useContext, useEffect, useMemo, useState } from "react";
 import { useKeyPress } from "reactflow";
 import { GraphContext } from "../Graph";
 
-import ShareDialog from "./components/ShareDialog";
 import NewAddressModal from "./components/NewAddressModal";
+import ShareDialog from "./components/ShareDialog";
 
-import CreateGraphDialog from "./components/CreateGraphDialog";
+import { createSearchParams, useSearchParams } from "react-router-dom";
+import WithAuth, { WithAuthProps } from "../../../WithAuth";
 import { logAnalyticsEvent } from "../../../services/firestore/analytics/analytics";
+import CreateGraphDialog from "./components/CreateGraphDialog";
 
 interface HotbarButton {
   onClick?: () => void;
@@ -99,7 +101,11 @@ const HotbarButtonGroup: FC<HotbarButtonGroupProps> = ({
   );
 };
 
-const Hotbar: FC = () => {
+interface HotbarProps extends WithAuthProps { }
+
+const Hotbar: FC<HotbarProps> = ({
+  handleActionRequiringAuth
+}) => {
   const {
     doLayout,
     generateSharableLink,
@@ -110,9 +116,26 @@ const Hotbar: FC = () => {
     personalGraphInfo,
   } = useContext(GraphContext);
 
+  const [searchParams, setSearchParams] = useSearchParams();
+
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
   const [isAddAddressModalOpen, setIsAddAddressModalOpen] = useState(false);
   const [isCreateGraphDialogOpen, setIsCreateGraphDialogOpen] = useState(false);
+
+  const saveGraphParam = useMemo(() => {
+    return searchParams.get("save_graph")
+  }, [searchParams]);
+
+  useEffect(() => {
+    setSearchParams(new URLSearchParams(location.search));
+  }, [location.search]);
+
+
+  useEffect(() => {
+    if (saveGraphParam) {
+      setIsCreateGraphDialogOpen(true);
+    }
+  }, [saveGraphParam]);
 
   return (
     <>
@@ -152,6 +175,16 @@ const Hotbar: FC = () => {
               Icon={BookmarkIcon}
               name="Save Graph"
               onClick={() => {
+                // The handleActionRequiringAuth function throws an error if the user is not authenticated,
+                // preventing the following actions from being executed
+                handleActionRequiringAuth({
+                  pathname: "graph",
+                  search: createSearchParams({
+                    save_graph: "true"
+                  }).toString()
+                });
+
+                // Are only executed if the user is authenticated
                 setIsCreateGraphDialogOpen(true);
                 logAnalyticsEvent("save_graph_modal_opened");
               }}
@@ -202,4 +235,7 @@ const Hotbar: FC = () => {
   );
 };
 
-export default Hotbar;
+// The Hotbar component has the following features that require authentication:
+//  * Saving a graph
+
+export default WithAuth(Hotbar);

@@ -1,12 +1,12 @@
 import { FC } from "react";
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 
 import Navbar from "./components/navbar";
 import {
   BillingTemplate,
   SavedGraphTemplate,
-  UnsavedGraphTemplate,
   SavedGraphsTemplate,
+  UnsavedGraphTemplate,
 } from "./templates";
 
 const PrivateApp: FC = () => {
@@ -26,7 +26,7 @@ const PrivateApp: FC = () => {
           <Route path="/saved-graph/:uid" element={<SavedGraphTemplate />} />
           <Route path="/billing" element={<BillingTemplate />} />
           <Route path="/graphs" element={<SavedGraphsTemplate />} />
-          <Route path="*" element={<Navigate to="/graph" />} />
+          <Route path="*" element={<UnsavedGraphTemplate showLandingPage={false} />} />
         </Routes>
       </BrowserRouter>
     </div>

@@ -1,7 +1,7 @@
-import { FC, useRef, useState, KeyboardEvent, useMemo } from "react";
+import { FC, KeyboardEvent, useMemo, useRef, useState } from "react";
 
-import TagsPopover from "./TagsPopover";
 import { HotKeysType } from "../../../../types/hotKeys";
+import TagsPopover from "./TagsPopover";
 
 import { PencilIcon } from "@heroicons/react/16/solid";
 import { logAnalyticsEvent } from "../../../../services/firestore/analytics/analytics";

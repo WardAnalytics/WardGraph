@@ -99,7 +99,7 @@ interface SavedGraphRowProps {
   isLast: boolean;
 }
 
-const SAVED_GRAPHS_LIMIT = 5;
+const SAVED_GRAPHS_LIMIT = 3;
 
 const SavedGraphs: FC = () => {
   const navigate = useNavigate();
@@ -198,7 +198,10 @@ const Navbar: FC = () => {
     authService.logout(onLogoutSuccess, onLogoutError);
   };
   const onLogoutSuccess = () => {
+    localStorage.clear()
+    sessionStorage.clear()
     console.log("Logged out");
+    navigate("/");
   };
   const onLogoutError = (error: any) => {
     console.error(error);

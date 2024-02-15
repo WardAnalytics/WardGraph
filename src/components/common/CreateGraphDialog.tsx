@@ -1,17 +1,16 @@
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { FC, useCallback, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import useAuthState from "../../../../hooks/useAuthState";
+import useAuthState from "../../hooks/useAuthState";
 import {
   PersonalGraph,
   PersonalGraphInfo,
   createPersonalGraph,
-} from "../../../../services/firestore/user/graph_saving";
+} from "../../services/firestore/user/graph_saving";
 
 import { BookmarkIcon } from "@heroicons/react/20/solid";
-import { logAnalyticsEvent } from "../../../../services/firestore/analytics/analytics";
-import BigButton from "../../../common/BigButton";
-import Modal from "../../../common/Modal";
+import BigButton from "./BigButton";
+import Modal from "./Modal";
 
 interface CreateGraphDialogProps {
   isOpen: boolean;
@@ -26,14 +25,15 @@ const CreateGraphDialog: FC<CreateGraphDialogProps> = ({
 }) => {
   const navigate = useNavigate();
   const { user } = useAuthState();
-
   const closeDialog = () => {
     setOpen(false);
   };
   const [graphName, setGraphName] = useState<string>("");
 
-  const createGraph = useCallback(() => {
-
+  const createGraph = useCallback(async () => {
+    if (!user) {
+      throw new Error("No user found for creating graph");
+    }
     const graph: PersonalGraph = {
       name: graphName,
       data: graphInfo || {
@@ -44,8 +44,7 @@ const CreateGraphDialog: FC<CreateGraphDialogProps> = ({
         totalVolume: 0,
       },
     };
-    createPersonalGraph(user!.uid, graph).then((uid) => {
-      logAnalyticsEvent("graph_created", { graphName });
+    createPersonalGraph(user.uid, graph).then((uid) => {
       setOpen(false);
       navigate(`/saved-graph/${uid}`);
     });
@@ -75,7 +74,6 @@ const CreateGraphDialog: FC<CreateGraphDialogProps> = ({
           onKeyDown={(event) => {
             if (event.key === "Enter") {
               createGraph();
-              logAnalyticsEvent("graph_created_enter_key_pressed", { graphName });
             }
           }}
         />

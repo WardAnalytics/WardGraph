@@ -90,7 +90,6 @@ const login = async (
 const logout = async (onSuccess: () => void, onError: (error: any) => void) => {
   await signOut(auth)
     .then(() => {
-      localStorage.removeItem("user");
       onSuccess();
     })
     .catch((error) => {
