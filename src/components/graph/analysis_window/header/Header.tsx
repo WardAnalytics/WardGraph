@@ -211,6 +211,7 @@ const LabelsAndTags: FC<LabelsAndTagsProps> = ({ handleActionRequiringAuth }) =>
 };
 
 // Labels and Tags with authentication
+// The tag input will only be shown if the user is authenticated
 const LabelsAndTagsWithAuth = WithAuth(LabelsAndTags);
 
 interface HeaderProps {

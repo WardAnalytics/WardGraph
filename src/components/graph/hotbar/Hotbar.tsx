@@ -175,12 +175,16 @@ const Hotbar: FC<HotbarProps> = ({
               Icon={BookmarkIcon}
               name="Save Graph"
               onClick={() => {
+                // The handleActionRequiringAuth function throws an error if the user is not authenticated,
+                // preventing the following actions from being executed
                 handleActionRequiringAuth({
                   pathname: "graph",
                   search: createSearchParams({
                     save_graph: "true"
                   }).toString()
                 });
+
+                // Are only executed if the user is authenticated
                 setIsCreateGraphDialogOpen(true);
                 logAnalyticsEvent("save_graph_modal_opened");
               }}
@@ -230,5 +234,8 @@ const Hotbar: FC<HotbarProps> = ({
     </>
   );
 };
+
+// The Hotbar component has the following features that require authentication:
+//  * Saving a graph
 
 export default WithAuth(Hotbar);

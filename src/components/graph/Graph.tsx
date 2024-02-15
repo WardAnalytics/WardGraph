@@ -706,7 +706,7 @@ const GraphProvided: FC<GraphProvidedProps> = ({
 
   // Address Focusing ---------------------------------------------------------
 
-  /* One address can be focused at a time. This is tracked using a useState.
+  /* One address can be focused at a time. This is tracked using a useState and SessionStorage.
    * When an address is focused, it shows up on the AnalysisWindow overlaid
    * on top of the graph. */
   const [focusedAddressData, setFocusedAddressData] =
@@ -714,11 +714,23 @@ const GraphProvided: FC<GraphProvidedProps> = ({
 
   const initialFocusedAddressData = sessionStorage.getItem("focusedAddressData");
 
+  // Load the focused address data from session storage
   useEffect(() => {
     if (initialFocusedAddressData) {
       setFocusedAddressData(JSON.parse(initialFocusedAddressData));
     }
   }, [initialFocusedAddressData]);
+
+  // Save the focused address data to session storage to keep it on refresh
+  // This is required because the focused address data is not part of the graph state
+  useEffect(() => {
+    if (focusedAddressData) {
+      sessionStorage.setItem(
+        "focusedAddressData",
+        JSON.stringify(focusedAddressData),
+      );
+    }
+  }, [focusedAddressData]);
 
   // New Address Highlighting -------------------------------------------------
 
@@ -857,6 +869,8 @@ const GraphProvided: FC<GraphProvidedProps> = ({
       )
       .map((edge) => `${edge.source}-${edge.target}`);
 
+    // TODO: Save this on session storage
+    // Only save the graph when the user wants to share the graph i.e., when the user opens the sharing dialog
     const link = createSharableGraph({ addresses, edges: paths });
     return link;
   }, [nodes.length, edges.length]);

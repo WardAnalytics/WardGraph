@@ -29,7 +29,9 @@ export interface WithAuthProps {
  * that should be called when the user tries to perform an action that requires authentication
  * 
  * @param WrappedComponent - The component to wrap with authentication
- * @returns 
+ * @returns A new component that wraps the provided component with authentication
+ * 
+ * @throws {UserNotLoggedInError} - If the user is not authenticated and tries to perform an action that requires authentication.
  * 
  * @example
  * interface MyComponentProps extends WithAuthProps {
@@ -55,6 +57,27 @@ const WithAuth = <P extends WithAuthProps>(WrappedComponent: React.ComponentType
       pathname: '/',
     }); // The URL to redirect to after the user logs in
 
+    /** Function to call when the user tries to perform an action that requires authentication
+     * This function should be called before the action that requires authentication is performed and will throw an error if the user is not authenticated
+     * 
+     * @param redirectUrl - The URL to redirect to after the user logs in
+     * 
+     * @throws {UserNotLoggedInError} - If the user is not authenticated
+     * 
+     * @example
+     * const handleSaveGraph = () => {
+     *    handleActionRequiringAuth({
+     *      pathname: 'graph',
+     *      search: createSearchParams({
+     *        save_graph: "true"
+     *      }).toString()
+     *    });
+     * 
+     *    // Save the graph
+     *    // This code will only be executed if the user is authenticated
+     *    saveGraph();
+     * };
+     */
     const handleActionRequiringAuth = (redirectUrl: RedirectUrl) => {
       if (!isAuthenticated) {
         setShowAuthModal(true);
@@ -64,10 +87,10 @@ const WithAuth = <P extends WithAuthProps>(WrappedComponent: React.ComponentType
     };
 
     return (
-      <div>
+      <>
         <WrappedComponent {...(props as P)} handleActionRequiringAuth={handleActionRequiringAuth} />
         <AuthDialog isOpen={showAuthModal} setIsOpen={setShowAuthModal} redirectUrl={redirectUrl} />
-      </div>
+      </>
     );
   };
 };
