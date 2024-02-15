@@ -715,7 +715,6 @@ const GraphProvided: FC<GraphProvidedProps> = ({
   const initialFocusedAddressData = localStorage.getItem("focusedAddressData");
 
   useEffect(() => {
-    console.log("initialFocusedAddressData", initialFocusedAddressData);
     if (initialFocusedAddressData) {
       setFocusedAddressData(JSON.parse(initialFocusedAddressData));
     }

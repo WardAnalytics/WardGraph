@@ -1,72 +1,91 @@
 import { FC, useState } from "react";
-import { ShareIcon } from "@heroicons/react/24/outline";
-import { XMarkIcon } from "@heroicons/react/16/solid";
+import {
+  ArrowTopRightOnSquareIcon,
+  ShareIcon,
+  TrashIcon,
+} from "@heroicons/react/24/outline";
 import {
   usePersonalGraphs,
-  createPersonalGraph,
   PersonalGraph,
-  PersonalGraphInfo,
-  removePersonalGraph,
 } from "../services/firestore/user/graph_saving";
 import useAuthState from "../hooks/useAuthState";
+import Badge from "../components/common/Badge";
+import { Colors } from "../utils/colors";
+import { LinkIcon } from "@heroicons/react/16/solid";
 
-function createEmtpyGraph(name: string): PersonalGraph {
-  const graphInfo: PersonalGraphInfo = {
-    addresses: [],
-    edges: [],
-    tags: [],
-    averageRisk: 0,
-    totalVolume: 0,
-  };
+import "../components/common/Scrollbar.css";
+import BigButton from "../components/common/BigButton";
+import { PlusCircleIcon } from "@heroicons/react/20/solid";
+import { useNavigate } from "react-router-dom";
+import CreateGraphDialog from "../components/common/CreateGraphDialog";
+import DeleteGraphDialog from "../components/common/DeleteGraphDialog";
 
-  const graph: PersonalGraph = {
-    name,
-    data: graphInfo,
-  };
+const GraphCard: FC<{ graph: PersonalGraph }> = ({ graph }) => {
+  const navigate = useNavigate();
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
-  return graph;
-}
+  return (
+    <div className="group flex h-full min-h-[7rem] w-full flex-col gap-2 rounded-md px-4 py-3 text-lg text-gray-800 shadow-sm ring-1 ring-inset ring-gray-300">
+      <p className=" flex h-fit flex-row flex-wrap items-center gap-1.5 text-base font-semibold text-gray-800 transition-all duration-150 ">
+        {graph.name}
+        <Badge text="Ethereum" color={Colors.BLUE} Icon={LinkIcon} />
+      </p>
+
+      <div className="h-[1.5px] w-full bg-gray-100" />
+      <p className="text-sm text-gray-600">
+        {graph.data.addresses.length} addresses
+      </p>
+      <div className="ml-auto mt-auto flex flex-row">
+        <TrashIcon
+          className="z-10 h-8 w-8 cursor-pointer rounded-md p-1.5 text-gray-400 transition-all duration-150 hover:bg-red-100 hover:text-red-500"
+          onClick={() => setIsDeleteDialogOpen(true)}
+        />
+        <ArrowTopRightOnSquareIcon
+          className="z-10 h-8 w-8 cursor-pointer rounded-md p-1.5 text-gray-400 transition-all duration-150 hover:bg-gray-100 hover:text-gray-500"
+          onClick={() => navigate(`/saved-graph/${graph.uid}`)}
+        />
+      </div>
+      <DeleteGraphDialog
+        isOpen={isDeleteDialogOpen}
+        setOpen={setIsDeleteDialogOpen}
+        graphUID={graph.uid!}
+      />
+    </div>
+  );
+};
 
 const SavedGraphsTemplate: FC = () => {
   const { user } = useAuthState();
   const { graphs } = usePersonalGraphs(user ? user.uid : "");
-  const [graphName, setGraphName] = useState<string>("");
+  const [isCreateGraphDialogOpen, setIsCreateGraphDialogOpen] = useState(false);
 
   return (
     <div className="mx-14 my-10 flex w-full flex-col gap-y-5">
-      <h3 className="flex flex-row gap-x-2 text-xl font-semibold text-gray-700">
-        <ShareIcon className="mt-0.5 inline-block h-7 w-7 text-gray-400" />
-        Saved Graphs
+      <h3 className="flex flex-row justify-between  text-xl font-semibold text-gray-700">
+        <div className="flex flex-row items-center gap-2">
+          <ShareIcon className="mt-0.5 inline-block h-7 w-7 text-gray-400" />
+          Saved Graphs
+        </div>
+        <BigButton
+          text="New graph"
+          onClick={() => {
+            setIsCreateGraphDialogOpen(true);
+          }}
+          Icon={PlusCircleIcon}
+        />
       </h3>
       <div className="h-[1px] w-full bg-gray-200" />
-      <input
-        type="text"
-        placeholder="Graph Name"
-        value={graphName}
-        onChange={(e) => setGraphName(e.target.value)}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" && user) {
-            createPersonalGraph(user.uid, createEmtpyGraph(graphName));
-            setGraphName("");
-          }
-        }}
+      <div className="scrollbar overflow-x-hidden overflow-y-scroll">
+        <div className="grid auto-rows-auto grid-cols-3 gap-4 pr-3">
+          {graphs.map((graph) => (
+            <GraphCard graph={graph} key={graph.uid} />
+          ))}
+        </div>
+      </div>
+      <CreateGraphDialog
+        isOpen={isCreateGraphDialogOpen}
+        setOpen={setIsCreateGraphDialogOpen}
       />
-      <ul>
-        {graphs.map((graph) => (
-          <li
-            key={graph.uid!}
-            className="text-semibold mb-5 flex flex-row gap-x-2 text-lg text-gray-800"
-          >
-            {graph.name}
-            <XMarkIcon
-              className="h-7 w-7 cursor-pointer text-gray-500"
-              onClick={() => {
-                if (user) removePersonalGraph(user.uid, graph.uid!);
-              }}
-            />
-          </li>
-        ))}
-      </ul>
     </div>
   );
 };

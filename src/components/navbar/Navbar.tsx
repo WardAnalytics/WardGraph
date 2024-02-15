@@ -99,7 +99,7 @@ interface SavedGraphRowProps {
   isLast: boolean;
 }
 
-const SAVED_GRAPHS_LIMIT = 5;
+const SAVED_GRAPHS_LIMIT = 3;
 
 const SavedGraphs: FC = () => {
   const navigate = useNavigate();

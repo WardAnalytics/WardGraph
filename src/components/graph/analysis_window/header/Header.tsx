@@ -93,7 +93,7 @@ interface ModeToggleProps {
 
 const ModeToggle: FC<ModeToggleProps> = ({ analysisMode, setAnalysisMode }) => {
   return (
-    <span className="flex flex-row gap-x-0.5 rounded-md bg-gray-100 p-1 shadow-inner ring-1 ring-inset ring-gray-300">
+    <span className="flex flex-row gap-x-0.5 rounded-lg border border-gray-300 bg-gray-100 p-1 shadow-inner ring-1 ring-inset ring-white">
       {AnalysisModes.map((mode) => (
         <ModeButton
           key={mode.name}

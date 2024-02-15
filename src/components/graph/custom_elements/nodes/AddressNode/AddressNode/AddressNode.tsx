@@ -23,6 +23,11 @@ import Badge from "../../../../../common/Badge";
 import { Colors } from "../../../../../../utils/colors";
 
 import {
+  getRiskLevelColors,
+  RiskLevelColors,
+} from "../../../../../../utils/risk_levels";
+
+import {
   createTransfershipEdge,
   TransfershipEdgeStates,
 } from "../../../edges/TransfershipEdge";
@@ -158,31 +163,13 @@ const AddressNode: FC<AddressNodeProps> = ({
 
   // Based on the risk of the node, the color of the node for risk vision should change
   let { riskColor } = useMemo(() => {
-    if (!isRiskVision || !analysisData)
-      return { riskColor: "bg-white hover:bg-gray-50" };
-    if (analysisData.risk >= 9)
-      // Severe risk
-      return {
-        riskColor:
-          "bg-red-200 hover:bg-red-200 ring-red-300 text-red-500 shadow-red-500/50 shadow-xl",
-      };
-    if (analysisData.risk >= 6)
-      // High risk
-      return {
-        riskColor:
-          "bg-orange-100 hover:bg-orange-200 ring-orange-300 text-orange-500 shadow-orange-300/50 shadow-xl",
-      };
-    if (analysisData.risk >= 3)
-      // Medium risk
-      return {
-        riskColor:
-          "bg-yellow-50 hover:bg-yellow-100 ring-yellow-200 text-yellow-500 shadow-yellow-200/10",
-      };
-    return {
-      // Low risk
-      riskColor:
-        "bg-green-50 hover:bg-green-100 ring-green-200 text-green-500 shadow-green-200/10",
-    };
+    let riskColor: RiskLevelColors | null = null;
+
+    if (isRiskVision && analysisData) {
+      riskColor = getRiskLevelColors(analysisData.risk);
+    }
+
+    return { riskColor };
   }, [analysisData, isRiskVision]);
 
   // Context data is set to the analysis data
@@ -235,7 +222,10 @@ const AddressNode: FC<AddressNodeProps> = ({
         <span
           className={clsx(
             "flex flex-row items-center gap-x-2 rounded-lg px-4 py-5 ring-1 transition-all duration-150",
-            riskColor,
+            riskColor ? riskColor.backgroundColor : "bg-white",
+            riskColor ? riskColor.hoveredBackgroundColor : "hover:bg-gray-50",
+            riskColor && riskColor.ringColor,
+            riskColor && riskColor.shadowColor,
             focusedAddressData?.address === address
               ? " scale-125 bg-blue-50 shadow-2xl shadow-blue-300 ring-4 ring-blue-400"
               : highlight
@@ -260,7 +250,12 @@ const AddressNode: FC<AddressNodeProps> = ({
 
           {/* Address information */}
           <div className="flex flex-col gap-y-0.5">
-            <h1 className="flex flex-row font-mono font-semibold tracking-tight text-gray-800">
+            <h1
+              className={clsx(
+                "flex flex-row font-mono font-semibold tracking-tight",
+                riskColor ? riskColor.textColor : "text-gray-800",
+              )}
+            >
               {`${address.slice(0, 5)}...${address.slice(-5)}`}
               {analysisData && analysisData.labels.length > 0 && (
                 <EntityLogo
