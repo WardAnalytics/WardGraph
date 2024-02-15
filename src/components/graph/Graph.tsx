@@ -712,7 +712,7 @@ const GraphProvided: FC<GraphProvidedProps> = ({
   const [focusedAddressData, setFocusedAddressData] =
     useState<AddressAnalysis | null>(null);
 
-  const initialFocusedAddressData = localStorage.getItem("focusedAddressData");
+  const initialFocusedAddressData = sessionStorage.getItem("focusedAddressData");
 
   useEffect(() => {
     if (initialFocusedAddressData) {

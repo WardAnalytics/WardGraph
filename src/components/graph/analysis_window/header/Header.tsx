@@ -193,7 +193,7 @@ const LabelsAndTags: FC<LabelsAndTagsProps> = ({ handleActionRequiringAuth }) =>
       ))}
       <div onClick={() => {
         if (!isAuthenticated) {
-          localStorage.setItem("focusedAddressData", JSON.stringify(analysisData));
+          sessionStorage.setItem("focusedAddressData", JSON.stringify(analysisData));
           handleActionRequiringAuth({
             pathname: "graph",
           })

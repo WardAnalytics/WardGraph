@@ -41,7 +41,7 @@ const UnsavedGraphTemplate: FC<UnsavedGraphTemplateProps> = ({
         return;
       }
 
-      localStorage.setItem("graph", JSON.stringify(newGraph));
+      sessionStorage.setItem("graph", JSON.stringify(newGraph));
     }, [graph])
 
   useEffect(() => {
@@ -50,7 +50,7 @@ const UnsavedGraphTemplate: FC<UnsavedGraphTemplateProps> = ({
       setLoading(false);
 
       // Check if there is a graph in local storage
-      const graph = localStorage.getItem("graph");
+      const graph = sessionStorage.getItem("graph");
 
       // If there is no graph in local storage, default to an empty graph
       if (!graph) {
