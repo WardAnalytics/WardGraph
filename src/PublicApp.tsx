@@ -35,7 +35,10 @@ const PublicApp: FC = () => {
   };
 
   useEffect(() => {
-    if (startTime) {
+    // The time limit is only active in production
+    const devMode = import.meta.env.DEV;
+
+    if (!devMode && startTime) {
       console.log("Starting time");
       const interval = setInterval(() => {
         console.log("Time limit reached");
