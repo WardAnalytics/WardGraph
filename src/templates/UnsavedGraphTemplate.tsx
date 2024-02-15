@@ -1,10 +1,11 @@
-import { FC, useCallback, useEffect, useMemo, useState } from "react";
+import { FC, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import { SharableGraph, getSharableGraph } from "../services/firestore/graph_sharing";
 
 import { Transition } from "@headlessui/react";
 import { Graph } from "../components/graph/Graph";
 import LandingPage from "../components/graph/landing_page/LandingPage";
+import { UnauthenticatedTimeContext } from "../PublicApp";
 
 interface UnsavedGraphTemplateProps {
   showLandingPage?: boolean;
@@ -16,6 +17,7 @@ const UnsavedGraphTemplate: FC<UnsavedGraphTemplateProps> = ({
   const { uid } = useParams<{ uid: string }>();
   const [loading, setLoading] = useState(true);
   const [graph, setGraph] = useState<SharableGraph>({ addresses: [], edges: [] });
+  const unauthenticatedTimeContext = useContext(UnauthenticatedTimeContext);
 
   const initialAddresses = useMemo(() => {
     if (graph) {
@@ -32,6 +34,10 @@ const UnsavedGraphTemplate: FC<UnsavedGraphTemplateProps> = ({
 
     return [];
   }, [graph]);
+
+  const showGraph = useMemo(() => {
+    return initialAddresses.length > 0 || !showLandingPage
+  }, [initialAddresses, showLandingPage]);
 
   // Save the graph to local storage
   const saveGraph = useCallback(
@@ -78,12 +84,19 @@ const UnsavedGraphTemplate: FC<UnsavedGraphTemplateProps> = ({
       });
   }, [uid]);
 
+  // Start the timer when the graph is shown
+  useEffect(() => {
+    if (showGraph) {
+      unauthenticatedTimeContext.setStartTime(true);
+    }
+  }, [showGraph]);
+
   if (loading) return null;
 
   return (
     <div className="h-full overflow-hidden">
       <Transition
-        show={initialAddresses.length === 0 && showLandingPage}
+        show={!showGraph}
         appear={true}
         leave="transition-all duration-500"
         leaveFrom="opacity-100 scale-100"
@@ -97,7 +110,7 @@ const UnsavedGraphTemplate: FC<UnsavedGraphTemplateProps> = ({
         />
       </Transition>
       <Transition
-        show={initialAddresses.length > 0 || !showLandingPage}
+        show={showGraph}
         appear={true}
         enter="transition-all duration-500 delay-500"
         enterFrom="opacity-0 scale-150"

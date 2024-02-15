@@ -56,7 +56,7 @@ interface AuthDialogProps {
   redirectUrl?: RedirectUrl;
 }
 
-const AuthDialog: FC<AuthDialogProps> = ({ isOpen, setIsOpen, redirectUrl }) => {
+const AuthDialog: FC<AuthDialogProps> = ({ isOpen, setIsOpen, redirectUrl = "graph" }) => {
   const navigate = useNavigate();
 
   const [authDialogState, setAuthDialogState] = useState(AuthDialogState.LOGIN);
