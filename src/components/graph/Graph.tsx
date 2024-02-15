@@ -712,6 +712,15 @@ const GraphProvided: FC<GraphProvidedProps> = ({
   const [focusedAddressData, setFocusedAddressData] =
     useState<AddressAnalysis | null>(null);
 
+  const initialFocusedAddressData = localStorage.getItem("focusedAddressData");
+
+  useEffect(() => {
+    console.log("initialFocusedAddressData", initialFocusedAddressData);
+    if (initialFocusedAddressData) {
+      setFocusedAddressData(JSON.parse(initialFocusedAddressData));
+    }
+  }, [initialFocusedAddressData]);
+
   // New Address Highlighting -------------------------------------------------
 
   /** Sets the highlight of a node to either true or false.
