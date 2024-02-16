@@ -37,9 +37,10 @@ import { AnalysisContext, AnalysisMode, AnalysisModes } from "../AnalysisWindow"
 
 import { PathExpansionArgs } from "../../Graph";
 
-import WithAuth, { WithAuthProps } from "../../../../WithAuth";
+import WithAuth, { WithAuthProps } from "../../../auth/WithAuth";
 import useAuthState from "../../../../hooks/useAuthState";
 import { logAnalyticsEvent } from "../../../../services/firestore/analytics/analytics";
+import WithPremium, { WithPremiumProps } from "../../../premium/WithPremium";
 import TagInput from "./TagInput";
 
 interface ModeButtonProps {
@@ -215,7 +216,7 @@ const LabelsAndTags: FC<LabelsAndTagsProps> = ({ handleActionRequiringAuth }) =>
 const LabelsAndTagsWithAuth = WithAuth(LabelsAndTags);
 
 // Expand with AI -------------------------------------------------------------
-interface ExpandWithAIProps extends WithAuthProps {
+interface ExpandWithAIProps extends WithPremiumProps {
   analysisData: AddressAnalysis;
   addMultipleDifferentPaths: (args: PathExpansionArgs[]) => void;
 }
@@ -223,7 +224,8 @@ interface ExpandWithAIProps extends WithAuthProps {
 const ExpandWithAI: FC<ExpandWithAIProps> = ({
   analysisData,
   addMultipleDifferentPaths,
-  handleActionRequiringAuth
+  handleActionRequiringAuth,
+  handleActionRequiringPremium
 }) => {
   const expandWithAI = useCallback((analysisData: AddressAnalysis) => {
     // We'll first do it for incoming and then for outgoing to get balanced results
@@ -300,7 +302,10 @@ const ExpandWithAI: FC<ExpandWithAIProps> = ({
         onClick={() => {
           handleActionRequiringAuth({
             pathname: "graph",
-            
+          })
+          handleActionRequiringPremium({
+            successPath: "graph",
+            cancelPath: "graph",
           })
 
           expandWithAI(analysisData!);
@@ -336,7 +341,7 @@ const ExpandWithAI: FC<ExpandWithAIProps> = ({
 }
 
 // Expand with AI with authentication
-const ExpandWithAIWithAuth = WithAuth(ExpandWithAI);
+const ExpandWithAIWithPremium = WithPremium(ExpandWithAI);
 
 interface HeaderProps {
   onExit: () => void;
@@ -400,7 +405,7 @@ const Header: FC<HeaderProps> = ({
         />
 
         <span className="flex flex-row">
-          <ExpandWithAIWithAuth analysisData={analysisData!} addMultipleDifferentPaths={addMultipleDifferentPaths} />
+          <ExpandWithAIWithPremium analysisData={analysisData!} addMultipleDifferentPaths={addMultipleDifferentPaths} />
           <div className="group flex flex-row items-center justify-center">
             <TrashIcon
               onClick={() => {

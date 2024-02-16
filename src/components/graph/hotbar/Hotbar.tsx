@@ -18,7 +18,7 @@ import NewAddressModal from "./components/NewAddressModal";
 import ShareDialog from "./components/ShareDialog";
 
 import { useSearchParams } from "react-router-dom";
-import WithAuth, { WithAuthProps } from "../../../WithAuth";
+import WithAuth, { WithAuthProps } from "../../auth/WithAuth";
 import { logAnalyticsEvent } from "../../../services/firestore/analytics/analytics";
 import CreateGraphDialog from "./components/CreateGraphDialog";
 

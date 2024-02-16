@@ -1,7 +1,7 @@
 import React from 'react';
-import AuthDialog from './components/auth';
-import useAuthState from './hooks/useAuthState';
-import { UserNotLoggedInError } from './services/auth/errors';
+import AuthDialog from '.';
+import useAuthState from '../../hooks/useAuthState';
+import { UserNotLoggedInError } from '../../services/auth/errors';
 
 /**
  * pathname: The path to redirect to
@@ -89,7 +89,10 @@ const WithAuth = <P extends WithAuthProps>(WrappedComponent: React.ComponentType
     return (
       <>
         <WrappedComponent {...(props as P)} handleActionRequiringAuth={handleActionRequiringAuth} />
-        <AuthDialog isOpen={showAuthModal} setIsOpen={setShowAuthModal} redirectUrl={redirectUrl} />
+        {
+          showAuthModal &&
+          <AuthDialog isOpen={showAuthModal} setIsOpen={setShowAuthModal} redirectUrl={redirectUrl} />
+        }
       </>
     );
   };

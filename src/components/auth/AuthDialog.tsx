@@ -13,7 +13,7 @@ import LoginForm from "./LoginForm";
 import SignupForm from "./SignupForm";
 import { logAnalyticsEvent } from "../../services/firestore/analytics/analytics";
 import { useNavigate } from "react-router";
-import { RedirectUrl } from "../../WithAuth";
+import { RedirectUrl } from "./WithAuth";
 
 
 export enum AuthDialogState {

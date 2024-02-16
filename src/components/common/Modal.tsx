@@ -53,7 +53,7 @@ const Modal: FC<ModalProps> = ({ isOpen, closeModal, children, size = "fit", cla
   return (
     <>
       <Transition appear show={isOpen} as={Fragment}>
-        <Dialog as="div" className="relative z-10" onClose={closeModal}>
+        <Dialog as="div" className="absolute z-100" onClose={closeModal}>
           <Transition.Child
             as={Fragment}
             enter="ease-out duration-300"
@@ -77,7 +77,7 @@ const Modal: FC<ModalProps> = ({ isOpen, closeModal, children, size = "fit", cla
                 leaveFrom="opacity-100 scale-100"
                 leaveTo="opacity-0 scale-95"
               >
-                <Dialog.Panel className={clsx("flex w-full transform flex-col rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all", sizeMap[size], className)}>
+                <Dialog.Panel className={clsx("flex w-full transform flex-col rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all absolute z-100", sizeMap[size], className)}>
                   {children}
                 </Dialog.Panel>
               </Transition.Child>

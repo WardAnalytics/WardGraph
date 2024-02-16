@@ -19,7 +19,7 @@ interface Price {
 }
 
 export const useActiveSubscription = ({ enabled }: UserSubscriptionOptions = { enabled: true }) => {
-    const [subscription, setSubscription] = useState<Subscription | null>(null);
+    const [subscription, setSubscription] = useState<Subscription | undefined>(undefined);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<Error | null>(null);
 
