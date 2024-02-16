@@ -23,6 +23,7 @@ import {
 import { GraphContext } from "../../../Graph";
 import "../../../../common/Scrollbar.css";
 import { logAnalyticsEvent } from "../../../../../services/firestore/analytics/analytics";
+import EntityLogo from "../../../../common/EntityLogo";
 
 interface TransactionRowProps {
   usdValue: number;
@@ -82,6 +83,7 @@ const TransactionRow: FC<TransactionRowProps> = ({
       </td>
       <td className="text-left text-sm font-normal text-gray-900 group-hover:bg-gray-100">
         <span className="flex flex-row items-center gap-x-1">
+          <span><EntityLogo entity={currency} className="h-6 w-6 rounded-full" /></span>
           <span>{formatNumber(usdValue)}</span>
           <span className="text-gray-500">{currency}</span>
         </span>
