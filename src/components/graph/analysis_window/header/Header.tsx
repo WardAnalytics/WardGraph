@@ -11,7 +11,7 @@ import { TrashIcon } from "@heroicons/react/24/outline";
 import { XMarkIcon as XMarkSmallIcon } from "@heroicons/react/16/solid";
 
 import clsx from "clsx";
-import { FC, useCallback, useContext } from "react";
+import { FC, useCallback, useContext, useMemo } from "react";
 
 import { AddressAnalysis, Category } from "../../../../api/model";
 import { CategoryClasses } from "../../../../utils/categories";
@@ -42,6 +42,7 @@ import useAuthState from "../../../../hooks/useAuthState";
 import { logAnalyticsEvent } from "../../../../services/firestore/analytics/analytics";
 import WithPremium, { WithPremiumProps } from "../../../premium/WithPremium";
 import TagInput from "./TagInput";
+import { addFreeTierExpandWithAIInteraction, useFreeTierExpandWithAIUsage } from "../../../../services/firestore/user/free_usage";
 
 interface ModeButtonProps {
   isActive: boolean;
@@ -227,6 +228,10 @@ const ExpandWithAI: FC<ExpandWithAIProps> = ({
   handleActionRequiringAuth,
   handleActionRequiringPremium
 }) => {
+  const { user } = useAuthState();
+  const userID = useMemo(() => user ? user.uid : "", [user]);
+  const { hasReachedUsageLimit } = useFreeTierExpandWithAIUsage(userID);
+
   const expandWithAI = useCallback((analysisData: AddressAnalysis) => {
     // We'll first do it for incoming and then for outgoing to get balanced results
     const MAX_PATHS = 7; // How many paths for each direction will be shown
@@ -299,14 +304,19 @@ const ExpandWithAI: FC<ExpandWithAIProps> = ({
   return (
     <div className="group flex flex-row items-center justify-center">
       <SparklesIcon
-        onClick={() => {
+        onClick={async () => {
           handleActionRequiringAuth({
             pathname: "graph",
           })
-          handleActionRequiringPremium({
-            successPath: "graph",
-            cancelPath: "graph",
-          })
+
+          if (hasReachedUsageLimit) {
+            handleActionRequiringPremium({
+              successPath: "graph",
+              cancelPath: "graph",
+            })
+          }
+
+          await addFreeTierExpandWithAIInteraction(userID)
 
           expandWithAI(analysisData!);
           logAnalyticsEvent("expand_addresses_with_AI")

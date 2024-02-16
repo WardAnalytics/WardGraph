@@ -1,10 +1,10 @@
-import { FC, useMemo } from "react";
-import Modal from "../common/Modal";
-import useAuthState from "../../hooks/useAuthState";
-import { PlansList } from ".";
 import { RocketLaunchIcon } from "@heroicons/react/20/solid";
-import BigButton from "../common/BigButton";
 import { XMarkIcon } from "@heroicons/react/24/solid";
+import { FC, useMemo } from "react";
+import { PlansList } from ".";
+import useAuthState from "../../hooks/useAuthState";
+import BigButton from "../common/BigButton";
+import Modal from "../common/Modal";
 
 interface TurnPremiumDialogProps {
     isOpen: boolean;
@@ -36,7 +36,7 @@ const TurnPremiumDialog: FC<TurnPremiumDialogProps> = ({
             <div className="flex items-center justify-between pb-3">
                 <h3 className="flex flex-row items-center gap-x-1.5 text-base font-semibold leading-6 text-gray-900">
                     <RocketLaunchIcon className="h-7 w-7 text-gray-400" />
-                    Turn Pro
+                    Upgrade to a Pro plan
                 </h3>
 
                 <BigButton
@@ -45,10 +45,13 @@ const TurnPremiumDialog: FC<TurnPremiumDialogProps> = ({
                     Icon={XMarkIcon}
                 />
             </div>
-            <div className="pt-3">
+            <div className="flex flex-col justify-center pt-3 gap-y-5">
+                <p className="text-gray-500">
+                    You reached the limit of the free usage of this feature. To continue using it, you need to upgrade to a Pro plan.
+                </p>
                 <PlansList isPro={false} userID={userID} sucessRedirectPath={sucessRedirectPath} cancelRedirectPath={cancelRedirectPath} />
             </div>
-        </Modal>
+        </Modal >
     )
 }
 
