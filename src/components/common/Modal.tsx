@@ -53,7 +53,7 @@ const Modal: FC<ModalProps> = ({ isOpen, closeModal, children, size = "fit", cla
   return (
     <>
       <Transition appear show={isOpen} as={Fragment}>
-        <Dialog as="div" className="absolute z-100" onClose={closeModal}>
+        <Dialog as="div" className="absolute z-10" onClose={closeModal}>
           <Transition.Child
             as={Fragment}
             enter="ease-out duration-300"
