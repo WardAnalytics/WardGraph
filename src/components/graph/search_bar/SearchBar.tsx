@@ -26,7 +26,6 @@ import isValidAddress from "../../../utils/isValidAddress";
 import SearchResultPopover from "./SearchResultPopover";
 import useAuthState from "../../../hooks/useAuthState";
 import { logAnalyticsEvent } from "../../../services/firestore/analytics/analytics";
-import { debounce } from "lodash";
 
 const InvalidAddressPopover: FC = () => {
   return (
@@ -103,13 +102,6 @@ const SearchBar: FC<SearchBarProps> = ({ className, onSearchAddress }) => {
       });
   }, []);
 
-  const debouncedSearchQuery = useRef(
-    debounce((query: string) => {
-      console.log("Debounced...");
-      searchQuery(query);
-    }, 300),
-  );
-
   const searchQuery = useCallback((query: string) => {
     if (!query) {
       setEntitySearchResults([]);
@@ -120,7 +112,7 @@ const SearchBar: FC<SearchBarProps> = ({ className, onSearchAddress }) => {
   }, []);
 
   useEffect(() => {
-    debouncedSearchQuery.current(query);
+    searchQuery(query);
   }, [query]);
 
   // Combine uniqueSearchHistory and entitySearchResults into a single list of search results
