@@ -9,6 +9,7 @@ import {
 import { Graph } from "../components/graph/Graph";
 import { PersonalGraph } from "../services/firestore/user/graph_saving";
 import useAuthState from "../hooks/useAuthState";
+import SavedGraphBanner from "../components/banner/SavedGraphBanner";
 
 const SavedGraphTemplate: FC = () => {
   const { user } = useAuthState();
@@ -49,12 +50,15 @@ const SavedGraphTemplate: FC = () => {
   if (!graph) return null;
 
   return (
-    <Graph
-      initialAddresses={graph.data.addresses}
-      initialPaths={graph.data.edges}
-      onAutoSave={saveGraph}
-      key={graph.uid}
-    />
+    <>
+      <SavedGraphBanner />
+      <Graph
+        initialAddresses={graph.data.addresses}
+        initialPaths={graph.data.edges}
+        onAutoSave={saveGraph}
+        key={graph.uid}
+      />
+    </>
   );
 };
 

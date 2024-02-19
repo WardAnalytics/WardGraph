@@ -45,11 +45,10 @@ const Breadcrumbs: FC<BreadcrumbsProps> = ({
 
               <a
                 onClick={page.onClick}
-                className={`font-small text-sm text-gray-400 hover:text-gray-600 ${
-                  pages.indexOf(page) === pages.length - 1
-                    ? "cursor-default"
-                    : "cursor-pointer"
-                }`}
+                className={`font-small text-sm text-gray-400 hover:text-gray-600 ${pages.indexOf(page) === pages.length - 1
+                  ? "cursor-default"
+                  : "cursor-pointer"
+                  }`}
               >
                 {
                   /* If the page name is bigger than 20 characters and it's sm, slice it in the middle with ... and 10 chars on each side. Else, show full page name */
