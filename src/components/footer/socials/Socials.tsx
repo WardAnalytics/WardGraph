@@ -37,7 +37,7 @@ const SocialButton: FC<Social> = ({ name, Icon, link }) => {
     <a href={link} target="_blank" rel="noreferrer">
       <Icon
         aria-label={`${name} Icon`}
-        className="h-8 w-8 p-1 opacity-50 backdrop-blur-sm transition-all duration-200 hover:opacity-70"
+        className="h-8 w-8 p-1 opacity-50 transition-all duration-200 hover:opacity-70"
       />
     </a>
   );
