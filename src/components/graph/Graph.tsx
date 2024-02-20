@@ -47,7 +47,7 @@ import {
 } from "./graph_calculations";
 
 import { PersonalGraphInfo } from "../../services/firestore/user/graph_saving";
-import Socials from "../socials";
+import Footer from "../footer/Footer";
 import TransactionTooltip, { TransactionTooltipProps } from "./TransactionTooltip";
 import DraggableWindow from "./analysis_window/AnalysisWindow";
 import Hotbar from "./hotbar";
@@ -925,7 +925,6 @@ const GraphProvided: FC<GraphProvidedProps> = ({
             analysisData={focusedAddressData}
             onExit={onAddressFocusOff}
           />
-          <Socials className="absolute bottom-0 z-10 mb-3 ml-3 transition-all duration-300 ease-in-out" />
           <ReactFlow
             nodes={nodes}
             onNodesChange={onNodesChange}
@@ -970,6 +969,7 @@ const GraphProvided: FC<GraphProvidedProps> = ({
               <Hotbar />
             </Panel>
           </ReactFlow>
+          <Footer />
         </div>
       </GraphContext.Provider>
     </>
