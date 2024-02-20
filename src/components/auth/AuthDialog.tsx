@@ -54,9 +54,15 @@ interface AuthDialogProps {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
   redirectUrl?: RedirectUrl;
+  signInText?: string;
 }
 
-const AuthDialog: FC<AuthDialogProps> = ({ isOpen, setIsOpen, redirectUrl = { pathname: "graph" } }) => {
+const AuthDialog: FC<AuthDialogProps> = ({
+  isOpen,
+  setIsOpen,
+  redirectUrl = { pathname: "graph" },
+  signInText = "Sign in to your account"
+}) => {
   const navigate = useNavigate();
 
   const [authDialogState, setAuthDialogState] = useState(AuthDialogState.LOGIN);
@@ -269,7 +275,7 @@ const AuthDialog: FC<AuthDialogProps> = ({ isOpen, setIsOpen, redirectUrl = { pa
       <div className="flex items-center justify-between border-b border-gray-200 pb-3">
         <h3 className="flex flex-row items-center gap-x-1.5 text-lg font-semibold leading-6 text-gray-900">
           {authDialogState === AuthDialogState.LOGIN ? (
-            <>Sign in to your account</>
+            <>{signInText}</>
           ) : authDialogState ===
             AuthDialogState.FORGOT_PASSWORD ? (
             <>Reset your password</>

@@ -61,7 +61,7 @@ const PublicApp: FC = () => {
       </UnauthenticatedTimeContext.Provider>
       {/* The AuthDialog is shown when the user is not authenticated and the time limit is reached
       No setter is passed to the AuthDialog because the user can only close it by logging in or creating an account */}
-      <AuthDialog isOpen={showAuthDialog} setIsOpen={() => { }} />
+      <AuthDialog isOpen={showAuthDialog} setIsOpen={() => { }} signInText="Sign in to your account to continue using the app" />
     </BrowserRouter>
   );
 };

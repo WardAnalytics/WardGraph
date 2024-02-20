@@ -104,6 +104,7 @@ const UnsavedGraphTemplate: FC<UnsavedGraphTemplateProps> = ({
         leaveTo="opacity-0 scale-50"
         className="absolute flex h-full w-full flex-col items-center justify-center"
       >
+        <LoginBanner />
         <LandingPage
           setSearchedAddress={(address: string) => {
             setGraph({ addresses: [address], edges: [] });
