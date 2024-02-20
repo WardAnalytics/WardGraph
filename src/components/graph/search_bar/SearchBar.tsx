@@ -5,15 +5,7 @@ import {
   XCircleIcon,
 } from "@heroicons/react/24/solid";
 import clsx from "clsx";
-import {
-  FC,
-  KeyboardEvent,
-  useMemo,
-  useRef,
-  useState,
-  useEffect,
-  useCallback,
-} from "react";
+import { FC, KeyboardEvent, useMemo, useRef, useState, useEffect } from "react";
 
 import { Label } from "../../../api/model";
 import { searchLabels } from "../../../api/labels/labels";
@@ -26,7 +18,6 @@ import isValidAddress from "../../../utils/isValidAddress";
 import SearchResultPopover from "./SearchResultPopover";
 import useAuthState from "../../../hooks/useAuthState";
 import { logAnalyticsEvent } from "../../../services/firestore/analytics/analytics";
-import { debounce } from "lodash";
 
 const InvalidAddressPopover: FC = () => {
   return (
@@ -87,33 +78,28 @@ const SearchBar: FC<SearchBarProps> = ({ className, onSearchAddress }) => {
 
   // Entity search results
   const [entitySearchResults, setEntitySearchResults] = useState<Label[]>([]);
+  const [lastTimeSearched, setLastTimeSearched] = useState<number>(0);
 
-  const fetchLabels = useCallback(async (query: string) => {
-    const res = await searchLabels({ query, limit: MAX_SEARCH_HISTORY });
-    if (res.labels) {
-      setEntitySearchResults(res.labels);
-    } else {
-      setEntitySearchResults([]);
-    }
-  }, []);
+  useEffect(() => {
+    const now = Date.now();
+    setLastTimeSearched(now);
 
-  const searchQuery = useCallback((query: string) => {
     if (!query) {
       setEntitySearchResults([]);
       return;
     }
 
-    fetchLabels(query);
-  }, []);
+    searchLabels({ query, limit: MAX_SEARCH_HISTORY }).then((res) => {
+      if (now < lastTimeSearched) {
+        return;
+      }
 
-  useEffect(() => {
-    debounce(
-      () => {
-        searchQuery(query);
-      },
-      300,
-      { trailing: true },
-    );
+      if (res.labels) {
+        setEntitySearchResults(res.labels);
+      } else {
+        setEntitySearchResults([]);
+      }
+    });
   }, [query]);
 
   // Combine uniqueSearchHistory and entitySearchResults into a single list of search results
@@ -217,7 +203,7 @@ const SearchBar: FC<SearchBarProps> = ({ className, onSearchAddress }) => {
         moveSelectedIndexDown();
         logAnalyticsEvent("move_selected_index", {
           page: "search_bar",
-          direction: "down"
+          direction: "down",
         });
       },
     },
@@ -329,7 +315,9 @@ const SearchBar: FC<SearchBarProps> = ({ className, onSearchAddress }) => {
               if (isAddressValid) {
                 setIsSearchResultPopoverOpen(false);
                 onSearchAddress(query);
-                logAnalyticsEvent("search_address_button_clicked", { address: query });
+                logAnalyticsEvent("search_address_button_clicked", {
+                  address: query,
+                });
               }
             }}
             className="relative -ml-px inline-flex items-center gap-x-1.5 rounded-r-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 transition-all hover:bg-gray-50"
