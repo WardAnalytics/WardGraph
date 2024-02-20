@@ -1,4 +1,5 @@
 import { FC } from "react";
+import termsAndConditionsPDF from "../../../assets/WardAnalytics-Terms-and-Conditions.pdf";
 
 interface TermsAndConditionsProps {
     className?: string;
@@ -9,7 +10,7 @@ const TermsAndConditions: FC<TermsAndConditionsProps> = ({
 }) => {
     return (
         <div className={className}>
-            <a href="/terms-and-conditions">Terms and Conditions</a>
+            <a href={termsAndConditionsPDF} target="_blank">Terms & Conditions</a>
         </div>
     )
 }
