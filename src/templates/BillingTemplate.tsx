@@ -97,7 +97,7 @@ const BillingTemplate: FC = () => {
             isPro={isPro}
             userID={userID}
             subscription={subscription}
-            sucessRedirectPath="graph/new"
+            successRedirectPath="graph/new"
             cancelRedirectPath="billing"
           />
         </>

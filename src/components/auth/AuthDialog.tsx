@@ -7,12 +7,12 @@ import { FC, createContext, useEffect, useState } from "react";
 import AuthApiErrors from "../../services/auth/auth.errors";
 
 import { EnvelopeIcon } from "@heroicons/react/24/solid";
+import { useNavigate } from "react-router";
+import { logAnalyticsEvent } from "../../services/firestore/analytics/analytics";
 import Modal from "../common/Modal";
 import ForgotPasswordForm from "./ForgotPasswordForm";
 import LoginForm from "./LoginForm";
 import SignupForm from "./SignupForm";
-import { logAnalyticsEvent } from "../../services/firestore/analytics/analytics";
-import { useNavigate } from "react-router";
 import { RedirectUrl } from "./WithAuth";
 
 
@@ -23,9 +23,9 @@ export enum AuthDialogState {
 }
 
 interface AuthContextProps {
-  onLoginSuccess: () => void;
+  onLoginSuccess: (userID: string) => void;
   onLoginError: (error: any) => void;
-  onGoogleLoginSucess: () => void;
+  onGoogleLoginSucess: (userID: string) => void;
   onGoogleLoginError: (error: any) => void;
   onSignupSuccess: () => void;
   onSignupError: (error: any) => void;
@@ -73,6 +73,27 @@ const AuthDialog: FC<AuthDialogProps> = ({
     null,
   );
 
+  const redirectOnLogin = (userID: string) => {
+
+    const { pathname, queryParams } = redirectUrl;
+
+    const url: { pathname: string; search: string } = {
+      pathname,
+      search: ""
+    }
+
+    url.pathname = `/${userID}/${pathname}`;
+
+    if (queryParams) {
+      const searchParams = new URLSearchParams(queryParams);
+      url.search = searchParams.toString();
+
+    }
+
+    navigate(url);
+
+  }
+
   /**
    * Resets the authApiErrorMessage state to null
    *
@@ -99,25 +120,10 @@ const AuthDialog: FC<AuthDialogProps> = ({
    *
    * @returns void
    */
-  const onLoginSuccess = () => {
+  const onLoginSuccess = (userID: string) => {
     logAnalyticsEvent("login", { method: "email" });
     closeDialog();
-    if (redirectUrl) {
-      const { pathname, queryParams } = redirectUrl;
-
-      const url: { pathname: string; search: string } = {
-        pathname,
-        search: ""
-      }
-
-      if (queryParams) {
-        const searchParams = new URLSearchParams(queryParams);
-        url.search = searchParams.toString();
-      }
-
-      navigate(url);
-      return;
-    }
+    redirectOnLogin(userID);
   };
 
   /**
@@ -143,9 +149,10 @@ const AuthDialog: FC<AuthDialogProps> = ({
    *
    * @returns void
    */
-  const onGoogleLoginSucess = () => {
+  const onGoogleLoginSucess = (userID: string) => {
     logAnalyticsEvent("login", { method: "google" });
     closeDialog();
+    redirectOnLogin(userID);
   };
 
   /**

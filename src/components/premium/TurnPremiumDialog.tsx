@@ -49,7 +49,7 @@ const TurnPremiumDialog: FC<TurnPremiumDialogProps> = ({
                 <p className="text-gray-500">
                     You reached the limit of the free usage of this feature. To continue using it, you need to upgrade to a Pro plan.
                 </p>
-                <PlansList isPro={false} userID={userID} sucessRedirectPath={sucessRedirectPath} cancelRedirectPath={cancelRedirectPath} />
+                <PlansList isPro={false} userID={userID} successRedirectPath={sucessRedirectPath} cancelRedirectPath={cancelRedirectPath} />
             </div>
         </Modal >
     )

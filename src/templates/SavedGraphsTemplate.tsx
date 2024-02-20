@@ -1,26 +1,31 @@
-import { FC, useState } from "react";
+import { LinkIcon } from "@heroicons/react/16/solid";
 import {
   ArrowTopRightOnSquareIcon,
   ShareIcon,
   TrashIcon,
 } from "@heroicons/react/24/outline";
-import {
-  usePersonalGraphs,
-  PersonalGraph,
-} from "../services/firestore/user/graph_saving";
-import useAuthState from "../hooks/useAuthState";
+import { FC, useMemo, useState } from "react";
 import Badge from "../components/common/Badge";
+import useAuthState from "../hooks/useAuthState";
+import {
+  PersonalGraph,
+  usePersonalGraphs,
+} from "../services/firestore/user/graph_saving";
 import { Colors } from "../utils/colors";
-import { LinkIcon } from "@heroicons/react/16/solid";
 
-import "../components/common/Scrollbar.css";
-import BigButton from "../components/common/BigButton";
 import { PlusCircleIcon } from "@heroicons/react/20/solid";
 import { useNavigate } from "react-router-dom";
+import BigButton from "../components/common/BigButton";
 import CreateGraphDialog from "../components/common/CreateGraphDialog";
 import DeleteGraphDialog from "../components/common/DeleteGraphDialog";
+import "../components/common/Scrollbar.css";
 
-const GraphCard: FC<{ graph: PersonalGraph }> = ({ graph }) => {
+interface GraphCardProps {
+  userID: string
+  graph: PersonalGraph;
+}
+
+const GraphCard: FC<GraphCardProps> = ({ userID, graph }) => {
   const navigate = useNavigate();
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
@@ -42,7 +47,7 @@ const GraphCard: FC<{ graph: PersonalGraph }> = ({ graph }) => {
         />
         <ArrowTopRightOnSquareIcon
           className="z-10 h-8 w-8 cursor-pointer rounded-md p-1.5 text-gray-400 transition-all duration-150 hover:bg-gray-100 hover:text-gray-500"
-          onClick={() => navigate(`/saved-graph/${graph.uid}`)}
+          onClick={() => navigate(`/${userID}/saved-graph/${graph.uid}`)}
         />
       </div>
       <DeleteGraphDialog
@@ -56,6 +61,7 @@ const GraphCard: FC<{ graph: PersonalGraph }> = ({ graph }) => {
 
 const SavedGraphsTemplate: FC = () => {
   const { user } = useAuthState();
+  const userID = useMemo(() => user!.uid, [user]);
   const { graphs } = usePersonalGraphs(user ? user.uid : "");
   const [isCreateGraphDialogOpen, setIsCreateGraphDialogOpen] = useState(false);
 
@@ -78,7 +84,7 @@ const SavedGraphsTemplate: FC = () => {
       <div className="scrollbar overflow-x-hidden overflow-y-scroll">
         <div className="grid auto-rows-auto grid-cols-3 gap-4 pr-3">
           {graphs.map((graph) => (
-            <GraphCard graph={graph} key={graph.uid} />
+            <GraphCard userID={userID} graph={graph} key={graph.uid} />
           ))}
         </div>
       </div>

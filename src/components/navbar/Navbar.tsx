@@ -24,7 +24,6 @@ import {
   PlusCircleIcon,
   WrenchScrewdriverIcon,
 } from "@heroicons/react/16/solid";
-import useAuthState from "../../hooks/useAuthState";
 import { logAnalyticsEvent } from "../../services/firestore/analytics/analytics";
 import {
   getGraphHref,
@@ -102,11 +101,16 @@ interface SavedGraphRowProps {
 
 const SAVED_GRAPHS_LIMIT = 3;
 
-const SavedGraphs: FC = () => {
+interface SavedGraphsProps {
+  userID: string
+}
+
+const SavedGraphs: FC<SavedGraphsProps> = ({
+  userID,
+}) => {
   const navigate = useNavigate();
 
-  const { user } = useAuthState();
-  const { graphs } = usePersonalGraphs(user ? user.uid : "");
+  const { graphs } = usePersonalGraphs(userID ? userID : "");
   const { displayedGraphs } = useMemo(() => {
     return {
       displayedGraphs: graphs.slice(0, SAVED_GRAPHS_LIMIT),
@@ -124,7 +128,7 @@ const SavedGraphs: FC = () => {
     }
 
     // If we are on a saved graph, we want to navigate to the new graph page
-    navigate("/graph/new");
+    navigate(`/${userID}/graph/new`);
   }
 
   return (
@@ -143,7 +147,7 @@ const SavedGraphs: FC = () => {
         >
           <SavedGraphRow
             name={graph.name}
-            href={getGraphHref(graph)}
+            href={getGraphHref(userID, graph)}
             isLast={index === displayedGraphs.length - 1}
           />
         </Transition>
@@ -207,9 +211,16 @@ const SavedGraphRow: FC<SavedGraphRowProps> = ({ name, href }) => {
   );
 };
 
-const Navbar: FC = () => {
+interface NavbarProps {
+  userID: string;
+}
+
+const Navbar: FC<NavbarProps> = ({
+  userID
+}) => {
   // Sign out functionality
   const navigate = useNavigate();
+
   const handleSignOut = () => {
     authService.logout(onLogoutSuccess, onLogoutError);
   };
@@ -260,14 +271,14 @@ const Navbar: FC = () => {
                           Icon={item.icon}
                           onClick={() => {
                             logAnalyticsEvent("navbar_option_clicked", { name: item.name });
-                            navigate(item.href)
+                            navigate(`/${userID}/${item.href}`)
                           }}
                           isBeta={item.isBeta}
                         />
                       </li>
                     ))}
                     <li>
-                      <SavedGraphs />
+                      <SavedGraphs userID={userID} />
                     </li>
                   </ul>
                 </li>
@@ -280,7 +291,7 @@ const Navbar: FC = () => {
                     isBeta={false}
                     onClick={() => {
                       logAnalyticsEvent("navbar_option_clicked", { name: "Plan & Billing" });
-                      navigate("billing")
+                      navigate(`/${userID}/billing`)
                     }}
                   />
                   <a

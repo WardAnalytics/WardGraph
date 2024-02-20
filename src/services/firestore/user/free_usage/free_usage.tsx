@@ -85,7 +85,6 @@ export const useFreeTierExpandWithAIUsage = (userID: string) => {
             q,
             (snapshot) => {
                 const usage = snapshot.docs.length;
-                console.log("usage", usage);
                 setUsage(usage);
                 setLoading(false);
             },

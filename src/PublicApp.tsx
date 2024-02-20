@@ -1,7 +1,7 @@
 "use client";
 
 import { FC, createContext, useEffect, useState } from "react";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 
 import AuthDialog from "./components/auth";
 import { UnsavedGraphTemplate } from "./templates";
@@ -53,9 +53,10 @@ const PublicApp: FC = () => {
       <UnauthenticatedTimeContext.Provider value={unauthenticatedTimeContext}>
         <div className="flex h-screen w-screen flex-row">
           <Routes>
+            <Route path="/public" element={<UnsavedGraphTemplate showLandingPage={true} />} />
             <Route path="/public/graph/:uid" element={<UnsavedGraphTemplate />} />
             <Route path="/public/graph" element={<UnsavedGraphTemplate />} />
-            <Route path="*" element={<UnsavedGraphTemplate />} />
+            <Route path="*" element={<Navigate to="/public" />} />
           </Routes>
         </div>
       </UnauthenticatedTimeContext.Provider>

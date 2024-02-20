@@ -50,7 +50,7 @@ const DiscoverPlan: FC<PlanProps> = ({ isPro }) => {
 interface ProPlanProps extends PlanProps {
     userID: string;
     subscription?: Subscription;
-    sucessRedirectPath?: string;
+    successRedirectPath?: string;
     cancelRedirectPath?: string;
 }
 
@@ -58,7 +58,7 @@ const ProPlan: FC<ProPlanProps> = ({
     isPro,
     userID,
     subscription,
-    sucessRedirectPath,
+    successRedirectPath,
     cancelRedirectPath,
 }) => {
     const [buyPlanClicked, setBuyPlanClicked] = useState<boolean>(false);
@@ -72,7 +72,7 @@ const ProPlan: FC<ProPlanProps> = ({
         url: checkoutSessionUrl,
         loading: isLoadingCheckoutSession,
         refetch: getCheckoutSession,
-    } = useCheckoutSessionUrl(priceId, userID, { enabled: false, successPath: sucessRedirectPath, cancelPath: cancelRedirectPath });
+    } = useCheckoutSessionUrl(priceId, userID, { enabled: false, successPath: successRedirectPath, cancelPath: cancelRedirectPath });
 
     useEffect(() => {
         if (buyPlanClicked) {
@@ -213,7 +213,7 @@ interface PlanListProps {
     isPro: boolean;
     userID: string;
     subscription?: Subscription;
-    sucessRedirectPath?: string;
+    successRedirectPath?: string;
     cancelRedirectPath?: string;
 }
 
@@ -221,7 +221,7 @@ const PlansList: FC<PlanListProps> = ({
     isPro,
     userID,
     subscription,
-    sucessRedirectPath,
+    successRedirectPath,
     cancelRedirectPath,
 }) => {
     return (
@@ -233,7 +233,7 @@ const PlansList: FC<PlanListProps> = ({
                     isPro={isPro}
                     userID={userID}
                     subscription={subscription}
-                    sucessRedirectPath={sucessRedirectPath}
+                    successRedirectPath={successRedirectPath}
                     cancelRedirectPath={cancelRedirectPath}
                 />
                 <EnterprisePlan />
