@@ -89,10 +89,17 @@ const SearchBar: FC<SearchBarProps> = ({ className, onSearchAddress }) => {
   const [entitySearchResults, setEntitySearchResults] = useState<Label[]>([]);
   const [lastTimeSearched, setLastTimeSearched] = useState<number>(0);
 
-  const fetchLabels = useCallback(
-    async (query: string, timeSearched: number) => {
-      const res = await searchLabels({ query, limit: MAX_SEARCH_HISTORY });
-      if (timeSearched < lastTimeSearched) {
+  useEffect(() => {
+    const now = Date.now();
+    setLastTimeSearched(now);
+
+    if (!query) {
+      setEntitySearchResults([]);
+      return;
+    }
+
+    searchLabels({ query, limit: MAX_SEARCH_HISTORY }).then((res) => {
+      if (now < lastTimeSearched) {
         return;
       }
 
@@ -101,20 +108,7 @@ const SearchBar: FC<SearchBarProps> = ({ className, onSearchAddress }) => {
       } else {
         setEntitySearchResults([]);
       }
-    },
-    [],
-  );
-
-  useEffect(() => {
-    if (!query) {
-      setEntitySearchResults([]);
-      return;
-    }
-
-    const now = Date.now();
-
-    setLastTimeSearched(now);
-    fetchLabels(query, now);
+    });
   }, [query]);
 
   // Combine uniqueSearchHistory and entitySearchResults into a single list of search results
