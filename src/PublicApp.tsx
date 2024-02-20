@@ -2,7 +2,6 @@
 
 import { FC, createContext, useEffect, useState } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import Banner from "./components/banner";
 
 import AuthDialog from "./components/auth";
 import { UnsavedGraphTemplate } from "./templates";
@@ -53,7 +52,6 @@ const PublicApp: FC = () => {
     <BrowserRouter>
       <UnauthenticatedTimeContext.Provider value={unauthenticatedTimeContext}>
         <div className="flex h-screen w-screen flex-row">
-          <Banner />
           <Routes>
             <Route path="/graph/:uid" element={<UnsavedGraphTemplate />} />
             <Route path="/graph" element={<UnsavedGraphTemplate />} />

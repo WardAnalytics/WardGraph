@@ -246,7 +246,7 @@ const Navbar: FC = () => {
         >
           <div className="flex h-full grow flex-col gap-y-5 divide-y divide-gray-200 overflow-hidden bg-white px-6 pb-4">
             <div className="mt-6 flex h-10 shrink-0 items-center justify-center ">
-              <img className="h-8 w-auto " src={logo} alt="Ward Analytics" />
+              <img className="h-8 w-auto" src={logo} alt="Ward Analytics" />
             </div>
             <nav className="flex h-full flex-1 flex-col pt-4">
               <ul role="list" className="flex h-full flex-1 flex-col gap-y-7">

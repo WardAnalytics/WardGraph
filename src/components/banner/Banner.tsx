@@ -1,12 +1,23 @@
-import { FC, useState } from "react";
-import LoginDialog from "../auth";
+import clsx from "clsx";
+import { FC } from "react";
 
-const Banner: FC = () => {
-  const [isLoginDialogOpen, setIsLoginDialogOpen] = useState(false);
+interface BannerProps {
+  children: React.ReactNode;
+  position?: "top" | "bottom";
+  className?: string;
+}
 
+const Banner: FC<BannerProps> = ({
+  children,
+  position = "top",
+  className,
+}) => {
   return (
     <>
-      <div className="absolute isolate z-50 flex w-full items-center gap-x-6 overflow-hidden bg-gray-50/25 px-6 py-1.5 backdrop-blur-sm sm:px-3.5 sm:before:flex-1">
+      <div className={clsx("absolute bg-gray-50/25 backdrop-blur-sm z-50 flex w-full items-center gap-x-6 overflow-hidden px-6 py-1.5 sm:px-3.5 sm:before:flex-1",
+        className,
+        position === "top" ? "top-0" : "bottom-0"
+      )}>
         {/* Backgrounds */}
         {/* <div
         className="absolute left-[max(-7rem,calc(50%-52rem))] top-1/2 -z-10 -translate-y-1/2 transform-gpu blur-2xl"
@@ -35,7 +46,18 @@ const Banner: FC = () => {
 
         {/* Text */}
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-          <p className="text-xs leading-6 text-gray-900">
+          {children}
+        </div>
+        <div className="flex flex-1 justify-end"></div>
+      </div>
+    </>
+  );
+};
+
+export default Banner;
+
+/**
+ *  <p className="text-xs leading-6 text-gray-900">
             <strong className="font-semibold">Unlimited Searches</strong>
             <svg
               viewBox="0 0 2 2"
@@ -52,15 +74,4 @@ const Banner: FC = () => {
           >
             Sign In / Up <span aria-hidden="true">&rarr;</span>
           </a>
-        </div>
-        <div className="flex flex-1 justify-end"></div>
-      </div>
-      <LoginDialog
-        isOpen={isLoginDialogOpen}
-        setIsOpen={setIsLoginDialogOpen}
-      />
-    </>
-  );
-};
-
-export default Banner;
+ */

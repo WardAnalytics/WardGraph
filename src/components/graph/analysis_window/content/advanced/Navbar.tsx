@@ -50,9 +50,8 @@ const TabButton: FC<TabButtonProps> = ({
   return (
     <div
       key={tab.name}
-      className={`${isSelected ? "bg-gray-50" : ""} group flex ${
-        tab.component ? "cursor-pointer" : ""
-      } hover:bg-gray-50" : "bg-gray-200"} space-x-3 rounded-md p-2 text-sm font-semibold leading-6 transition-all duration-100`}
+      className={`${isSelected ? "bg-gray-50" : ""} group flex ${tab.component ? "cursor-pointer" : ""
+        } hover:bg-gray-50" : "bg-gray-200"} space-x-3 rounded-md p-2 text-sm font-semibold leading-6 transition-all duration-100`}
       onClick={tab.component ? () => setSelectedTab() : undefined}
     >
       {tab.component ? (

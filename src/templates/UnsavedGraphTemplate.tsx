@@ -4,6 +4,7 @@ import { SharableGraph, getSharableGraph } from "../services/firestore/graph_sha
 
 import { Transition } from "@headlessui/react";
 import { UnauthenticatedTimeContext } from "../PublicApp";
+import LoginBanner from "../components/banner/LoginBanner";
 import { Graph } from "../components/graph/Graph";
 import LandingPage from "../components/graph/landing_page/LandingPage";
 
@@ -117,6 +118,7 @@ const UnsavedGraphTemplate: FC<UnsavedGraphTemplateProps> = ({
         enterTo="opacity-100 scale-100"
         className="h-full w-full"
       >
+        <LoginBanner />
         <Graph
           initialAddresses={initialAddresses}
           initialPaths={initialPaths}

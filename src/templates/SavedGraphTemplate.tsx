@@ -10,6 +10,7 @@ import { Graph } from "../components/graph/Graph";
 import useAuthState from "../hooks/useAuthState";
 import { PersonalGraph } from "../services/firestore/user/graph_saving";
 import { Transition } from "@headlessui/react";
+import SavedGraphBanner from "../components/banner/SavedGraphBanner";
 
 const SavedGraphTemplate: FC = () => {
   const { user } = useAuthState();
@@ -60,6 +61,7 @@ const SavedGraphTemplate: FC = () => {
         enterTo="opacity-100 scale-100"
         className="h-full w-full"
       >
+        <SavedGraphBanner />
         <Graph
           initialAddresses={graph.data.addresses}
           initialPaths={graph.data.edges}
