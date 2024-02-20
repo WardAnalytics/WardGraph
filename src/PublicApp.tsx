@@ -53,8 +53,8 @@ const PublicApp: FC = () => {
       <UnauthenticatedTimeContext.Provider value={unauthenticatedTimeContext}>
         <div className="flex h-screen w-screen flex-row">
           <Routes>
-            <Route path="/graph/:uid" element={<UnsavedGraphTemplate />} />
-            <Route path="/graph" element={<UnsavedGraphTemplate />} />
+            <Route path="/public/graph/:uid" element={<UnsavedGraphTemplate />} />
+            <Route path="/public/graph" element={<UnsavedGraphTemplate />} />
             <Route path="*" element={<UnsavedGraphTemplate />} />
           </Routes>
         </div>

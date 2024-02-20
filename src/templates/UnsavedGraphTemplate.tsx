@@ -96,6 +96,7 @@ const UnsavedGraphTemplate: FC<UnsavedGraphTemplateProps> = ({
 
   return (
     <div className="h-full overflow-hidden ">
+      <LoginBanner />
       <Transition
         show={!showGraph}
         appear={true}
@@ -104,7 +105,6 @@ const UnsavedGraphTemplate: FC<UnsavedGraphTemplateProps> = ({
         leaveTo="opacity-0 scale-50"
         className="absolute flex h-full w-full flex-col items-center justify-center overflow-x-hidden no-scrollbar"
       >
-        <LoginBanner />
         <LandingPage
           setSearchedAddress={(address: string) => {
             setGraph({ addresses: [address], edges: [] });
@@ -119,7 +119,6 @@ const UnsavedGraphTemplate: FC<UnsavedGraphTemplateProps> = ({
         enterTo="opacity-100 scale-100"
         className="h-full w-full"
       >
-        <LoginBanner />
         <Graph
           initialAddresses={initialAddresses}
           initialPaths={initialPaths}

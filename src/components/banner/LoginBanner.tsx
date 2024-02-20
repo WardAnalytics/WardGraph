@@ -1,9 +1,20 @@
-import { FC, useState } from "react";
+import { FC, useMemo, useState } from "react";
 import Banner from ".";
 import LoginDialog from "../auth";
+import useAuthState from "../../hooks/useAuthState";
 
 const LoginBanner: FC = () => {
     const [isLoginDialogOpen, setIsLoginDialogOpen] = useState<boolean>(false);
+
+    const { user } = useAuthState();
+
+    const userID = useMemo(() => {
+        if (user) {
+            return user.uid;
+        }
+
+        return "";
+    }, [user]);
 
     return (
         <>
@@ -29,6 +40,7 @@ const LoginBanner: FC = () => {
             <LoginDialog
                 isOpen={isLoginDialogOpen}
                 setIsOpen={setIsLoginDialogOpen}
+                redirectUrl={{ pathname: `/${userID}/graph` }}
             />
         </>
     )
