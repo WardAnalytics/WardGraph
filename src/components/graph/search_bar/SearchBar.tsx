@@ -95,25 +95,36 @@ const SearchBar: FC<SearchBarProps> = ({ className, onSearchAddress }) => {
     } else {
       setEntitySearchResults([]);
     }
-  }, []);
+  }, [query]);
 
   const searchQuery = useCallback((query: string) => {
+    console.log
     if (!query) {
       setEntitySearchResults([]);
       return;
     }
 
     fetchLabels(query);
-  }, []);
+  }, [query]);
 
   useEffect(() => {
-    debounce(
+    // Debounce function to prevent too many requests
+    // For more info visit: https://lodash.com/docs/4.17.15#debounce
+    const debounceFunc = debounce(
       () => {
         searchQuery(query);
       },
       300,
-      { trailing: true },
-    );
+      { maxWait: 1000 }
+    )
+
+    // Call the debounce function
+    debounceFunc();
+
+    return () => {
+      // Cancel the debounce function if the component unmounts or the query changes
+      debounceFunc.cancel();
+    }
   }, [query]);
 
   // Combine uniqueSearchHistory and entitySearchResults into a single list of search results
