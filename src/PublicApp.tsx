@@ -22,7 +22,7 @@ const PublicApp: FC = () => {
   const [startTime, setStartTime] = useState<boolean>(false);
 
   // Time limit in seconds
-  const timeLimit = 2 * 60; // 2 minutes
+  const timeLimit = 1 * 60; // 1 minutes
 
   // The AuthDialog is shown when the user is not authenticated and the time limit is reached
   const initialShowDialog = localStorage.getItem("expiredFreeTrial") === "true";
