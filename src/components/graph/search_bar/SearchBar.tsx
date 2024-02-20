@@ -87,33 +87,34 @@ const SearchBar: FC<SearchBarProps> = ({ className, onSearchAddress }) => {
 
   // Entity search results
   const [entitySearchResults, setEntitySearchResults] = useState<Label[]>([]);
+  const [lastTimeSearched, setLastTimeSearched] = useState<number>(0);
 
-  const fetchLabels = useCallback(async (query: string) => {
-    const res = await searchLabels({ query, limit: MAX_SEARCH_HISTORY });
-    if (res.labels) {
-      setEntitySearchResults(res.labels);
-    } else {
-      setEntitySearchResults([]);
-    }
-  }, []);
+  const fetchLabels = useCallback(
+    async (query: string, timeSearched: number) => {
+      const res = await searchLabels({ query, limit: MAX_SEARCH_HISTORY });
+      if (timeSearched < lastTimeSearched) {
+        return;
+      }
 
-  const searchQuery = useCallback((query: string) => {
+      if (res.labels) {
+        setEntitySearchResults(res.labels);
+      } else {
+        setEntitySearchResults([]);
+      }
+    },
+    [],
+  );
+
+  useEffect(() => {
     if (!query) {
       setEntitySearchResults([]);
       return;
     }
 
-    fetchLabels(query);
-  }, []);
+    const now = Date.now();
 
-  useEffect(() => {
-    debounce(
-      () => {
-        searchQuery(query);
-      },
-      300,
-      { trailing: true },
-    );
+    setLastTimeSearched(now);
+    fetchLabels(query, now);
   }, [query]);
 
   // Combine uniqueSearchHistory and entitySearchResults into a single list of search results
@@ -217,7 +218,7 @@ const SearchBar: FC<SearchBarProps> = ({ className, onSearchAddress }) => {
         moveSelectedIndexDown();
         logAnalyticsEvent("move_selected_index", {
           page: "search_bar",
-          direction: "down"
+          direction: "down",
         });
       },
     },
@@ -329,7 +330,9 @@ const SearchBar: FC<SearchBarProps> = ({ className, onSearchAddress }) => {
               if (isAddressValid) {
                 setIsSearchResultPopoverOpen(false);
                 onSearchAddress(query);
-                logAnalyticsEvent("search_address_button_clicked", { address: query });
+                logAnalyticsEvent("search_address_button_clicked", {
+                  address: query,
+                });
               }
             }}
             className="relative -ml-px inline-flex items-center gap-x-1.5 rounded-r-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 transition-all hover:bg-gray-50"
