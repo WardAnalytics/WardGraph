@@ -95,14 +95,14 @@ const UnsavedGraphTemplate: FC<UnsavedGraphTemplateProps> = ({
   if (loading) return null;
 
   return (
-    <div className="h-full overflow-hidden">
+    <div className="h-full overflow-hidden ">
       <Transition
         show={!showGraph}
         appear={true}
         leave="transition-all duration-500"
         leaveFrom="opacity-100 scale-100"
         leaveTo="opacity-0 scale-50"
-        className="absolute flex h-full w-full flex-col items-center justify-center"
+        className="absolute flex h-full w-full flex-col items-center justify-center overflow-x-hidden no-scrollbar"
       >
         <LoginBanner />
         <LandingPage
