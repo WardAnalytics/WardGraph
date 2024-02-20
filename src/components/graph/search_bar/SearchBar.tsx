@@ -5,15 +5,7 @@ import {
   XCircleIcon,
 } from "@heroicons/react/24/solid";
 import clsx from "clsx";
-import {
-  FC,
-  KeyboardEvent,
-  useMemo,
-  useRef,
-  useState,
-  useEffect,
-  useCallback,
-} from "react";
+import { FC, KeyboardEvent, useMemo, useRef, useState, useEffect } from "react";
 
 import { Label } from "../../../api/model";
 import { searchLabels } from "../../../api/labels/labels";
@@ -26,7 +18,6 @@ import isValidAddress from "../../../utils/isValidAddress";
 import SearchResultPopover from "./SearchResultPopover";
 import useAuthState from "../../../hooks/useAuthState";
 import { logAnalyticsEvent } from "../../../services/firestore/analytics/analytics";
-import { debounce } from "lodash";
 
 const InvalidAddressPopover: FC = () => {
   return (
