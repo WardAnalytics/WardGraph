@@ -40,7 +40,7 @@ export const getTransactionsBetweenAddresses = (
       
       
       return instance<GetTransactionsBetweenAddresses200>(
-      {url: `/transactions/get_transactions_between_addresses`, method: 'GET',
+      {url: `/transactions/get-transactions-between-addresses`, method: 'GET',
         params, signal
     },
       );
@@ -48,7 +48,7 @@ export const getTransactionsBetweenAddresses = (
   
 
 export const getGetTransactionsBetweenAddressesQueryKey = (params: GetTransactionsBetweenAddressesParams,) => {
-    return [`/transactions/get_transactions_between_addresses`, ...(params ? [params]: [])] as const;
+    return [`/transactions/get-transactions-between-addresses`, ...(params ? [params]: [])] as const;
     }
 
     
@@ -99,7 +99,7 @@ export const getCombinedTransactions = (
       
       
       return instance<GetCombinedTransactions200>(
-      {url: `/transactions/get_combined_transactions`, method: 'GET',
+      {url: `/transactions/get-combined-transactions`, method: 'GET',
         params, signal
     },
       );
@@ -107,7 +107,7 @@ export const getCombinedTransactions = (
   
 
 export const getGetCombinedTransactionsQueryKey = (params: GetCombinedTransactionsParams,) => {
-    return [`/transactions/get_combined_transactions`, ...(params ? [params]: [])] as const;
+    return [`/transactions/get-combined-transactions`, ...(params ? [params]: [])] as const;
     }
 
     
