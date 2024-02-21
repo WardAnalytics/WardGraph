@@ -3,10 +3,10 @@ import useCustomQueryClient from "./hooks/useCustomQueryClient";
 
 import useAuthState from "./hooks/useAuthState";
 
+import { useMemo } from "react";
 import PrivateApp from "./PrivateApp";
 import PublicApp from "./PublicApp";
 import { MobileWarningTemplate } from "./templates";
-import { useMemo } from "react";
 
 function App() {
   const queryClient = useCustomQueryClient();
