@@ -37,6 +37,8 @@ const PrivateApp: FC<PrivateAppProps> = ({
             <Route path={`/${userID}/billing`} element={<BillingTemplate />} />
             <Route path={`/${userID}/graphs`} element={<SavedGraphsTemplate />} />
             <Route path="/shared/graph/:uid" element={<RedirectSharedGraph />} />
+            {/* Keep for legacy reasons */}
+            <Route path="/graph/:uid" element={<RedirectSharedGraph />} />
             <Route path="*" element={<Navigate to={`/${userID}/graph`} />} />
           </Routes>
         </BrowserRouter >

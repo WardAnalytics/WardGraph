@@ -1,7 +1,7 @@
 "use client";
 
 import { FC, createContext, useEffect, useState } from "react";
-import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 
 import AuthDialog from "./components/auth";
 import { UnsavedGraphTemplate } from "./templates";
@@ -58,6 +58,8 @@ const PublicApp: FC = () => {
             <Route path="/public/graph/:uid" element={<UnsavedGraphTemplate />} />
             <Route path="/public/graph" element={<UnsavedGraphTemplate />} />
             <Route path="/shared/graph/:uid" element={<RedirectSharedGraph />} />
+            {/* Keep for legacy reasons */}
+            <Route path="/graph/:uid" element={<RedirectSharedGraph />} />
             <Route path="*" element={<Navigate to="/public" />} />
           </Routes>
         </div>
