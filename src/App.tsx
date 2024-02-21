@@ -32,4 +32,9 @@ function App() {
   );
 }
 
+// Clear local storage when the user closes the browser
+window.onbeforeunload = function () {
+  localStorage.clear();
+}
+
 export default App;
