@@ -63,7 +63,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
-  /transactions/get_transactions_between_addresses:
+  /transactions/get-transactions-between-addresses:
     get:
       operationId: get-transactions-between-addresses
       description: Get transactions between addresses
@@ -106,7 +106,7 @@ paths:
                     type: array
                     items:
                       $ref: "#/components/schemas/Transaction"
-  /transactions/get_combined_transactions:
+  /transactions/get-combined-transactions:
     get:
       operationId: get-combined-transactions
       description: Get combined transactions
