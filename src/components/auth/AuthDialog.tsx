@@ -90,8 +90,6 @@ const AuthDialog: FC<AuthDialogProps> = ({
 
     }
 
-    console.log(url);
-
     navigate(url);
 
   }

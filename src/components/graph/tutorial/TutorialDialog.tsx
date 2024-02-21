@@ -1,17 +1,17 @@
-import { FC, useEffect, useState, useMemo } from "react";
-import clsx from "clsx";
-import BigButton from "../../common/BigButton";
 import {
-  XMarkIcon,
-  RocketLaunchIcon,
   ArrowLeftIcon,
   ArrowRightIcon,
+  RocketLaunchIcon,
+  XMarkIcon,
 } from "@heroicons/react/24/outline";
+import clsx from "clsx";
+import { FC, useEffect, useMemo, useState } from "react";
+import BigButton from "../../common/BigButton";
 
-import Modal from "../../common/Modal";
-import TutorialStepCard from "./TutorialStepCard";
 import { useKeyPress } from "reactflow";
 import { logAnalyticsEvent } from "../../../services/firestore/analytics/analytics";
+import Modal from "../../common/Modal";
+import TutorialStepCard from "./components/TutorialStepCard";
 
 enum HotKeyMap {
   ARROW_LEFT = 1,
@@ -67,25 +67,33 @@ const ProgressCircles: FC<ProgressCirclesProps> = ({
   totalSteps,
   setCurrentStep,
 }) => {
+  // Number of circles to show at a time
+  const maxVisibleCircles = 5;
+
+  // Start index of the circles to show
+  const start = Math.max(0, currentStep - Math.floor(maxVisibleCircles / 2));
+
   return (
     <div className="flex flex-row items-center justify-center gap-x-2">
-      {Array.from(Array(totalSteps).keys()).map((step) => {
+      {Array.from(Array(maxVisibleCircles).keys()).map((index) => {
+        const step = start + index;
+        // TODO: Add slide transition to the progress circles, like a carousel
         return (
-          <ProgressCircle
-            key={step}
-            isCompleted={step <= currentStep}
-            isCurrent={step === currentStep}
-            onClick={() => {
-              setCurrentStep(step);
-            }}
-          />
+          step < totalSteps && (
+            <ProgressCircle
+              key={step}
+              isCompleted={step < currentStep}
+              isCurrent={step === currentStep}
+              onClick={() => setCurrentStep(step)}
+            />
+          )
         );
       })}
     </div>
   );
 };
 
-const Tutorial: FC<TutorialProps> = ({
+const TutorialDialog: FC<TutorialProps> = ({
   show: isTutorialOpen,
   setShow: setIsTutorialOpen,
   steps,
@@ -140,7 +148,7 @@ const Tutorial: FC<TutorialProps> = ({
   };
 
   return (
-    <Modal isOpen={isTutorialOpen} closeModal={closeTutorial}>
+    <Modal isOpen={isTutorialOpen} closeModal={closeTutorial} >
       <div className="w-[30rem]">
         <div className="mb-2 flex w-full justify-end">
           <XMarkIcon
@@ -203,4 +211,4 @@ const Tutorial: FC<TutorialProps> = ({
   );
 };
 
-export default Tutorial;
+export default TutorialDialog;

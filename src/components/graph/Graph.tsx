@@ -52,7 +52,7 @@ import TransactionTooltip, { TransactionTooltipProps } from "./TransactionToolti
 import DraggableWindow from "./analysis_window/AnalysisWindow";
 import Hotbar from "./hotbar";
 import Legend from "./legend";
-import TutorialPopup from "./tutorial/TutorialPopup";
+import ShowTutorialPopup from "./tutorial/ShowTutorialPopup";
 
 enum HotKeyMap {
   DELETE = 1,
@@ -948,7 +948,7 @@ const GraphProvided: FC<GraphProvidedProps> = ({
               src="https://tailwindui.com/img/beams-home@95.jpg"
             />
             {/* {<Controls position="top-right" showInteractive={false} />} */}
-            <TutorialPopup
+            <ShowTutorialPopup
               showTutorial={showTutorial}
               setShowTutorial={setShowTutorial}
             />
