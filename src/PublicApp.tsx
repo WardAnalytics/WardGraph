@@ -5,6 +5,7 @@ import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 
 import AuthDialog from "./components/auth";
 import { UnsavedGraphTemplate } from "./templates";
+import RedirectSharedGraph from "./templates/RedirectShortUrl";
 
 // The total time spent on the app was moved to a context to start the timer only when the user searches an address
 // It has the flexibility to be used in other components
@@ -56,6 +57,7 @@ const PublicApp: FC = () => {
             <Route path="/public" element={<UnsavedGraphTemplate showLandingPage={true} />} />
             <Route path="/public/graph/:uid" element={<UnsavedGraphTemplate />} />
             <Route path="/public/graph" element={<UnsavedGraphTemplate />} />
+            <Route path="/shared/graph/:uid" element={<RedirectSharedGraph />} />
             <Route path="*" element={<Navigate to="/public" />} />
           </Routes>
         </div>

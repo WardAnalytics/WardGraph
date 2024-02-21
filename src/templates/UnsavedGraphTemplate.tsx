@@ -7,6 +7,7 @@ import { UnauthenticatedTimeContext } from "../PublicApp";
 import LoginBanner from "../components/banner/LoginBanner";
 import { Graph } from "../components/graph/Graph";
 import LandingPage from "../components/graph/landing_page/LandingPage";
+import useAuthState from "../hooks/useAuthState";
 
 interface UnsavedGraphTemplateProps {
   showLandingPage?: boolean;
@@ -16,6 +17,8 @@ const UnsavedGraphTemplate: FC<UnsavedGraphTemplateProps> = ({
   showLandingPage = true,
 }) => {
   const { uid } = useParams<{ uid: string }>();
+  const { isAuthenticated } = useAuthState();
+
   const [loading, setLoading] = useState(true);
   const [graph, setGraph] = useState<SharableGraph>({ addresses: [], edges: [] });
   const unauthenticatedTimeContext = useContext(UnauthenticatedTimeContext);
@@ -96,7 +99,9 @@ const UnsavedGraphTemplate: FC<UnsavedGraphTemplateProps> = ({
 
   return (
     <div className="h-full overflow-hidden ">
-      <LoginBanner />
+      {
+        isAuthenticated ? null : <LoginBanner />
+      }
       <Transition
         show={!showGraph}
         appear={true}
