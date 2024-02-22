@@ -19,7 +19,7 @@ const SignInWithGoogleButton: FC<SignInWithGoogleButtonProps> = ({
           className="h-6 w-6"
           src="https://www.svgrepo.com/show/475656/google-color.svg"
           loading="lazy"
-          alt="google logo"
+          alt="Google logo"
         />
         <span>{text}</span>
       </button>

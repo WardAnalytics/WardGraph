@@ -1,9 +1,9 @@
 import { SparklesIcon } from "@heroicons/react/20/solid";
 import { FC } from "react";
 
-import logo from "../../../assets/ward-logo-blue-full.svg";
-import SearchBar from "../search_bar";
 import { logAnalyticsEvent } from "../../../services/firestore/analytics/analytics";
+import Logo from "../../common/Logo";
+import SearchBar from "../search_bar";
 
 const PossibleAddresses: string[] = [
   "0x1f9090aaE28b8a3dCeaDf281B0F12828e676c326",
@@ -26,16 +26,16 @@ const LandingPage: FC<LandingPageProps> = ({ setSearchedAddress }) => {
 
   return (
     <>
-      <div className="flex max-w-screen-sm flex-col items-center gap-y-10">
-        <img src={logo} alt="Ward Logo" className="w-2/3" />
+      <div className="flex w-full max-w-screen-sm flex-col items-center gap-y-10">
+        <Logo className="w-full" />
         <SearchBar className="w-full" onSearchAddress={setSearchedAddress} />
-        <h3
+        <div
           className="flex cursor-pointer flex-row items-center gap-x-2 text-sm text-blue-500"
           onClick={selectRandomAddress}
         >
           <SparklesIcon className="h-5 w-5 text-blue-500" aria-hidden="true" />
-          I'm feeling lucky
-        </h3>
+          <h2>I'm feeling lucky</h2>
+        </div>
       </div>
     </>
   );
