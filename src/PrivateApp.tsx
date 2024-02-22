@@ -29,10 +29,10 @@ const PrivateApp: FC<PrivateAppProps> = ({
             />
             <Route
               path={`/${userID}/graph`}
-              element={<UnsavedGraphTemplate showLandingPage={false} showSearchbar={true} />}
+              element={<UnsavedGraphTemplate showLandingPage={false} />}
             />
             <Route path="/graph" element={<Navigate to={`/${userID}/graph`} />} />
-            <Route path={`/${userID}/graph/new`} element={<UnsavedGraphTemplate showLandingPage={false} showSearchbar={true} />} />
+            <Route path={`/${userID}/graph/new`} element={<UnsavedGraphTemplate showLandingPage={false} />} />
             <Route path={`/${userID}/saved-graph/:uid`} element={<SavedGraphTemplate />} />
             <Route path={`/${userID}/billing`} element={<BillingTemplate />} />
             <Route path={`/${userID}/graphs`} element={<SavedGraphsTemplate />} />

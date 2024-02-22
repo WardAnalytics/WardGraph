@@ -11,12 +11,10 @@ import useAuthState from "../hooks/useAuthState";
 
 interface UnsavedGraphTemplateProps {
   showLandingPage?: boolean;
-  showSearchbar?: boolean;
 }
 
 const UnsavedGraphTemplate: FC<UnsavedGraphTemplateProps> = ({
   showLandingPage = true,
-  showSearchbar = false,
 }) => {
   const { uid } = useParams<{ uid: string }>();
   const { isAuthenticated } = useAuthState();
@@ -130,7 +128,6 @@ const UnsavedGraphTemplate: FC<UnsavedGraphTemplateProps> = ({
           initialAddresses={initialAddresses}
           initialPaths={initialPaths}
           onLocalSave={saveGraph}
-          showSearchbar={showSearchbar}
         />
       </Transition>
     </div>
