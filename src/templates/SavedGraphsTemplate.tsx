@@ -18,6 +18,7 @@ import { useNavigate } from "react-router-dom";
 import BigButton from "../components/common/BigButton";
 import CreateGraphDialog from "../components/common/CreateGraphDialog";
 import DeleteGraphDialog from "../components/common/DeleteGraphDialog";
+import SEO from "../components/common/SEO";
 import "../components/common/Scrollbar.css";
 
 interface GraphCardProps {
@@ -66,33 +67,44 @@ const SavedGraphsTemplate: FC = () => {
   const [isCreateGraphDialogOpen, setIsCreateGraphDialogOpen] = useState(false);
 
   return (
-    <div className="mx-14 my-10 flex w-full flex-col gap-y-5">
-      <h3 className="flex flex-row justify-between  text-xl font-semibold text-gray-700">
-        <div className="flex flex-row items-center gap-2">
-          <ShareIcon className="mt-0.5 inline-block h-7 w-7 text-gray-400" />
-          Saved Graphs
+    <>
+      <SEO title="Saved Graphs" description="View and manage your saved graphs" />
+      <div className="mx-14 my-10 flex w-full flex-col gap-y-5">
+        <h3 className="flex flex-row justify-between  text-xl font-semibold text-gray-700">
+          <div className="flex flex-row items-center gap-2">
+            <ShareIcon className="mt-0.5 inline-block h-7 w-7 text-gray-400" />
+            Saved Graphs
+          </div>
+          <BigButton
+            text="New graph"
+            onClick={() => {
+              setIsCreateGraphDialogOpen(true);
+            }}
+            Icon={PlusCircleIcon}
+          />
+        </h3>
+        <div className="h-[1px] w-full bg-gray-200" />
+        <div className="scrollbar overflow-x-hidden overflow-y-scroll">
+          <div className="grid auto-rows-auto grid-cols-3 gap-4 pr-3">
+            {graphs.map((graph) => (
+              <GraphCard graph={graph} key={graph.uid} userID={userID} />
+            ))}
+          </div>
         </div>
-        <BigButton
-          text="New graph"
-          onClick={() => {
-            setIsCreateGraphDialogOpen(true);
-          }}
-          Icon={PlusCircleIcon}
+        <CreateGraphDialog
+          isOpen={isCreateGraphDialogOpen}
+          setOpen={setIsCreateGraphDialogOpen}
         />
-      </h3>
-      <div className="h-[1px] w-full bg-gray-200" />
-      <div className="scrollbar overflow-x-hidden overflow-y-scroll">
-        <div className="grid auto-rows-auto grid-cols-3 gap-4 pr-3">
-          {graphs.map((graph) => (
-            <GraphCard userID={userID} graph={graph} key={graph.uid} />
-          ))}
+        <div className="h-[1px] w-full bg-gray-200" />
+        <div className="scrollbar overflow-x-hidden overflow-y-scroll">
+          <div className="grid auto-rows-auto grid-cols-3 gap-4 pr-3">
+            {graphs.map((graph) => (
+              <GraphCard userID={userID} graph={graph} key={graph.uid} />
+            ))}
+          </div>
         </div>
       </div>
-      <CreateGraphDialog
-        isOpen={isCreateGraphDialogOpen}
-        setOpen={setIsCreateGraphDialogOpen}
-      />
-    </div>
+    </>
   );
 };
 

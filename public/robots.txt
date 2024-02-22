@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://wardanalytics.app/sitemap.xml

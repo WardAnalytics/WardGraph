@@ -24,7 +24,6 @@ import CreateGraphDialog from "./components/CreateGraphDialog";
 
 interface HotbarButton {
   onClick?: () => void;
-  href?: string;
   Icon: any;
   name: string;
   className?: string;
@@ -39,7 +38,6 @@ const HotbarButton: FC<HotbarButton> = ({
   className,
   iconColor,
   hotKey,
-  href,
 }) => {
   const hotKeyClicked = hotKey ? useKeyPress(hotKey) : false;
 
@@ -50,33 +48,31 @@ const HotbarButton: FC<HotbarButton> = ({
   }, [hotKeyClicked]);
 
   return (
-    <a href={href} target="_blank" className="h-full w-full">
-      <button
-        className={clsx("group flex flex-row items-center", className)}
-        key={name}
-        onClick={onClick}
-      >
-        <span className="pointer-events-none absolute mr-[100%] mt-0.5 flex w-max translate-x-[-100%] flex-row rounded-lg bg-gray-800 px-3 py-2 text-sm font-medium text-white opacity-0 shadow-sm transition-opacity duration-300 group-hover:opacity-100 dark:bg-gray-700">
-          {hotKey && (
-            <span
-              className="mr-5 font-normal capitalize text-gray-400
+    <button
+      className={clsx("group flex flex-row items-center", className)}
+      key={name}
+      onClick={onClick}
+    >
+      <span className="pointer-events-none absolute mr-[100%] mt-0.5 flex w-max translate-x-[-100%] flex-row rounded-lg bg-gray-800 px-3 py-2 text-sm font-medium text-white opacity-0 shadow-sm transition-opacity duration-300 group-hover:opacity-100 dark:bg-gray-700">
+        {hotKey && (
+          <span
+            className="mr-5 font-normal capitalize text-gray-400
             "
-            >
-              {hotKey}
-            </span>
-          )}
-          {name}
-        </span>
-        <Icon
-          className={clsx(
-            "h-10 w-10 rounded-lg p-1 transition-all duration-200",
-            iconColor
-              ? iconColor
-              : "text-gray-400 hover:bg-gray-700 hover:text-gray-200",
-          )}
-        />
-      </button>
-    </a>
+          >
+            {hotKey}
+          </span>
+        )}
+        {name}
+      </span>
+      <Icon
+        className={clsx(
+          "h-10 w-10 rounded-lg p-1 transition-all duration-200",
+          iconColor
+            ? iconColor
+            : "text-gray-400 hover:bg-gray-700 hover:text-gray-200",
+        )}
+      />
+    </button>
   );
 };
 
@@ -215,8 +211,12 @@ const Hotbar: FC<HotbarProps> = ({
           <HotbarButton
             Icon={BugAntIcon}
             name="Report Bug / Submit Feedback"
-            onClick={() => { logAnalyticsEvent("report_bug_clicked") }}
-            href="https://forms.gle/yCFrDnKyUmPYPhfg8"
+            onClick={() => {
+              logAnalyticsEvent("report_bug_clicked")
+              // Open in a new tab to avoid losing the current graph
+              // To improve SEO, this action is onClick instead of a simple link because the other buttons don't use href
+              window.open("https://forms.gle/yCFrDnKyUmPYPhfg8", "_blank")
+            }}
           />
         </HotbarButtonGroup>
       </div>

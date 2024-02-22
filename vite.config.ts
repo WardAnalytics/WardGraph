@@ -1,6 +1,7 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import EnvironmentPlugin from "vite-plugin-environment";
+import { compression } from "vite-plugin-compression2";
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -25,6 +26,7 @@ export default defineConfig({
       include: "**/*.{jsx,tsx}",
     }),
     EnvironmentPlugin("all"),
+    compression(),
   ],
   server: {
     port: 3000,

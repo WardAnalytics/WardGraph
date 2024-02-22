@@ -5,6 +5,7 @@ import { SharableGraph, getSharableGraph } from "../services/firestore/graph_sha
 import { Transition } from "@headlessui/react";
 import { UnauthenticatedTimeContext } from "../PublicApp";
 import LoginBanner from "../components/banner/LoginBanner";
+import SEO from "../components/common/SEO";
 import { Graph } from "../components/graph/Graph";
 import LandingPage from "../components/graph/landing_page/LandingPage";
 import useAuthState from "../hooks/useAuthState";
@@ -98,39 +99,42 @@ const UnsavedGraphTemplate: FC<UnsavedGraphTemplateProps> = ({
   if (loading) return null;
 
   return (
-    <div className="h-full overflow-hidden ">
-      {
-        isAuthenticated ? null : <LoginBanner />
-      }
-      <Transition
-        show={!showGraph}
-        appear={true}
-        leave="transition-all duration-500"
-        leaveFrom="opacity-100 scale-100"
-        leaveTo="opacity-0 scale-50"
-        className="absolute flex h-full w-full flex-col items-center justify-center overflow-x-hidden no-scrollbar"
-      >
-        <LandingPage
-          setSearchedAddress={(address: string) => {
-            setGraph({ addresses: [address], edges: [] });
-          }}
-        />
-      </Transition>
-      <Transition
-        show={showGraph}
-        appear={true}
-        enter="transition-all duration-500 delay-500"
-        enterFrom="opacity-0 scale-150"
-        enterTo="opacity-100 scale-100"
-        className="h-full w-full"
-      >
-        <Graph
-          initialAddresses={initialAddresses}
-          initialPaths={initialPaths}
-          onLocalSave={saveGraph}
-        />
-      </Transition>
-    </div>
+    <>
+      <SEO title="Graph" description="Creating the next-gen of crypto compliance" />
+      <div className="h-full overflow-hidden ">
+        {
+          isAuthenticated ? null : <LoginBanner />
+        }
+        <Transition
+          show={!showGraph}
+          appear={true}
+          leave="transition-all duration-500"
+          leaveFrom="opacity-100 scale-100"
+          leaveTo="opacity-0 scale-50"
+          className="absolute flex h-full w-full flex-col items-center justify-center overflow-x-hidden no-scrollbar"
+        >
+          <LandingPage
+            setSearchedAddress={(address: string) => {
+              setGraph({ addresses: [address], edges: [] });
+            }}
+          />
+        </Transition>
+        <Transition
+          show={showGraph}
+          appear={true}
+          enter="transition-all duration-500 delay-500"
+          enterFrom="opacity-0 scale-150"
+          enterTo="opacity-100 scale-100"
+          className="h-full w-full"
+        >
+          <Graph
+            initialAddresses={initialAddresses}
+            initialPaths={initialPaths}
+            onLocalSave={saveGraph}
+          />
+        </Transition>
+      </div>
+    </>
   );
 };
 

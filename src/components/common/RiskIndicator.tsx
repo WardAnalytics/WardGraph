@@ -53,12 +53,12 @@ const RiskIndicator: FC<RiskIndicatorProps> = ({
             </li>
             <li className="flex flex-row items-center gap-x-1">
               <ArrowsPointingInIcon className="h-5 w-5 text-blue-200" />
-              <a className="font-bold">Direct Exposure,</a> both incoming and
+              <span className="font-bold">Direct Exposure,</span> both incoming and
               outgoing
             </li>
             <li className="flex flex-row items-center gap-x-1">
               <ChevronDoubleDownIcon className="h-5 w-5 text-blue-200" />
-              <a className="font-bold">Indirect Exposure,</a> both incoming and
+              <span className="font-bold">Indirect Exposure,</span> both incoming and
               outgoing
             </li>
           </ul>
