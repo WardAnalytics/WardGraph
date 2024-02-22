@@ -5,18 +5,13 @@ import {
   XMarkIcon,
 } from "@heroicons/react/24/outline";
 import clsx from "clsx";
-import { FC, useEffect, useMemo, useState } from "react";
+import { FC, KeyboardEvent, useState } from "react";
 import BigButton from "../../common/BigButton";
 
-import { useKeyPress } from "reactflow";
 import { logAnalyticsEvent } from "../../../services/firestore/analytics/analytics";
+import { HotKeysType } from "../../../types/hotKeys";
 import Modal from "../../common/Modal";
 import TutorialStepCard from "./components/TutorialStepCard";
-
-enum HotKeyMap {
-  ARROW_LEFT = 1,
-  ARROW_RIGHT,
-}
 
 interface TutorialProps {
   show: boolean;
@@ -101,20 +96,33 @@ const TutorialDialog: FC<TutorialProps> = ({
 }) => {
   const [currentStep, setCurrentStep] = useState(initialStep);
 
-  // Hotkeys
-  const leftArrowPressed = useKeyPress("ArrowLeft") ? HotKeyMap.ARROW_LEFT : 0;
-  const rightArrowPressed = useKeyPress("ArrowRight")
-    ? HotKeyMap.ARROW_RIGHT
-    : 0;
+  // Hotkeys for tutorial
+  // ArrowLeft: Go to previous slide
+  // ArrowRight: Go to next slide
+  const hotKeysMap: HotKeysType = {
+    ARROW_LEFT: {
+      key: "ArrowLeft",
+      asyncHandler: async (event: KeyboardEvent<HTMLElement>) => {
+        event.preventDefault();
 
-  const keyPressed = useMemo(() => {
-    return leftArrowPressed + rightArrowPressed;
-  }, [leftArrowPressed, rightArrowPressed]);
+        decreaseSlide();
+        logAnalyticsEvent("tutorial_arrow_left");
+      },
+    },
+    ARROW_RIGHT: {
+      key: "ArrowRight",
+      asyncHandler: async (event: KeyboardEvent<HTMLElement>) => {
+        event.preventDefault();
+
+        increaseSlide();
+        logAnalyticsEvent("tutorial_arrow_right");
+      },
+    },
+  };
 
   const increaseSlide = () => {
     if (currentStep === steps.length - 1) {
       closeTutorial();
-      setCurrentStep(0);
       return;
     }
 
@@ -126,21 +134,6 @@ const TutorialDialog: FC<TutorialProps> = ({
     setCurrentStep(currentStep - 1);
   };
 
-  useEffect(() => {
-    switch (keyPressed) {
-      case HotKeyMap.ARROW_LEFT:
-        decreaseSlide();
-        logAnalyticsEvent("tutorial_arrow_left");
-        break;
-      case HotKeyMap.ARROW_RIGHT:
-        increaseSlide();
-        logAnalyticsEvent("tutorial_arrow_right");
-        break;
-      default:
-        break;
-    }
-  }, [keyPressed]);
-
   const closeTutorial = () => {
     setIsTutorialOpen(false);
     setCurrentStep(0);
@@ -149,7 +142,19 @@ const TutorialDialog: FC<TutorialProps> = ({
 
   return (
     <Modal isOpen={isTutorialOpen} closeModal={closeTutorial} >
-      <div className="w-[30rem]">
+      <div className="w-[30rem]" onKeyDown={
+        async (event: KeyboardEvent<HTMLElement>) => {
+          const hotKey = event.key;
+          switch (hotKey) {
+            case hotKeysMap.ARROW_LEFT.key:
+              await hotKeysMap.ARROW_LEFT.asyncHandler!(event);
+              break;
+            case hotKeysMap.ARROW_RIGHT.key:
+              await hotKeysMap.ARROW_RIGHT.asyncHandler!(event);
+              break;
+          }
+        }
+      }>
         <div className="mb-2 flex w-full justify-end">
           <XMarkIcon
             className="h-11 w-11 cursor-pointer rounded-full p-1.5 text-gray-400 transition-all duration-300 hover:bg-gray-100"
@@ -159,10 +164,10 @@ const TutorialDialog: FC<TutorialProps> = ({
         </div>
         <div className="flex w-full flex-col items-center">
           <div className="flex min-h-[20rem] w-full flex-row justify-center overflow-hidden">
-            {steps.map((_, index) => {
+            {steps.map((step, index) => {
               return (
                 <TutorialStepCard
-                  Step={steps[index]}
+                  Step={step}
                   key={index}
                   show={index === currentStep}
                 />
