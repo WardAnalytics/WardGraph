@@ -19,6 +19,7 @@ import {
   useCustomerPortalUrl,
 } from "../services/stripe";
 import { Colors } from "../utils/colors";
+import SEO from "../components/common/SEO";
 
 interface PlanProps {
   isPro: boolean;
@@ -261,54 +262,57 @@ const BillingTemplate: FC = () => {
   }, [customerPortalUrl]);
 
   return (
-    <div className="mx-14 my-10 flex w-full flex-col gap-y-5">
-      <h3 className="flex flex-row gap-x-2 text-xl font-semibold text-gray-700">
-        <CreditCardIcon className="mt-0.5 inline-block h-7 w-7 text-gray-400" />
-        Plan & Billing
-      </h3>
-      <div className="h-[1px] w-full bg-gray-200" />
+    <>
+      <SEO title="Billing" description="Manage your subscription and billing" />
+      <div className="mx-14 my-10 flex w-full flex-col gap-y-5">
+        <h3 className="flex flex-row gap-x-2 text-xl font-semibold text-gray-700">
+          <CreditCardIcon className="mt-0.5 inline-block h-7 w-7 text-gray-400" />
+          Plan & Billing
+        </h3>
+        <div className="h-[1px] w-full bg-gray-200" />
 
-      {
-        // TODO: Replace for a loading component to standardize the loading state
+        {
+          // TODO: Replace for a loading component to standardize the loading state
 
-        <>
-          <span className="flex flex-row justify-between">
-            <h3 className="flex flex-row items-center gap-x-2.5 text-xl font-semibold text-gray-700">
-              Plan:
-              {isLoading ? (
-                <div className="h-7 w-16 animate-pulse rounded-md bg-gray-200" />
-              ) : isPro ? (
-                <p className=" flex flex-row items-center gap-x-1.5 rounded-lg bg-blue-100 px-2 py-1 font-bold text-blue-500 shadow-lg shadow-blue-200/50 ring-1 ring-inset ring-blue-300">
-                  <RocketLaunchIcon className="mt-0.5 inline-block h-5 w-5 text-blue-500" />
-                  Pro
-                </p>
-              ) : (
-                <p className="text-gray-500">Free</p>
+          <>
+            <span className="flex flex-row justify-between">
+              <h3 className="flex flex-row items-center gap-x-2.5 text-xl font-semibold text-gray-700">
+                Plan:
+                {isLoading ? (
+                  <div className="h-7 w-16 animate-pulse rounded-md bg-gray-200" />
+                ) : isPro ? (
+                  <p className=" flex flex-row items-center gap-x-1.5 rounded-lg bg-blue-100 px-2 py-1 font-bold text-blue-500 shadow-lg shadow-blue-200/50 ring-1 ring-inset ring-blue-300">
+                    <RocketLaunchIcon className="mt-0.5 inline-block h-5 w-5 text-blue-500" />
+                    Pro
+                  </p>
+                ) : (
+                  <p className="text-gray-500">Free</p>
+                )}
+              </h3>
+              {isPro && (
+                <BigButton
+                  text="Manage Subscription"
+                  onClick={() => setManageSubscriptionClicked(true)}
+                  Icon={CreditCardSmallIcon}
+                />
               )}
-            </h3>
-            {isPro && (
-              <BigButton
-                text="Manage Subscription"
-                onClick={() => setManageSubscriptionClicked(true)}
-                Icon={CreditCardSmallIcon}
-              />
-            )}
-          </span>
-          <span className="flex flex-row justify-center gap-x-5">
-            <>
-              <DiscoverPlan isPro={isPro} />
-              <ProPlan
-                key={subscription?.id}
-                isPro={isPro}
-                userID={userID}
-                subscription={subscription}
-              />
-              <EnterprisePlan />
-            </>
-          </span>
-        </>
-      }
-    </div>
+            </span>
+            <span className="flex flex-row justify-center gap-x-5">
+              <>
+                <DiscoverPlan isPro={isPro} />
+                <ProPlan
+                  key={subscription?.id}
+                  isPro={isPro}
+                  userID={userID}
+                  subscription={subscription}
+                />
+                <EnterprisePlan />
+              </>
+            </span>
+          </>
+        }
+      </div>
+    </>
   );
 };
 

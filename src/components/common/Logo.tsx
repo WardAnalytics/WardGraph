@@ -12,7 +12,7 @@ const Logo: FC<LogoProps> = ({
     return (
         <div className={clsx("flex flex-col sm:flex-row items-center justify-center gap-x-7 gap-y-4 text-2xl", className)}>
             <img src={logo} className="max-h-16" alt="Ward Analytics" />
-            <h1 className="text-4xl sm:text-5xl text-center font-semibold font-montserrat text-[#4268ff]">Ward Analytics</h1>
+            <h1 className="text-4xl sm:text-5xl text-center font-bold font-montserrat text-[#4268ff]">Ward Analytics</h1>
         </div>
     )
 }
