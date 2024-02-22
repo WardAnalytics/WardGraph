@@ -46,12 +46,12 @@ const Banner: FC = () => {
             </svg>
             Register now for free, unlimited graph lookups
           </p>
-          <a
+          <button
             className="flex-none cursor-pointer rounded-full bg-gray-900 px-3.5 py-1 text-xs font-semibold text-white shadow-sm hover:bg-gray-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-900"
             onClick={() => setIsLoginDialogOpen(true)}
           >
             Sign In / Up <span aria-hidden="true">&rarr;</span>
-          </a>
+          </button>
         </div>
         <div className="flex flex-1 justify-end"></div>
       </div>
