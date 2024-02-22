@@ -101,9 +101,12 @@ const HotbarButtonGroup: FC<HotbarButtonGroupProps> = ({
   );
 };
 
-interface HotbarProps extends WithAuthProps { }
+interface HotbarProps extends WithAuthProps {
+  initialSearchbarValue: boolean;
+}
 
 const Hotbar: FC<HotbarProps> = ({
+  initialSearchbarValue,
   handleActionRequiringAuth
 }) => {
   const {
@@ -119,7 +122,7 @@ const Hotbar: FC<HotbarProps> = ({
   const [searchParams, setSearchParams] = useSearchParams();
 
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
-  const [isAddAddressModalOpen, setIsAddAddressModalOpen] = useState(false);
+  const [isAddAddressModalOpen, setIsAddAddressModalOpen] = useState(initialSearchbarValue);
   const [isCreateGraphDialogOpen, setIsCreateGraphDialogOpen] = useState(false);
 
   const saveGraphParam = useMemo(() => {

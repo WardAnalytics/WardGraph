@@ -116,6 +116,7 @@ export const GraphContext = createContext<GraphContextProps>(
 interface GraphProps {
   initialAddresses: string[];
   initialPaths: string[];
+  showSearchbar: boolean;
   onAutoSave?: (graphInfo: PersonalGraphInfo) => void;
   onLocalSave?: (graphInfo: SharableGraph) => void;
 }
@@ -132,6 +133,7 @@ interface GraphProps {
 const Graph: FC<GraphProps> = ({
   initialAddresses,
   initialPaths,
+  showSearchbar,
   onAutoSave,
   onLocalSave,
 }) => {
@@ -183,6 +185,7 @@ const Graph: FC<GraphProps> = ({
           <GraphProvided
             initialNodes={initialLayoutedNodes}
             initialEdges={initialEdges}
+            showSearchbar={showSearchbar}
             onAutoSave={onAutoSave}
             onLocalSave={onLocalSave}
           />
@@ -195,6 +198,7 @@ const Graph: FC<GraphProps> = ({
 interface GraphProvidedProps {
   initialNodes: Node[];
   initialEdges: Edge[];
+  showSearchbar: boolean;
   onAutoSave?: (graphInfo: PersonalGraphInfo) => void;
   onLocalSave?: (graphInfo: SharableGraph) => void;
 }
@@ -208,6 +212,7 @@ const MemoedDraggableWindow = memo(DraggableWindow);
 const GraphProvided: FC<GraphProvidedProps> = ({
   initialNodes,
   initialEdges,
+  showSearchbar,
   onAutoSave,
   onLocalSave
 }) => {
@@ -966,7 +971,7 @@ const GraphProvided: FC<GraphProvidedProps> = ({
               )}
             </Panel>
             <Panel position="bottom-right">
-              <Hotbar />
+              <Hotbar initialSearchbarValue={showSearchbar} />
             </Panel>
           </ReactFlow>
           <Footer />
