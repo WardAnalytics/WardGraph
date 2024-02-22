@@ -1,20 +1,18 @@
+import clsx from "clsx";
 import { FC } from "react";
-import logo from "../../assets/ward-logo-blue-full.svg";
-import darkModeLogo from "../../assets/ward-logo-white-full.svg";
+import logo from "../../assets/ward-logo-blue.svg";
 
-const Logo: FC = () => {
+interface LogoProps {
+    className?: string;
+}
+
+const Logo: FC<LogoProps> = ({
+    className
+}) => {
     return (
-        <div className="sm:mx-auto sm:w-full sm:max-w-sm">
-            <img
-                className="mx-auto h-10 w-auto dark:hidden"
-                src={logo}
-                alt="Ward Analytics"
-            />
-            <img
-                className="mx-auto h-10 w-auto hidden dark:block"
-                src={darkModeLogo}
-                alt="Ward Analytics"
-            />
+        <div className={clsx("flex flex-col sm:flex-row items-center justify-center gap-x-7 gap-y-4 text-2xl", className)}>
+            <img src={logo} className="max-h-16" alt="Ward Analytics" />
+            <h1 className="text-4xl sm:text-5xl text-center font-semibold font-montserrat text-[#4268ff]">Ward Analytics</h1>
         </div>
     )
 }

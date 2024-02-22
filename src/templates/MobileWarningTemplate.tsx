@@ -1,8 +1,8 @@
-import { FC } from "react";
 import clsx from "clsx";
+import { FC } from "react";
 
-import logo from "../assets/ward-logo-blue-full.svg";
 import { ComputerDesktopIcon } from "@heroicons/react/24/outline";
+import Logo from "../components/common/Logo";
 
 interface MobileWarningTemplateProps {
   className?: string;
@@ -19,7 +19,7 @@ const MobileWarningTemplate: FC<MobileWarningTemplateProps> = ({
           className,
         )}
       >
-        <img src={logo} alt="Ward Logo" className="w-full" />
+        <Logo className="w-full" />
         <div className="justify-left flex flex-row items-center gap-x-3 rounded-lg bg-yellow-50 p-4">
           <ComputerDesktopIcon className="h-12 w-12 text-yellow-500" />
           <p className="text-sm text-yellow-800">
