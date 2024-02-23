@@ -1,0 +1,4 @@
+Contact: mailto:pedro.rodrigues@wardanalytics.net
+Expires: 2025-03-01T00:00:00.000Z
+Preferred-Languages: en,pt
+Canonical: https://wardanalytics.app/security.txt
