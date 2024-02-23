@@ -8,7 +8,7 @@ name: Deploy to Firebase Hosting on PR
 "on": pull_request
 
 env:
-  VITE_WARD_API_BASE_URL: "https://wardanalyticsapi.com"
+  VITE_WARD_API_BASE_URL: "https://staging.wardanalyticsapi.com"
   VITE_WARD_API_KEY: ${{ secrets.WARD_API_KEY }}
   VITE_FIREBASE_API_KEY: "AIzaSyBZCnEQus6G42SodGNRf6o2zmBnGN0nXes"
   VITE_FIREBASE_AUTH_DOMAIN: "graphapp-dev.firebaseapp.com"
