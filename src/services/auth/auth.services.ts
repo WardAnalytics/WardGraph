@@ -4,13 +4,18 @@ import {
   signInWithPopup,
   signOut,
 } from "@firebase/auth";
-import { User } from "firebase/auth";
 import { UserEmailNotVerifiedError, UserNotLoggedInError } from "./errors";
+import { User as FirebaseUser } from "firebase/auth";
 
 import { sendEmailVerification, sendPasswordResetEmail } from "firebase/auth";
 import { auth, googleProvider } from "../firebase";
 import { createUserInDatabase } from "../firestore/user";
 import AuthApiErrorCodes from "./auth.errors";
+import { UserDB } from "../firestore/user/user";
+
+export interface NewUser extends UserDB {
+  password: string;
+}
 
 /**
  * Signup a new user with email and password using Firebase Authentication
@@ -21,18 +26,23 @@ import AuthApiErrorCodes from "./auth.errors";
  * @param onError - callback function to be executed on signup error
  */
 const signUp = async (
-  email: string,
-  password: string,
+  newUser: NewUser,
   onSuccess: () => void,
   onError: (error: any) => void,
 ) => {
+  const { email, password } = newUser;
+
   await createUserWithEmailAndPassword(auth, email, password)
     .then(async (userCredential) => {
       // Send verification email
       await sendEmailVerification(userCredential.user)
         .then(() => {
-          localStorage.setItem("user", JSON.stringify(userCredential.user));
-          onSuccess();
+          const { uid: userID } = userCredential.user;
+
+          createUserInDatabase(userID, newUser).then((newUser) => {
+            localStorage.setItem("user", JSON.stringify(newUser));
+            onSuccess();
+          });
         })
         .catch((error) => {
           onError(error);
@@ -67,7 +77,14 @@ const login = async (
         return;
       }
 
-      localStorage.setItem("user", JSON.stringify(user));
+      const localStorageUser = JSON.parse(
+        localStorage.getItem("user")!,
+      ) as User;
+
+      // TODO: Sync user data with the database
+      localStorageUser.emailVerified = user.emailVerified;
+
+      localStorage.setItem("user", JSON.stringify(localStorageUser));
 
       // Saves user in the firestore database
       // This function is called here and not in signUp to save already existing users in production
@@ -170,7 +187,7 @@ const isAuthenticated = () => {
  * @throws {UserNotLoggedInError} If the user is not logged in.
  * @throws {UserEmailNotVerifiedError} If the user's email is not verified.
  */
-export function getVerifiedUser(): User {
+export function getVerifiedUser(): FirebaseUser {
   const user = authService.getCurrentUser();
   if (user === null) {
     throw new UserNotLoggedInError();
