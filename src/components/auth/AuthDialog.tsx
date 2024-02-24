@@ -59,7 +59,7 @@ interface AuthDialogProps {
 const AuthDialog: FC<AuthDialogProps> = ({ isOpen, setIsOpen, redirectUrl }) => {
   const navigate = useNavigate();
 
-  const [authDialogState, setAuthDialogState] = useState(AuthDialogState.LOGIN);
+  const [authDialogState, setAuthDialogState] = useState(AuthDialogState.SIGNUP);
   const [authApiErrorMessage, setAuthApiErrorMessage] = useState<string | null>(
     null,
   );
@@ -253,7 +253,7 @@ const AuthDialog: FC<AuthDialogProps> = ({ isOpen, setIsOpen, redirectUrl }) => 
   };
 
   return (
-    <Modal isOpen={isOpen} closeModal={() => setIsOpen(false)} size="md">
+    <Modal isOpen={true} closeModal={() => setIsOpen(false)} size="md">
       <div className="flex items-center justify-between border-b border-gray-200 pb-3">
         <h3 className="flex flex-row items-center gap-x-1.5 text-lg font-semibold leading-6 text-gray-900">
           {authDialogState === AuthDialogState.LOGIN ? (
