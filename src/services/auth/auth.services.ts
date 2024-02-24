@@ -13,8 +13,14 @@ import { createUserInDatabase } from "../firestore/user";
 import AuthApiErrorCodes from "./auth.errors";
 import { UserDB } from "../firestore/user/user";
 
-export interface NewUser extends UserDB {
+export interface User extends FirebaseUser {
+  userData?: UserDB;
+}
+
+export interface NewUser {
+  email: string;
   password: string;
+  userData?: UserDB;
 }
 
 /**
@@ -38,11 +44,30 @@ const signUp = async (
       await sendEmailVerification(userCredential.user)
         .then(() => {
           const { uid: userID } = userCredential.user;
+          const newUserDB: UserDB = {
+            email: email,
+            is_premium: false,
+            name: newUser.userData?.name!,
+            company_name: newUser.userData?.company_name!,
+            role: newUser.userData?.role!,
+            phone_number: newUser.userData?.phone_number!,
+            country: newUser.userData?.country!,
+          };
 
-          createUserInDatabase(userID, newUser).then((newUser) => {
-            localStorage.setItem("user", JSON.stringify(newUser));
-            onSuccess();
-          });
+          // Saves user in the firestore database
+          createUserInDatabase(userID, newUserDB)
+            .then((newUserDB) => {
+              const newUser = {
+                ...userCredential.user,
+                userData: newUserDB,
+              };
+
+              localStorage.setItem("user", JSON.stringify(newUser));
+              onSuccess();
+            })
+            .catch((error) => {
+              onError(error);
+            });
         })
         .catch((error) => {
           onError(error);
@@ -69,26 +94,32 @@ const login = async (
 ) => {
   await signInWithEmailAndPassword(auth, email, password)
     .then((userCredential) => {
-      const user = userCredential.user;
+      const { uid: userID, emailVerified } = userCredential.user;
 
       // Check if user email is verified
-      if (user && !user.emailVerified) {
+      if (userID && !emailVerified) {
         onError(AuthApiErrorCodes.EMAIL_VERIFICATION_REQUIRED);
         return;
       }
 
-      const localStorageUser = JSON.parse(
-        localStorage.getItem("user")!,
-      ) as User;
+      const user: User = {
+        ...userCredential.user,
+        userData: {
+          email: userCredential.user.email!,
+          is_premium: false,
+          name: "",
+          company_name: "",
+          role: "user",
+          phone_number: "",
+          country: "",
+        },
+      };
 
-      // TODO: Sync user data with the database
-      localStorageUser.emailVerified = user.emailVerified;
-
-      localStorage.setItem("user", JSON.stringify(localStorageUser));
+      localStorage.setItem("user", JSON.stringify(user));
 
       // Saves user in the firestore database
-      // This function is called here and not in signUp to save already existing users in production
-      createUserInDatabase(user).then(() => {
+      // This function is called here to save already existing users in production
+      createUserInDatabase(user.uid, user.userData!).then(() => {
         onSuccess();
       });
     })
@@ -126,10 +157,24 @@ const signUpWithGoogle = async (
 ) => {
   await signInWithPopup(auth, googleProvider)
     .then((userCredential) => {
-      localStorage.setItem("user", JSON.stringify(userCredential.user));
+      const { uid: userID } = userCredential.user;
+
+      const newUser: User = {
+        ...userCredential.user,
+        userData: {
+          email: userCredential.user.email!,
+          is_premium: false,
+          name: "",
+          company_name: "",
+          role: "",
+          phone_number: "",
+          country: "",
+        },
+      };
 
       // Saves user in the firestore database
-      createUserInDatabase(userCredential.user).then(() => {
+      createUserInDatabase(userID, newUser.userData!).then((newUser) => {
+        localStorage.setItem("user", JSON.stringify(newUser));
         onSuccess();
       });
     })

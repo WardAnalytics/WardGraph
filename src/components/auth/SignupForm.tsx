@@ -1,6 +1,6 @@
 import { FC, useContext, useMemo } from "react";
 import { FormProvider, useForm } from 'react-hook-form';
-import authService, { User } from "../../services/auth/auth.services";
+import authService, { NewUser } from "../../services/auth/auth.services";
 import { AuthContext } from "./AuthDialog";
 import AuthInput from "./AuthInput";
 import SignInWithGoogleButton from "./SignInWithGoogleButton";
@@ -8,11 +8,11 @@ import SignInWithGoogleButton from "./SignInWithGoogleButton";
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 
-import { AuthDialogState } from "./AuthDialog";
-import AuthInputSelect from "./AuthInputSelect";
-import { rolesList } from "../../utils/roles/roles";
-import AuthInputCombobox from "./AuthInputCombobox";
 import { countriesList } from "../../utils/countries/countries";
+import { rolesList } from "../../utils/roles/roles";
+import { AuthDialogState } from "./AuthDialog";
+import AuthInputCombobox from "./AuthInputCombobox";
+import AuthInputSelect from "./AuthInputSelect";
 
 const SignupForm: FC = () => {
   const {
@@ -22,10 +22,6 @@ const SignupForm: FC = () => {
     onGoogleSignupError,
     setAuthDialogState,
   } = useContext(AuthContext);
-
-  const handleGoogleSignIn = () => {
-    authService.signUpWithGoogle(onGoogleSignupSucess, onGoogleSignupError);
-  };
 
   /** Form schema validation using zod
    * 
@@ -89,16 +85,25 @@ const SignupForm: FC = () => {
 
   const createAccount = (data: SignUpSchema) => {
 
-    const newUser: User = {
+    const newUser: NewUser = {
       email: data.email,
       password: data.password,
-      company_name: data.company_name,
-      role: data.role,
-      phone_number: data.phone_number,
-      country: data.country
+      userData: {
+        name: "",
+        email: data.email,
+        is_premium: false,
+        company_name: data.company_name,
+        role: data.role,
+        phone_number: data.phone_number,
+        country: data.country
+      }
     }
 
     authService.signUp(newUser, onSignupSuccess, onSignupError);
+  };
+
+  const handleGoogleSignIn = () => {
+    authService.signUpWithGoogle(onGoogleSignupSucess, onGoogleSignupError);
   };
 
   return (
