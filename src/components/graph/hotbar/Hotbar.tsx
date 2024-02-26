@@ -17,8 +17,8 @@ import { GraphContext } from "../Graph";
 import NewAddressModal from "./components/NewAddressModal";
 import ShareDialog from "./components/ShareDialog";
 
-import { createSearchParams, useSearchParams } from "react-router-dom";
-import WithAuth, { WithAuthProps } from "../../../WithAuth";
+import { useSearchParams } from "react-router-dom";
+import WithAuth, { WithAuthProps } from "../../auth/WithAuth";
 import { logAnalyticsEvent } from "../../../services/firestore/analytics/analytics";
 import CreateGraphDialog from "./components/CreateGraphDialog";
 
@@ -97,9 +97,12 @@ const HotbarButtonGroup: FC<HotbarButtonGroupProps> = ({
   );
 };
 
-interface HotbarProps extends WithAuthProps { }
+interface HotbarProps extends WithAuthProps {
+  initialSearchbarValue: boolean;
+}
 
 const Hotbar: FC<HotbarProps> = ({
+  initialSearchbarValue,
   handleActionRequiringAuth
 }) => {
   const {
@@ -115,7 +118,7 @@ const Hotbar: FC<HotbarProps> = ({
   const [searchParams, setSearchParams] = useSearchParams();
 
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
-  const [isAddAddressModalOpen, setIsAddAddressModalOpen] = useState(false);
+  const [isAddAddressModalOpen, setIsAddAddressModalOpen] = useState(initialSearchbarValue);
   const [isCreateGraphDialogOpen, setIsCreateGraphDialogOpen] = useState(false);
 
   const saveGraphParam = useMemo(() => {
@@ -175,9 +178,9 @@ const Hotbar: FC<HotbarProps> = ({
                 // preventing the following actions from being executed
                 handleActionRequiringAuth({
                   pathname: "graph",
-                  search: createSearchParams({
+                  queryParams: {
                     save_graph: "true"
-                  }).toString()
+                  }
                 });
 
                 // Are only executed if the user is authenticated

@@ -1,14 +1,16 @@
-import { useParams } from "react-router-dom";
 import { FC, useCallback, useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 import {
-  updatePersonalGraph,
-  getPersonalGraph,
   PersonalGraphInfo,
+  getPersonalGraph,
+  updatePersonalGraph,
 } from "../services/firestore/user/graph_saving";
 
 import { Graph } from "../components/graph/Graph";
-import { PersonalGraph } from "../services/firestore/user/graph_saving";
 import useAuthState from "../hooks/useAuthState";
+import { PersonalGraph } from "../services/firestore/user/graph_saving";
+import { Transition } from "@headlessui/react";
+import SavedGraphBanner from "../components/banner/SavedGraphBanner";
 import SEO from "../components/common/SEO";
 
 const SavedGraphTemplate: FC = () => {
@@ -52,12 +54,25 @@ const SavedGraphTemplate: FC = () => {
   return (
     <>
       <SEO title={graph.name} description="View and edit your saved graph" />
-      <Graph
-        initialAddresses={graph.data.addresses}
-        initialPaths={graph.data.edges}
-        onAutoSave={saveGraph}
-        key={graph.uid}
-      />
+      <div className="h-full overflow-hidden">
+        {/* Must leave the transition because somehow it messes the opacity of the modals */}
+        <Transition
+          show={graph !== null}
+          appear={true}
+          enter="transition-all duration-500 delay-500"
+          enterFrom="opacity-0 scale-150"
+          enterTo="opacity-100 scale-100"
+          className="h-full w-full"
+        >
+          <SavedGraphBanner />
+          <Graph
+            initialAddresses={graph.data.addresses}
+            initialPaths={graph.data.edges}
+            onAutoSave={saveGraph}
+            key={graph.uid}
+          />
+        </Transition>
+      </div>
     </>
   );
 };

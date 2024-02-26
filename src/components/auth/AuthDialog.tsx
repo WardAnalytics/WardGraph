@@ -7,13 +7,13 @@ import { FC, createContext, useEffect, useState } from "react";
 import AuthApiErrors from "../../services/auth/auth.errors";
 
 import { EnvelopeIcon } from "@heroicons/react/24/solid";
+import { useNavigate } from "react-router";
+import { logAnalyticsEvent } from "../../services/firestore/analytics/analytics";
 import Modal from "../common/Modal";
 import ForgotPasswordForm from "./ForgotPasswordForm";
 import LoginForm from "./LoginForm";
 import SignupForm from "./SignupForm";
-import { logAnalyticsEvent } from "../../services/firestore/analytics/analytics";
-import { useNavigate } from "react-router";
-import { RedirectUrl } from "../../WithAuth";
+import { RedirectUrl } from "./WithAuth";
 
 
 export enum AuthDialogState {
@@ -23,9 +23,9 @@ export enum AuthDialogState {
 }
 
 interface AuthContextProps {
-  onLoginSuccess: () => void;
+  onLoginSuccess: (userID: string) => void;
   onLoginError: (error: any) => void;
-  onGoogleLoginSucess: () => void;
+  onGoogleLoginSucess: (userID: string) => void;
   onGoogleLoginError: (error: any) => void;
   onSignupSuccess: () => void;
   onSignupError: (error: any) => void;
@@ -54,9 +54,15 @@ interface AuthDialogProps {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
   redirectUrl?: RedirectUrl;
+  signInText?: string;
 }
 
-const AuthDialog: FC<AuthDialogProps> = ({ isOpen, setIsOpen, redirectUrl }) => {
+const AuthDialog: FC<AuthDialogProps> = ({
+  isOpen,
+  setIsOpen,
+  redirectUrl = { pathname: "graph" },
+  signInText = "Sign in to your account"
+}) => {
   const navigate = useNavigate();
 
   const [authDialogState, setAuthDialogState] = useState(AuthDialogState.LOGIN);
@@ -66,6 +72,27 @@ const AuthDialog: FC<AuthDialogProps> = ({ isOpen, setIsOpen, redirectUrl }) => 
   const [verifyEmailMessage, setVerifyEmailMessage] = useState<string | null>(
     null,
   );
+
+  const redirectOnLogin = (userID: string) => {
+
+    const { pathname, queryParams } = redirectUrl;
+
+    const url: { pathname: string; search: string } = {
+      pathname,
+      search: ""
+    }
+
+    url.pathname = `/${userID}/${pathname}`;
+
+    if (queryParams) {
+      const searchParams = new URLSearchParams(queryParams);
+      url.search = searchParams.toString();
+
+    }
+
+    navigate(url);
+
+  }
 
   /**
    * Resets the authApiErrorMessage state to null
@@ -93,13 +120,10 @@ const AuthDialog: FC<AuthDialogProps> = ({ isOpen, setIsOpen, redirectUrl }) => 
    *
    * @returns void
    */
-  const onLoginSuccess = () => {
+  const onLoginSuccess = (userID: string) => {
     logAnalyticsEvent("login", { method: "email" });
     closeDialog();
-    if (redirectUrl) {
-      navigate(redirectUrl);
-      return;
-    }
+    redirectOnLogin(userID);
   };
 
   /**
@@ -125,9 +149,10 @@ const AuthDialog: FC<AuthDialogProps> = ({ isOpen, setIsOpen, redirectUrl }) => 
    *
    * @returns void
    */
-  const onGoogleLoginSucess = () => {
+  const onGoogleLoginSucess = (userID: string) => {
     logAnalyticsEvent("login", { method: "google" });
     closeDialog();
+    redirectOnLogin(userID);
   };
 
   /**
@@ -257,7 +282,7 @@ const AuthDialog: FC<AuthDialogProps> = ({ isOpen, setIsOpen, redirectUrl }) => 
       <div className="flex items-center justify-between border-b border-gray-200 pb-3">
         <h3 className="flex flex-row items-center gap-x-1.5 text-lg font-semibold leading-6 text-gray-900">
           {authDialogState === AuthDialogState.LOGIN ? (
-            <>Sign in to your account</>
+            <>{signInText}</>
           ) : authDialogState ===
             AuthDialogState.FORGOT_PASSWORD ? (
             <>Reset your password</>

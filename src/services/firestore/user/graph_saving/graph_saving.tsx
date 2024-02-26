@@ -44,8 +44,8 @@ export interface PersonalGraph {
   uid?: string;
 }
 
-export function getGraphHref(graph: PersonalGraph) {
-  return `/saved-graph/${graph.uid}`;
+export function getGraphHref(userID: string, graph: PersonalGraph) {
+  return `/${userID}/saved-graph/${graph.uid}`;
 }
 
 /** Creates a new personal graph for the user.

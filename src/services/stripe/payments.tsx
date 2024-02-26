@@ -5,11 +5,13 @@
 
 import { addDoc, collection, onSnapshot } from "firebase/firestore";
 import { httpsCallable } from "firebase/functions";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { db, functions } from "../firebase";
 
 interface CheckoutSessionOptions {
   enabled?: boolean; // If the hook should be enabled. This prevents the hook from fireing if it's not needed
+  successPath?: string; // The path to redirect to after a successful payment
+  cancelPath?: string; // The path to redirect to after a canceled payment
 }
 
 /** Creates a checkout session for the given price ID and user ID.
@@ -20,12 +22,28 @@ interface CheckoutSessionOptions {
  */
 export const useCheckoutSessionUrl = (priceId: string, userId: string, {
   enabled,
+  successPath,
+  cancelPath,
 }: CheckoutSessionOptions = {
     enabled: true,
+    successPath: "",
+    cancelPath: "",
   }) => {
   const [url, setUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
+
+  // The URL to redirect to after a successful payment
+  const successRedirectUrl = useMemo(() => {
+    const success_host = window.location.origin;
+    return successPath ? `${success_host}/${successPath}` : success_host;
+  }, [successPath]);
+
+  // The URL to redirect to after a canceled payment
+  const cancelRedirectUrl = useMemo(() => {
+    const cancel_host = window.location.origin;
+    return cancelPath ? `${cancel_host}/${cancelPath}` : cancel_host;
+  }, [cancelPath]);
 
   // This function is used to refetch the checkout session URL
   const createCheckoutSession = () => {
@@ -41,8 +59,8 @@ export const useCheckoutSessionUrl = (priceId: string, userId: string, {
     addDoc(checkoutSessionRef, {
       price: priceId,
       allow_promotion_codes: true,
-      success_url: window.location.origin,
-      cancel_url: `${window.location.origin}/billing`,
+      success_url: successRedirectUrl,
+      cancel_url: cancelRedirectUrl
     }).then((docRef) => {
       onSnapshot(docRef, (doc) => {
         const { error, url } = doc.data() as {

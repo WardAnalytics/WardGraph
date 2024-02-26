@@ -12,6 +12,8 @@
     Example: 1000000000000000000000000000000 -> $1000000000000000000
 */
 export default function formatNumber(num: number): string {
+  if (num < 0) return "Unknown"; // If the number is negative, return "unknown
+
   // Always round the number to two decimal places
   num = Math.round(num * 100) / 100;
 

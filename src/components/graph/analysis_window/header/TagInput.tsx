@@ -108,6 +108,12 @@ const TagInput: FC<TagInputProps> = ({
     }
   };
 
+  // Hotkeys for the tag input
+  // Enter: Add tag
+  // ArrowUp: Move selected index up
+  // ArrowDown: Move selected index down
+  // Backspace: Delete last tag
+  // Escape: Unfocus input
   const hotKeysMap: HotKeysType = {
     SEARCH: {
       key: "enter",

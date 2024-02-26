@@ -5,19 +5,19 @@ import {
   XCircleIcon,
 } from "@heroicons/react/24/solid";
 import clsx from "clsx";
-import { FC, KeyboardEvent, useMemo, useRef, useState, useEffect } from "react";
+import { FC, KeyboardEvent, useEffect, useMemo, useRef, useState } from "react";
 
+import { useSearchLabels } from "../../../api/labels/labels";
 import { Label } from "../../../api/model";
-import { searchLabels } from "../../../api/labels/labels";
 
 import { useSearchHistory } from "../../../services/firestore/user/search_history/search_history";
 
 import { HotKeysType } from "../../../types/hotKeys";
 
-import isValidAddress from "../../../utils/isValidAddress";
-import SearchResultPopover from "./SearchResultPopover";
 import useAuthState from "../../../hooks/useAuthState";
 import { logAnalyticsEvent } from "../../../services/firestore/analytics/analytics";
+import isValidAddress from "../../../utils/isValidAddress";
+import SearchResultPopover from "./SearchResultPopover";
 
 const InvalidAddressPopover: FC = () => {
   return (
@@ -53,8 +53,20 @@ interface SearchBarProps {
 const MAX_SEARCH_HISTORY = 50;
 
 const SearchBar: FC<SearchBarProps> = ({ className, onSearchAddress }) => {
-  const popoverRef = useRef<HTMLDivElement>(null); // Popever ref for hotkeys
+  const popoverRef = useRef<HTMLDivElement>(null); // Popover ref for hotkeys
   const { user } = useAuthState();
+  const { mutate: searchLabels } = useSearchLabels({
+    mutation:
+    {
+      onSuccess: (data) => {
+        if (data.labels) {
+          setEntitySearchResults(data.labels);
+        } else {
+          setEntitySearchResults([]);
+        }
+      }
+    }
+  });
 
   // The current query the user is typing
   const [query, setQuery] = useState<string>("");
@@ -78,28 +90,19 @@ const SearchBar: FC<SearchBarProps> = ({ className, onSearchAddress }) => {
 
   // Entity search results
   const [entitySearchResults, setEntitySearchResults] = useState<Label[]>([]);
-  const [lastTimeSearched, setLastTimeSearched] = useState<number>(0);
 
   useEffect(() => {
-    const now = Date.now();
-    setLastTimeSearched(now);
-
     if (!query) {
       setEntitySearchResults([]);
       return;
     }
 
-    searchLabels({ query, limit: MAX_SEARCH_HISTORY }).then((res) => {
-      if (now < lastTimeSearched) {
-        return;
+    // If the query is the same as the last time searched, don't search again
+    searchLabels({
+      data: {
+        query, limit: MAX_SEARCH_HISTORY
       }
-
-      if (res.labels) {
-        setEntitySearchResults(res.labels);
-      } else {
-        setEntitySearchResults([]);
-      }
-    });
+    })
   }, [query]);
 
   // Combine uniqueSearchHistory and entitySearchResults into a single list of search results
