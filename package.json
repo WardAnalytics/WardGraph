@@ -20,7 +20,7 @@
     "@heroicons/react": "^2.1.1",
     "@hookform/resolvers": "^3.3.4",
     "axios": "^1.6.2",
-    "clsx": "^2.0.0",
+    "clsx": "^2.1.0",
     "firebase": "^10.7.1",
     "lodash": "^4.17.21",
     "orval": "^6.23.0",

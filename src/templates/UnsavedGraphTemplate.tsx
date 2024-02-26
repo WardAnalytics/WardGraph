@@ -1,11 +1,14 @@
-import { FC, useCallback, useEffect, useMemo, useState } from "react";
+import { FC, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import { SharableGraph, getSharableGraph } from "../services/firestore/graph_sharing";
 
 import { Transition } from "@headlessui/react";
+import { UnauthenticatedTimeContext } from "../PublicApp";
+import LoginBanner from "../components/banner/LoginBanner";
 import SEO from "../components/common/SEO";
 import { Graph } from "../components/graph/Graph";
 import LandingPage from "../components/graph/landing_page/LandingPage";
+import useAuthState from "../hooks/useAuthState";
 
 interface UnsavedGraphTemplateProps {
   showLandingPage?: boolean;
@@ -15,8 +18,11 @@ const UnsavedGraphTemplate: FC<UnsavedGraphTemplateProps> = ({
   showLandingPage = true,
 }) => {
   const { uid } = useParams<{ uid: string }>();
+  const { isAuthenticated } = useAuthState();
+
   const [loading, setLoading] = useState(true);
   const [graph, setGraph] = useState<SharableGraph>({ addresses: [], edges: [] });
+  const unauthenticatedTimeContext = useContext(UnauthenticatedTimeContext);
 
   const initialAddresses = useMemo(() => {
     if (graph) {
@@ -33,6 +39,10 @@ const UnsavedGraphTemplate: FC<UnsavedGraphTemplateProps> = ({
 
     return [];
   }, [graph]);
+
+  const showGraph = useMemo(() => {
+    return initialAddresses.length > 0 || !showLandingPage
+  }, [initialAddresses, showLandingPage]);
 
   // Save the graph to local storage
   const saveGraph = useCallback(
@@ -79,19 +89,29 @@ const UnsavedGraphTemplate: FC<UnsavedGraphTemplateProps> = ({
       });
   }, [uid]);
 
+  // Start the timer when the graph is shown
+  useEffect(() => {
+    if (showGraph) {
+      unauthenticatedTimeContext.setStartTime(true);
+    }
+  }, [showGraph]);
+
   if (loading) return null;
 
   return (
     <>
       <SEO title="Graph" description="Creating the next-gen of crypto compliance" />
-      <div className="h-full overflow-hidden">
+      <div className="h-full overflow-hidden ">
+        {
+          isAuthenticated ? null : <LoginBanner />
+        }
         <Transition
-          show={initialAddresses.length === 0 && showLandingPage}
+          show={!showGraph}
           appear={true}
           leave="transition-all duration-500"
           leaveFrom="opacity-100 scale-100"
           leaveTo="opacity-0 scale-50"
-          className="absolute flex h-full w-full flex-col items-center justify-center"
+          className="absolute flex h-full w-full flex-col items-center justify-center overflow-x-hidden no-scrollbar"
         >
           <LandingPage
             setSearchedAddress={(address: string) => {
@@ -100,7 +120,7 @@ const UnsavedGraphTemplate: FC<UnsavedGraphTemplateProps> = ({
           />
         </Transition>
         <Transition
-          show={initialAddresses.length > 0 || !showLandingPage}
+          show={showGraph}
           appear={true}
           enter="transition-all duration-500 delay-500"
           enterFrom="opacity-0 scale-150"
@@ -113,7 +133,7 @@ const UnsavedGraphTemplate: FC<UnsavedGraphTemplateProps> = ({
             onLocalSave={saveGraph}
           />
         </Transition>
-      </div >
+      </div>
     </>
   );
 };

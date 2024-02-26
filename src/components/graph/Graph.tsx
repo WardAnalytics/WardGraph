@@ -52,7 +52,7 @@ import TransactionTooltip, { TransactionTooltipProps } from "./TransactionToolti
 import DraggableWindow from "./analysis_window/AnalysisWindow";
 import Hotbar from "./hotbar";
 import Legend from "./legend";
-import TutorialPopup from "./tutorial/TutorialPopup";
+import ShowTutorialPopup from "./tutorial/ShowTutorialPopup";
 
 enum HotKeyMap {
   DELETE = 1,
@@ -333,7 +333,7 @@ const GraphProvided: FC<GraphProvidedProps> = ({
       edges: personalGraphInfo.edges
     }
     debounceSaveLocal.current(newLocalGraph);
-  }, [nodes.length, edges.length]);
+  }, [nodes.length]);
 
   // Undo and Redo -------------------------------------------------------------
 
@@ -557,6 +557,7 @@ const GraphProvided: FC<GraphProvidedProps> = ({
   }, [deleteNodes, selectedNodes]);
 
   const onAddressFocusOff = useCallback(() => {
+    sessionStorage.removeItem("focusedAddressData");
     setFocusedAddressData(null);
   }, []);
 
@@ -724,11 +725,17 @@ const GraphProvided: FC<GraphProvidedProps> = ({
   // Save the focused address data to session storage to keep it on refresh
   // This is required because the focused address data is not part of the graph state
   useEffect(() => {
-    if (focusedAddressData) {
-      sessionStorage.setItem(
-        "focusedAddressData",
-        JSON.stringify(focusedAddressData),
-      );
+    // If there are no nodes, remove the focused address data
+    if (nodes.length === 0) {
+      onAddressFocusOff();
+    } else {
+      // Save the focused address data to session storage
+      if (focusedAddressData) {
+        sessionStorage.setItem(
+          "focusedAddressData",
+          JSON.stringify(focusedAddressData),
+        );
+      }
     }
   }, [focusedAddressData]);
 
@@ -910,6 +917,10 @@ const GraphProvided: FC<GraphProvidedProps> = ({
     personalGraphInfo,
   };
 
+  const showSearchbar = useMemo(() => {
+    return initialNodes.length === 0;
+  }, [initialNodes]);
+
   return (
     <>
       <GraphContext.Provider value={graphContext}>
@@ -941,7 +952,7 @@ const GraphProvided: FC<GraphProvidedProps> = ({
               src="https://tailwindui.com/img/beams-home@95.jpg"
             />
             {/* {<Controls position="top-right" showInteractive={false} />} */}
-            <TutorialPopup
+            <ShowTutorialPopup
               showTutorial={showTutorial}
               setShowTutorial={setShowTutorial}
             />
@@ -959,7 +970,7 @@ const GraphProvided: FC<GraphProvidedProps> = ({
               )}
             </Panel>
             <Panel position="bottom-right">
-              <Hotbar />
+              <Hotbar initialSearchbarValue={showSearchbar} />
             </Panel>
           </ReactFlow>
           <Footer />

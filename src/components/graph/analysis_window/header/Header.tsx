@@ -11,7 +11,7 @@ import { TrashIcon } from "@heroicons/react/24/outline";
 import { XMarkIcon as XMarkSmallIcon } from "@heroicons/react/16/solid";
 
 import clsx from "clsx";
-import { FC, useCallback, useContext } from "react";
+import { FC, useCallback, useContext, useMemo } from "react";
 
 import { AddressAnalysis, Category } from "../../../../api/model";
 import { CategoryClasses } from "../../../../utils/categories";
@@ -37,10 +37,12 @@ import { AnalysisContext, AnalysisMode, AnalysisModes } from "../AnalysisWindow"
 
 import { PathExpansionArgs } from "../../Graph";
 
-import WithAuth, { WithAuthProps } from "../../../../WithAuth";
+import WithAuth, { WithAuthProps } from "../../../auth/WithAuth";
 import useAuthState from "../../../../hooks/useAuthState";
 import { logAnalyticsEvent } from "../../../../services/firestore/analytics/analytics";
+import WithPremium, { WithPremiumProps } from "../../../premium/WithPremium";
 import TagInput from "./TagInput";
+import { addFreeTierExpandWithAIInteraction, useFreeTierExpandWithAIUsage } from "../../../../services/firestore/user/free_usage";
 
 interface ModeButtonProps {
   isActive: boolean;
@@ -214,24 +216,21 @@ const LabelsAndTags: FC<LabelsAndTagsProps> = ({ handleActionRequiringAuth }) =>
 // The tag input will only be shown if the user is authenticated
 const LabelsAndTagsWithAuth = WithAuth(LabelsAndTags);
 
-interface HeaderProps {
-  onExit: () => void;
-  setAnalysisMode: (mode: AnalysisMode) => void;
-  analysisMode: AnalysisMode;
+// Expand with AI -------------------------------------------------------------
+interface ExpandWithAIProps extends WithPremiumProps {
+  analysisData: AddressAnalysis;
+  addMultipleDifferentPaths: (args: PathExpansionArgs[]) => void;
 }
 
-const Header: FC<HeaderProps> = ({
-  onExit,
-  setAnalysisMode,
-  analysisMode,
-}: HeaderProps) => {
-  // Extract analysisData from context
-  const { addMultipleDifferentPaths, deleteNodes } = useContext(GraphContext);
-  const { analysisData, address } = useContext(AnalysisContext);
-
-  // When minimized, the address hash should be sliced off
-  const displayedAddress = address.slice(0, 8) + "..." + address.slice(-6);
-  const risk = analysisData!.risk;
+const ExpandWithAI: FC<ExpandWithAIProps> = ({
+  analysisData,
+  addMultipleDifferentPaths,
+  handleActionRequiringAuth,
+  handleActionRequiringPremium
+}) => {
+  const { user } = useAuthState();
+  const userID = useMemo(() => user ? user.uid : "", [user]);
+  const { hasReachedUsageLimit } = useFreeTierExpandWithAIUsage(userID);
 
   const expandWithAI = useCallback((analysisData: AddressAnalysis) => {
     // We'll first do it for incoming and then for outgoing to get balanced results
@@ -303,6 +302,77 @@ const Header: FC<HeaderProps> = ({
   }, []);
 
   return (
+    <div className="group flex flex-row items-center justify-center">
+      <SparklesIcon
+        onClick={async () => {
+          handleActionRequiringAuth({
+            pathname: "graph",
+          })
+
+          if (hasReachedUsageLimit) {
+            handleActionRequiringPremium({
+              successPath: "graph",
+              cancelPath: "graph",
+            })
+          }
+
+          await addFreeTierExpandWithAIInteraction(userID)
+
+          expandWithAI(analysisData!);
+          logAnalyticsEvent("expand_addresses_with_AI")
+        }}
+        className="h-11 w-11 cursor-pointer rounded-md p-1.5 text-indigo-400 transition-all duration-150 ease-in-out hover:bg-indigo-50 "
+      />
+      <div className="pointer-events-none absolute mb-48 mt-0.5 w-max origin-bottom scale-50 divide-y divide-gray-700 rounded-lg bg-gray-800 px-3 py-3 text-white opacity-0 shadow-sm transition-all duration-300 ease-in-out group-hover:scale-100 group-hover:opacity-100">
+        <div className="flex flex-row items-center gap-x-1.5 pb-1">
+          <InformationCircleIcon className="h-5 w-5 text-indigo-200" />
+          <h1 className="text-base font-semibold leading-7">
+            Expand w/AI
+          </h1>
+        </div>
+        <div className="flex max-w-xs flex-col gap-y-1.5 pt-1 text-xs font-normal text-gray-400">
+          The AI algorithm will expand based on the following criteria:
+          <ul className="flex flex-col gap-y-2 pl-3 text-white">
+            <li className="flex flex-row items-center gap-x-1">
+              <IdentificationIcon className="h-5 w-5 text-indigo-200" />
+              <span className="font-bold">Highest risk</span>categories of
+              addresses
+            </li>
+            <li className="flex flex-row items-center gap-x-1">
+              <ArrowsPointingInIcon className="h-5 w-5 text-indigo-200" />
+              <span className="font-bold">Most relevant</span> multi-hop
+              paths
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// Expand with AI with authentication
+const ExpandWithAIWithPremium = WithPremium(ExpandWithAI);
+
+interface HeaderProps {
+  onExit: () => void;
+  setAnalysisMode: (mode: AnalysisMode) => void;
+  analysisMode: AnalysisMode;
+}
+
+const Header: FC<HeaderProps> = ({
+  onExit,
+  setAnalysisMode,
+  analysisMode,
+}: HeaderProps) => {
+  // Extract analysisData from context
+  const { addMultipleDifferentPaths, deleteNodes } = useContext(GraphContext);
+  const { analysisData, address } = useContext(AnalysisContext);
+
+  // When minimized, the address hash should be sliced off
+  const displayedAddress = address.slice(0, 8) + "..." + address.slice(-6);
+  const risk = analysisData!.risk;
+
+  return (
     <span className="flex cursor-move flex-row items-center justify-between gap-x-2">
       <span className="flex flex-row items-center space-x-2">
         {/* Address Risk inside a badge */}
@@ -345,38 +415,7 @@ const Header: FC<HeaderProps> = ({
         />
 
         <span className="flex flex-row">
-          <div className="group flex flex-row items-center justify-center">
-            <SparklesIcon
-              onClick={() => {
-                expandWithAI(analysisData!);
-                logAnalyticsEvent("expand_addresses_with_AI")
-              }}
-              className="h-11 w-11 cursor-pointer rounded-md p-1.5 text-indigo-400 transition-all duration-150 ease-in-out hover:bg-indigo-50 "
-            />
-            <div className="pointer-events-none absolute mb-48 mt-0.5 w-max origin-bottom scale-50 divide-y divide-gray-700 rounded-lg bg-gray-800 px-3 py-3 text-white opacity-0 shadow-sm transition-all duration-300 ease-in-out group-hover:scale-100 group-hover:opacity-100">
-              <div className="flex flex-row items-center gap-x-1.5 pb-1">
-                <InformationCircleIcon className="h-5 w-5 text-indigo-200" />
-                <h1 className="text-base font-semibold leading-7">
-                  Expand w/AI
-                </h1>
-              </div>
-              <div className="flex max-w-xs flex-col gap-y-1.5 pt-1 text-xs font-normal text-gray-400">
-                The AI algorithm will expand based on the following criteria:
-                <ul className="flex flex-col gap-y-2 pl-3 text-white">
-                  <li className="flex flex-row items-center gap-x-1">
-                    <IdentificationIcon className="h-5 w-5 text-indigo-200" />
-                    <span className="font-bold">Highest risk</span>categories of
-                    addresses
-                  </li>
-                  <li className="flex flex-row items-center gap-x-1">
-                    <ArrowsPointingInIcon className="h-5 w-5 text-indigo-200" />
-                    <span className="font-bold">Most relevant</span> multi-hop
-                    paths
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </div>
+          <ExpandWithAIWithPremium analysisData={analysisData!} addMultipleDifferentPaths={addMultipleDifferentPaths} />
           <div className="group flex flex-row items-center justify-center">
             <TrashIcon
               onClick={() => {

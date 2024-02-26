@@ -1,25 +1,34 @@
-import { FC } from "react";
-//import { useNavigate, useParams } from "react-router-dom";
-//import firestore from "../services/firebase/firestore";
+import { FC, useEffect, useMemo } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import useAuthState from "../hooks/useAuthState";
 import RedirectTemplate from "./RedirectTemplate";
 
-const RedirectShortUrl: FC = () => {
-  // const { key } = useParams();
+const RedirectSharedGraph: FC = () => {
+  const { uid: sharedGraphID } = useParams<{ uid: string }>();
+  const { isAuthenticated, isLoading, user } = useAuthState();
 
-  // const navigate = useNavigate();
+  const userID = useMemo(() => {
+    return user ? user.uid : "";
+  }, [user]);
 
-  // async function getFullUrl() {
-  //   let fullUrl = null;
-  //   if (key) {
-  //     fullUrl = await firestore.getOriginalUrl(key);
-  //   } else {
-  //     console.error("Invalid url");
-  //   }
+  const navigate = useNavigate();
 
-  //   return fullUrl;
-  // }
+  useEffect(() => {
+    // If the user is loading, it does nothing
+    if (isLoading) {
+      return;
+    }
+
+    // If the user is authenticated, it redirects to the graph on user account, otherwise, it redirects to the public graph
+    if (isAuthenticated) {
+      navigate(`/${userID}/graph/${sharedGraphID}`);
+    } else {
+      navigate(`/public/graph/${sharedGraphID}`);
+    }
+
+  }, [isLoading, userID])
 
   return <RedirectTemplate title="Redirecting to the graph..." />;
 };
 
-export default RedirectShortUrl;
+export default RedirectSharedGraph;

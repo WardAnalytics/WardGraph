@@ -89,7 +89,7 @@ const signUp = async (
 const login = async (
   email: string,
   password: string,
-  onSuccess: () => void,
+  onSuccess: (userID: string) => void,
   onError: (error: any) => void,
 ) => {
   await signInWithEmailAndPassword(auth, email, password)
@@ -120,7 +120,7 @@ const login = async (
       // Saves user in the firestore database
       // This function is called here to save already existing users in production
       createUserInDatabase(user.uid, user.userData!).then(() => {
-        onSuccess();
+        onSuccess(user.uid);
       });
     })
     .catch((error) => {
@@ -152,7 +152,7 @@ const logout = async (onSuccess: () => void, onError: (error: any) => void) => {
  * @param onError - callback function to be executed on signup error
  */
 const signUpWithGoogle = async (
-  onSuccess: () => void,
+  onSuccess: (userID: string) => void,
   onError: (error: any) => void,
 ) => {
   await signInWithPopup(auth, googleProvider)
@@ -175,7 +175,7 @@ const signUpWithGoogle = async (
       // Saves user in the firestore database
       createUserInDatabase(userID, newUser.userData!).then((newUser) => {
         localStorage.setItem("user", JSON.stringify(newUser));
-        onSuccess();
+        onSuccess(userID);
       });
     })
     .catch((error) => {

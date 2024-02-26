@@ -132,7 +132,7 @@ const DraggableWindow: FC<DraggableWindowProps> = ({
   };
 
   return (
-    <div className="pointer-events-none fixed z-50 h-full w-full">
+    <div className="pointer-events-none fixed z-10 h-full w-full">
       <AnalysisContext.Provider value={contextValue}>
         <Draggable nodeRef={nodeRef}>
           <div ref={nodeRef}>

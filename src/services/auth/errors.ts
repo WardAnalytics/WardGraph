@@ -19,3 +19,10 @@ export class UserEmailNotVerifiedError extends AuthError {
     this.name = "UserEmailNotVerifiedError";
   }
 }
+
+export class UserNotPremiumError extends AuthError {
+  constructor(message: string = "User is not premium") {
+    super(message);
+    this.name = "UserNotPremiumError";
+  }
+}

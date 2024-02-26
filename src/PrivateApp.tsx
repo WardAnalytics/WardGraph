@@ -1,5 +1,5 @@
 import { FC } from "react";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 
 import Navbar from "./components/navbar";
 import {
@@ -8,28 +8,42 @@ import {
   SavedGraphsTemplate,
   UnsavedGraphTemplate,
 } from "./templates";
+import RedirectSharedGraph from "./templates/RedirectShortUrl";
 
-const PrivateApp: FC = () => {
+interface PrivateAppProps {
+  userID: string;
+}
+
+const PrivateApp: FC<PrivateAppProps> = ({
+  userID
+}) => {
   return (
-    <div className="flex h-screen w-screen flex-row">
-      <BrowserRouter>
-        <Navbar />
-        <Routes>
-          <Route
-            path="/graph/:uid"
-            element={<UnsavedGraphTemplate showLandingPage={false} />}
-          />
-          <Route
-            path="/graph"
-            element={<UnsavedGraphTemplate showLandingPage={false} />}
-          />
-          <Route path="/saved-graph/:uid" element={<SavedGraphTemplate />} />
-          <Route path="/billing" element={<BillingTemplate />} />
-          <Route path="/graphs" element={<SavedGraphsTemplate />} />
-          <Route path="*" element={<UnsavedGraphTemplate showLandingPage={false} />} />
-        </Routes>
-      </BrowserRouter>
-    </div>
+    userID ?
+      <div className="flex h-screen w-screen flex-row">
+        < BrowserRouter >
+          <Navbar userID={userID} />
+          <Routes>
+            <Route
+              path={`/${userID}/graph/:uid`}
+              element={<UnsavedGraphTemplate showLandingPage={false} />}
+            />
+            <Route
+              path={`/${userID}/graph`}
+              element={<UnsavedGraphTemplate showLandingPage={false} />}
+            />
+            <Route path="/graph" element={<Navigate to={`/${userID}/graph`} />} />
+            <Route path={`/${userID}/graph/new`} element={<UnsavedGraphTemplate showLandingPage={false} />} />
+            <Route path={`/${userID}/saved-graph/:uid`} element={<SavedGraphTemplate />} />
+            <Route path={`/${userID}/billing`} element={<BillingTemplate />} />
+            <Route path={`/${userID}/graphs`} element={<SavedGraphsTemplate />} />
+            <Route path="/shared/graph/:uid" element={<RedirectSharedGraph />} />
+            {/* Keep for legacy reasons */}
+            <Route path="/graph/:uid" element={<RedirectSharedGraph />} />
+            <Route path="*" element={<Navigate to={`/${userID}/graph`} />} />
+          </Routes>
+        </BrowserRouter >
+      </div >
+      : null
   );
 };
 

@@ -46,7 +46,7 @@ const CreateGraphDialog: FC<CreateGraphDialogProps> = ({
     };
     createPersonalGraph(user.uid, graph).then((uid) => {
       setOpen(false);
-      navigate(`/saved-graph/${uid}`);
+      navigate(`/${user.uid}/saved-graph/${uid}`);
     });
   }, [graphName]);
 

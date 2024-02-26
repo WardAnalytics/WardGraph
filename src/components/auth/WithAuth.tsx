@@ -1,23 +1,23 @@
 import React from 'react';
-import AuthDialog from './components/auth';
-import useAuthState from './hooks/useAuthState';
-import { UserNotLoggedInError } from './services/auth/errors';
+import AuthDialog from '.';
+import useAuthState from '../../hooks/useAuthState';
+import { UserNotLoggedInError } from '../../services/auth/errors';
 
 /**
  * pathname: The path to redirect to
  * 
- * search: The query string to append to the URL
+ * queryParams: The query parameters to include in the redirect URL
  * 
  * @example
  * const redirectUrl: RedirectUrl = {
  * pathname: 'graph',
- * search: createSearchParams({
+ * queryParams: {
         foo: "bar"
-    }).toString()
+    }
  */
 export interface RedirectUrl {
   pathname: string;
-  search?: string;
+  queryParams?: { [key: string]: string };
 }
 
 export interface WithAuthProps {
@@ -68,9 +68,9 @@ const WithAuth = <P extends WithAuthProps>(WrappedComponent: React.ComponentType
      * const handleSaveGraph = () => {
      *    handleActionRequiringAuth({
      *      pathname: 'graph',
-     *      search: createSearchParams({
+     *      queryParams: {
      *        save_graph: "true"
-     *      }).toString()
+     *      }
      *    });
      * 
      *    // Save the graph
@@ -89,7 +89,10 @@ const WithAuth = <P extends WithAuthProps>(WrappedComponent: React.ComponentType
     return (
       <>
         <WrappedComponent {...(props as P)} handleActionRequiringAuth={handleActionRequiringAuth} />
-        <AuthDialog isOpen={showAuthModal} setIsOpen={setShowAuthModal} redirectUrl={redirectUrl} />
+        {
+          showAuthModal &&
+          <AuthDialog isOpen={showAuthModal} setIsOpen={setShowAuthModal} redirectUrl={redirectUrl} />
+        }
       </>
     );
   };

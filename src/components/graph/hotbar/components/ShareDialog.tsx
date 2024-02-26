@@ -94,7 +94,7 @@ const ShareDialog: FC<ShareDialogProps> = ({
   useEffect(() => {
     if (isOpen) {
       generateSharableLink().then((url) => {
-        setUrl(`${window.location.origin}/graph/${url}`);
+        setUrl(`${window.location.origin}/shared/graph/${url}`);
         logAnalyticsEvent("share_graph_url_generated", { url });
       });
     }

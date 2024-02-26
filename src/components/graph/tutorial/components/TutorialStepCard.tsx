@@ -17,7 +17,9 @@ const TutorialStepCard: FC<TutorialStepCardProps> = ({ Step, show }) => {
       leave="hidden duration-0"
       className="h-fit w-full"
     >
-      <Step />
+      <div className="flex w-full flex-col gap-y-2">
+        <Step />
+      </div>
     </Transition>
   );
 };
