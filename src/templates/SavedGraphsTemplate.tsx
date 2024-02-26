@@ -22,7 +22,7 @@ import SEO from "../components/common/SEO";
 import "../components/common/Scrollbar.css";
 
 interface GraphCardProps {
-  userID: string
+  userID: string;
   graph: PersonalGraph;
 }
 
@@ -68,7 +68,10 @@ const SavedGraphsTemplate: FC = () => {
 
   return (
     <>
-      <SEO title="Saved Graphs" description="View and manage your saved graphs" />
+      <SEO
+        title="Saved Graphs"
+        description="View and manage your saved graphs"
+      />
       <div className="mx-14 my-10 flex w-full flex-col gap-y-5">
         <h3 className="flex flex-row justify-between  text-xl font-semibold text-gray-700">
           <div className="flex flex-row items-center gap-2">
@@ -95,14 +98,6 @@ const SavedGraphsTemplate: FC = () => {
           isOpen={isCreateGraphDialogOpen}
           setOpen={setIsCreateGraphDialogOpen}
         />
-        <div className="h-[1px] w-full bg-gray-200" />
-        <div className="scrollbar overflow-x-hidden overflow-y-scroll">
-          <div className="grid auto-rows-auto grid-cols-3 gap-4 pr-3">
-            {graphs.map((graph) => (
-              <GraphCard userID={userID} graph={graph} key={graph.uid} />
-            ))}
-          </div>
-        </div>
       </div>
     </>
   );
