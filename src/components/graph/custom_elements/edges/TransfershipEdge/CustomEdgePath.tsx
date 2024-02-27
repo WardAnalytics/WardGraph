@@ -3,13 +3,13 @@ import { CSSProperties } from "react";
 import { RiskLevelColors } from "../../../../../utils/risk_levels";
 
 import "./CustomEdgePath.css";
+import { max } from "lodash";
 
 interface CustomEdgePathProps {
   id?: string;
   path: string;
   style?: CSSProperties;
   strokeWidth: number;
-  hoveredStyle?: CSSProperties;
   onClick?: () => void;
   onMouseEnter?: () => void;
   onMouseLeave?: () => void;
@@ -25,7 +25,6 @@ const CustomEdgePath = ({
   path,
   strokeWidth,
   opacity,
-  hoveredStyle,
   edgeHandleID,
   isHidden,
   isClickable,
@@ -78,7 +77,6 @@ const CustomEdgePath = ({
           )}
         />
       </marker>
-
       <path
         id={id}
         d={path}
@@ -123,14 +121,58 @@ const CustomEdgePath = ({
         <path
           d={path}
           fill="none"
-          style={hoveredStyle}
           strokeWidth={Math.min(strokeWidth * 15, 20)}
           className="react-flow__edge-interaction opacity-0 hover:animate-pulse hover:cursor-pointer hover:opacity-90"
+          style={{
+            strokeLinecap: "round",
+            strokeLinejoin: "round",
+            stroke: isHidden ? "#60a5fa" : "#9ca3af",
+            transition: "stroke 0.5s, opacity 0.2s ease-out",
+          }}
           onClick={onClick}
           onMouseEnter={onMouseEnter}
           onMouseLeave={onMouseLeave}
         />
       )}
+      <circle
+        className={clsx(
+          riskVisionColors
+            ? riskVisionColors.fillColor
+            : edgeHandleID === "a"
+              ? "fill-blue-400"
+              : "fill-orange-400",
+        )}
+        cx="0"
+        cy="0"
+        r={max([strokeWidth * 2, 2.5])}
+      >
+        <animateMotion
+          dur="4.5s"
+          repeatCount="indefinite"
+          path={path}
+          rotate="auto"
+        />
+      </circle>
+      <circle
+        className={clsx(
+          "animate-ping",
+          riskVisionColors
+            ? riskVisionColors.fillColor
+            : edgeHandleID === "a"
+              ? "fill-blue-400"
+              : "fill-orange-400",
+        )}
+        cx="0"
+        cy="0"
+        r={max([strokeWidth * 2, 1.5])}
+      >
+        <animateMotion
+          dur="4.5s"
+          repeatCount="indefinite"
+          path={path}
+          rotate="auto"
+        />
+      </circle>
     </>
   );
 };
