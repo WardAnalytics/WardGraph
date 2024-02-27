@@ -77,11 +77,6 @@ const TransfershipEdge: FC<EdgeProps> = ({
     }
   }
 
-  const hoveredStyle = {
-    stroke: isHidden ? "#60a5fa" : "#9ca3af",
-    transition: "stroke 0.5s, opacity 0.2s ease-out",
-  };
-
   const [edgePath] = getBezierPath({
     sourceX,
     sourceY,
@@ -99,7 +94,6 @@ const TransfershipEdge: FC<EdgeProps> = ({
         path={edgePath}
         strokeWidth={width}
         opacity={opacity}
-        hoveredStyle={hoveredStyle}
         isHidden={isHidden}
         isClickable={isClickable}
         riskVisionColors={riskVisionColors}
