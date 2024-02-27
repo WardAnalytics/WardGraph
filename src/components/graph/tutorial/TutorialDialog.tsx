@@ -5,18 +5,18 @@ import {
   XMarkIcon,
 } from "@heroicons/react/24/outline";
 import clsx from "clsx";
-import { FC, KeyboardEvent, useState } from "react";
+import { FC, KeyboardEvent, useMemo, useState } from "react";
 import BigButton from "../../common/BigButton";
 
 import { logAnalyticsEvent } from "../../../services/firestore/analytics/analytics";
 import { HotKeysType } from "../../../types/hotKeys";
 import Modal from "../../common/Modal";
 import TutorialStepCard from "./components/TutorialStepCard";
+import tutorialSteps from "./steps";
 
 interface TutorialProps {
   show: boolean;
   setShow: (show: boolean) => void;
-  steps: any[];
   initialStep?: number;
 }
 
@@ -91,10 +91,10 @@ const ProgressCircles: FC<ProgressCirclesProps> = ({
 const TutorialDialog: FC<TutorialProps> = ({
   show: isTutorialOpen,
   setShow: setIsTutorialOpen,
-  steps,
   initialStep = 0,
 }) => {
   const [currentStep, setCurrentStep] = useState(initialStep);
+  const steps = useMemo(() => tutorialSteps, []);
 
   // Hotkeys for tutorial
   // ArrowLeft: Go to previous slide
