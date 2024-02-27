@@ -25,7 +25,10 @@ import ReactFlow, {
 } from "reactflow";
 import "reactflow/dist/style.css";
 
-import { SharableGraph, createSharableGraph } from "../../services/firestore/graph_sharing";
+import {
+  SharableGraph,
+  createSharableGraph,
+} from "../../services/firestore/graph_sharing";
 
 import { AddressAnalysis } from "../../api/model";
 
@@ -48,7 +51,9 @@ import {
 
 import { PersonalGraphInfo } from "../../services/firestore/user/graph_saving";
 import Footer from "../footer/Footer";
-import TransactionTooltip, { TransactionTooltipProps } from "./TransactionTooltip";
+import TransactionTooltip, {
+  TransactionTooltipProps,
+} from "./TransactionTooltip";
 import DraggableWindow from "./analysis_window/AnalysisWindow";
 import Hotbar from "./hotbar";
 import Legend from "./legend";
@@ -209,7 +214,7 @@ const GraphProvided: FC<GraphProvidedProps> = ({
   initialNodes,
   initialEdges,
   onAutoSave,
-  onLocalSave
+  onLocalSave,
 }) => {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
@@ -296,7 +301,7 @@ const GraphProvided: FC<GraphProvidedProps> = ({
         onAutoSave(graphInfo);
       }
     },
-    [nodes.length, edges.length]
+    [nodes.length, edges.length],
   );
 
   const saveGraphLocal = useCallback(
@@ -305,8 +310,8 @@ const GraphProvided: FC<GraphProvidedProps> = ({
         onLocalSave(graphInfo);
       }
     },
-    [nodes.length, edges.length]
-  )
+    [nodes.length, edges.length],
+  );
 
   const debouncedSave = useRef(
     debounce((graphInfo: PersonalGraphInfo) => {
@@ -330,8 +335,8 @@ const GraphProvided: FC<GraphProvidedProps> = ({
 
     const newLocalGraph: SharableGraph = {
       addresses: personalGraphInfo.addresses,
-      edges: personalGraphInfo.edges
-    }
+      edges: personalGraphInfo.edges,
+    };
     debounceSaveLocal.current(newLocalGraph);
   }, [nodes.length]);
 
@@ -649,9 +654,18 @@ const GraphProvided: FC<GraphProvidedProps> = ({
         incoming,
       );
 
+      // Get all the nodes that were added
+      const addedNodes = newNodes.filter((node) => !nodesRecord[node.id]);
+
       // Set the new nodes and edges
       setNodes(newNodes);
       setEdges(newEdges);
+
+      fitView({
+        padding: 0.5,
+        duration: 250,
+        nodes: addedNodes,
+      });
     },
     [nodes.length, edges.length],
   );
@@ -689,6 +703,16 @@ const GraphProvided: FC<GraphProvidedProps> = ({
       // Set the new nodes and edges
       setNodes(newNodes);
       setEdges(newEdges);
+
+      // Fit view to the added nodes
+      fitView({
+        padding: 0.5,
+        duration: 250,
+        nodes: newNodes,
+      });
+
+      // Close analysis window
+      setFocusedAddressData(null);
     },
     [nodes.length, edges.length],
   );
@@ -713,7 +737,8 @@ const GraphProvided: FC<GraphProvidedProps> = ({
   const [focusedAddressData, setFocusedAddressData] =
     useState<AddressAnalysis | null>(null);
 
-  const initialFocusedAddressData = sessionStorage.getItem("focusedAddressData");
+  const initialFocusedAddressData =
+    sessionStorage.getItem("focusedAddressData");
 
   // Load the focused address data from session storage
   useEffect(() => {
