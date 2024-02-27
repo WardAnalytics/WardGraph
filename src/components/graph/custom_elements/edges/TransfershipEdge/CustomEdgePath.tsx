@@ -136,7 +136,11 @@ const CustomEdgePath = ({
       )}
       <circle
         className={clsx(
-          edgeHandleID === "a" ? "fill-blue-400" : "fill-orange-400",
+          riskVisionColors
+            ? riskVisionColors.fillColor
+            : edgeHandleID === "a"
+              ? "fill-blue-400"
+              : "fill-orange-400",
         )}
         cx="0"
         cy="0"
@@ -152,7 +156,11 @@ const CustomEdgePath = ({
       <circle
         className={clsx(
           "animate-ping",
-          edgeHandleID === "a" ? "fill-blue-400" : "fill-orange-400",
+          riskVisionColors
+            ? riskVisionColors.fillColor
+            : edgeHandleID === "a"
+              ? "fill-blue-400"
+              : "fill-orange-400",
         )}
         cx="0"
         cy="0"
