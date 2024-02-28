@@ -829,7 +829,7 @@ const GraphProvided: FC<GraphProvidedProps> = ({
    * and we change the color of the edges so that they are instead based on
    * the risk of the nodes they connect (with pretty gradients). */
 
-  const [isRiskVision, setIsRiskVision] = useState<boolean>(false);
+  const [isRiskVision, setIsRiskVision] = useState<boolean>(true);
 
   /* This is required so that the edges in risk vision and easily have access
    * to the risk of the nodes they are connected to.
@@ -998,15 +998,16 @@ const GraphProvided: FC<GraphProvidedProps> = ({
             <Panel position="top-left">
               <Legend />
             </Panel>
-            <Panel position="top-right">
-              {hoveredTransferData && (
-                <TransactionTooltip
-                  source={hoveredTransferData.source}
-                  target={hoveredTransferData.target}
-                  volume={hoveredTransferData.volume ?? 0}
-                />
-              )}
-            </Panel>
+
+            {hoveredTransferData && (
+              <TransactionTooltip
+                source={hoveredTransferData.source}
+                target={hoveredTransferData.target}
+                volume={hoveredTransferData.volume ?? 0}
+                x={hoveredTransferData.x}
+                y={hoveredTransferData.y}
+              />
+            )}
             <Panel position="bottom-right">
               <Hotbar initialSearchbarValue={showSearchbar} />
             </Panel>

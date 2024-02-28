@@ -11,8 +11,9 @@ interface CustomEdgePathProps {
   style?: CSSProperties;
   strokeWidth: number;
   onClick?: () => void;
-  onMouseEnter?: () => void;
+  onMouseEnter?: (e: any) => void;
   onMouseLeave?: () => void;
+  onMouseMove?: (e: any) => void;
   edgeHandleID: string;
   isHidden: boolean;
   opacity: number;
@@ -132,6 +133,7 @@ const CustomEdgePath = ({
           onClick={onClick}
           onMouseEnter={onMouseEnter}
           onMouseLeave={onMouseLeave}
+          onMouseMove={onMouseEnter}
         />
       )}
       <circle
