@@ -22,6 +22,7 @@ import ReactFlow, {
   useOnSelectionChange,
   useReactFlow,
   useUpdateNodeInternals,
+  ZoomInOut,
 } from "reactflow";
 import "reactflow/dist/style.css";
 
@@ -108,6 +109,10 @@ interface GraphContextProps {
   generateSharableLink: () => Promise<string>;
   isSavedGraph: boolean;
   personalGraphInfo: PersonalGraphInfo;
+  isTrackPad: boolean;
+  setIsTrackPad: (isTrackPad: boolean) => void;
+  zoomIn: ZoomInOut;
+  zoomOut: ZoomInOut;
 }
 
 export const GraphContext = createContext<GraphContextProps>(
@@ -218,7 +223,7 @@ const GraphProvided: FC<GraphProvidedProps> = ({
 }) => {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
-  const { fitView, screenToFlowPosition } = useReactFlow();
+  const { fitView, screenToFlowPosition, zoomIn, zoomOut } = useReactFlow();
 
   // Regularly update the node internals to make sure edges are consistent
   const updateNodeInternals = useUpdateNodeInternals();
@@ -824,7 +829,7 @@ const GraphProvided: FC<GraphProvidedProps> = ({
    * and we change the color of the edges so that they are instead based on
    * the risk of the nodes they connect (with pretty gradients). */
 
-  const [isRiskVision, setIsRiskVision] = useState<boolean>(false);
+  const [isRiskVision, setIsRiskVision] = useState<boolean>(true);
 
   /* This is required so that the edges in risk vision and easily have access
    * to the risk of the nodes they are connected to.
@@ -916,6 +921,10 @@ const GraphProvided: FC<GraphProvidedProps> = ({
   // Tutorial
   const [showTutorial, setShowTutorial] = useState<boolean>(false);
 
+  // Track Pad / Mouse Toggle --------------------------------------------------
+
+  const [isTrackPad, setIsTrackPad] = useState<boolean>(true);
+
   // Set up the context
   const graphContext: GraphContextProps = {
     addAddressPaths,
@@ -940,6 +949,10 @@ const GraphProvided: FC<GraphProvidedProps> = ({
     setShowRiskVision: setIsRiskVision,
     isSavedGraph: onAutoSave !== undefined,
     personalGraphInfo,
+    isTrackPad,
+    setIsTrackPad,
+    zoomIn,
+    zoomOut,
   };
 
   const showSearchbar = useMemo(() => {
@@ -962,14 +975,14 @@ const GraphProvided: FC<GraphProvidedProps> = ({
             fitView
             nodeTypes={nodeTypes}
             edgeTypes={edgeTypes}
-            panOnScroll
-            selectionOnDrag
-            panOnDrag={panOnDrag}
-            selectionMode={SelectionMode.Partial}
-            zoomOnDoubleClick={true}
+            panOnScroll={!isTrackPad}
+            selectionOnDrag={!isTrackPad}
+            panOnDrag={isTrackPad ? undefined : panOnDrag}
+            selectionMode={isTrackPad ? undefined : SelectionMode.Partial}
+            zoomOnDoubleClick={!isTrackPad}
             className="h-full w-full"
-            maxZoom={1.5}
-            minZoom={0.25}
+            maxZoom={1.75}
+            minZoom={0.1}
           >
             <img
               className="-z-10 m-auto w-full scale-150 animate-pulse opacity-40"
@@ -985,15 +998,16 @@ const GraphProvided: FC<GraphProvidedProps> = ({
             <Panel position="top-left">
               <Legend />
             </Panel>
-            <Panel position="top-right">
-              {hoveredTransferData && (
-                <TransactionTooltip
-                  source={hoveredTransferData.source}
-                  target={hoveredTransferData.target}
-                  volume={hoveredTransferData.volume ?? 0}
-                />
-              )}
-            </Panel>
+
+            {hoveredTransferData && (
+              <TransactionTooltip
+                source={hoveredTransferData.source}
+                target={hoveredTransferData.target}
+                volume={hoveredTransferData.volume ?? 0}
+                x={hoveredTransferData.x}
+                y={hoveredTransferData.y}
+              />
+            )}
             <Panel position="bottom-right">
               <Hotbar initialSearchbarValue={showSearchbar} />
             </Panel>

@@ -86,6 +86,16 @@ const TransfershipEdge: FC<EdgeProps> = ({
     targetPosition,
   });
 
+  const handleMouseMove = (e: any) => {
+    setHoveredTransferData({
+      source,
+      target,
+      volume,
+      x: e.clientX,
+      y: e.clientY,
+    });
+  };
+
   return (
     <>
       <CustomEdgePath
@@ -104,14 +114,10 @@ const TransfershipEdge: FC<EdgeProps> = ({
               ? TransfershipEdgeStates.REVEALED
               : TransfershipEdgeStates.HIDDEN,
           );
+          setHoveredTransferData(null);
         }}
-        onMouseEnter={() => {
-          setHoveredTransferData({
-            source,
-            target,
-            volume,
-          });
-        }}
+        onMouseMove={handleMouseMove}
+        onMouseEnter={handleMouseMove}
         onMouseLeave={() => setHoveredTransferData(null)}
       />
     </>
