@@ -1,5 +1,5 @@
 import clsx from "clsx";
-import { CSSProperties } from "react";
+import { CSSProperties, useMemo } from "react";
 import { RiskLevelColors } from "../../../../../utils/risk_levels";
 
 import "./CustomEdgePath.css";
@@ -35,6 +35,13 @@ const CustomEdgePath = ({
   riskVisionColors,
 }: CustomEdgePathProps) => {
   const triangleMarkerID: string = `triangle-${id}`;
+
+  // Create a delay for the animation picked at random between 0 and 5 seconds. It should only be calculated once
+  const { delay } = useMemo(() => {
+    return {
+      delay: Math.random() * 5,
+    };
+  }, []);
 
   return (
     <>
@@ -153,6 +160,7 @@ const CustomEdgePath = ({
           repeatCount="indefinite"
           path={path}
           rotate="auto"
+          begin={`${delay}s`}
         />
       </circle>
       <circle
@@ -173,6 +181,7 @@ const CustomEdgePath = ({
           repeatCount="indefinite"
           path={path}
           rotate="auto"
+          begin={`${delay}s`}
         />
       </circle>
     </>
