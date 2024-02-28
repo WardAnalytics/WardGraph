@@ -22,6 +22,7 @@ import ReactFlow, {
   useOnSelectionChange,
   useReactFlow,
   useUpdateNodeInternals,
+  ZoomInOut,
 } from "reactflow";
 import "reactflow/dist/style.css";
 
@@ -108,6 +109,10 @@ interface GraphContextProps {
   generateSharableLink: () => Promise<string>;
   isSavedGraph: boolean;
   personalGraphInfo: PersonalGraphInfo;
+  isTrackPad: boolean;
+  setIsTrackPad: (isTrackPad: boolean) => void;
+  zoomIn: ZoomInOut;
+  zoomOut: ZoomInOut;
 }
 
 export const GraphContext = createContext<GraphContextProps>(
@@ -218,7 +223,7 @@ const GraphProvided: FC<GraphProvidedProps> = ({
 }) => {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
-  const { fitView, screenToFlowPosition } = useReactFlow();
+  const { fitView, screenToFlowPosition, zoomIn, zoomOut } = useReactFlow();
 
   // Regularly update the node internals to make sure edges are consistent
   const updateNodeInternals = useUpdateNodeInternals();
@@ -916,6 +921,10 @@ const GraphProvided: FC<GraphProvidedProps> = ({
   // Tutorial
   const [showTutorial, setShowTutorial] = useState<boolean>(false);
 
+  // Track Pad / Mouse Toggle --------------------------------------------------
+
+  const [isTrackPad, setIsTrackPad] = useState<boolean>(true);
+
   // Set up the context
   const graphContext: GraphContextProps = {
     addAddressPaths,
@@ -940,6 +949,10 @@ const GraphProvided: FC<GraphProvidedProps> = ({
     setShowRiskVision: setIsRiskVision,
     isSavedGraph: onAutoSave !== undefined,
     personalGraphInfo,
+    isTrackPad,
+    setIsTrackPad,
+    zoomIn,
+    zoomOut,
   };
 
   const showSearchbar = useMemo(() => {
@@ -962,14 +975,14 @@ const GraphProvided: FC<GraphProvidedProps> = ({
             fitView
             nodeTypes={nodeTypes}
             edgeTypes={edgeTypes}
-            panOnScroll
-            selectionOnDrag
-            panOnDrag={panOnDrag}
-            selectionMode={SelectionMode.Partial}
-            zoomOnDoubleClick={true}
+            panOnScroll={!isTrackPad}
+            selectionOnDrag={!isTrackPad}
+            panOnDrag={isTrackPad ? undefined : panOnDrag}
+            selectionMode={isTrackPad ? undefined : SelectionMode.Partial}
+            zoomOnDoubleClick={!isTrackPad}
             className="h-full w-full"
-            maxZoom={1.5}
-            minZoom={0.25}
+            maxZoom={1.75}
+            minZoom={0.1}
           >
             <img
               className="-z-10 m-auto w-full scale-150 animate-pulse opacity-40"
