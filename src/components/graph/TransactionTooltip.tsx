@@ -6,15 +6,25 @@ interface TransactionTooltipProps {
   source: string;
   target: string;
   volume: number;
+  x: number;
+  y: number;
 }
 
 const TransactionTooltip: FC<TransactionTooltipProps> = ({
   source,
   target,
   volume,
+  x,
+  y,
 }: TransactionTooltipProps) => {
   return (
-    <div className="mt-5 flex h-fit w-fit flex-col items-center gap-y-1 divide-y divide-gray-600/20 rounded-lg bg-gray-50/50 px-5 py-2  backdrop-blur-sm">
+    <div
+      className="fixed z-50 flex h-fit w-fit -translate-x-full transform-gpu flex-col items-center gap-y-1 divide-y divide-gray-600/20 rounded-lg bg-gray-50/50 p-3 ring-1 ring-gray-600/20 backdrop-blur-md"
+      style={{
+        left: x + 10,
+        top: y + 10,
+      }}
+    >
       <div>
         <span className="flex h-full w-full flex-row items-center justify-center gap-x-2">
           <h3 className="font-mono text-xs font-medium text-gray-400">

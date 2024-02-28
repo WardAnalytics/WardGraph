@@ -77,11 +77,6 @@ const TransfershipEdge: FC<EdgeProps> = ({
     }
   }
 
-  const hoveredStyle = {
-    stroke: isHidden ? "#60a5fa" : "#9ca3af",
-    transition: "stroke 0.5s, opacity 0.2s ease-out",
-  };
-
   const [edgePath] = getBezierPath({
     sourceX,
     sourceY,
@@ -91,6 +86,16 @@ const TransfershipEdge: FC<EdgeProps> = ({
     targetPosition,
   });
 
+  const handleMouseMove = (e: any) => {
+    setHoveredTransferData({
+      source,
+      target,
+      volume,
+      x: e.clientX,
+      y: e.clientY,
+    });
+  };
+
   return (
     <>
       <CustomEdgePath
@@ -99,7 +104,6 @@ const TransfershipEdge: FC<EdgeProps> = ({
         path={edgePath}
         strokeWidth={width}
         opacity={opacity}
-        hoveredStyle={hoveredStyle}
         isHidden={isHidden}
         isClickable={isClickable}
         riskVisionColors={riskVisionColors}
@@ -110,14 +114,10 @@ const TransfershipEdge: FC<EdgeProps> = ({
               ? TransfershipEdgeStates.REVEALED
               : TransfershipEdgeStates.HIDDEN,
           );
+          setHoveredTransferData(null);
         }}
-        onMouseEnter={() => {
-          setHoveredTransferData({
-            source,
-            target,
-            volume,
-          });
-        }}
+        onMouseMove={handleMouseMove}
+        onMouseEnter={handleMouseMove}
         onMouseLeave={() => setHoveredTransferData(null)}
       />
     </>

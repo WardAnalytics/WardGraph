@@ -7,6 +7,9 @@ import {
   QuestionMarkCircleIcon,
   RectangleGroupIcon,
   ShareIcon,
+  PlusIcon,
+  MinusIcon,
+  AdjustmentsVerticalIcon,
 } from "@heroicons/react/24/outline";
 
 import clsx from "clsx";
@@ -21,6 +24,7 @@ import { useSearchParams } from "react-router-dom";
 import WithAuth, { WithAuthProps } from "../../auth/WithAuth";
 import { logAnalyticsEvent } from "../../../services/firestore/analytics/analytics";
 import CreateGraphDialog from "./components/CreateGraphDialog";
+import SettingsDialog from "./components/SettingsDialog";
 
 interface HotbarButton {
   onClick?: () => void;
@@ -49,16 +53,16 @@ const HotbarButton: FC<HotbarButton> = ({
 
   return (
     <button
-      className={clsx("group flex flex-row items-center", className)}
+      className={clsx(
+        "group flex flex-row items-center border-gray-300 outline-gray-300 ring-gray-300",
+        className,
+      )}
       key={name}
       onClick={onClick}
     >
-      <span className="pointer-events-none absolute mr-[100%] mt-0.5 flex w-max translate-x-[-100%] flex-row rounded-lg bg-gray-800 px-3 py-2 text-sm font-medium text-white opacity-0 shadow-sm transition-opacity duration-300 group-hover:opacity-100 dark:bg-gray-700">
+      <span className="d pointer-events-none absolute mr-[100%] mt-0.5 flex w-max translate-x-[-100%] flex-row rounded-lg border-gray-300 bg-gray-800 px-3 py-2 text-sm font-medium text-white opacity-0 shadow-sm transition-opacity duration-300 group-hover:opacity-100">
         {hotKey && (
-          <span
-            className="mr-5 font-normal capitalize text-gray-400
-            "
-          >
+          <span className="mr-5 font-normal capitalize text-gray-400">
             {hotKey}
           </span>
         )}
@@ -66,7 +70,7 @@ const HotbarButton: FC<HotbarButton> = ({
       </span>
       <Icon
         className={clsx(
-          "h-10 w-10 rounded-lg p-1 transition-all duration-200",
+          "h-10 w-10 rounded-lg border-gray-300 p-1 transition-all duration-200",
           iconColor
             ? iconColor
             : "text-gray-400 hover:bg-gray-700 hover:text-gray-200",
@@ -103,7 +107,7 @@ interface HotbarProps extends WithAuthProps {
 
 const Hotbar: FC<HotbarProps> = ({
   initialSearchbarValue,
-  handleActionRequiringAuth
+  handleActionRequiringAuth,
 }) => {
   const {
     doLayout,
@@ -113,22 +117,26 @@ const Hotbar: FC<HotbarProps> = ({
     setShowRiskVision,
     isSavedGraph,
     personalGraphInfo,
+    zoomIn,
+    zoomOut,
   } = useContext(GraphContext);
 
   const [searchParams, setSearchParams] = useSearchParams();
 
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
-  const [isAddAddressModalOpen, setIsAddAddressModalOpen] = useState(initialSearchbarValue);
+  const [isAddAddressModalOpen, setIsAddAddressModalOpen] = useState(
+    initialSearchbarValue,
+  );
   const [isCreateGraphDialogOpen, setIsCreateGraphDialogOpen] = useState(false);
+  const [isSettingsDialogOpen, setIsSettingsDialogOpen] = useState(false);
 
   const saveGraphParam = useMemo(() => {
-    return searchParams.get("save_graph")
+    return searchParams.get("save_graph");
   }, [searchParams]);
 
   useEffect(() => {
     setSearchParams(new URLSearchParams(location.search));
   }, [location.search]);
-
 
   useEffect(() => {
     if (saveGraphParam) {
@@ -138,6 +146,37 @@ const Hotbar: FC<HotbarProps> = ({
 
   return (
     <>
+      <div className="mb-3 flex h-fit w-fit flex-col gap-y-1 divide-y-2 divide-gray-600 rounded-lg bg-gray-800 p-2">
+        <HotbarButtonGroup>
+          <HotbarButton
+            Icon={PlusIcon}
+            name="Zoom In"
+            onClick={() => {
+              zoomIn({
+                duration: 100,
+              });
+            }}
+            hotKey="i"
+          />
+          <HotbarButton
+            Icon={MinusIcon}
+            name="Zoom Out"
+            onClick={() => {
+              zoomOut({
+                duration: 100,
+              });
+            }}
+            hotKey="o"
+          />
+          <HotbarButton
+            Icon={AdjustmentsVerticalIcon}
+            name="Mouse or trackpad preferences"
+            onClick={() => {
+              setIsSettingsDialogOpen(true);
+            }}
+          />
+        </HotbarButtonGroup>
+      </div>
       <div className="mb-3 flex h-fit w-fit flex-col gap-y-1 divide-y-2 divide-gray-600 rounded-lg bg-gray-800 p-2">
         <HotbarButtonGroup>
           <HotbarButton
@@ -152,7 +191,7 @@ const Hotbar: FC<HotbarProps> = ({
             Icon={RectangleGroupIcon}
             name="Organize Layout"
             onClick={() => {
-              doLayout()
+              doLayout();
               logAnalyticsEvent("organize_layout_clicked");
             }}
             iconColor="text-indigo-400 hover:bg-indigo-700 hover:text-indigo-200"
@@ -163,7 +202,9 @@ const Hotbar: FC<HotbarProps> = ({
             name="Risk Vision"
             onClick={() => {
               setShowRiskVision(!isRiskVision);
-              logAnalyticsEvent("risk_vision_clicked", { active: !isRiskVision });
+              logAnalyticsEvent("risk_vision_clicked", {
+                active: !isRiskVision,
+              });
             }}
             hotKey="r"
           />
@@ -179,8 +220,8 @@ const Hotbar: FC<HotbarProps> = ({
                 handleActionRequiringAuth({
                   pathname: "graph",
                   queryParams: {
-                    save_graph: "true"
-                  }
+                    save_graph: "true",
+                  },
                 });
 
                 // Are only executed if the user is authenticated
@@ -212,10 +253,10 @@ const Hotbar: FC<HotbarProps> = ({
             Icon={BugAntIcon}
             name="Report Bug / Submit Feedback"
             onClick={() => {
-              logAnalyticsEvent("report_bug_clicked")
+              logAnalyticsEvent("report_bug_clicked");
               // Open in a new tab to avoid losing the current graph
               // To improve SEO, this action is onClick instead of a simple link because the other buttons don't use href
-              window.open("https://forms.gle/yCFrDnKyUmPYPhfg8", "_blank")
+              window.open("https://forms.gle/yCFrDnKyUmPYPhfg8", "_blank");
             }}
           />
         </HotbarButtonGroup>
@@ -233,6 +274,10 @@ const Hotbar: FC<HotbarProps> = ({
         isOpen={isCreateGraphDialogOpen}
         setOpen={setIsCreateGraphDialogOpen}
         graphInfo={personalGraphInfo}
+      />
+      <SettingsDialog
+        isOpen={isSettingsDialogOpen}
+        setOpen={setIsSettingsDialogOpen}
       />
     </>
   );

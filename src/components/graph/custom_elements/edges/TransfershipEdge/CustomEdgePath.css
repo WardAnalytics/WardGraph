@@ -4,6 +4,15 @@
   }
 }
 
+@keyframes move {
+  0% {
+    offset-distance: 0%;
+  }
+  100% {
+    offset-distance: 100%;
+  }
+}
+
 .animated-dotted-line {
   stroke-dasharray: 15, 15;
   stroke-dashoffset: 30;
