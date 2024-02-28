@@ -46,6 +46,7 @@ const CreateGraphDialog: FC<CreateGraphDialogProps> = ({
     };
     createPersonalGraph(user!.uid, graph).then((uid) => {
       logAnalyticsEvent("graph_created", { graphName });
+      localStorage.removeItem("graph");
       setOpen(false);
       navigate(`/${user?.uid}/saved-graph/${uid}`);
     });
