@@ -109,24 +109,24 @@ const SettingsDialog: FC<SettingsDialogProps> = ({ isOpen, setOpen }) => {
         <ModeToggle isTrackPad={isTrackPad} setIsTrackPad={setIsTrackPad} />
         {isTrackPad ? null : null}
 
-        <p className="flex w-[1/2] flex-col gap-3 text-sm font-normal text-gray-500">
-          <p className="flex flex-row items-center gap-1">
+        <div className="flex w-[1/2] flex-col gap-3 text-sm font-normal text-gray-500">
+          <span className="flex flex-row items-center gap-1">
             <p className="font-bold">Pan:</p>
             {isTrackPad
               ? "Drag with two fingers"
               : "Scroll / Middle Mouse Drag"}
-          </p>
-          <p className="flex flex-row items-center gap-1">
+          </span>
+          <span className="flex flex-row items-center gap-1">
             <p className="font-bold">Zoom:</p>
 
             {isTrackPad ? " Scroll with two fingers" : "Ctrl + Scroll"}
-          </p>
-          <p className="flex flex-row items-center gap-1">
+          </span>
+          <span className="flex flex-row items-center gap-1">
             <p className="font-bold">Select:</p>
 
             {isTrackPad ? "Shift + Drag" : "Drag"}
-          </p>
-        </p>
+          </span>
+        </div>
       </div>
     </Modal>
   );
