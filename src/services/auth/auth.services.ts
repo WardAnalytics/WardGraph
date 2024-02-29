@@ -50,8 +50,8 @@ const signUp = async (
             name: newUser.userData?.name!,
             company_name: newUser.userData?.company_name!,
             role: newUser.userData?.role!,
-            phone_number: newUser.userData?.phone_number!,
-            country: newUser.userData?.country!,
+            phone_number: newUser.userData?.phone_number,
+            country: newUser.userData?.country,
           };
 
           // Saves user in the firestore database

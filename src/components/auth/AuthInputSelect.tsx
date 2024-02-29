@@ -1,10 +1,10 @@
+import { FC, useMemo } from "react";
+import { Controller, useFormContext } from "react-hook-form";
+import Listbox from "../common/Listbox";
+import clsx from "clsx";
 
-import { FC, useMemo } from 'react';
-import { Controller, useFormContext } from 'react-hook-form';
-import Listbox from '../common/Listbox';
-import clsx from 'clsx';
-
-interface AuthInputSelectProps extends React.InputHTMLAttributes<HTMLInputElement> {
+interface AuthInputSelectProps
+  extends React.InputHTMLAttributes<HTMLInputElement> {
   label: string;
   name: string;
   options: string[];
@@ -18,23 +18,21 @@ const AuthInputSelect: FC<AuthInputSelectProps> = ({
   className,
   ...rest
 }) => {
-  const { control, formState: { errors } } = useFormContext();
+  const {
+    control,
+    formState: { errors },
+  } = useFormContext();
 
   const error = useMemo(() => errors[name], [errors, name]);
 
   return (
-    <div className={clsx('w-full', className)}>
+    <div className={clsx("w-full", className)}>
       <label
         htmlFor={label}
-        className="flex gap-x-1 mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+        className="mb-2 flex gap-x-1 text-sm font-medium text-gray-900"
       >
-        <span>
-          {label}
-        </span>
-        {
-          rest.required &&
-          <span className="text-red-500">*</span>
-        }
+        <span>{label}</span>
+        {rest.required && <span className="text-red-500">*</span>}
       </label>
       <Controller
         control={control}
@@ -50,13 +48,11 @@ const AuthInputSelect: FC<AuthInputSelectProps> = ({
         )}
         rules={{ required: rest.required }}
       />
-      {error &&
-        <p className="mt-2 text-red-500 text-xs">
-          {error.message?.toString()}
-        </p>
-      }
+      {error && (
+        <p className="mt-2 text-xs text-red-500">{error.message?.toString()}</p>
+      )}
     </div>
-  )
-}
+  );
+};
 
-export default AuthInputSelect
+export default AuthInputSelect;

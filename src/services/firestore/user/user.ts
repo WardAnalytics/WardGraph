@@ -11,8 +11,8 @@ export interface UserDB {
   name: string | null;
   company_name: string;
   role: string;
-  phone_number: string;
-  country: string;
+  phone_number?: string;
+  country?: string;
 }
 
 /** Creates a user in the database

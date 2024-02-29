@@ -1,12 +1,12 @@
 import { FC, useContext, useMemo } from "react";
-import { FormProvider, useForm } from 'react-hook-form';
+import { FormProvider, useForm } from "react-hook-form";
 import authService, { NewUser } from "../../services/auth/auth.services";
 import { AuthContext } from "./AuthDialog";
 import AuthInput from "./AuthInput";
 import SignInWithGoogleButton from "./SignInWithGoogleButton";
 
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 
 import { countriesList } from "../../utils/countries/countries";
 import { rolesList } from "../../utils/roles/roles";
@@ -24,67 +24,85 @@ const SignupForm: FC = () => {
   } = useContext(AuthContext);
 
   /** Form schema validation using zod
-   * 
+   *
    * Schema:
    *  - email (required, email)
    *  - password (required, min 6, max 12)
    *  - confirm_password (required, min 6, max 12, should match password)
-   *  - company_name 
+   *  - company_name
    *  - phone_number
    *  - role
    *  - country
-   *  
+   *
    * For more information about zod, check the documentation: https://zod.dev/
    * */
-  const formSchema = z.object({
-    email: z.string({
-      required_error: "Email is required",
-      invalid_type_error: "Email should be a string"
-    }).email("Invalid email address"),
-    password: z.string({
-      required_error: "Password is required",
-      invalid_type_error: "Password should be a string"
-    }).min(6, "Password length should be at least 6 characters")
-      .max(12, "Password cannot exceed more than 12 characters"),
-    confirm_password: z.string({
-      required_error: "Confirm Password is required",
-      invalid_type_error: "Confirm Password should be a string"
-    }).min(6, "Password length should be at least 6 characters")
-      .max(12, "Password cannot exceed more than 12 characters"),
-    company_name: z.string({
-      required_error: "Company Name is required",
-      invalid_type_error: "Company Name should be a string"
-    }).default(""),
-    phone_number: z.string({
-      required_error: "Phone Number is required",
-      invalid_type_error: "Phone Number should be a string"
-    }).default(""),
-    role: z.string({
-      required_error: "Role is required",
-      invalid_type_error: "Role should be a string"
-    }).default(""),
-    country: z.string({
-      required_error: "Country is required",
-      invalid_type_error: "Country should be a string"
-    }).default(""),
-  }).refine((data) => data.password === data.confirm_password, {
-    message: "Passwords don't match",
-    path: ["confirm_password"], // path of error
-  });
+  const formSchema = z
+    .object({
+      email: z
+        .string({
+          required_error: "Email is required",
+          invalid_type_error: "Email should be a string",
+        })
+        .email("Invalid email address"),
+      password: z
+        .string({
+          required_error: "Password is required",
+          invalid_type_error: "Password should be a string",
+        })
+        .min(6, "Password length should be at least 6 characters")
+        .max(12, "Password cannot exceed more than 12 characters"),
+      confirm_password: z
+        .string({
+          required_error: "Confirm Password is required",
+          invalid_type_error: "Confirm Password should be a string",
+        })
+        .min(6, "Password length should be at least 6 characters")
+        .max(12, "Password cannot exceed more than 12 characters"),
+      company_name: z
+        .string({
+          required_error: "Company Name is required",
+          invalid_type_error: "Company Name should be a string",
+        })
+        .default(""),
+      phone_number: z
+        .string({
+          required_error: "Phone Number is required",
+          invalid_type_error: "Phone Number should be a string",
+        })
+        .default(""),
+      role: z
+        .string({
+          required_error: "Role is required",
+          invalid_type_error: "Role should be a string",
+        })
+        .default(""),
+      country: z
+        .string({
+          required_error: "Country is required",
+          invalid_type_error: "Country should be a string",
+        })
+        .default(""),
+    })
+    .refine((data) => data.password === data.confirm_password, {
+      message: "Passwords don't match",
+      path: ["confirm_password"], // path of error
+    });
 
-  type SignUpSchema = z.infer<typeof formSchema>
+  type SignUpSchema = z.infer<typeof formSchema>;
 
   const methods = useForm<SignUpSchema>({
     mode: "onBlur",
-    resolver: zodResolver(formSchema)
+    resolver: zodResolver(formSchema),
   });
   const { handleSubmit } = methods;
 
-  const countries = useMemo(() => countriesList.map((country) => country.name), []);
+  const countries = useMemo(
+    () => countriesList.map((country) => country.name),
+    [],
+  );
   const roles = useMemo(() => rolesList.map((role) => role.name), []);
 
   const createAccount = (data: SignUpSchema) => {
-
     const newUser: NewUser = {
       email: data.email,
       password: data.password,
@@ -94,10 +112,8 @@ const SignupForm: FC = () => {
         is_premium: false,
         company_name: data.company_name,
         role: data.role,
-        phone_number: data.phone_number,
-        country: data.country
-      }
-    }
+      },
+    };
 
     authService.signUp(newUser, onSignupSuccess, onSignupError);
   };
@@ -141,13 +157,14 @@ const SignupForm: FC = () => {
                 required
               />
             </div>
-            <div className="flex justify-between gap-x-3">
+            <div className="flex justify-between gap-x-3 border-t border-gray-200 pt-3">
               <AuthInput
                 label="Company Name"
                 type="text"
                 name="company_name"
                 id="company-name"
                 placeholder="Company Inc."
+                required
               />
               <AuthInputSelect
                 id="role"
@@ -155,22 +172,7 @@ const SignupForm: FC = () => {
                 label="Role"
                 options={roles}
                 placeholder="Select a role"
-              />
-            </div>
-            <div className="flex justify-between gap-x-3">
-              <AuthInputCombobox
-                id="country"
-                name="country"
-                label="Country"
-                options={countries}
-                placeholder="Select a country"
-              />
-              <AuthInput
-                id="phone-number"
-                type="tel"
-                name="phone_number"
-                label="Phone Number"
-                placeholder="123-456-7890"
+                required
               />
             </div>
             <button
