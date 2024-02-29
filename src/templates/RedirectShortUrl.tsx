@@ -1,15 +1,11 @@
-import { FC, useEffect, useMemo } from "react";
+import { FC, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import useAuthState from "../hooks/useAuthState";
 import RedirectTemplate from "./RedirectTemplate";
 
 const RedirectSharedGraph: FC = () => {
   const { uid: sharedGraphID } = useParams<{ uid: string }>();
-  const { isAuthenticated, isLoading, user } = useAuthState();
-
-  const userID = useMemo(() => {
-    return user ? user.uid : "";
-  }, [user]);
+  const { isAuthenticated, isLoading, userID } = useAuthState();
 
   const navigate = useNavigate();
 

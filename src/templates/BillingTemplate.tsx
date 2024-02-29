@@ -19,8 +19,7 @@ const BillingTemplate: FC = () => {
   const [manageSubscriptionClicked, setManageSubscriptionClicked] =
     useState<boolean>(false);
 
-  const { user } = useAuthState();
-  const userID = user?.uid || "";
+  const { userID } = useAuthState();
 
   const { isPremium: isPro, loading: isLoadingPremiumStatus } =
     usePremiumStatus(userID);

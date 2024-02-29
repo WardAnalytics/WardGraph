@@ -5,7 +5,7 @@ import { auth, db } from "../services/firebase";
 import { UserNotFoundError } from "../services/firestore/user/errors";
 
 /** Retrieves the current authentication state of the user.
- *  This information includes the current user, and whether the user is authenticated.
+ *  This information includes the current user and its ID, and whether the user is authenticated.
  * 
  * @returns An object containing the user, and whether the user is authenticated
  */
@@ -21,6 +21,8 @@ const useAuthState = () => {
   );
 
   const [isPremium, setIsPremium] = useState<boolean>(initialUser?.userData?.is_premium || false);
+
+  const [userID, setUserID] = useState<string>("");
 
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
@@ -41,6 +43,7 @@ const useAuthState = () => {
       } as User;
 
       setUser(newAuthState);
+      setUserID(currentUser.uid);
       setIsLoading(false);
 
       localStorage.setItem("user", JSON.stringify(newAuthState));
@@ -103,7 +106,7 @@ const useAuthState = () => {
     return () => unsubscribe();
   }, [user]);
 
-  return { user, isAuthenticated, isPremium, isLoading, error };
+  return { user, userID, isAuthenticated, isPremium, isLoading, error };
 };
 
 export default useAuthState;
