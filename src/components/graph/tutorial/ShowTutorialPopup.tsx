@@ -8,7 +8,6 @@ import { FC, Fragment, useState } from "react";
 
 import useAuthState from "../../../hooks/useAuthState";
 import TutorialDialog from "./TutorialDialog";
-import tutorialSteps from "./steps";
 
 
 interface ShowTutorialPopupProps {
@@ -104,7 +103,6 @@ const ShowTutorialPopup: FC<ShowTutorialPopupProps> = ({
       <TutorialDialog
         show={showTutorial}
         setShow={setShowTutorial}
-        steps={tutorialSteps}
       />
     </>
   );

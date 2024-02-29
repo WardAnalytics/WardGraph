@@ -13,9 +13,10 @@ interface UnauthenticatedTimeContextProps {
   setStartTime: (startTime: boolean) => void;
 }
 
-export const UnauthenticatedTimeContext = createContext<UnauthenticatedTimeContextProps>({
-  setStartTime: () => { },
-});
+export const UnauthenticatedTimeContext =
+  createContext<UnauthenticatedTimeContextProps>({
+    setStartTime: () => {},
+  });
 
 const PublicApp: FC = () => {
   // The total time spent on the app
@@ -23,11 +24,12 @@ const PublicApp: FC = () => {
   const [startTime, setStartTime] = useState<boolean>(false);
 
   // Time limit in seconds
-  const timeLimit = 1 * 60; // 1 minutes
+  const timeLimit = 100; // 100 seconds
 
   // The AuthDialog is shown when the user is not authenticated and the time limit is reached
   const initialShowDialog = localStorage.getItem("expiredFreeTrial") === "true";
-  const [showAuthDialog, setShowAuthDialog] = useState<boolean>(initialShowDialog);
+  const [showAuthDialog, setShowAuthDialog] =
+    useState<boolean>(initialShowDialog);
 
   // Create time context
   const unauthenticatedTimeContext: UnauthenticatedTimeContextProps = {
@@ -54,10 +56,19 @@ const PublicApp: FC = () => {
       <UnauthenticatedTimeContext.Provider value={unauthenticatedTimeContext}>
         <div className="flex h-screen w-screen flex-row">
           <Routes>
-            <Route path="/public" element={<UnsavedGraphTemplate showLandingPage={true} />} />
-            <Route path="/public/graph/:uid" element={<UnsavedGraphTemplate />} />
+            <Route
+              path="/public"
+              element={<UnsavedGraphTemplate showLandingPage={true} />}
+            />
+            <Route
+              path="/public/graph/:uid"
+              element={<UnsavedGraphTemplate />}
+            />
             <Route path="/public/graph" element={<UnsavedGraphTemplate />} />
-            <Route path="/shared/graph/:uid" element={<RedirectSharedGraph />} />
+            <Route
+              path="/shared/graph/:uid"
+              element={<RedirectSharedGraph />}
+            />
             {/* Keep for legacy reasons */}
             <Route path="/graph/:uid" element={<RedirectSharedGraph />} />
             <Route path="*" element={<Navigate to="/public" />} />
@@ -66,7 +77,11 @@ const PublicApp: FC = () => {
       </UnauthenticatedTimeContext.Provider>
       {/* The AuthDialog is shown when the user is not authenticated and the time limit is reached
       No setter is passed to the AuthDialog because the user can only close it by logging in or creating an account */}
-      <AuthDialog isOpen={showAuthDialog} setIsOpen={() => { }} signInText="Sign in to your account to continue using the app" />
+      <AuthDialog
+        isOpen={showAuthDialog}
+        setIsOpen={() => {}}
+        signInText="Sign in to your account to continue using the app"
+      />
     </BrowserRouter>
   );
 };

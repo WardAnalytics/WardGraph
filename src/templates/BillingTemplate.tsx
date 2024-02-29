@@ -94,13 +94,6 @@ const BillingTemplate: FC = () => {
                   Icon={CreditCardSmallIcon}
                 />
               )}
-              {isPro && (
-                <BigButton
-                  text="Manage Subscription"
-                  onClick={() => setManageSubscriptionClicked(true)}
-                  Icon={CreditCardSmallIcon}
-                />
-              )}
             </span >
             <PlansList
               isPro={isPro}

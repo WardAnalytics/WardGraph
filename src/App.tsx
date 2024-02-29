@@ -31,17 +31,12 @@ const App: FC = () => {
         <QueryClientProvider client={queryClient}>
           <MobileWarningTemplate className="h-screen w-screen sm:hidden" />
           <div className="hidden h-fit w-fit sm:block">
-            {isAuthenticated ? <PrivateApp userID={userID} />  : <PublicApp />}
+            {isAuthenticated ? <PrivateApp userID={userID} /> : <PublicApp />}
           </div>
         </QueryClientProvider>
       </HelmetProvider>
     </>
   );
-}
-
-// Clear local storage when the user closes the browser
-window.onbeforeunload = function () {
-  localStorage.clear();
 }
 
 export default App;
