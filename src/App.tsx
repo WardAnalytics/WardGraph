@@ -1,16 +1,16 @@
+import { FC, useMemo } from "react";
 import { QueryClientProvider } from "react-query";
 import useCustomQueryClient from "./hooks/useCustomQueryClient";
 
 import useAuthState from "./hooks/useAuthState";
 
-import { useMemo } from "react";
 import PrivateApp from "./PrivateApp";
 import PublicApp from "./PublicApp";
 import { MobileWarningTemplate } from "./templates";
 
 import { HelmetProvider } from 'react-helmet-async';
 
-function App() {
+const App: FC = () => {
   const queryClient = useCustomQueryClient();
   const { user, isAuthenticated } = useAuthState();
 

@@ -10,6 +10,9 @@ import * as z from 'zod';
 
 import { AuthDialogState } from "./AuthDialog";
 
+const PASSWORD_LENGTH_MIN_LIMIT = 10
+const PASSWORD_LENGTH_MAX_LIMIT = 126
+
 const SignupForm: FC = () => {
   const {
     onSignupSuccess,
@@ -31,17 +34,69 @@ const SignupForm: FC = () => {
     password: z.string({
       required_error: "Password is required",
       invalid_type_error: "Password should be a string"
-    }).min(6, "Password length should be at least 6 characters")
-      .max(12, "Password cannot exceed more than 12 characters"),
+    }).min(PASSWORD_LENGTH_MIN_LIMIT, `Password length should be at least ${PASSWORD_LENGTH_MIN_LIMIT} characters`)
+      .max(PASSWORD_LENGTH_MAX_LIMIT, `Password cannot exceed more than ${PASSWORD_LENGTH_MAX_LIMIT} characters`),
     confirm_password: z.string({
       required_error: "Confirm Password is required",
       invalid_type_error: "Confirm Password should be a string"
-    }).min(6, "Password length should be at least 6 characters")
-      .max(12, "Password cannot exceed more than 12 characters")
+    }).min(PASSWORD_LENGTH_MIN_LIMIT, `Password length should be at least ${PASSWORD_LENGTH_MIN_LIMIT} characters`)
+      .max(PASSWORD_LENGTH_MAX_LIMIT, `Password cannot exceed more than ${PASSWORD_LENGTH_MAX_LIMIT} characters`),
   }).refine((data) => data.password === data.confirm_password, {
     message: "Passwords don't match",
     path: ["confirm_password"], // path of error
-  });
+    // Password has to have:
+    // At least 1 uppercase letter
+    // At least 1 lowercase letter
+    // At least 1 number
+    // At least 1 special character
+  }).superRefine(({ password }, checkPasswordComplexity) => {
+    // Password has to have:
+    // At least 1 uppercase letter
+    const uppercaseRegex = new RegExp("(?=.*[A-Z])")
+
+    // At least 1 lowercase letter
+    const lowercaseRegex = new RegExp("(?=.*[a-z])")
+
+    // At least 1 number
+    const numberRegex = new RegExp("(?=.*[0-9])")
+
+    // At least 1 special character
+    const specialCharacters = "!@#\$%\^&\*+-=~"
+    const specialCharacterRegex = new RegExp(`(?=.*[${specialCharacters}])`)
+
+    if (!uppercaseRegex.test(password)) {
+      checkPasswordComplexity.addIssue({
+        code: "custom",
+        message: "Password should contain at least 1 uppercase letter",
+        path: ["password"]
+      })
+      return
+    }
+
+    if (!lowercaseRegex.test(password)) {
+      checkPasswordComplexity.addIssue({
+        code: "custom",
+        message: "Password should contain at least 1 lowercase letter",
+        path: ["password"]
+      })
+    }
+
+    if (!numberRegex.test(password)) {
+      checkPasswordComplexity.addIssue({
+        code: "custom",
+        message: "Password should contain at least 1 number",
+        path: ["password"]
+      })
+    }
+
+    if (!specialCharacterRegex.test(password)) {
+      checkPasswordComplexity.addIssue({
+        code: "custom",
+        message: `Password should contain at least 1 special character (${specialCharacters})`,
+        path: ["password"]
+      })
+    }
+  })
 
   type SignUpSchema = z.infer<typeof formSchema>
 
