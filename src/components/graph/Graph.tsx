@@ -22,10 +22,14 @@ import ReactFlow, {
   useOnSelectionChange,
   useReactFlow,
   useUpdateNodeInternals,
+  ZoomInOut,
 } from "reactflow";
 import "reactflow/dist/style.css";
 
-import { SharableGraph, createSharableGraph } from "../../services/firestore/graph_sharing";
+import {
+  SharableGraph,
+  createSharableGraph,
+} from "../../services/firestore/graph_sharing";
 
 import { AddressAnalysis } from "../../api/model";
 
@@ -46,13 +50,17 @@ import {
   convertNodeListToRecord,
 } from "./graph_calculations";
 
+import useAuthState from "../../hooks/useAuthState";
 import { PersonalGraphInfo } from "../../services/firestore/user/graph_saving";
 import Footer from "../footer/Footer";
-import TransactionTooltip, { TransactionTooltipProps } from "./TransactionTooltip";
+import TransactionTooltip, {
+  TransactionTooltipProps,
+} from "./TransactionTooltip";
 import DraggableWindow from "./analysis_window/AnalysisWindow";
 import Hotbar from "./hotbar";
 import Legend from "./legend";
 import ShowTutorialPopup from "./tutorial/ShowTutorialPopup";
+import TutorialDialog from "./tutorial/TutorialDialog";
 
 enum HotKeyMap {
   DELETE = 1,
@@ -103,6 +111,10 @@ interface GraphContextProps {
   generateSharableLink: () => Promise<string>;
   isSavedGraph: boolean;
   personalGraphInfo: PersonalGraphInfo;
+  isTrackPad: boolean;
+  setIsTrackPad: (isTrackPad: boolean) => void;
+  zoomIn: ZoomInOut;
+  zoomOut: ZoomInOut;
 }
 
 export const GraphContext = createContext<GraphContextProps>(
@@ -209,11 +221,11 @@ const GraphProvided: FC<GraphProvidedProps> = ({
   initialNodes,
   initialEdges,
   onAutoSave,
-  onLocalSave
+  onLocalSave,
 }) => {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
-  const { fitView, screenToFlowPosition } = useReactFlow();
+  const { fitView, screenToFlowPosition, zoomIn, zoomOut } = useReactFlow();
 
   // Regularly update the node internals to make sure edges are consistent
   const updateNodeInternals = useUpdateNodeInternals();
@@ -296,7 +308,7 @@ const GraphProvided: FC<GraphProvidedProps> = ({
         onAutoSave(graphInfo);
       }
     },
-    [nodes.length, edges.length]
+    [nodes.length, edges.length],
   );
 
   const saveGraphLocal = useCallback(
@@ -305,8 +317,8 @@ const GraphProvided: FC<GraphProvidedProps> = ({
         onLocalSave(graphInfo);
       }
     },
-    [nodes.length, edges.length]
-  )
+    [nodes.length, edges.length],
+  );
 
   const debouncedSave = useRef(
     debounce((graphInfo: PersonalGraphInfo) => {
@@ -330,8 +342,8 @@ const GraphProvided: FC<GraphProvidedProps> = ({
 
     const newLocalGraph: SharableGraph = {
       addresses: personalGraphInfo.addresses,
-      edges: personalGraphInfo.edges
-    }
+      edges: personalGraphInfo.edges,
+    };
     debounceSaveLocal.current(newLocalGraph);
   }, [nodes.length]);
 
@@ -649,9 +661,18 @@ const GraphProvided: FC<GraphProvidedProps> = ({
         incoming,
       );
 
+      // Get all the nodes that were added
+      const addedNodes = newNodes.filter((node) => !nodesRecord[node.id]);
+
       // Set the new nodes and edges
       setNodes(newNodes);
       setEdges(newEdges);
+
+      fitView({
+        padding: 0.5,
+        duration: 250,
+        nodes: addedNodes,
+      });
     },
     [nodes.length, edges.length],
   );
@@ -689,6 +710,16 @@ const GraphProvided: FC<GraphProvidedProps> = ({
       // Set the new nodes and edges
       setNodes(newNodes);
       setEdges(newEdges);
+
+      // Fit view to the added nodes
+      fitView({
+        padding: 0.5,
+        duration: 250,
+        nodes: newNodes,
+      });
+
+      // Close analysis window
+      setFocusedAddressData(null);
     },
     [nodes.length, edges.length],
   );
@@ -713,7 +744,8 @@ const GraphProvided: FC<GraphProvidedProps> = ({
   const [focusedAddressData, setFocusedAddressData] =
     useState<AddressAnalysis | null>(null);
 
-  const initialFocusedAddressData = sessionStorage.getItem("focusedAddressData");
+  const initialFocusedAddressData =
+    sessionStorage.getItem("focusedAddressData");
 
   // Load the focused address data from session storage
   useEffect(() => {
@@ -799,7 +831,7 @@ const GraphProvided: FC<GraphProvidedProps> = ({
    * and we change the color of the edges so that they are instead based on
    * the risk of the nodes they connect (with pretty gradients). */
 
-  const [isRiskVision, setIsRiskVision] = useState<boolean>(false);
+  const [isRiskVision, setIsRiskVision] = useState<boolean>(true);
 
   /* This is required so that the edges in risk vision and easily have access
    * to the risk of the nodes they are connected to.
@@ -888,8 +920,17 @@ const GraphProvided: FC<GraphProvidedProps> = ({
     return nodes.length;
   }
 
+  const { isAuthenticated } = useAuthState();
+
   // Tutorial
-  const [showTutorial, setShowTutorial] = useState<boolean>(false);
+  // If the user is not authenticated, show the tutorial modal
+  const initialShowTutorial = isAuthenticated ? false : true;
+
+  const [showTutorial, setShowTutorial] = useState<boolean>(initialShowTutorial);
+
+  // Track Pad / Mouse Toggle --------------------------------------------------
+
+  const [isTrackPad, setIsTrackPad] = useState<boolean>(true);
 
   // Set up the context
   const graphContext: GraphContextProps = {
@@ -915,6 +956,10 @@ const GraphProvided: FC<GraphProvidedProps> = ({
     setShowRiskVision: setIsRiskVision,
     isSavedGraph: onAutoSave !== undefined,
     personalGraphInfo,
+    isTrackPad,
+    setIsTrackPad,
+    zoomIn,
+    zoomOut,
   };
 
   const showSearchbar = useMemo(() => {
@@ -937,14 +982,14 @@ const GraphProvided: FC<GraphProvidedProps> = ({
             fitView
             nodeTypes={nodeTypes}
             edgeTypes={edgeTypes}
-            panOnScroll
-            selectionOnDrag
-            panOnDrag={panOnDrag}
-            selectionMode={SelectionMode.Partial}
-            zoomOnDoubleClick={true}
+            panOnScroll={!isTrackPad}
+            selectionOnDrag={!isTrackPad}
+            panOnDrag={isTrackPad ? undefined : panOnDrag}
+            selectionMode={isTrackPad ? undefined : SelectionMode.Partial}
+            zoomOnDoubleClick={!isTrackPad}
             className="h-full w-full"
-            maxZoom={1.5}
-            minZoom={0.25}
+            maxZoom={1.75}
+            minZoom={0.1}
           >
             <img
               className="-z-10 m-auto w-full scale-150 animate-pulse opacity-40"
@@ -952,23 +997,31 @@ const GraphProvided: FC<GraphProvidedProps> = ({
               src="https://tailwindui.com/img/beams-home@95.jpg"
             />
             {/* {<Controls position="top-right" showInteractive={false} />} */}
-            <ShowTutorialPopup
-              showTutorial={showTutorial}
-              setShowTutorial={setShowTutorial}
-            />
+            {
+              isAuthenticated ?
+                <ShowTutorialPopup
+                  showTutorial={showTutorial}
+                  setShowTutorial={setShowTutorial}
+                /> :
+                <TutorialDialog
+                  show={showTutorial}
+                  setShow={setShowTutorial}
+                />
+            }
             <Background />
             <Panel position="top-left">
               <Legend />
             </Panel>
-            <Panel position="top-right">
-              {hoveredTransferData && (
-                <TransactionTooltip
-                  source={hoveredTransferData.source}
-                  target={hoveredTransferData.target}
-                  volume={hoveredTransferData.volume ?? 0}
-                />
-              )}
-            </Panel>
+
+            {hoveredTransferData && (
+              <TransactionTooltip
+                source={hoveredTransferData.source}
+                target={hoveredTransferData.target}
+                volume={hoveredTransferData.volume ?? 0}
+                x={hoveredTransferData.x}
+                y={hoveredTransferData.y}
+              />
+            )}
             <Panel position="bottom-right">
               <Hotbar initialSearchbarValue={showSearchbar} />
             </Panel>

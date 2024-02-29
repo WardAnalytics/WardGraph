@@ -1,29 +1,16 @@
-import { FC, useState, useContext, useEffect } from "react";
-import {
-  BarsArrowDownIcon,
-  ArrowDownLeftIcon,
-  ArrowUpRightIcon,
-  PlusIcon,
-  CheckIcon,
-} from "@heroicons/react/16/solid";
 import { Transition } from "@headlessui/react";
-
-import { Transaction, Output } from "../../../../../api/model";
+import { ArrowDownLeftIcon, ArrowUpRightIcon, BarsArrowDownIcon, CheckIcon, PlusIcon } from "@heroicons/react/16/solid";
+import { FC, useContext, useEffect, useState } from "react";
+import { Output, Transaction } from "../../../../../api/model";
 import { useGetCombinedTransactions } from "../../../../../api/transactions/transactions";
-
+import { logAnalyticsEvent } from "../../../../../services/firestore/analytics/analytics";
 import { Colors } from "../../../../../utils/colors";
 import formatNumber from "../../../../../utils/formatNumber";
-
 import Badge from "../../../../common/Badge";
-import {
-  CopyToClipboardIcon,
-  BlockExplorerTransactionIcon,
-} from "../../../../common/utility_icons";
-
-import { GraphContext } from "../../../Graph";
-import "../../../../common/Scrollbar.css";
-import { logAnalyticsEvent } from "../../../../../services/firestore/analytics/analytics";
 import EntityLogo from "../../../../common/EntityLogo";
+import "../../../../common/Scrollbar.css";
+import { BlockExplorerTransactionIcon, CopyToClipboardIcon } from "../../../../common/utility_icons";
+import { GraphContext } from "../../../Graph";
 
 interface TransactionRowProps {
   usdValue: number;
@@ -105,59 +92,60 @@ const TransactionRow: FC<TransactionRowProps> = ({
   );
 };
 
-const TRANSACTIONS_LIMIT = 50;
+// Interval to fetch transactions
+const TRANSACTIONS_INTERVAL = 50;
+
+// Max transactions to fetch
+const TRANSACTIONS_LIMIT = 200;
 
 const Transactions: FC = () => {
   const focusedAddressData = useContext(GraphContext).focusedAddressData!;
   const addAddressPaths = useContext(GraphContext).addAddressPaths;
 
-  const [transactionRows, setTransactionRows] = useState<TransactionRowProps[]>(
-    [],
-  );
+  const [transactionRows, setTransactionRows] = useState<TransactionRowProps[]>([]);
+  const [visibleTransactions, setVisibleTransactions] = useState<number>(TRANSACTIONS_INTERVAL);
+
+  const handleShowMore = () => {
+    setVisibleTransactions(visibleTransactions + TRANSACTIONS_INTERVAL);
+  };
 
   const { refetch: getAddressData } = useGetCombinedTransactions(
     {
       address: focusedAddressData.address,
-      count: TRANSACTIONS_LIMIT,
+      count: visibleTransactions,
     },
     {
       query: {
         enabled: false,
         refetchOnWindowFocus: false,
         retry: true,
-
         cacheTime: 1000, // 1 second
         staleTime: 1000, // 1 second
-
         onSuccess: (data) => {
-          // Only get the first TRANSACTIONS_LIMIT transactions
-          const transactions: Transaction[] = data.transactions!.slice(
-            0,
-            TRANSACTIONS_LIMIT,
-          );
+          // Only get the first TRANSACTIONS_INTERVAL transactions
+          const transactions: Transaction[] = data.transactions!.slice(0, visibleTransactions);
 
-          const newTransactionRows: TransactionRowProps[] = transactions.map(
-            (transaction: Transaction) => {
-              const incoming = transaction.outputs.some(
-                (output: Output) =>
-                  output.address === focusedAddressData.address,
-              );
+          const newTransactionRows: TransactionRowProps[] = transactions.map((transaction: Transaction) => {
+            const incoming = transaction.outputs.some(
+              (output: Output) =>
+                output.address === focusedAddressData.address,
+            );
 
-              const addresses: string[] = incoming
-                ? transaction.inputs.map((input) => input.address)
-                : transaction.outputs.map((output) => output.address);
+            const addresses: string[] = incoming
+              ? transaction.inputs.map((input) => input.address)
+              : transaction.outputs.map((output) => output.address);
 
-              return {
-                usdValue: transaction.usdValue,
-                timestamp: transaction.timestamp,
-                incoming: incoming,
-                hash: transaction.hash,
-                addresses: addresses,
-                currency: transaction.currency,
-                blockchain: focusedAddressData.blockchain,
-                expanded: false,
-              };
-            },
+            return {
+              usdValue: transaction.usdValue,
+              timestamp: transaction.timestamp,
+              incoming: incoming,
+              hash: transaction.hash,
+              addresses: addresses,
+              currency: transaction.currency,
+              blockchain: focusedAddressData.blockchain,
+              expanded: false,
+            };
+          },
           );
 
           setTransactionRows(newTransactionRows);
@@ -171,14 +159,20 @@ const Transactions: FC = () => {
     getAddressData();
   }, [focusedAddressData.address]);
 
+  useEffect(() => {
+    if (visibleTransactions <= TRANSACTIONS_LIMIT) {
+      getAddressData();
+    }
+  }, [visibleTransactions]);
+
   // TODO - Add a max height and a scrollbar, maybe a slight fade effect to the bottom and top
   return (
     <div className="flex h-full w-full flex-col gap-y-2">
       <h3 className="flex h-fit flex-row items-center gap-x-1 text-sm font-semibold tracking-wide text-gray-600">
         <BarsArrowDownIcon className="h-5 w-5 text-gray-400" />
-        LATEST {TRANSACTIONS_LIMIT} CURRENCY TRANSACTIONS
+        LATEST {visibleTransactions} CURRENCY TRANSACTIONS
       </h3>
-      <div className="scrollbar flex flex-grow scroll-m-28 overflow-scroll overflow-x-hidden">
+      <div className="scrollbar flex flex-col flex-grow scroll-m-28 overflow-y-scroll overflow-x-hidden">
         <table className="h-fit min-w-full flex-col divide-y divide-gray-300">
           <thead>
             <tr>
@@ -254,6 +248,14 @@ const Transactions: FC = () => {
             ))}
           </tbody>
         </table>
+        {
+          visibleTransactions < TRANSACTIONS_LIMIT && (
+            <button className="flex justify-center items-center text-gray-900 mt-2 gap-x-1" onClick={handleShowMore}>
+              <PlusIcon className="h-4 w-4" />
+              Show More
+            </button>
+          )
+        }
       </div>
     </div>
   );

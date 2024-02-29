@@ -8,11 +8,12 @@ import SignInWithGoogleButton from "./SignInWithGoogleButton";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 
-import { countriesList } from "../../utils/countries/countries";
 import { rolesList } from "../../utils/roles/roles";
 import { AuthDialogState } from "./AuthDialog";
-import AuthInputCombobox from "./AuthInputCombobox";
 import AuthInputSelect from "./AuthInputSelect";
+
+const PASSWORD_LENGTH_MIN_LIMIT = 10
+const PASSWORD_LENGTH_MAX_LIMIT = 126
 
 const SignupForm: FC = () => {
   const {
@@ -36,59 +37,99 @@ const SignupForm: FC = () => {
    *
    * For more information about zod, check the documentation: https://zod.dev/
    * */
-  const formSchema = z
-    .object({
-      email: z
-        .string({
-          required_error: "Email is required",
-          invalid_type_error: "Email should be a string",
-        })
-        .email("Invalid email address"),
-      password: z
-        .string({
-          required_error: "Password is required",
-          invalid_type_error: "Password should be a string",
-        })
-        .min(6, "Password length should be at least 6 characters")
-        .max(12, "Password cannot exceed more than 12 characters"),
-      confirm_password: z
-        .string({
-          required_error: "Confirm Password is required",
-          invalid_type_error: "Confirm Password should be a string",
-        })
-        .min(6, "Password length should be at least 6 characters")
-        .max(12, "Password cannot exceed more than 12 characters"),
-      company_name: z
-        .string({
-          required_error: "Company Name is required",
-          invalid_type_error: "Company Name should be a string",
-        })
-        .default(""),
-      phone_number: z
-        .string({
-          required_error: "Phone Number is required",
-          invalid_type_error: "Phone Number should be a string",
-        })
-        .default(""),
-      role: z
-        .string({
-          required_error: "Role is required",
-          invalid_type_error: "Role should be a string",
-        })
-        .default(""),
-      country: z
-        .string({
-          required_error: "Country is required",
-          invalid_type_error: "Country should be a string",
-        })
-        .default(""),
-    })
+  const formSchema = z.object({
+    email: z.string({
+      required_error: "Email is required",
+      invalid_type_error: "Email should be a string"
+    }).email("Invalid email address"),
+    password: z.string({
+      required_error: "Password is required",
+      invalid_type_error: "Password should be a string"
+    }).min(PASSWORD_LENGTH_MIN_LIMIT, `Password length should be at least ${PASSWORD_LENGTH_MIN_LIMIT} characters`)
+      .max(PASSWORD_LENGTH_MAX_LIMIT, `Password cannot exceed more than ${PASSWORD_LENGTH_MAX_LIMIT} characters`),
+    confirm_password: z.string({
+      required_error: "Confirm Password is required",
+      invalid_type_error: "Confirm Password should be a string"
+    }).min(PASSWORD_LENGTH_MIN_LIMIT, `Password length should be at least ${PASSWORD_LENGTH_MIN_LIMIT} characters`)
+      .max(PASSWORD_LENGTH_MAX_LIMIT, `Password cannot exceed more than ${PASSWORD_LENGTH_MAX_LIMIT} characters`),
+    company_name: z
+      .string({
+        required_error: "Company Name is required",
+        invalid_type_error: "Company Name should be a string",
+      })
+      .default(""),
+    phone_number: z
+      .string({
+        required_error: "Phone Number is required",
+        invalid_type_error: "Phone Number should be a string",
+      })
+      .default(""),
+    role: z
+      .string({
+        required_error: "Role is required",
+        invalid_type_error: "Role should be a string",
+      })
+      .default(""),
+    country: z
+      .string({
+        required_error: "Country is required",
+        invalid_type_error: "Country should be a string",
+      })
+      .default(""),
+  })
     .refine((data) => data.password === data.confirm_password, {
       message: "Passwords don't match",
       path: ["confirm_password"], // path of error
-    });
+    }).superRefine(({ password }, checkPasswordComplexity) => {
+      // Password has to have:
+      // At least 1 uppercase letter
+      const uppercaseRegex = new RegExp("(?=.*[A-Z])")
 
-  type SignUpSchema = z.infer<typeof formSchema>;
+      // At least 1 lowercase letter
+      const lowercaseRegex = new RegExp("(?=.*[a-z])")
+
+      // At least 1 number
+      const numberRegex = new RegExp("(?=.*[0-9])")
+
+      // At least 1 special character
+      const specialCharacters = "!@#\$%\^&\*+-=~"
+      const specialCharacterRegex = new RegExp(`(?=.*[${specialCharacters}])`)
+
+      if (!uppercaseRegex.test(password)) {
+        checkPasswordComplexity.addIssue({
+          code: "custom",
+          message: "Password should contain at least 1 uppercase letter",
+          path: ["password"]
+        })
+        return
+      }
+
+      if (!lowercaseRegex.test(password)) {
+        checkPasswordComplexity.addIssue({
+          code: "custom",
+          message: "Password should contain at least 1 lowercase letter",
+          path: ["password"]
+        })
+      }
+
+      if (!numberRegex.test(password)) {
+        checkPasswordComplexity.addIssue({
+          code: "custom",
+          message: "Password should contain at least 1 number",
+          path: ["password"]
+        })
+      }
+
+      if (!specialCharacterRegex.test(password)) {
+        checkPasswordComplexity.addIssue({
+          code: "custom",
+          message: `Password should contain at least 1 special character (${specialCharacters})`,
+          path: ["password"]
+        })
+      }
+    })
+
+  type SignUpSchema = z.infer<typeof formSchema>
 
   const methods = useForm<SignUpSchema>({
     mode: "onBlur",
@@ -96,10 +137,10 @@ const SignupForm: FC = () => {
   });
   const { handleSubmit } = methods;
 
-  const countries = useMemo(
+  /* const countries = useMemo(
     () => countriesList.map((country) => country.name),
     [],
-  );
+  ); */
   const roles = useMemo(() => rolesList.map((role) => role.name), []);
 
   const createAccount = (data: SignUpSchema) => {

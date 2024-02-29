@@ -1,18 +1,19 @@
 import clsx from "clsx";
-import { CSSProperties } from "react";
+import { CSSProperties, useMemo } from "react";
 import { RiskLevelColors } from "../../../../../utils/risk_levels";
 
 import "./CustomEdgePath.css";
+import { max } from "lodash";
 
 interface CustomEdgePathProps {
   id?: string;
   path: string;
   style?: CSSProperties;
   strokeWidth: number;
-  hoveredStyle?: CSSProperties;
   onClick?: () => void;
-  onMouseEnter?: () => void;
+  onMouseEnter?: (e: any) => void;
   onMouseLeave?: () => void;
+  onMouseMove?: (e: any) => void;
   edgeHandleID: string;
   isHidden: boolean;
   opacity: number;
@@ -25,7 +26,6 @@ const CustomEdgePath = ({
   path,
   strokeWidth,
   opacity,
-  hoveredStyle,
   edgeHandleID,
   isHidden,
   isClickable,
@@ -35,6 +35,13 @@ const CustomEdgePath = ({
   riskVisionColors,
 }: CustomEdgePathProps) => {
   const triangleMarkerID: string = `triangle-${id}`;
+
+  // Create a delay for the animation picked at random between 0 and 5 seconds. It should only be calculated once
+  const { delay } = useMemo(() => {
+    return {
+      delay: Math.random() * 5,
+    };
+  }, []);
 
   return (
     <>
@@ -78,7 +85,6 @@ const CustomEdgePath = ({
           )}
         />
       </marker>
-
       <path
         id={id}
         d={path}
@@ -123,14 +129,61 @@ const CustomEdgePath = ({
         <path
           d={path}
           fill="none"
-          style={hoveredStyle}
           strokeWidth={Math.min(strokeWidth * 15, 20)}
           className="react-flow__edge-interaction opacity-0 hover:animate-pulse hover:cursor-pointer hover:opacity-90"
+          style={{
+            strokeLinecap: "round",
+            strokeLinejoin: "round",
+            stroke: isHidden ? "#60a5fa" : "#9ca3af",
+            transition: "stroke 0.5s, opacity 0.2s ease-out",
+          }}
           onClick={onClick}
           onMouseEnter={onMouseEnter}
           onMouseLeave={onMouseLeave}
+          onMouseMove={onMouseEnter}
         />
       )}
+      <circle
+        className={clsx(
+          riskVisionColors
+            ? riskVisionColors.fillColor
+            : edgeHandleID === "a"
+              ? "fill-blue-400"
+              : "fill-orange-400",
+        )}
+        cx="0"
+        cy="0"
+        r={max([strokeWidth * 2, 2.5])}
+      >
+        <animateMotion
+          dur="4.5s"
+          repeatCount="indefinite"
+          path={path}
+          rotate="auto"
+          begin={`${delay}s`}
+        />
+      </circle>
+      <circle
+        className={clsx(
+          "animate-ping",
+          riskVisionColors
+            ? riskVisionColors.fillColor
+            : edgeHandleID === "a"
+              ? "fill-blue-400"
+              : "fill-orange-400",
+        )}
+        cx="0"
+        cy="0"
+        r={max([strokeWidth * 2, 1.5])}
+      >
+        <animateMotion
+          dur="4.5s"
+          repeatCount="indefinite"
+          path={path}
+          rotate="auto"
+          begin={`${delay}s`}
+        />
+      </circle>
     </>
   );
 };

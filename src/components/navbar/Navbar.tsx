@@ -26,9 +26,11 @@ import {
 } from "@heroicons/react/16/solid";
 import { logAnalyticsEvent } from "../../services/firestore/analytics/analytics";
 import {
+  PersonalGraphInfo,
   getGraphHref,
   usePersonalGraphs,
 } from "../../services/firestore/user/graph_saving";
+import CreateGraphDialog from "../common/CreateGraphDialog";
 
 
 // To add more tabs, simply add more objects to the navigation array. Href indicates the page to go to
@@ -101,6 +103,14 @@ interface SavedGraphRowProps {
 
 const SAVED_GRAPHS_LIMIT = 3;
 
+const NEW_GRAPH_INFO: PersonalGraphInfo = {
+  addresses: [],
+  edges: [],
+  tags: [],
+  averageRisk: 0,
+  totalVolume: 0,
+};
+
 interface SavedGraphsProps {
   userID: string
 }
@@ -108,7 +118,7 @@ interface SavedGraphsProps {
 const SavedGraphs: FC<SavedGraphsProps> = ({
   userID,
 }) => {
-  const navigate = useNavigate();
+  const [isCreateGraphDialogOpen, setIsCreateGraphDialogOpen] = useState(false);
 
   const { graphs } = usePersonalGraphs(userID ? userID : "");
   const { displayedGraphs } = useMemo(() => {
@@ -117,54 +127,47 @@ const SavedGraphs: FC<SavedGraphsProps> = ({
     };
   }, [graphs]);
 
-  const createNewGraph = () => {
-    logAnalyticsEvent("navbar_option_clicked", { name: "New Graph" });
-    sessionStorage.removeItem("graph");
-    // If we are already on the graph page, we want to reset the graph
-    if (window.location.href.includes("/graph/new")) {
-      // Reloads the page
-      navigate(0)
-      return;
-    }
-
-    // If we are on a saved graph, we want to navigate to the new graph page
-    navigate(`/${userID}/graph/new`);
-  }
-
   return (
-    <div className="flex flex-col gap-x-2.5 pl-[0.8rem]">
-      {displayedGraphs.map((graph, index) => (
-        <Transition
-          key={graph.uid}
-          show={true}
-          appear={true}
-          enter="transition-all duration-300"
-          enterFrom="opacity-0 -translate-y-5"
-          enterTo="opacity-100 translate-y-0"
-          style={{
-            transitionDelay: `${index * 50}ms`,
-          }}
+    <>
+      <div className="flex flex-col gap-x-2.5 pl-[0.8rem]">
+        {displayedGraphs.map((graph, index) => (
+          <Transition
+            key={graph.uid}
+            show={true}
+            appear={true}
+            enter="transition-all duration-300"
+            enterFrom="opacity-0 -translate-y-5"
+            enterTo="opacity-100 translate-y-0"
+            style={{
+              transitionDelay: `${index * 50}ms`,
+            }}
+          >
+            <SavedGraphRow
+              name={graph.name}
+              href={getGraphHref(userID, graph)}
+              isLast={index === displayedGraphs.length - 1}
+            />
+          </Transition>
+        ))}
+        <button
+          key="New Graph"
+          onClick={() => setIsCreateGraphDialogOpen(true)}
+          className="group -mb-10 flex h-10 cursor-pointer flex-row items-center gap-x-4 text-xs font-semibold text-gray-500 transition-all  duration-150 hover:gap-x-[1.1rem] hover:text-gray-700"
         >
-          <SavedGraphRow
-            name={graph.name}
-            href={getGraphHref(userID, graph)}
-            isLast={index === displayedGraphs.length - 1}
+          <div className="mb-1 h-1/2 w-[1.5px] -translate-y-1/2 bg-gray-300" />
+          <PlusCircleIcon
+            className="absolute h-5 w-5 -translate-x-[0.6rem] rounded-full bg-white p-[0.06rem] text-gray-400 ring-[1.5px] ring-gray-300 transition-all duration-150 group-hover:text-gray-500"
+            aria-hidden="true"
           />
-        </Transition>
-      ))}
-      <a
-        key="New Graph"
-        onClick={createNewGraph}
-        className="group -mb-10 flex h-10 cursor-pointer flex-row items-center gap-x-4 text-xs font-semibold text-gray-500 transition-all  duration-150 hover:gap-x-[1.1rem] hover:text-gray-700"
-      >
-        <div className="mb-1 h-1/2 w-[1.5px] -translate-y-1/2 bg-gray-300" />
-        <PlusCircleIcon
-          className="absolute h-5 w-5 -translate-x-[0.6rem] rounded-full bg-white p-[0.06rem] text-gray-400 ring-[1.5px] ring-gray-300 transition-all duration-150 group-hover:text-gray-500"
-          aria-hidden="true"
-        />
-        New Graph
-      </a>
-    </div>
+          New Graph
+        </button>
+      </div>
+      <CreateGraphDialog
+        isOpen={isCreateGraphDialogOpen}
+        setOpen={setIsCreateGraphDialogOpen}
+        graphInfo={NEW_GRAPH_INFO}
+      />
+    </>
   );
 };
 
