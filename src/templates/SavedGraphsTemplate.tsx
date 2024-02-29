@@ -40,7 +40,7 @@ const GraphCard: FC<GraphCardProps> = ({ userID, graph }) => {
     graph.name = graphName;
     await updatePersonalGraph(userID, graph);
     setEditMode(false);
-  }
+  };
 
   // Hotkeys for the graph name input
   // Enter: Save the graph name
@@ -58,40 +58,28 @@ const GraphCard: FC<GraphCardProps> = ({ userID, graph }) => {
   return (
     <div className="group flex h-full min-h-[7rem] w-full flex-col gap-2 rounded-md px-4 py-3 text-lg text-gray-800 shadow-sm ring-1 ring-inset ring-gray-300">
       <p className=" flex h-fit flex-row flex-wrap items-center gap-1.5 text-base font-semibold text-gray-800 transition-all duration-150 ">
-        {
-          editMode ? (
-            <div className="flex flex-row items-center gap-1.5 w-full group-hover:flex">
-              <input
-                type="text"
-                value={graphName}
-                onChange={(e) => setGraphName(e.target.value)}
-                autoFocus
-                className="group-hover:block bg-gray-100 text-gray-800 text-base font-semibold rounded-md p-1.5 transition-all duration-150 w-full"
-                onKeyDown={async (event) => {
-                  const hotKey = event.key.toLocaleLowerCase();
-                  switch (hotKey) {
-                    case hotKeysMap.ENTER.key:
-                      await hotKeysMap.ENTER.asyncHandler!(event);
-                      break;
-                  }
-                }}
-              />
-              <CheckIcon
-                className="h-7 w-7 cursor-pointer rounded-md p-1.5 text-gray-400 transition-all duration-150 hover:bg-green-100 hover:text-green-500"
-                onClick={onChangeGraphName}
-              />
-              <XMarkIcon
-                className="h-7 w-7 cursor-pointer rounded-md p-1.5 text-gray-400 transition-all duration-150 hover:bg-red-100 hover:text-red-500"
-                onClick={() => {
-                  // Reset the graph name
-                  setGraphName(graph.name);
-                  setEditMode(false);
-                }}
-              />
-            </div>
-          ) :
-            <span onClick={() => setEditMode(true)}>{graph.name}</span>
-        }
+        {editMode ? (
+          <div className="flex w-full flex-row items-center gap-1.5 group-hover:flex">
+            <input
+              type="text"
+              value={graphName}
+              onChange={(e) => setGraphName(e.target.value)}
+              autoFocus
+              className="block w-full rounded-md border-0 py-1.5 text-sm leading-6 text-gray-900 ring-1 ring-inset ring-gray-300 transition-all placeholder:text-gray-400 focus:outline focus:outline-[3px] focus:outline-blue-200 focus:ring-2 focus:ring-blue-400"
+              onKeyDown={async (event) => {
+                const hotKey = event.key.toLocaleLowerCase();
+                switch (hotKey) {
+                  case hotKeysMap.ENTER.key:
+                    await hotKeysMap.ENTER.asyncHandler!(event);
+                    break;
+                }
+              }}
+              onBlur={onChangeGraphName}
+            />
+          </div>
+        ) : (
+          <span onClick={() => setEditMode(true)}>{graph.name}</span>
+        )}
         <Badge text="Ethereum" color={Colors.BLUE} Icon={LinkIcon} />
       </p>
 

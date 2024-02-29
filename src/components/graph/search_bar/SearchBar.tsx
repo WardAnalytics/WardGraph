@@ -56,16 +56,15 @@ const SearchBar: FC<SearchBarProps> = ({ className, onSearchAddress }) => {
   const popoverRef = useRef<HTMLDivElement>(null); // Popover ref for hotkeys
   const { user } = useAuthState();
   const { mutate: searchLabels } = useSearchLabels({
-    mutation:
-    {
+    mutation: {
       onSuccess: (data) => {
         if (data.labels) {
           setEntitySearchResults(data.labels);
         } else {
           setEntitySearchResults([]);
         }
-      }
-    }
+      },
+    },
   });
 
   // The current query the user is typing
@@ -100,9 +99,10 @@ const SearchBar: FC<SearchBarProps> = ({ className, onSearchAddress }) => {
     // If the query is the same as the last time searched, don't search again
     searchLabels({
       data: {
-        query, limit: MAX_SEARCH_HISTORY
-      }
-    })
+        query,
+        limit: MAX_SEARCH_HISTORY,
+      },
+    });
   }, [query]);
 
   // Combine uniqueSearchHistory and entitySearchResults into a single list of search results

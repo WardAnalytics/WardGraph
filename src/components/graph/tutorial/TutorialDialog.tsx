@@ -43,7 +43,7 @@ const ProgressCircle: FC<ProgressCircleProps> = ({
         <div
           className={clsx(
             "absolute h-2 w-2 rounded-full",
-            isCompleted ? "bg-blue-500" : "bg-gray-200",
+            isCompleted || isCurrent ? "bg-blue-500" : "bg-gray-200",
           )}
         />
       }
@@ -63,7 +63,7 @@ const ProgressCircles: FC<ProgressCirclesProps> = ({
   setCurrentStep,
 }) => {
   // Number of circles to show at a time
-  const maxVisibleCircles = 5;
+  const maxVisibleCircles = 8;
 
   // Start index of the circles to show
   const start = Math.max(0, currentStep - Math.floor(maxVisibleCircles / 2));
@@ -141,9 +141,10 @@ const TutorialDialog: FC<TutorialProps> = ({
   };
 
   return (
-    <Modal isOpen={isTutorialOpen} closeModal={closeTutorial} >
-      <div className="w-[30rem]" onKeyDown={
-        async (event: KeyboardEvent<HTMLElement>) => {
+    <Modal isOpen={isTutorialOpen} closeModal={closeTutorial}>
+      <div
+        className="w-[30rem]"
+        onKeyDown={async (event: KeyboardEvent<HTMLElement>) => {
           const hotKey = event.key;
           switch (hotKey) {
             case hotKeysMap.ARROW_LEFT.key:
@@ -153,8 +154,8 @@ const TutorialDialog: FC<TutorialProps> = ({
               await hotKeysMap.ARROW_RIGHT.asyncHandler!(event);
               break;
           }
-        }
-      }>
+        }}
+      >
         <div className="mb-2 flex w-full justify-end">
           <XMarkIcon
             className="h-11 w-11 cursor-pointer rounded-full p-1.5 text-gray-400 transition-all duration-300 hover:bg-gray-100"
