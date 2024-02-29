@@ -19,6 +19,8 @@ const RedirectSharedGraph: FC = () => {
       return;
     }
 
+    sessionStorage.removeItem("focusedAddressData");
+
     // If the user is authenticated, it redirects to the graph on user account, otherwise, it redirects to the public graph
     if (isAuthenticated) {
       navigate(`/${userID}/graph/${sharedGraphID}`);

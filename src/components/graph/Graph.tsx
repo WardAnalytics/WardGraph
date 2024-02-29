@@ -50,6 +50,7 @@ import {
   convertNodeListToRecord,
 } from "./graph_calculations";
 
+import useAuthState from "../../hooks/useAuthState";
 import { PersonalGraphInfo } from "../../services/firestore/user/graph_saving";
 import Footer from "../footer/Footer";
 import TransactionTooltip, {
@@ -59,6 +60,7 @@ import DraggableWindow from "./analysis_window/AnalysisWindow";
 import Hotbar from "./hotbar";
 import Legend from "./legend";
 import ShowTutorialPopup from "./tutorial/ShowTutorialPopup";
+import TutorialDialog from "./tutorial/TutorialDialog";
 
 enum HotKeyMap {
   DELETE = 1,
@@ -918,8 +920,13 @@ const GraphProvided: FC<GraphProvidedProps> = ({
     return nodes.length;
   }
 
+  const { isAuthenticated } = useAuthState();
+
   // Tutorial
-  const [showTutorial, setShowTutorial] = useState<boolean>(false);
+  // If the user is not authenticated, show the tutorial modal
+  const initialShowTutorial = isAuthenticated ? false : true;
+
+  const [showTutorial, setShowTutorial] = useState<boolean>(initialShowTutorial);
 
   // Track Pad / Mouse Toggle --------------------------------------------------
 
@@ -990,10 +997,17 @@ const GraphProvided: FC<GraphProvidedProps> = ({
               src="https://tailwindui.com/img/beams-home@95.jpg"
             />
             {/* {<Controls position="top-right" showInteractive={false} />} */}
-            <ShowTutorialPopup
-              showTutorial={showTutorial}
-              setShowTutorial={setShowTutorial}
-            />
+            {
+              isAuthenticated ?
+                <ShowTutorialPopup
+                  showTutorial={showTutorial}
+                  setShowTutorial={setShowTutorial}
+                /> :
+                <TutorialDialog
+                  show={showTutorial}
+                  setShow={setShowTutorial}
+                />
+            }
             <Background />
             <Panel position="top-left">
               <Legend />
