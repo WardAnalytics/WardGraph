@@ -15,8 +15,7 @@ import {
 import { Colors } from "../utils/colors";
 
 import { PlusCircleIcon } from "@heroicons/react/20/solid";
-import { CheckIcon } from "@heroicons/react/24/outline";
-import { XMarkIcon } from "@heroicons/react/24/solid";
+
 import { useNavigate } from "react-router-dom";
 import BigButton from "../components/common/BigButton";
 import CreateGraphDialog from "../components/common/CreateGraphDialog";
