@@ -34,6 +34,8 @@ import {
 import { Transition } from "@headlessui/react";
 import useAuthState from "../../../../../../hooks/useAuthState";
 
+import getExpandWithAIPaths from "../../../../expand_with_ai";
+
 /** Context data for the AddressNode */
 
 interface AnalysisContextProps {
@@ -52,6 +54,7 @@ interface AddressNodeProps {
     address: string;
     highlight: boolean;
     state: string;
+    expandAutomatically: boolean;
   };
 }
 
@@ -75,7 +78,7 @@ const LabelsAndTags: FC<LabelsAndTagsProps> = ({ labels, tags }) => {
 };
 
 const AddressNode: FC<AddressNodeProps> = ({
-  data: { address, highlight },
+  data: { address, highlight, expandAutomatically },
 }) => {
   const {
     setFocusedAddressData,
@@ -84,6 +87,7 @@ const AddressNode: FC<AddressNodeProps> = ({
     setNodeHighlight,
     registerAddressRisk,
     isRiskVision,
+    addMultipleDifferentPaths,
   } = useContext(GraphContext);
 
   // Analysis data is fetched into a useState hook from the Ward API using the Orval Hook and then passed into the context
@@ -144,6 +148,11 @@ const AddressNode: FC<AddressNodeProps> = ({
               }
             }
             addEdges(newEdges);
+
+            if (expandAutomatically) {
+              const paths = getExpandWithAIPaths(data, 2);
+              addMultipleDifferentPaths(paths);
+            }
           },
         },
       },
