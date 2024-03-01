@@ -22,7 +22,7 @@ import {
 import { GraphContext } from "../../../Graph";
 
 import { getTokenMetadata } from "../../../../../api/transactions/transactions";
-import { TokenMetadata } from "../../../../../api/model";
+import { TokenMetadata } from "../../../../../api/model/tokenMetadata";
 
 interface TransactionRowProps {
   usdValue: number;
