@@ -1,0 +1,18 @@
+export const rolesList = [
+  { name: "Compliance" },
+  { name: "Operations" },
+  { name: "Investigations" },
+  { name: "Law Enforcement" },
+  { name: "Regulator" },
+  { name: "Information Security" },
+  { name: "Cyber Security" },
+  { name: "Portfolio Manager" },
+  { name: "Asset Manager" },
+  { name: "Business Intelligence" },
+  { name: "Legal" },
+  { name: "Business Development" },
+  { name: "Research" },
+  { name: "Marketing" },
+  { name: "Engineering" },
+  { name: "Other" },
+];

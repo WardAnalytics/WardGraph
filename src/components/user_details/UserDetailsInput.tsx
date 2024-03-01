@@ -2,13 +2,13 @@ import clsx from "clsx";
 import { useMemo } from "react";
 import { useFormContext } from "react-hook-form";
 
-interface AuthInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+interface UserDetailsInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label: string;
   name: string;
   className?: string;
 }
 
-const AuthInput = ({ label, name, className, ...rest }: AuthInputProps) => {
+const UserDetailsInput = ({ label, name, className, ...rest }: UserDetailsInputProps) => {
   const {
     register,
     formState: { errors },
@@ -39,4 +39,4 @@ const AuthInput = ({ label, name, className, ...rest }: AuthInputProps) => {
   );
 };
 
-export default AuthInput;
+export default UserDetailsInput;

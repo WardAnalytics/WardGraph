@@ -4,13 +4,24 @@ import {
   signInWithPopup,
   signOut,
 } from "@firebase/auth";
-import { User } from "firebase/auth";
 import { UserEmailNotVerifiedError, UserNotLoggedInError } from "./errors";
+import { User as FirebaseUser } from "firebase/auth";
 
 import { sendEmailVerification, sendPasswordResetEmail } from "firebase/auth";
 import { auth, googleProvider } from "../firebase";
 import { createUserInDatabase } from "../firestore/user";
 import AuthApiErrorCodes from "./auth.errors";
+import { UserDB } from "../firestore/user/user";
+
+export interface User extends FirebaseUser {
+  userData?: UserDB;
+}
+
+export interface NewUser {
+  email: string;
+  password: string;
+  userData?: UserDB;
+}
 
 /**
  * Signup a new user with email and password using Firebase Authentication
@@ -21,18 +32,37 @@ import AuthApiErrorCodes from "./auth.errors";
  * @param onError - callback function to be executed on signup error
  */
 const signUp = async (
-  email: string,
-  password: string,
+  newUser: NewUser,
   onSuccess: () => void,
   onError: (error: any) => void,
 ) => {
+  const { email, password } = newUser;
+
   await createUserWithEmailAndPassword(auth, email, password)
     .then(async (userCredential) => {
       // Send verification email
       await sendEmailVerification(userCredential.user)
         .then(() => {
-          localStorage.setItem("user", JSON.stringify(userCredential.user));
-          onSuccess();
+          const { uid: userID } = userCredential.user;
+          const newUserDB: UserDB = {
+            email: email,
+            is_premium: false,
+          };
+
+          // Saves user in the firestore database
+          createUserInDatabase(userID, newUserDB)
+            .then((newUserDB) => {
+              const newUser = {
+                ...userCredential.user,
+                userData: newUserDB,
+              };
+
+              localStorage.setItem("user", JSON.stringify(newUser));
+              onSuccess();
+            })
+            .catch((error) => {
+              onError(error);
+            });
         })
         .catch((error) => {
           onError(error);
@@ -59,21 +89,15 @@ const login = async (
 ) => {
   await signInWithEmailAndPassword(auth, email, password)
     .then((userCredential) => {
-      const user = userCredential.user;
+      const { uid: userID, emailVerified } = userCredential.user;
 
       // Check if user email is verified
-      if (user && !user.emailVerified) {
+      if (userID && !emailVerified) {
         onError(AuthApiErrorCodes.EMAIL_VERIFICATION_REQUIRED);
         return;
       }
 
-      localStorage.setItem("user", JSON.stringify(user));
-
-      // Saves user in the firestore database
-      // This function is called here and not in signUp to save already existing users in production
-      createUserInDatabase(user).then(() => {
-        onSuccess(user.uid);
-      });
+      onSuccess(userID);
     })
     .catch((error) => {
       onError(error);
@@ -109,11 +133,20 @@ const signUpWithGoogle = async (
 ) => {
   await signInWithPopup(auth, googleProvider)
     .then((userCredential) => {
-      localStorage.setItem("user", JSON.stringify(userCredential.user));
+      const { uid: userID } = userCredential.user;
+
+      const newUser: User = {
+        ...userCredential.user,
+        userData: {
+          email: userCredential.user.email!,
+          is_premium: false,
+        },
+      };
 
       // Saves user in the firestore database
-      createUserInDatabase(userCredential.user).then(() => {
-        onSuccess(userCredential.user.uid);
+      createUserInDatabase(userID, newUser.userData!).then((newUser) => {
+        localStorage.setItem("user", JSON.stringify(newUser));
+        onSuccess(userID);
       });
     })
     .catch((error) => {
@@ -170,7 +203,7 @@ const isAuthenticated = () => {
  * @throws {UserNotLoggedInError} If the user is not logged in.
  * @throws {UserEmailNotVerifiedError} If the user's email is not verified.
  */
-export function getVerifiedUser(): User {
+export function getVerifiedUser(): FirebaseUser {
   const user = authService.getCurrentUser();
   if (user === null) {
     throw new UserNotLoggedInError();

@@ -1,8 +1,8 @@
-import React, { useMemo } from 'react';
-import WithAuth, { WithAuthProps } from '../auth/WithAuth';
+import React from 'react';
 import useAuthState from '../../hooks/useAuthState';
 import { UserNotPremiumError } from '../../services/auth/errors';
 import { usePremiumStatus } from '../../services/firestore/user/premium';
+import WithAuth, { WithAuthProps } from '../auth/WithAuth';
 import TurnPremiumDialog from './TurnPremiumDialog';
 
 /**
@@ -57,11 +57,7 @@ export interface WithPremiumProps extends WithAuthProps {
  */
 const WithPremium = <P extends WithPremiumProps>(WrappedComponent: React.ComponentType<P>) => {
     return (props: Omit<P, keyof WithPremiumProps>) => {
-        const { user } = useAuthState();
-
-        const userID = useMemo(() => {
-            return user?.uid || "";
-        }, [user]);
+        const { userID } = useAuthState();
 
         const { isPremium } =
             usePremiumStatus(userID);
