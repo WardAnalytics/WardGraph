@@ -1,7 +1,7 @@
 import { FC, useState } from "react";
 
-function getEntityLogoURL(entity: string): string {
-  return `https://wardicons.blob.core.windows.net/token-icons/${entity}.png`;
+const getEntityLogoURL = (entity: string): string => {
+  return `https://wardicons.blob.core.windows.net/icons/${entity}.png`;
 }
 
 interface EntityLogoProps {
