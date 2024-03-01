@@ -61,6 +61,7 @@ import Hotbar from "./hotbar";
 import Legend from "./legend";
 import ShowTutorialPopup from "./tutorial/ShowTutorialPopup";
 import TutorialDialog from "./tutorial/TutorialDialog";
+import TransactionsBetweenAddressesDialog from "./TransactionsBetweenAddressesDialog";
 
 enum HotKeyMap {
   DELETE = 1,
@@ -96,6 +97,7 @@ interface GraphContextProps {
   getEdgeHandleID: (edgeID: string) => string;
   setFocusedAddressData: (data: AddressAnalysis | null) => void;
   setHoveredTransferData: (data: TransactionTooltipProps | null) => void;
+  setFocusedEdgeData: (data: TransactionTooltipProps | null) => void;
   doLayout: () => void;
   setNodeHighlight: (address: string, highlight: boolean) => void;
   getNodeCount: () => number;
@@ -649,6 +651,11 @@ const GraphProvided: FC<GraphProvidedProps> = ({
     }
   }
 
+  // Edge inspection -----------------------------------------------------------
+
+  const [focusedEdgeData, setFocusedEdgeData] =
+    useState<TransactionTooltipProps | null>(null);
+
   // Path Expansion -----------------------------------------------------------
 
   // We use a ref to avoid stale closures
@@ -952,6 +959,7 @@ const GraphProvided: FC<GraphProvidedProps> = ({
     getEdgeHandleID,
     setFocusedAddressData,
     setHoveredTransferData,
+    setFocusedEdgeData,
     doLayout,
     generateSharableLink,
     setNodeHighlight,
@@ -981,6 +989,12 @@ const GraphProvided: FC<GraphProvidedProps> = ({
     <>
       <GraphContext.Provider value={graphContext}>
         <div className="h-full w-full">
+          <TransactionsBetweenAddressesDialog
+            show={focusedEdgeData !== null}
+            setShow={() => setFocusedEdgeData(null)}
+            src={focusedEdgeData?.source!}
+            dst={focusedEdgeData?.target!}
+          />
           <MemoedDraggableWindow
             analysisData={focusedAddressData}
             onExit={onAddressFocusOff}
