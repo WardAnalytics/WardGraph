@@ -13,7 +13,6 @@ import { logAnalyticsEvent } from "../../../../../services/firestore/analytics/a
 import { Colors } from "../../../../../utils/colors";
 import formatNumber from "../../../../../utils/formatNumber";
 import Badge from "../../../../common/Badge";
-import EntityLogo from "../../../../common/EntityLogo";
 import "../../../../common/Scrollbar.css";
 import {
   BlockExplorerTransactionIcon,
@@ -21,8 +20,9 @@ import {
 } from "../../../../common/utility_icons";
 import { GraphContext } from "../../../Graph";
 
-import { getTokenMetadata } from "../../../../../api/transactions/transactions";
 import { TokenMetadata } from "../../../../../api/model/tokenMetadata";
+import { getTokenMetadata } from "../../../../../api/transactions/transactions";
+import TokenLogo from "../../../../common/TokenLogo";
 
 interface TransactionRowProps {
   usdValue: number;
@@ -83,7 +83,7 @@ const TransactionRow: FC<TransactionRowProps> = ({
       <td className="text-left text-sm font-normal text-gray-900 group-hover:bg-gray-100">
         <span className="flex flex-row items-center gap-x-1">
           <span>
-            <EntityLogo entity={currency} className="h-6 w-6 rounded-full" />
+            <TokenLogo token={currency} className="h-6 w-6 rounded-full" />
           </span>
           <span>{formatNumber(usdValue)}</span>
           <span className="text-gray-500">{currency}</span>
