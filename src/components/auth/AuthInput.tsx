@@ -1,29 +1,25 @@
-import clsx from "clsx";
-import { useMemo } from "react";
 import { useFormContext } from "react-hook-form";
 
 interface AuthInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label: string;
   name: string;
-  className?: string;
 }
 
-const AuthInput = ({ label, name, className, ...rest }: AuthInputProps) => {
+const AuthInput = ({ label, name, ...rest }: AuthInputProps) => {
   const {
     register,
     formState: { errors },
   } = useFormContext();
 
-  const error = useMemo(() => errors[name], [errors, name]);
+  const error = errors[name];
 
   return (
-    <div className={clsx("w-full", className)}>
+    <div>
       <label
         htmlFor={label}
-        className="mb-2 block gap-x-1 text-sm font-medium text-gray-900 dark:text-white"
+        className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
       >
-        <span>{label}</span>
-        {rest.required && <span className="text-red-500">*</span>}
+        {label}
       </label>
       <input
         {...register(name)}
