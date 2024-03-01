@@ -152,8 +152,6 @@ const Graph: FC<GraphProps> = ({
     const nodes: Node[] = [];
     const expandNodeAutomatically = initialAddresses.length === 1; // Only expand if there's one address
 
-    console.log("Expand Node Automatically: ", expandNodeAutomatically);
-
     initialAddresses.forEach((address) => {
       nodes.push(
         createAddressNode(
