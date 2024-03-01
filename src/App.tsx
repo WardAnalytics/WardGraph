@@ -1,4 +1,4 @@
-import { FC } from "react";
+import { FC, useMemo } from "react";
 import { QueryClientProvider } from "react-query";
 import useCustomQueryClient from "./hooks/useCustomQueryClient";
 
@@ -12,7 +12,15 @@ import { HelmetProvider } from 'react-helmet-async';
 
 const App: FC = () => {
   const queryClient = useCustomQueryClient();
-  const { userID, isAuthenticated } = useAuthState();
+  const { user, isAuthenticated } = useAuthState();
+
+  const userID = useMemo(() => {
+    if (user) {
+      return user.uid;
+    }
+
+    return "";
+  }, [user]);
 
   // Ensure that context is never scoped outside of the current instance of the app
   const helmetContext = {};
@@ -23,7 +31,7 @@ const App: FC = () => {
         <QueryClientProvider client={queryClient}>
           <MobileWarningTemplate className="h-screen w-screen sm:hidden" />
           <div className="hidden h-fit w-fit sm:block">
-            {isAuthenticated ? <PrivateApp userID={userID!} /> : <PublicApp />}
+            {isAuthenticated ? <PrivateApp userID={userID} /> : <PublicApp />}
           </div>
         </QueryClientProvider>
       </HelmetProvider>

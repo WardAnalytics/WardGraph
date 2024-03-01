@@ -4,7 +4,7 @@ import {
   ShareIcon,
   TrashIcon,
 } from "@heroicons/react/24/outline";
-import { FC, KeyboardEvent, useState } from "react";
+import { FC, useMemo, useState, KeyboardEvent } from "react";
 import Badge from "../components/common/Badge";
 import useAuthState from "../hooks/useAuthState";
 import {
@@ -106,8 +106,9 @@ const GraphCard: FC<GraphCardProps> = ({ userID, graph }) => {
 };
 
 const SavedGraphsTemplate: FC = () => {
-  const { userID } = useAuthState();
-  const { graphs } = usePersonalGraphs(userID);
+  const { user } = useAuthState();
+  const userID = useMemo(() => user!.uid, [user]);
+  const { graphs } = usePersonalGraphs(user ? user.uid : "");
   const [isCreateGraphDialogOpen, setIsCreateGraphDialogOpen] = useState(false);
 
   return (
