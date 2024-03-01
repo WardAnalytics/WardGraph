@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { User } from "../services/auth/auth.services";
 import { auth, db } from "../services/firebase";
 import { UserNotFoundError } from "../services/firestore/user/errors";
+import { getUserFromDatabase } from "../services/firestore/user/user";
 
 /** Retrieves the current authentication state of the user.
  *  This information includes the current user and its ID, and whether the user is authenticated.
@@ -58,8 +59,21 @@ const useAuthState = () => {
 
     setIsAuthenticated(isAuthenticated);
 
-    localStorage.setItem("user", JSON.stringify(user));
-  }, [user]);
+    setIsLoading(true)
+    getUserFromDatabase(user?.uid!).then((userData) => {
+      const newUser: User = {
+        ...user!,
+        userData
+      };
+
+      localStorage.setItem("user", JSON.stringify(newUser));
+      setUser(newUser);
+      setIsLoading(false);
+    }).catch((error) => {
+      setIsLoading(false);
+      setError(error);
+    })
+  }, [userID]);
 
   useEffect(() => {
     if (!user) return;
@@ -104,7 +118,7 @@ const useAuthState = () => {
       });
 
     return () => unsubscribe();
-  }, [user]);
+  }, [userID]);
 
   return { user, userID, isAuthenticated, isPremium, isLoading, error };
 };

@@ -9,6 +9,7 @@ import SEO from "../components/common/SEO";
 import { Graph } from "../components/graph/Graph";
 import LandingPage from "../components/graph/landing_page/LandingPage";
 import useAuthState from "../hooks/useAuthState";
+import { UserDetailsDialog } from "../components/user_details";
 
 interface UnsavedGraphTemplateProps {
   showLandingPage?: boolean;
@@ -127,11 +128,14 @@ const UnsavedGraphTemplate: FC<UnsavedGraphTemplateProps> = ({
           enterTo="opacity-100 scale-100"
           className="h-full w-full"
         >
-          <Graph
-            initialAddresses={initialAddresses}
-            initialPaths={initialPaths}
-            onLocalSave={saveGraph}
-          />
+          <>
+            <Graph
+              initialAddresses={initialAddresses}
+              initialPaths={initialPaths}
+              onLocalSave={saveGraph}
+            />
+            <UserDetailsDialog />
+          </>
         </Transition>
       </div>
     </>

@@ -47,11 +47,6 @@ const signUp = async (
           const newUserDB: UserDB = {
             email: email,
             is_premium: false,
-            name: newUser.userData?.name!,
-            company_name: newUser.userData?.company_name!,
-            role: newUser.userData?.role!,
-            phone_number: newUser.userData?.phone_number,
-            country: newUser.userData?.country,
           };
 
           // Saves user in the firestore database
@@ -102,26 +97,7 @@ const login = async (
         return;
       }
 
-      const user: User = {
-        ...userCredential.user,
-        userData: {
-          email: userCredential.user.email!,
-          is_premium: false,
-          name: "",
-          company_name: "",
-          role: "user",
-          phone_number: "",
-          country: "",
-        },
-      };
-
-      localStorage.setItem("user", JSON.stringify(user));
-
-      // Saves user in the firestore database
-      // This function is called here to save already existing users in production
-      createUserInDatabase(user.uid, user.userData!).then(() => {
-        onSuccess(user.uid);
-      });
+      onSuccess(userID);
     })
     .catch((error) => {
       onError(error);
@@ -164,11 +140,6 @@ const signUpWithGoogle = async (
         userData: {
           email: userCredential.user.email!,
           is_premium: false,
-          name: "",
-          company_name: "",
-          role: "",
-          phone_number: "",
-          country: "",
         },
       };
 

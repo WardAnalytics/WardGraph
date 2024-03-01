@@ -1,6 +1,7 @@
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { db } from "../../firebase";
 import { USERS_COLLECTION } from "./constants";
+import { UserNotFoundError } from "./errors";
 
 // Information about the user that is stored in the database
 // The authentication information is handled by the firebase auth service
@@ -8,11 +9,9 @@ import { USERS_COLLECTION } from "./constants";
 export interface UserDB {
   email: string;
   is_premium: boolean;
-  name: string | null;
-  company_name: string;
-  role: string;
-  phone_number?: string;
-  country?: string;
+  username?: string;
+  company?: string;
+  position?: string;
 }
 
 /** Creates a user in the database
@@ -42,4 +41,21 @@ export const updateUserInDatabase = async (
 ) => {
   const userRef = doc(db, USERS_COLLECTION, userID);
   await setDoc(userRef, updatedUser, { merge: true });
+
+  return updatedUser;
+};
+
+/** Retrieves a user from the database
+ *
+ * @param userID - The user to be retrieved from the database
+ */
+export const getUserFromDatabase = async (userID: string) => {
+  const userRef = doc(db, USERS_COLLECTION, userID);
+  const docRef = await getDoc(userRef);
+
+  if (!docRef.exists()) {
+    throw new UserNotFoundError(userID);
+  }
+
+  return docRef.data() as UserDB;
 };

@@ -1,4 +1,4 @@
-import { FC, useContext, useMemo } from "react";
+import { FC, useContext } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import authService, { NewUser } from "../../services/auth/auth.services";
 import { AuthContext } from "./AuthDialog";
@@ -8,9 +8,7 @@ import SignInWithGoogleButton from "./SignInWithGoogleButton";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 
-import { rolesList } from "../../utils/roles/roles";
 import { AuthDialogState } from "./AuthDialog";
-import AuthInputSelect from "./AuthInputSelect";
 
 const PASSWORD_LENGTH_MIN_LIMIT = 10
 const PASSWORD_LENGTH_MAX_LIMIT = 126
@@ -30,10 +28,6 @@ const SignupForm: FC = () => {
    *  - email (required, email)
    *  - password (required, min 6, max 12)
    *  - confirm_password (required, min 6, max 12, should match password)
-   *  - company_name
-   *  - phone_number
-   *  - role
-   *  - country
    *
    * For more information about zod, check the documentation: https://zod.dev/
    * */
@@ -52,30 +46,6 @@ const SignupForm: FC = () => {
       invalid_type_error: "Confirm Password should be a string"
     }).min(PASSWORD_LENGTH_MIN_LIMIT, `Password length should be at least ${PASSWORD_LENGTH_MIN_LIMIT} characters`)
       .max(PASSWORD_LENGTH_MAX_LIMIT, `Password cannot exceed more than ${PASSWORD_LENGTH_MAX_LIMIT} characters`),
-    company_name: z
-      .string({
-        required_error: "Company Name is required",
-        invalid_type_error: "Company Name should be a string",
-      })
-      .default(""),
-    phone_number: z
-      .string({
-        required_error: "Phone Number is required",
-        invalid_type_error: "Phone Number should be a string",
-      })
-      .default(""),
-    role: z
-      .string({
-        required_error: "Role is required",
-        invalid_type_error: "Role should be a string",
-      })
-      .default(""),
-    country: z
-      .string({
-        required_error: "Country is required",
-        invalid_type_error: "Country should be a string",
-      })
-      .default(""),
   })
     .refine((data) => data.password === data.confirm_password, {
       message: "Passwords don't match",
@@ -137,22 +107,13 @@ const SignupForm: FC = () => {
   });
   const { handleSubmit } = methods;
 
-  /* const countries = useMemo(
-    () => countriesList.map((country) => country.name),
-    [],
-  ); */
-  const roles = useMemo(() => rolesList.map((role) => role.name), []);
-
   const createAccount = (data: SignUpSchema) => {
     const newUser: NewUser = {
       email: data.email,
       password: data.password,
       userData: {
-        name: "",
         email: data.email,
         is_premium: false,
-        company_name: data.company_name,
-        role: data.role,
       },
     };
 
@@ -195,24 +156,6 @@ const SignupForm: FC = () => {
                 name="confirm_password"
                 label="Confirm password"
                 placeholder="••••••••"
-                required
-              />
-            </div>
-            <div className="flex justify-between gap-x-3 border-t border-gray-200 pt-3">
-              <AuthInput
-                label="Company Name"
-                type="text"
-                name="company_name"
-                id="company-name"
-                placeholder="Company Inc."
-                required
-              />
-              <AuthInputSelect
-                id="role"
-                name="role"
-                label="Role"
-                options={roles}
-                placeholder="Select a role"
                 required
               />
             </div>
