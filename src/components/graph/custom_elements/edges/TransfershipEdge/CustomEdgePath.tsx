@@ -11,6 +11,7 @@ interface CustomEdgePathProps {
   style?: CSSProperties;
   strokeWidth: number;
   onClick?: () => void;
+  onContextMenu?: () => void;
   onMouseEnter?: (e: any) => void;
   onMouseLeave?: () => void;
   onMouseMove?: (e: any) => void;
@@ -32,6 +33,7 @@ const CustomEdgePath = ({
   onMouseEnter,
   onMouseLeave,
   onClick,
+  onContextMenu,
   riskVisionColors,
 }: CustomEdgePathProps) => {
   const triangleMarkerID: string = `triangle-${id}`;
@@ -138,6 +140,7 @@ const CustomEdgePath = ({
             transition: "stroke 0.5s, opacity 0.2s ease-out",
           }}
           onClick={onClick}
+          onContextMenu={onContextMenu}
           onMouseEnter={onMouseEnter}
           onMouseLeave={onMouseLeave}
           onMouseMove={onMouseEnter}

@@ -15,23 +15,23 @@ interface ModalProps {
 }
 
 /**
- * 
+ *
  * @param isOpen - Whether the modal is open or not
  * @param closeModal - Function to close the modal
  * @param children - The content of the modal
- * @param size - The size of the modal. The size can be "sm", "md", "lg", "xl", or "fit". 
- * 
+ * @param size - The size of the modal. The size can be "sm", "md", "lg", "xl", or "fit".
+ *
  * sm - "max-w-sm"
- * 
+ *
  * md - "max-w-md"
- * 
+ *
  * lg - "max-w-lg"
- * 
+ *
  * xl - "max-w-xl"
- * 
+ *
  * The default size is "fit"
  * @param className - Additional classes to be added to the modal
- * 
+ *
  * @example
  * ```tsx
  * <Modal isOpen={isOpen} closeModal={closeModal} size="md">
@@ -41,7 +41,13 @@ interface ModalProps {
  * </Modal>
  * ```
  */
-const Modal: FC<ModalProps> = ({ isOpen, closeModal, children, size = "fit", className }) => {
+const Modal: FC<ModalProps> = ({
+  isOpen,
+  closeModal,
+  children,
+  size = "fit",
+  className,
+}) => {
   const sizeMap: Record<Size, string> = {
     sm: "max-w-sm",
     md: "max-w-md",
@@ -77,7 +83,13 @@ const Modal: FC<ModalProps> = ({ isOpen, closeModal, children, size = "fit", cla
                 leaveFrom="opacity-100 scale-100"
                 leaveTo="opacity-0 scale-95"
               >
-                <Dialog.Panel className={clsx("flex w-full transform flex-col rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all absolute z-100", sizeMap[size], className)}>
+                <Dialog.Panel
+                  className={clsx(
+                    "z-100 absolute flex w-full transform flex-col rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all",
+                    sizeMap[size],
+                    className,
+                  )}
+                >
                   {children}
                 </Dialog.Panel>
               </Transition.Child>

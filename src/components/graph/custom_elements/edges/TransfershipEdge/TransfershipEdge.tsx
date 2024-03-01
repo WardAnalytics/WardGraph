@@ -26,6 +26,7 @@ const TransfershipEdge: FC<EdgeProps> = ({
     getEdgeVolumeScale,
     getEdgeHandleID,
     setHoveredTransferData,
+    setFocusedEdgeData,
     focusedAddressData,
     getAddressRisk,
     isRiskVision,
@@ -107,7 +108,9 @@ const TransfershipEdge: FC<EdgeProps> = ({
         isHidden={isHidden}
         isClickable={isClickable}
         riskVisionColors={riskVisionColors}
-        onClick={() => {
+        onContextMenu={() => {
+          // Prevent the default context menu from showing
+
           setEdgeState(
             id,
             isHidden
@@ -115,6 +118,19 @@ const TransfershipEdge: FC<EdgeProps> = ({
               : TransfershipEdgeStates.HIDDEN,
           );
           setHoveredTransferData(null);
+          return false;
+        }}
+        onClick={() => {
+          setHoveredTransferData(null);
+
+          // Else, set the edge as focused
+          setFocusedEdgeData({
+            source,
+            target,
+            volume: 0,
+            x: 0,
+            y: 0,
+          });
         }}
         onMouseMove={handleMouseMove}
         onMouseEnter={handleMouseMove}
