@@ -49,13 +49,13 @@ const TransactionRow: FC<TransactionRowProps> = ({
 
   return (
     <>
-      <td className="text-left text-sm font-normal text-gray-900 group-hover:bg-gray-100 ">
+      <td className="text-left text-sm font-normal text-gray-900 ">
         <span className="flex flex-row items-center gap-x-1">
           {formattedDate}
           <BlockExplorerTransactionIcon blockchain={blockchain} hash={hash} />
         </span>
       </td>
-      <td className="text-left group-hover:bg-gray-100">
+      <td className="text-left ">
         <span className="flex flex-row items-center gap-x-1">
           <a className="font-mono text-sm font-normal text-gray-900">
             {addressText}
@@ -66,7 +66,7 @@ const TransactionRow: FC<TransactionRowProps> = ({
           <Badge color={Colors.BLUE} Icon={ArrowUpRightIcon} text="OUT" />
         </span>
       </td>
-      <td className="text-left text-sm font-normal text-gray-900 group-hover:bg-gray-100">
+      <td className="text-left text-sm font-normal text-gray-900 ">
         <span className="flex flex-row items-center gap-x-1">
           <span>
             <EntityLogo entity={currency} className="h-6 w-6 rounded-full" />
@@ -188,13 +188,25 @@ const TransactionsBetweenAddressesDialog: FC<
   }, [show]);
 
   return (
-    <Modal isOpen={show} closeModal={() => setShow(false)} size="xl">
-      <div className="flex h-full w-full flex-col gap-y-2">
-        <h3 className="flex h-fit flex-row items-center gap-x-1 text-sm font-semibold tracking-wide text-gray-600">
-          <BarsArrowDownIcon className="h-5 w-5 text-gray-400" />
-          LATEST {TRANSACTIONS_LIMIT} CURRENCY TRANSACTIONS
-        </h3>
-        <div className="scrollbar flex flex-grow scroll-m-28 flex-col overflow-x-hidden overflow-y-scroll">
+    <Modal isOpen={show} closeModal={() => setShow(false)} size="fit">
+      <div className="flex h-full w-[43rem] flex-col gap-y-2">
+        <span className="flex flex-row items-center gap-1.5">
+          <h3 className="flex h-fit flex-row items-center gap-x-1 text-sm font-semibold tracking-wide text-gray-600">
+            <BarsArrowDownIcon className="h-5 w-5 text-gray-400" />
+            LATEST {TRANSACTIONS_LIMIT} CURRENCY TRANSACTIONS
+          </h3>
+          <Badge
+            color={Colors.BLUE}
+            text={"From: " + src?.slice(0, 8) + "..."}
+          />
+          <Badge
+            color={Colors.ORANGE}
+            text={"To: " + dst?.slice(0, 8) + "..."}
+          />
+          <Badge color={Colors.GRAY} text={"USD Value > $0"} />
+        </span>
+
+        <div className="scrollbar mt-1 flex max-h-96 flex-grow scroll-m-28 flex-col overflow-x-hidden overflow-y-scroll">
           <table className="h-fit min-w-full flex-col divide-y divide-gray-300">
             <thead>
               <tr>
@@ -233,7 +245,7 @@ const TransactionsBetweenAddressesDialog: FC<
                   style={{
                     transitionDelay: `${index * (50 - index / 5)}ms`,
                   }}
-                  className="group mr-2 h-10 cursor-pointer"
+                  className="mr-2 h-10"
                   key={transaction.hash + index}
                 >
                   <TransactionRow key={transaction.hash} {...transaction} />
