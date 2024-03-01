@@ -1,4 +1,4 @@
-import { SparklesIcon } from "@heroicons/react/20/solid";
+import { SparklesIcon } from "@heroicons/react/24/solid";
 import { FC } from "react";
 
 import { logAnalyticsEvent } from "../../../services/firestore/analytics/analytics";
@@ -21,7 +21,9 @@ const LandingPage: FC<LandingPageProps> = ({ setSearchedAddress }) => {
   function selectRandomAddress() {
     const randomIndex = Math.floor(Math.random() * PossibleAddresses.length);
     setSearchedAddress(PossibleAddresses[randomIndex]);
-    logAnalyticsEvent("landing_page_random_address", { address: PossibleAddresses[randomIndex] });
+    logAnalyticsEvent("landing_page_random_address", {
+      address: PossibleAddresses[randomIndex],
+    });
   }
 
   return (
@@ -30,11 +32,11 @@ const LandingPage: FC<LandingPageProps> = ({ setSearchedAddress }) => {
         <Logo className="w-full" />
         <SearchBar className="w-full" onSearchAddress={setSearchedAddress} />
         <div
-          className="flex cursor-pointer flex-row items-center gap-x-2 text-sm text-blue-500"
+          className="flex cursor-pointer flex-row items-center gap-x-2 text-base text-blue-500"
           onClick={selectRandomAddress}
         >
-          <SparklesIcon className="h-5 w-5 text-blue-500" aria-hidden="true" />
-          <h2>I'm feeling lucky</h2>
+          <SparklesIcon className="h-7 w-7 text-blue-500" aria-hidden="true" />
+          <h2>Search random address</h2>
         </div>
       </div>
     </>

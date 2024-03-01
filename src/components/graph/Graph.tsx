@@ -150,9 +150,20 @@ const Graph: FC<GraphProps> = ({
   // Grab all initial addresses and create nodes for them
   const initialNodes = useMemo(() => {
     const nodes: Node[] = [];
+    const expandNodeAutomatically = initialAddresses.length === 1; // Only expand if there's one address
+
+    console.log("Expand Node Automatically: ", expandNodeAutomatically);
+
     initialAddresses.forEach((address) => {
       nodes.push(
-        createAddressNode(address, AddressNodeState.MINIMIZED, true, 0, 0),
+        createAddressNode(
+          address,
+          AddressNodeState.MINIMIZED,
+          true,
+          0,
+          0,
+          expandNodeAutomatically,
+        ),
       );
     });
 
@@ -815,6 +826,7 @@ const GraphProvided: FC<GraphProvidedProps> = ({
       true,
       graphCenterPosition.x - 100,
       graphCenterPosition.y - 50,
+      true,
     );
     const newNodes = [...nodes, newNode];
     setNodes(newNodes);
@@ -926,7 +938,8 @@ const GraphProvided: FC<GraphProvidedProps> = ({
   // If the user is not authenticated, show the tutorial modal
   const initialShowTutorial = isAuthenticated ? false : true;
 
-  const [showTutorial, setShowTutorial] = useState<boolean>(initialShowTutorial);
+  const [showTutorial, setShowTutorial] =
+    useState<boolean>(initialShowTutorial);
 
   // Track Pad / Mouse Toggle --------------------------------------------------
 
@@ -997,17 +1010,14 @@ const GraphProvided: FC<GraphProvidedProps> = ({
               src="https://tailwindui.com/img/beams-home@95.jpg"
             />
             {/* {<Controls position="top-right" showInteractive={false} />} */}
-            {
-              isAuthenticated ?
-                <ShowTutorialPopup
-                  showTutorial={showTutorial}
-                  setShowTutorial={setShowTutorial}
-                /> :
-                <TutorialDialog
-                  show={showTutorial}
-                  setShow={setShowTutorial}
-                />
-            }
+            {isAuthenticated ? (
+              <ShowTutorialPopup
+                showTutorial={showTutorial}
+                setShowTutorial={setShowTutorial}
+              />
+            ) : (
+              <TutorialDialog show={showTutorial} setShow={setShowTutorial} />
+            )}
             <Background />
             <Panel position="top-left">
               <Legend />
