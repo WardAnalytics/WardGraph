@@ -1,5 +1,11 @@
 import { Transition } from "@headlessui/react";
-import { ArrowDownLeftIcon, ArrowUpRightIcon, BarsArrowDownIcon, CheckIcon, PlusIcon } from "@heroicons/react/16/solid";
+import {
+  ArrowDownLeftIcon,
+  ArrowUpRightIcon,
+  BarsArrowDownIcon,
+  CheckIcon,
+  PlusIcon,
+} from "@heroicons/react/16/solid";
 import { FC, useContext, useEffect, useState } from "react";
 import { Output, Transaction } from "../../../../../api/model";
 import { useGetCombinedTransactions } from "../../../../../api/transactions/transactions";
@@ -9,8 +15,14 @@ import formatNumber from "../../../../../utils/formatNumber";
 import Badge from "../../../../common/Badge";
 import EntityLogo from "../../../../common/EntityLogo";
 import "../../../../common/Scrollbar.css";
-import { BlockExplorerTransactionIcon, CopyToClipboardIcon } from "../../../../common/utility_icons";
+import {
+  BlockExplorerTransactionIcon,
+  CopyToClipboardIcon,
+} from "../../../../common/utility_icons";
 import { GraphContext } from "../../../Graph";
+
+import { getTokenMetadata } from "../../../../../api/transactions/transactions";
+import { TokenMetadata } from "../../../../../api/model";
 
 interface TransactionRowProps {
   usdValue: number;
@@ -70,7 +82,9 @@ const TransactionRow: FC<TransactionRowProps> = ({
       </td>
       <td className="text-left text-sm font-normal text-gray-900 group-hover:bg-gray-100">
         <span className="flex flex-row items-center gap-x-1">
-          <span><EntityLogo entity={currency} className="h-6 w-6 rounded-full" /></span>
+          <span>
+            <EntityLogo entity={currency} className="h-6 w-6 rounded-full" />
+          </span>
           <span>{formatNumber(usdValue)}</span>
           <span className="text-gray-500">{currency}</span>
         </span>
@@ -98,20 +112,23 @@ const TRANSACTIONS_INTERVAL = 50;
 // Max transactions to fetch
 const TRANSACTIONS_LIMIT = 200;
 
+// Native tokens to not fetch from the API
+const NATIVE_TOKENS = ["ETH", "BTC"];
+
 const Transactions: FC = () => {
-  const focusedAddressData = useContext(GraphContext).focusedAddressData!;
-  const addAddressPaths = useContext(GraphContext).addAddressPaths;
+  const { focusedAddressData, addAddressPaths } = useContext(GraphContext);
 
-  const [transactionRows, setTransactionRows] = useState<TransactionRowProps[]>([]);
-  const [visibleTransactions, setVisibleTransactions] = useState<number>(TRANSACTIONS_INTERVAL);
-
-  const handleShowMore = () => {
-    setVisibleTransactions(visibleTransactions + TRANSACTIONS_INTERVAL);
-  };
+  // Total transaction and visible rows
+  const [transactionRows, setTransactionRows] = useState<TransactionRowProps[]>(
+    [],
+  );
+  const [visibleTransactions, setVisibleTransactions] = useState<number>(
+    TRANSACTIONS_INTERVAL,
+  );
 
   const { refetch: getAddressData } = useGetCombinedTransactions(
     {
-      address: focusedAddressData.address,
+      address: focusedAddressData!.address,
       count: visibleTransactions,
     },
     {
@@ -123,32 +140,75 @@ const Transactions: FC = () => {
         staleTime: 1000, // 1 second
         onSuccess: (data) => {
           // Only get the first TRANSACTIONS_INTERVAL transactions
-          const transactions: Transaction[] = data.transactions!.slice(0, visibleTransactions);
-
-          const newTransactionRows: TransactionRowProps[] = transactions.map((transaction: Transaction) => {
-            const incoming = transaction.outputs.some(
-              (output: Output) =>
-                output.address === focusedAddressData.address,
-            );
-
-            const addresses: string[] = incoming
-              ? transaction.inputs.map((input) => input.address)
-              : transaction.outputs.map((output) => output.address);
-
-            return {
-              usdValue: transaction.usdValue,
-              timestamp: transaction.timestamp,
-              incoming: incoming,
-              hash: transaction.hash,
-              addresses: addresses,
-              currency: transaction.currency,
-              blockchain: focusedAddressData.blockchain,
-              expanded: false,
-            };
-          },
+          const transactions: Transaction[] = data.transactions!.slice(
+            0,
+            visibleTransactions,
           );
 
-          setTransactionRows(newTransactionRows);
+          // Create token address to token ticker map where we'll store the token metadata
+          const tokenAddressToTickerMap: Map<string, string> = new Map();
+
+          // Get token metadata for each transaction's token (create a set of unique tokens)
+          const tokens = new Set(
+            transactions.map((transaction) => transaction.currency),
+          );
+
+          // Remove native tokens from the set and add them to the map
+          NATIVE_TOKENS.forEach((token) => tokens.delete(token));
+          NATIVE_TOKENS.forEach((token) =>
+            tokenAddressToTickerMap.set(token, token),
+          );
+
+          // Get token metadata for each token
+          getTokenMetadata({ addresses: Array.from(tokens) }).then(
+            (response) => {
+              response.metadatas!.forEach((metadata: TokenMetadata) => {
+                console.log("metadata", metadata);
+                tokenAddressToTickerMap.set(metadata.address, metadata.symbol);
+              });
+
+              const newTransactionRows: TransactionRowProps[] =
+                transactions.map((transaction: Transaction) => {
+                  const incoming = transaction.outputs.some(
+                    (output: Output) =>
+                      output.address === focusedAddressData!.address,
+                  );
+
+                  const addresses: string[] = incoming
+                    ? transaction.inputs.map((input) => input.address)
+                    : transaction.outputs.map((output) => output.address);
+
+                  const ticker = tokenAddressToTickerMap.get(
+                    transaction.currency,
+                  );
+                  // console.log("tokenAddressToTickerMap:", tokenAddressToTickerMap);
+                  // console.log("ticker", ticker, transaction.currency);
+
+                  // Go through each key in the map and log the key and value, and the comparison result
+                  // tokenAddressToTickerMap.forEach((value, key) => {
+                  //   console.log(
+                  //     key,
+                  //     value,
+                  //     key === transaction.currency,
+                  //     transaction.currency,
+                  //   );
+                  // });
+
+                  return {
+                    usdValue: transaction.usdValue,
+                    timestamp: transaction.timestamp,
+                    incoming: incoming,
+                    hash: transaction.hash,
+                    addresses: addresses,
+                    currency: ticker ? ticker : transaction.currency,
+                    blockchain: focusedAddressData!.blockchain,
+                    expanded: false,
+                  };
+                });
+
+              setTransactionRows(newTransactionRows);
+            },
+          );
         },
       },
     },
@@ -157,7 +217,7 @@ const Transactions: FC = () => {
   useEffect(() => {
     setTransactionRows([]);
     getAddressData();
-  }, [focusedAddressData.address]);
+  }, [focusedAddressData!.address]);
 
   useEffect(() => {
     if (visibleTransactions <= TRANSACTIONS_LIMIT) {
@@ -172,7 +232,7 @@ const Transactions: FC = () => {
         <BarsArrowDownIcon className="h-5 w-5 text-gray-400" />
         LATEST {visibleTransactions} CURRENCY TRANSACTIONS
       </h3>
-      <div className="scrollbar flex flex-col flex-grow scroll-m-28 overflow-y-scroll overflow-x-hidden">
+      <div className="scrollbar flex flex-grow scroll-m-28 flex-col overflow-x-hidden overflow-y-scroll">
         <table className="h-fit min-w-full flex-col divide-y divide-gray-300">
           <thead>
             <tr>
@@ -213,12 +273,15 @@ const Transactions: FC = () => {
                   transitionDelay: `${index * (50 - index / 5)}ms`,
                 }}
                 className="group mr-2 h-10 cursor-pointer"
-                key={transaction.hash + focusedAddressData.address}
+                key={transaction.hash + focusedAddressData!.address + index}
                 onClick={() => {
-                  logAnalyticsEvent("expand_address", { page: "transactions", address: focusedAddressData.address });
+                  logAnalyticsEvent("expand_address", {
+                    page: "transactions",
+                    address: focusedAddressData!.address,
+                  });
                   const paths: string[][] = transaction.addresses.map(
                     (address) => {
-                      return [focusedAddressData.address, address];
+                      return [focusedAddressData!.address, address];
                     },
                   );
 
@@ -248,14 +311,19 @@ const Transactions: FC = () => {
             ))}
           </tbody>
         </table>
-        {
-          visibleTransactions < TRANSACTIONS_LIMIT && (
-            <button className="flex justify-center items-center text-gray-900 mt-2 gap-x-1" onClick={handleShowMore}>
-              <PlusIcon className="h-4 w-4" />
-              Show More
-            </button>
-          )
-        }
+        {visibleTransactions < TRANSACTIONS_LIMIT && (
+          <button
+            className="mt-2 flex items-center justify-center gap-x-1 text-gray-900"
+            onClick={() =>
+              setVisibleTransactions(
+                visibleTransactions + TRANSACTIONS_INTERVAL,
+              )
+            }
+          >
+            <PlusIcon className="h-4 w-4" />
+            Show More
+          </button>
+        )}
       </div>
     </div>
   );

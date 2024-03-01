@@ -6,11 +6,14 @@
  * OpenAPI spec version: 1.0
  */
 import {
+  useMutation,
   useQuery
 } from 'react-query'
 import type {
+  MutationFunction,
   QueryFunction,
   QueryKey,
+  UseMutationOptions,
   UseQueryOptions,
   UseQueryResult
 } from 'react-query'
@@ -20,6 +23,12 @@ import type {
 import type {
   GetCombinedTransactionsParams
 } from '../model/getCombinedTransactionsParams'
+import type {
+  GetTokenMetadata200
+} from '../model/getTokenMetadata200'
+import type {
+  GetTokenMetadataBody
+} from '../model/getTokenMetadataBody'
 import type {
   GetTransactionsBetweenAddresses200
 } from '../model/getTransactionsBetweenAddresses200'
@@ -148,3 +157,53 @@ export const useGetCombinedTransactions = <TData = Awaited<ReturnType<typeof get
 
 
 
+/**
+ * Get token metadata
+ */
+export const getTokenMetadata = (
+    getTokenMetadataBody: GetTokenMetadataBody,
+ ) => {
+      
+      
+      return instance<GetTokenMetadata200>(
+      {url: `/token-metadata`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: getTokenMetadataBody
+    },
+      );
+    }
+  
+
+
+export const getGetTokenMetadataMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof getTokenMetadata>>, TError,{data: GetTokenMetadataBody}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof getTokenMetadata>>, TError,{data: GetTokenMetadataBody}, TContext> => {
+ const {mutation: mutationOptions} = options ?? {};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof getTokenMetadata>>, {data: GetTokenMetadataBody}> = (props) => {
+          const {data} = props ?? {};
+
+          return  getTokenMetadata(data,)
+        }
+
+        
+
+
+   return  { mutationFn, ...mutationOptions }}
+
+    export type GetTokenMetadataMutationResult = NonNullable<Awaited<ReturnType<typeof getTokenMetadata>>>
+    export type GetTokenMetadataMutationBody = GetTokenMetadataBody
+    export type GetTokenMetadataMutationError = unknown
+
+    export const useGetTokenMetadata = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof getTokenMetadata>>, TError,{data: GetTokenMetadataBody}, TContext>, }
+) => {
+
+      const mutationOptions = getGetTokenMetadataMutationOptions(options);
+
+      return useMutation(mutationOptions);
+    }
+    
