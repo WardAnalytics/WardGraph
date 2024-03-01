@@ -169,6 +169,36 @@ paths:
                       $ref: "#/components/schemas/Label"
                     required:
                       - labels
+  /token-metadata:
+    post:
+      operationId: get-token-metadata
+      description: Get token metadata
+      tags:
+        - transactions
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                addresses:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  metadatas:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/TokenMetadata"
+                    required:
+                      - metadatas
 
 components:
   schemas:
@@ -312,6 +342,19 @@ components:
         - inputs
         - outputs
         - usdValue
+    TokenMetadata:
+      type: object
+      properties:
+        address:
+          type: string
+        name:
+          type: string
+        symbol:
+          type: string
+      required:
+        - address
+        - name
+        - symbol
 
     # Labels
     Label:
