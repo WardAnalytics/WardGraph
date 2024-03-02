@@ -233,7 +233,6 @@ const GraphProvided: FC<GraphProvidedProps> = ({
   initialNodes,
   initialEdges,
   onAutoSave,
-  onLocalSave,
 }) => {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
