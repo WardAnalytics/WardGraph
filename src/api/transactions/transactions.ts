@@ -6,32 +6,17 @@
  * OpenAPI spec version: 1.0
  */
 import {
-  useMutation,
   useQuery
 } from 'react-query'
 import type {
-  MutationFunction,
   QueryFunction,
   QueryKey,
-  UseMutationOptions,
   UseQueryOptions,
   UseQueryResult
 } from 'react-query'
 import type {
-  GetTokenMetadata200
-} from '../model/getTokenMetadata200'
-import type {
-  GetTokenMetadataBody
-} from '../model/getTokenMetadataBody'
-import type {
   GetTransactions200
 } from '../model/getTransactions200'
-import type {
-  GetTransactionsBetweenAddresses200
-} from '../model/getTransactionsBetweenAddresses200'
-import type {
-  GetTransactionsBetweenAddressesParams
-} from '../model/getTransactionsBetweenAddressesParams'
 import type {
   GetTransactionsParams
 } from '../model/getTransactionsParams'
@@ -40,66 +25,7 @@ import { instance } from '.././instance';
 
 
 /**
- * Get transactions between addresses
- */
-export const getTransactionsBetweenAddresses = (
-    params: GetTransactionsBetweenAddressesParams,
- signal?: AbortSignal
-) => {
-      
-      
-      return instance<GetTransactionsBetweenAddresses200>(
-      {url: `/transactions/get-transactions-between-addresses`, method: 'GET',
-        params, signal
-    },
-      );
-    }
-  
-
-export const getGetTransactionsBetweenAddressesQueryKey = (params: GetTransactionsBetweenAddressesParams,) => {
-    return [`/transactions/get-transactions-between-addresses`, ...(params ? [params]: [])] as const;
-    }
-
-    
-export const getGetTransactionsBetweenAddressesQueryOptions = <TData = Awaited<ReturnType<typeof getTransactionsBetweenAddresses>>, TError = unknown>(params: GetTransactionsBetweenAddressesParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getTransactionsBetweenAddresses>>, TError, TData>, }
-) => {
-
-const {query: queryOptions} = options ?? {};
-
-  const queryKey =  queryOptions?.queryKey ?? getGetTransactionsBetweenAddressesQueryKey(params);
-
-  
-
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getTransactionsBetweenAddresses>>> = ({ signal }) => getTransactionsBetweenAddresses(params, signal);
-
-      
-
-      
-
-   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getTransactionsBetweenAddresses>>, TError, TData> & { queryKey: QueryKey }
-}
-
-export type GetTransactionsBetweenAddressesQueryResult = NonNullable<Awaited<ReturnType<typeof getTransactionsBetweenAddresses>>>
-export type GetTransactionsBetweenAddressesQueryError = unknown
-
-export const useGetTransactionsBetweenAddresses = <TData = Awaited<ReturnType<typeof getTransactionsBetweenAddresses>>, TError = unknown>(
- params: GetTransactionsBetweenAddressesParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getTransactionsBetweenAddresses>>, TError, TData>, }
-
-  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
-
-  const queryOptions = getGetTransactionsBetweenAddressesQueryOptions(params,options)
-
-  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
-
-  query.queryKey = queryOptions.queryKey ;
-
-  return query;
-}
-
-
-
-/**
- * Get transactions for address
+ * Get transactions for an address
  */
 export const getTransactions = (
     address: string,
@@ -161,53 +87,3 @@ export const useGetTransactions = <TData = Awaited<ReturnType<typeof getTransact
 
 
 
-/**
- * Get token metadata
- */
-export const getTokenMetadata = (
-    getTokenMetadataBody: GetTokenMetadataBody,
- ) => {
-      
-      
-      return instance<GetTokenMetadata200>(
-      {url: `/token-metadata`, method: 'POST',
-      headers: {'Content-Type': 'application/json', },
-      data: getTokenMetadataBody
-    },
-      );
-    }
-  
-
-
-export const getGetTokenMetadataMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof getTokenMetadata>>, TError,{data: GetTokenMetadataBody}, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof getTokenMetadata>>, TError,{data: GetTokenMetadataBody}, TContext> => {
- const {mutation: mutationOptions} = options ?? {};
-
-      
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof getTokenMetadata>>, {data: GetTokenMetadataBody}> = (props) => {
-          const {data} = props ?? {};
-
-          return  getTokenMetadata(data,)
-        }
-
-        
-
-
-   return  { mutationFn, ...mutationOptions }}
-
-    export type GetTokenMetadataMutationResult = NonNullable<Awaited<ReturnType<typeof getTokenMetadata>>>
-    export type GetTokenMetadataMutationBody = GetTokenMetadataBody
-    export type GetTokenMetadataMutationError = unknown
-
-    export const useGetTokenMetadata = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof getTokenMetadata>>, TError,{data: GetTokenMetadataBody}, TContext>, }
-) => {
-
-      const mutationOptions = getGetTokenMetadataMutationOptions(options);
-
-      return useMutation(mutationOptions);
-    }
-    

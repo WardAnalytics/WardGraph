@@ -63,104 +63,10 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
-  # /compliance/analyze-address:
-  #   get:
-  #     operationId: analysis-address-data
-  #     description: Analyze address
-  #     tags:
-  #       - compliance
-  #     parameters:
-  #       - name: api
-  #         in: header
-  #         description: The api key
-  #         required: true
-  #         schema:
-  #           type: string
-  #       - name: address
-  #         in: query
-  #         description: The address to analyze
-  #         required: true
-  #         schema:
-  #           type: string
-  #     responses:
-  #       "200":
-  #         description: OK
-  #         content:
-  #           application/json:
-  #             schema:
-  #               $ref: "#/components/schemas/AddressAnalysis"
-  #       "400":
-  #         description: Bad Request
-  #         content:
-  #           application/json:
-  #             schema:
-  #               $ref: "#/components/schemas/ErrorResponse"
-  #       "401":
-  #         description: Unauthorized
-  #         content:
-  #           application/json:
-  #             schema:
-  #               $ref: "#/components/schemas/ErrorResponse"
-  #       "404":
-  #         description: Not Found
-  #         content:
-  #           application/json:
-  #             schema:
-  #               $ref: "#/components/schemas/ErrorResponse"
-  #       "429":
-  #         description: Too Many Requests
-  #         content:
-  #           application/json:
-  #             schema:
-  #               $ref: "#/components/schemas/ErrorResponse"
-  /transactions/get-transactions-between-addresses:
-    get:
-      operationId: get-transactions-between-addresses
-      description: Get transactions between addresses
-      tags:
-        - transactions
-      parameters:
-        - name: src
-          in: query
-          description: The source address
-          required: true
-          schema:
-            type: string
-        - name: dst
-          in: query
-          description: The destination address
-          required: true
-          schema:
-            type: string
-        - name: page
-          in: query
-          description: The page of transactions to return
-          required: false
-          schema:
-            type: integer
-        - name: page_size
-          in: query
-          description: The number of transactions to return
-          required: false
-          schema:
-            type: integer
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  transactions:
-                    type: array
-                    items:
-                      $ref: "#/components/schemas/Transaction"
-
   /addresses/{address}/transactions:
     get:
       operationId: get-transactions
-      description: Get transactions for address
+      description: Get transactions for an address
       tags:
         - transactions
       parameters:
@@ -213,39 +119,6 @@ paths:
                       $ref: "#/components/schemas/Transaction"
                     required:
                       - transactions
-  # /transactions/get-combined-transactions:
-  #   get:
-  #     operationId: get-combined-transactions
-  #     description: Get combined transactions
-  #     tags:
-  #       - transactions
-  #     parameters:
-  #       - name: address
-  #         in: query
-  #         description: The address to get transactions for
-  #         required: true
-  #         schema:
-  #           type: string
-  #       - name: count
-  #         in: query
-  #         description: The number of transactions to return
-  #         required: false
-  #         schema:
-  #           type: integer
-  #     responses:
-  #       "200":
-  #         description: OK
-  #         content:
-  #           application/json:
-  #             schema:
-  #               type: object
-  #               properties:
-  #                 transactions:
-  #                   type: array
-  #                   items:
-  #                     $ref: "#/components/schemas/Transaction"
-  #                   required:
-  #                     - transactions
   /labels/search-labels:
     post:
       operationId: search-labels
@@ -276,36 +149,6 @@ paths:
                       $ref: "#/components/schemas/Label"
                     required:
                       - labels
-  /token-metadata:
-    post:
-      operationId: get-token-metadata
-      description: Get token metadata
-      tags:
-        - transactions
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                addresses:
-                  type: array
-                  items:
-                    type: string
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  metadatas:
-                    type: array
-                    items:
-                      $ref: "#/components/schemas/TokenMetadata"
-                    required:
-                      - metadatas
 
 components:
   schemas:
@@ -455,19 +298,6 @@ components:
         - usdValue
         - tokenSymbol
         - tokenName
-    TokenMetadata:
-      type: object
-      properties:
-        address:
-          type: string
-        name:
-          type: string
-        symbol:
-          type: string
-      required:
-        - address
-        - name
-        - symbol
 
     # Labels
     Label:
