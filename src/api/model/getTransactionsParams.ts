@@ -5,9 +5,9 @@
  * The ward's compliance queires endpoints
  * OpenAPI spec version: 1.0
  */
-import type { GetCombinedTransactionsTransactionType } from './getCombinedTransactionsTransactionType';
+import type { GetTransactionsTransactionType } from './getTransactionsTransactionType';
 
-export type GetCombinedTransactionsParams = {
+export type GetTransactionsParams = {
 /**
  * The number of transactions to return
  */
@@ -19,7 +19,7 @@ page?: number;
 /**
  * The type of transactions to return. Default is "combined"
  */
-transaction_type?: GetCombinedTransactionsTransactionType;
+transaction_type?: GetTransactionsTransactionType;
 /**
  * The destination address to get transactions for. Only used when transaction_type is "between"
  */

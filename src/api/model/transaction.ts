@@ -14,6 +14,8 @@ export interface Transaction {
   inputs: Output[];
   outputs: Output[];
   timestamp: number;
+  tokenName: string;
+  tokenSymbol: string;
   usdValue: number;
   value: number;
 }
