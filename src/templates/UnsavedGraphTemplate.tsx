@@ -1,6 +1,16 @@
-import { FC, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import {
+  FC,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { useParams } from "react-router-dom";
-import { SharableGraph, getSharableGraph } from "../services/firestore/graph_sharing";
+import {
+  SharableGraph,
+  getSharableGraph,
+} from "../services/firestore/graph_sharing";
 
 import { Transition } from "@headlessui/react";
 import { UnauthenticatedTimeContext } from "../PublicApp";
@@ -15,13 +25,16 @@ interface UnsavedGraphTemplateProps {
 }
 
 const UnsavedGraphTemplate: FC<UnsavedGraphTemplateProps> = ({
-  showLandingPage = true,
+  showLandingPage = false,
 }) => {
   const { uid } = useParams<{ uid: string }>();
   const { isAuthenticated } = useAuthState();
 
   const [loading, setLoading] = useState(true);
-  const [graph, setGraph] = useState<SharableGraph>({ addresses: [], edges: [] });
+  const [graph, setGraph] = useState<SharableGraph>({
+    addresses: [],
+    edges: [],
+  });
   const unauthenticatedTimeContext = useContext(UnauthenticatedTimeContext);
 
   const initialAddresses = useMemo(() => {
@@ -41,7 +54,7 @@ const UnsavedGraphTemplate: FC<UnsavedGraphTemplateProps> = ({
   }, [graph]);
 
   const showGraph = useMemo(() => {
-    return initialAddresses.length > 0 || !showLandingPage
+    return initialAddresses.length > 0 || !showLandingPage;
   }, [initialAddresses, showLandingPage]);
 
   // Save the graph to local storage
@@ -53,7 +66,9 @@ const UnsavedGraphTemplate: FC<UnsavedGraphTemplateProps> = ({
       }
 
       sessionStorage.setItem("graph", JSON.stringify(newGraph));
-    }, [graph])
+    },
+    [graph],
+  );
 
   useEffect(() => {
     // If there is no uid, it checks the local storage for a graph
@@ -68,7 +83,7 @@ const UnsavedGraphTemplate: FC<UnsavedGraphTemplateProps> = ({
         console.log(
           "No uid found for fetching graph, defaulting to an empty graph instead.",
         );
-        return
+        return;
       }
 
       // If there is a graph in local storage, set it as the graph
@@ -80,7 +95,7 @@ const UnsavedGraphTemplate: FC<UnsavedGraphTemplateProps> = ({
     // If there is a uid, fetch the graph from the database
     getSharableGraph(uid)
       .then((graph) => {
-        setGraph(graph)
+        setGraph(graph);
         setLoading(false);
       })
       .catch((error) => {
@@ -100,11 +115,12 @@ const UnsavedGraphTemplate: FC<UnsavedGraphTemplateProps> = ({
 
   return (
     <>
-      <SEO title="Graph" description="Creating the next-gen of crypto compliance" />
+      <SEO
+        title="Graph"
+        description="Creating the next-gen of crypto compliance"
+      />
       <div className="h-full overflow-hidden ">
-        {
-          isAuthenticated ? null : <LoginBanner />
-        }
+        {isAuthenticated ? null : <LoginBanner />}
         <Transition
           show={!showGraph}
           appear={true}
