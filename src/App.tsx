@@ -1,4 +1,4 @@
-import { FC, useCallback, useMemo, useState } from "react";
+import { FC, useMemo } from "react";
 import { QueryClientProvider } from "react-query";
 import { HelmetProvider } from "react-helmet-async";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
@@ -13,7 +13,6 @@ import {
   SavedGraphsTemplate,
   UnsavedGraphTemplate,
   MobileWarningTemplate,
-  RedirectSharedGraph,
 } from "./templates";
 
 const App: FC = () => {
