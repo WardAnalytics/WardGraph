@@ -141,7 +141,7 @@ const SavedGraphs: FC<SavedGraphsProps> = ({ userID }) => {
           >
             <SavedGraphRow
               name={graph.name}
-              href={getGraphHref(userID, graph)}
+              href={getGraphHref(graph)}
               isLast={index === displayedGraphs.length - 1}
             />
           </Transition>
@@ -271,7 +271,7 @@ const Navbar: FC<NavbarProps> = ({ userID, open = false }) => {
                             logAnalyticsEvent("navbar_option_clicked", {
                               name: item.name,
                             });
-                            navigate(`/${userID}/${item.href}`);
+                            navigate(`/${item.href}`);
                           }}
                           isBeta={item.isBeta}
                         />
@@ -293,7 +293,7 @@ const Navbar: FC<NavbarProps> = ({ userID, open = false }) => {
                       logAnalyticsEvent("navbar_option_clicked", {
                         name: "Plan & Billing",
                       });
-                      navigate(`/${userID}/billing`);
+                      navigate(`/billing`);
                     }}
                   />
                   <a

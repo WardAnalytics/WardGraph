@@ -11,6 +11,7 @@ import {
   PersonalGraph,
   updatePersonalGraph,
   usePersonalGraphs,
+  getGraphHref,
 } from "../services/firestore/user/graph_saving";
 import { Colors } from "../utils/colors";
 
@@ -93,7 +94,7 @@ const GraphCard: FC<GraphCardProps> = ({ userID, graph }) => {
         />
         <ArrowTopRightOnSquareIcon
           className="z-10 h-8 w-8 cursor-pointer rounded-md p-1.5 text-gray-400 transition-all duration-150 hover:bg-gray-100 hover:text-gray-500"
-          onClick={() => navigate(`/${userID}/saved-graph/${graph.uid}`)}
+          onClick={() => navigate(getGraphHref(graph))}
         />
       </div>
       <DeleteGraphDialog

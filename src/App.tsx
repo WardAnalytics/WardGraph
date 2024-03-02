@@ -63,10 +63,6 @@ const App: FC = () => {
                         path={`/graphs`}
                         element={<SavedGraphsTemplate />}
                       />
-                      <Route
-                        path="/shared/graph/:uid"
-                        element={<RedirectSharedGraph />}
-                      />
                     </>
                   )}
                 </Routes>
