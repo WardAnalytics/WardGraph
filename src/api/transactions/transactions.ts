@@ -18,23 +18,23 @@ import type {
   UseQueryResult
 } from 'react-query'
 import type {
-  GetCombinedTransactions200
-} from '../model/getCombinedTransactions200'
-import type {
-  GetCombinedTransactionsParams
-} from '../model/getCombinedTransactionsParams'
-import type {
   GetTokenMetadata200
 } from '../model/getTokenMetadata200'
 import type {
   GetTokenMetadataBody
 } from '../model/getTokenMetadataBody'
 import type {
+  GetTransactions200
+} from '../model/getTransactions200'
+import type {
   GetTransactionsBetweenAddresses200
 } from '../model/getTransactionsBetweenAddresses200'
 import type {
   GetTransactionsBetweenAddressesParams
 } from '../model/getTransactionsBetweenAddressesParams'
+import type {
+  GetTransactionsParams
+} from '../model/getTransactionsParams'
 import { instance } from '.././instance';
 
 
@@ -101,14 +101,14 @@ export const useGetTransactionsBetweenAddresses = <TData = Awaited<ReturnType<ty
 /**
  * Get transactions for address
  */
-export const getCombinedTransactions = (
+export const getTransactions = (
     address: string,
-    params?: GetCombinedTransactionsParams,
+    params?: GetTransactionsParams,
  signal?: AbortSignal
 ) => {
       
       
-      return instance<GetCombinedTransactions200>(
+      return instance<GetTransactions200>(
       {url: `/addresses/${address}/transactions`, method: 'GET',
         params, signal
     },
@@ -116,41 +116,41 @@ export const getCombinedTransactions = (
     }
   
 
-export const getGetCombinedTransactionsQueryKey = (address: string,
-    params?: GetCombinedTransactionsParams,) => {
+export const getGetTransactionsQueryKey = (address: string,
+    params?: GetTransactionsParams,) => {
     return [`/addresses/${address}/transactions`, ...(params ? [params]: [])] as const;
     }
 
     
-export const getGetCombinedTransactionsQueryOptions = <TData = Awaited<ReturnType<typeof getCombinedTransactions>>, TError = unknown>(address: string,
-    params?: GetCombinedTransactionsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getCombinedTransactions>>, TError, TData>, }
+export const getGetTransactionsQueryOptions = <TData = Awaited<ReturnType<typeof getTransactions>>, TError = unknown>(address: string,
+    params?: GetTransactionsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getTransactions>>, TError, TData>, }
 ) => {
 
 const {query: queryOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getGetCombinedTransactionsQueryKey(address,params);
+  const queryKey =  queryOptions?.queryKey ?? getGetTransactionsQueryKey(address,params);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getCombinedTransactions>>> = ({ signal }) => getCombinedTransactions(address,params, signal);
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getTransactions>>> = ({ signal }) => getTransactions(address,params, signal);
 
       
 
       
 
-   return  { queryKey, queryFn, enabled: !!(address), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getCombinedTransactions>>, TError, TData> & { queryKey: QueryKey }
+   return  { queryKey, queryFn, enabled: !!(address), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getTransactions>>, TError, TData> & { queryKey: QueryKey }
 }
 
-export type GetCombinedTransactionsQueryResult = NonNullable<Awaited<ReturnType<typeof getCombinedTransactions>>>
-export type GetCombinedTransactionsQueryError = unknown
+export type GetTransactionsQueryResult = NonNullable<Awaited<ReturnType<typeof getTransactions>>>
+export type GetTransactionsQueryError = unknown
 
-export const useGetCombinedTransactions = <TData = Awaited<ReturnType<typeof getCombinedTransactions>>, TError = unknown>(
+export const useGetTransactions = <TData = Awaited<ReturnType<typeof getTransactions>>, TError = unknown>(
  address: string,
-    params?: GetCombinedTransactionsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getCombinedTransactions>>, TError, TData>, }
+    params?: GetTransactionsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getTransactions>>, TError, TData>, }
 
   ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
 
-  const queryOptions = getGetCombinedTransactionsQueryOptions(address,params,options)
+  const queryOptions = getGetTransactionsQueryOptions(address,params,options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 

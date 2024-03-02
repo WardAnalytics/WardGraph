@@ -8,7 +8,7 @@ import {
 } from "@heroicons/react/16/solid";
 import { FC, useContext, useEffect, useState } from "react";
 import { Output, Transaction } from "../../../../../api/model";
-import { useGetCombinedTransactions } from "../../../../../api/transactions/transactions";
+import { useGetTransactions } from "../../../../../api/transactions/transactions";
 import { logAnalyticsEvent } from "../../../../../services/firestore/analytics/analytics";
 import { Colors } from "../../../../../utils/colors";
 import formatNumber from "../../../../../utils/formatNumber";
@@ -121,10 +121,10 @@ const Transactions: FC = () => {
     TRANSACTIONS_INTERVAL,
   );
 
-  const { refetch: getAddressData } = useGetCombinedTransactions(
+  const { refetch: refetchTransactions } = useGetTransactions(
     focusedAddressData!.address,
     {
-      count: visibleTransactions,
+      page_size: visibleTransactions,
     },
     {
       query: {
@@ -185,12 +185,12 @@ const Transactions: FC = () => {
 
   useEffect(() => {
     setTransactionRows([]);
-    getAddressData();
+    refetchTransactions();
   }, [focusedAddressData!.address]);
 
   useEffect(() => {
     if (visibleTransactions <= TRANSACTIONS_LIMIT) {
-      getAddressData();
+      refetchTransactions();
     }
   }, [visibleTransactions]);
 

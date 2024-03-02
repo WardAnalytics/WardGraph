@@ -159,7 +159,7 @@ paths:
 
   /addresses/{address}/transactions:
     get:
-      operationId: get-combined-transactions
+      operationId: get-transactions
       description: Get transactions for address
       tags:
         - transactions
@@ -170,12 +170,35 @@ paths:
           required: true
           schema:
             type: string
-        - name: count
+        - name: page_size
           in: query
           description: The number of transactions to return
           required: false
           schema:
             type: integer
+        - name: page
+          in: query
+          description: The page of transactions to return
+          required: false
+          schema:
+            type: integer
+        - name: transaction_type
+          in: query
+          description: The type of transactions to return. Default is "combined"
+          required: false
+          schema:
+            type: string
+            enum:
+              - incoming
+              - outgoing
+              - combined
+              - between
+        - name: destination_address
+          in: query
+          description: The destination address to get transactions for. Only used when transaction_type is "between"
+          required: false
+          schema:
+            type: string
       responses:
         "200":
           description: OK
