@@ -21,6 +21,7 @@ env:
 
   # Stripe
   VITE_PRO_PRICE_ID: ${{ secrets.VITE_PRO_PRICE_ID }}
+  VITE_PRO_PRICE_YEARLY_ID: ${{ secrets.VITE_PRO_PRICE_YEARLY_ID }}
 
 jobs:
   build_and_deploy:

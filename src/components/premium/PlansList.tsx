@@ -1,10 +1,11 @@
 import { CheckIcon, SparklesIcon } from "@heroicons/react/20/solid";
 import clsx from "clsx";
-import { FC, useEffect, useMemo, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import { logAnalyticsEvent } from "../../services/firestore/analytics/analytics";
-import { Subscription, useCheckoutSessionUrl } from "../../services/stripe";
+import { useCheckoutSessionUrl } from "../../services/stripe";
 import { Colors } from "../../utils/colors";
 import Badge from "../common/Badge";
+import SubscriptionPeriodToggle, { SubscriptionPeriodMode, SubscriptionPeriodModes } from "./SubscriptionPeriodToggle";
 
 export interface PlanProps {
     isPro: boolean;
@@ -49,7 +50,7 @@ const DiscoverPlan: FC<PlanProps> = ({ isPro }) => {
 
 interface ProPlanProps extends PlanProps {
     userID: string;
-    subscription?: Subscription;
+    subscriptionPeriodMode: SubscriptionPeriodMode;
     successRedirectPath?: string;
     cancelRedirectPath?: string;
 }
@@ -57,22 +58,17 @@ interface ProPlanProps extends PlanProps {
 const ProPlan: FC<ProPlanProps> = ({
     isPro,
     userID,
-    subscription,
+    subscriptionPeriodMode,
     successRedirectPath,
     cancelRedirectPath,
 }) => {
     const [buyPlanClicked, setBuyPlanClicked] = useState<boolean>(false);
 
-    const priceId = useMemo(
-        () => (subscription ? subscription.price.id : import.meta.env.VITE_PRO_PRICE_ID),
-        [subscription],
-    );
-
     const {
         url: checkoutSessionUrl,
         loading: isLoadingCheckoutSession,
         refetch: getCheckoutSession,
-    } = useCheckoutSessionUrl(priceId, userID, { enabled: false, successPath: successRedirectPath, cancelPath: cancelRedirectPath });
+    } = useCheckoutSessionUrl(subscriptionPeriodMode.priceId, userID, { enabled: false, successPath: successRedirectPath, cancelPath: cancelRedirectPath });
 
     useEffect(() => {
         if (buyPlanClicked) {
@@ -90,18 +86,34 @@ const ProPlan: FC<ProPlanProps> = ({
 
     return (
         <div className="relative flex w-96 flex-col overflow-hidden rounded-3xl bg-gray-800 p-8 shadow-md">
-            <h3 className="flex flex-row items-center gap-x-2 text-lg font-semibold leading-8 text-white">
-                Pro
-                {isPro && (
-                    <Badge color={Colors.BLUE_DARK} text="Current" className="h-fit" />
-                )}
-            </h3>
+            <div className="flex flex-row items-center gap-x-2 text-white">
+                <h3 className="flex flex-row text-lg font-semibold leading-8">
+                    Pro
+                    {isPro && (
+                        <Badge color={Colors.BLUE_DARK} text="Current" className="h-fit" />
+                    )}
+                </h3>
+                {
+                    subscriptionPeriodMode.name === SubscriptionPeriodModes[1].name && (
+                        <span className="text-sm font-normal text-gray-300">
+                            (Billed yearly)
+                        </span>
+                    )
+                }
+            </div>
             <p className="mt-1 text-sm leading-6 text-gray-100">
                 Speed up your investigations and take them to the next level.
             </p>
             <p className="mt-4 text-4xl font-bold tracking-tight text-white">
-                €99.99
-                <span className="text-base font-normal text-gray-300">/mo</span>
+                <div className="gap-x-5 flex flex-row items-center">
+                    <span>
+                        {`${subscriptionPeriodMode.priceCurrency}${subscriptionPeriodMode.priceValueMonth}`}
+                        <span className="text-base font-normal text-gray-300">/mo</span>
+                    </span>
+                    {subscriptionPeriodMode.name === SubscriptionPeriodModes[1].name && (
+                        <Badge color={Colors.BLUE_DARK} text="Save 20%" className="h-fit" />
+                    )}
+                </div>
                 <svg
                     viewBox="0 0 1208 1024"
                     className="pointer-events-none absolute top-0 h-[20rem] opacity-[7%] [mask-image:radial-gradient(closest-side,white,transparent)]"
@@ -212,7 +224,6 @@ const EnterprisePlan: FC = () => {
 interface PlanListProps {
     isPro: boolean;
     userID: string;
-    subscription?: Subscription;
     successRedirectPath?: string;
     cancelRedirectPath?: string;
 }
@@ -220,31 +231,37 @@ interface PlanListProps {
 const PlansList: FC<PlanListProps> = ({
     isPro,
     userID,
-    subscription,
     successRedirectPath,
     cancelRedirectPath,
 }) => {
+    const [subscriptionPeriodMode, setSubscriptionPeriodMode] = useState<SubscriptionPeriodMode>(SubscriptionPeriodModes[0]);
+
     return (
-        <span className="flex flex-row justify-center gap-x-5">
-            <>
-                <DiscoverPlan isPro={isPro} />
-                <ProPlan
-                    key={subscription?.id}
-                    isPro={isPro}
-                    userID={userID}
-                    subscription={subscription}
-                    successRedirectPath={successRedirectPath}
-                    cancelRedirectPath={cancelRedirectPath}
+        <>
+            <div className="flex center justify-center gap-x-5">
+                <SubscriptionPeriodToggle
+                    subscriptionPeriodMode={subscriptionPeriodMode}
+                    setSubscriptionPeriodMode={setSubscriptionPeriodMode}
                 />
-                <EnterprisePlan />
-            </>
-        </span>
+            </div>
+            <div className="flex flex-row justify-center gap-x-5">
+                <>
+                    <DiscoverPlan isPro={isPro} />
+                    <ProPlan
+                        isPro={isPro}
+                        userID={userID}
+                        subscriptionPeriodMode={subscriptionPeriodMode}
+                        successRedirectPath={successRedirectPath}
+                        cancelRedirectPath={cancelRedirectPath}
+                    />
+                    <EnterprisePlan />
+                </>
+            </div>
+        </>
     )
 }
 
 export {
-    DiscoverPlan,
-    ProPlan,
-    EnterprisePlan,
-    PlansList,
+    DiscoverPlan, EnterprisePlan,
+    PlansList, ProPlan
 };

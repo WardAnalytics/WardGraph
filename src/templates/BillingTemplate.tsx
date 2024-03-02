@@ -5,15 +5,14 @@ import {
 import { CreditCardIcon } from "@heroicons/react/24/outline";
 import { FC, useEffect, useMemo, useState } from "react";
 import BigButton from "../components/common/BigButton";
+import SEO from "../components/common/SEO";
+import { PlansList } from "../components/premium";
 import useAuthState from "../hooks/useAuthState";
 import { logAnalyticsEvent } from "../services/firestore/analytics/analytics";
 import { usePremiumStatus } from "../services/firestore/user/premium/premium";
 import {
-  useActiveSubscription,
   useCustomerPortalUrl
 } from "../services/stripe";
-import { PlansList } from "../components/premium";
-import SEO from "../components/common/SEO";
 
 const BillingTemplate: FC = () => {
   const [manageSubscriptionClicked, setManageSubscriptionClicked] =
@@ -31,18 +30,18 @@ const BillingTemplate: FC = () => {
     refetch: getCustomerPortalUrl,
   } = useCustomerPortalUrl(userID, { enabled: false });
 
-  const { subscription, loading: isLoadingActiveSubscription } =
-    useActiveSubscription();
+  /* const { subscription, loading: isLoadingActiveSubscription } =
+    useActiveSubscription(); */
 
   const isLoading = useMemo(() => {
     return (
       isLoadingPremiumStatus ||
-      isLoadingActiveSubscription ||
+      //isLoadingActiveSubscription ||
       isLoadingCustomerPortalUrl
     );
   }, [
     isLoadingPremiumStatus,
-    isLoadingActiveSubscription,
+    //isLoadingActiveSubscription,
     isLoadingCustomerPortalUrl,
   ]);
 
@@ -98,7 +97,6 @@ const BillingTemplate: FC = () => {
             <PlansList
               isPro={isPro}
               userID={userID}
-              subscription={subscription}
               successRedirectPath="graph/new"
               cancelRedirectPath="billing"
             />
