@@ -8,10 +8,6 @@
 
 export type GetCombinedTransactionsParams = {
 /**
- * The address to get transactions for
- */
-address: string;
-/**
  * The number of transactions to return
  */
 count?: number;

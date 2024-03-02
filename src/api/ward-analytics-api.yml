@@ -13,22 +13,22 @@ info:
   version: "1.0"
   description: The ward's compliance queires endpoints
 paths:
-  /compliance/analyze-address:
+  /addresses/{address}:
     get:
       operationId: analysis-address-data
       description: Analyze address
       tags:
         - compliance
       parameters:
-        - name: api
-          in: header
-          description: The api key
+        - name: address
+          in: path
+          description: The address to get
           required: true
           schema:
             type: string
-        - name: address
-          in: query
-          description: The address to analyze
+        - name: api
+          in: header
+          description: The api key
           required: true
           schema:
             type: string
@@ -63,6 +63,56 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+  # /compliance/analyze-address:
+  #   get:
+  #     operationId: analysis-address-data
+  #     description: Analyze address
+  #     tags:
+  #       - compliance
+  #     parameters:
+  #       - name: api
+  #         in: header
+  #         description: The api key
+  #         required: true
+  #         schema:
+  #           type: string
+  #       - name: address
+  #         in: query
+  #         description: The address to analyze
+  #         required: true
+  #         schema:
+  #           type: string
+  #     responses:
+  #       "200":
+  #         description: OK
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: "#/components/schemas/AddressAnalysis"
+  #       "400":
+  #         description: Bad Request
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: "#/components/schemas/ErrorResponse"
+  #       "401":
+  #         description: Unauthorized
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: "#/components/schemas/ErrorResponse"
+  #       "404":
+  #         description: Not Found
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: "#/components/schemas/ErrorResponse"
+  #       "429":
+  #         description: Too Many Requests
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: "#/components/schemas/ErrorResponse"
   /transactions/get-transactions-between-addresses:
     get:
       operationId: get-transactions-between-addresses
@@ -106,15 +156,16 @@ paths:
                     type: array
                     items:
                       $ref: "#/components/schemas/Transaction"
-  /transactions/get-combined-transactions:
+
+  /addresses/{address}/transactions:
     get:
       operationId: get-combined-transactions
-      description: Get combined transactions
+      description: Get transactions for address
       tags:
         - transactions
       parameters:
         - name: address
-          in: query
+          in: path
           description: The address to get transactions for
           required: true
           schema:
@@ -139,6 +190,39 @@ paths:
                       $ref: "#/components/schemas/Transaction"
                     required:
                       - transactions
+  # /transactions/get-combined-transactions:
+  #   get:
+  #     operationId: get-combined-transactions
+  #     description: Get combined transactions
+  #     tags:
+  #       - transactions
+  #     parameters:
+  #       - name: address
+  #         in: query
+  #         description: The address to get transactions for
+  #         required: true
+  #         schema:
+  #           type: string
+  #       - name: count
+  #         in: query
+  #         description: The number of transactions to return
+  #         required: false
+  #         schema:
+  #           type: integer
+  #     responses:
+  #       "200":
+  #         description: OK
+  #         content:
+  #           application/json:
+  #             schema:
+  #               type: object
+  #               properties:
+  #                 transactions:
+  #                   type: array
+  #                   items:
+  #                     $ref: "#/components/schemas/Transaction"
+  #                   required:
+  #                     - transactions
   /labels/search-labels:
     post:
       operationId: search-labels
@@ -333,6 +417,10 @@ components:
             $ref: "#/components/schemas/Output"
         usdValue:
           type: number
+        tokenSymbol:
+          type: string
+        tokenName:
+          type: string
       required:
         - hash
         - value
@@ -342,6 +430,8 @@ components:
         - inputs
         - outputs
         - usdValue
+        - tokenSymbol
+        - tokenName
     TokenMetadata:
       type: object
       properties:

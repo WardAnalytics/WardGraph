@@ -95,68 +95,63 @@ const AddressNode: FC<AddressNodeProps> = ({
     null,
   );
   const { isLoading: isLoadingAddressData, refetch: getAddressData } =
-    useAnalysisAddressData(
-      {
-        address: address,
-      },
-      {
-        query: {
-          enabled: false,
-          refetchOnWindowFocus: false,
-          retry: true,
+    useAnalysisAddressData(address, {
+      query: {
+        enabled: false,
+        refetchOnWindowFocus: false,
+        retry: true,
 
-          cacheTime: 1000, // 1 second
-          staleTime: 1000, // 1 second
+        cacheTime: 1000, // 1 second
+        staleTime: 1000, // 1 second
 
-          onSuccess: (data) => {
-            setAnalysisData(data);
-            registerAddressRisk(address, data.risk);
+        onSuccess: (data) => {
+          setAnalysisData(data);
+          registerAddressRisk(address, data.risk);
 
-            let newEdges: Edge[] = [];
-            for (const c in data.incomingDirectExposure.categories) {
-              const category = data.incomingDirectExposure.categories[c];
-              for (const e in category.entities) {
-                const entity = category.entities[e];
-                for (const a in entity.addresses) {
-                  const incomingAddress = entity.addresses[a];
-                  newEdges.push(
-                    createTransfershipEdge(
-                      incomingAddress.hash,
-                      address,
-                      TransfershipEdgeStates.HIDDEN,
-                      incomingAddress.quantity,
-                    ),
-                  );
-                }
+          let newEdges: Edge[] = [];
+          for (const c in data.incomingDirectExposure.categories) {
+            const category = data.incomingDirectExposure.categories[c];
+            for (const e in category.entities) {
+              const entity = category.entities[e];
+              for (const a in entity.addresses) {
+                const incomingAddress = entity.addresses[a];
+                newEdges.push(
+                  createTransfershipEdge(
+                    incomingAddress.hash,
+                    address,
+                    TransfershipEdgeStates.HIDDEN,
+                    incomingAddress.quantity,
+                  ),
+                );
               }
             }
-            for (const c in data.outgoingDirectExposure.categories) {
-              const category = data.outgoingDirectExposure.categories[c];
-              for (const e in category.entities) {
-                const entity = category.entities[e];
-                for (const a in entity.addresses) {
-                  const outgoingAddress = entity.addresses[a];
-                  newEdges.push(
-                    createTransfershipEdge(
-                      address,
-                      outgoingAddress.hash,
-                      TransfershipEdgeStates.HIDDEN,
-                      outgoingAddress.quantity,
-                    ),
-                  );
-                }
+          }
+          for (const c in data.outgoingDirectExposure.categories) {
+            const category = data.outgoingDirectExposure.categories[c];
+            for (const e in category.entities) {
+              const entity = category.entities[e];
+              for (const a in entity.addresses) {
+                const outgoingAddress = entity.addresses[a];
+                newEdges.push(
+                  createTransfershipEdge(
+                    address,
+                    outgoingAddress.hash,
+                    TransfershipEdgeStates.HIDDEN,
+                    outgoingAddress.quantity,
+                  ),
+                );
               }
             }
-            addEdges(newEdges);
+          }
+          addEdges(newEdges);
 
-            if (expandAutomatically) {
-              const paths = getExpandWithAIPaths(data, 2);
-              addMultipleDifferentPaths(paths);
-            }
-          },
+          if (expandAutomatically) {
+            const paths = getExpandWithAIPaths(data, 2);
+            addMultipleDifferentPaths(paths);
+          }
         },
       },
-    );
+    });
   const { user } = useAuthState();
 
   // The first time a node is created, the address data is fetched

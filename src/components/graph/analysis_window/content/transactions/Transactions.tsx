@@ -20,8 +20,6 @@ import {
 } from "../../../../common/utility_icons";
 import { GraphContext } from "../../../Graph";
 
-import { TokenMetadata } from "../../../../../api/model/tokenMetadata";
-import { getTokenMetadata } from "../../../../../api/transactions/transactions";
 import TokenLogo from "../../../../common/TokenLogo";
 
 interface TransactionRowProps {
@@ -112,9 +110,6 @@ const TRANSACTIONS_INTERVAL = 50;
 // Max transactions to fetch
 const TRANSACTIONS_LIMIT = 200;
 
-// Native tokens to not fetch from the API
-const NATIVE_TOKENS = ["ETH", "BTC"];
-
 const Transactions: FC = () => {
   const { focusedAddressData, addAddressPaths } = useContext(GraphContext);
 
@@ -127,8 +122,8 @@ const Transactions: FC = () => {
   );
 
   const { refetch: getAddressData } = useGetCombinedTransactions(
+    focusedAddressData!.address,
     {
-      address: focusedAddressData!.address,
       count: visibleTransactions,
     },
     {
@@ -145,70 +140,44 @@ const Transactions: FC = () => {
             visibleTransactions,
           );
 
-          // Create token address to token ticker map where we'll store the token metadata
-          const tokenAddressToTickerMap: Map<string, string> = new Map();
+          const newTransactionRows: TransactionRowProps[] = transactions.map(
+            (transaction: Transaction) => {
+              const incoming = transaction.outputs.some(
+                (output: Output) =>
+                  output.address === focusedAddressData!.address,
+              );
 
-          // Get token metadata for each transaction's token (create a set of unique tokens)
-          const tokens = new Set(
-            transactions.map((transaction) => transaction.currency),
-          );
+              const addresses: string[] = incoming
+                ? transaction.inputs.map((input) => input.address)
+                : transaction.outputs.map((output) => output.address);
 
-          // Remove native tokens from the set and add them to the map
-          NATIVE_TOKENS.forEach((token) => tokens.delete(token));
-          NATIVE_TOKENS.forEach((token) =>
-            tokenAddressToTickerMap.set(token, token),
-          );
+              // console.log("tokenAddressToTickerMap:", tokenAddressToTickerMap);
+              // console.log("ticker", ticker, transaction.currency);
 
-          // Get token metadata for each token
-          getTokenMetadata({ addresses: Array.from(tokens) }).then(
-            (response) => {
-              response.metadatas!.forEach((metadata: TokenMetadata) => {
-                console.log("metadata", metadata);
-                tokenAddressToTickerMap.set(metadata.address, metadata.symbol);
-              });
+              // Go through each key in the map and log the key and value, and the comparison result
+              // tokenAddressToTickerMap.forEach((value, key) => {
+              //   console.log(
+              //     key,
+              //     value,
+              //     key === transaction.currency,
+              //     transaction.currency,
+              //   );
+              // });
 
-              const newTransactionRows: TransactionRowProps[] =
-                transactions.map((transaction: Transaction) => {
-                  const incoming = transaction.outputs.some(
-                    (output: Output) =>
-                      output.address === focusedAddressData!.address,
-                  );
-
-                  const addresses: string[] = incoming
-                    ? transaction.inputs.map((input) => input.address)
-                    : transaction.outputs.map((output) => output.address);
-
-                  const ticker = tokenAddressToTickerMap.get(
-                    transaction.currency,
-                  );
-                  // console.log("tokenAddressToTickerMap:", tokenAddressToTickerMap);
-                  // console.log("ticker", ticker, transaction.currency);
-
-                  // Go through each key in the map and log the key and value, and the comparison result
-                  // tokenAddressToTickerMap.forEach((value, key) => {
-                  //   console.log(
-                  //     key,
-                  //     value,
-                  //     key === transaction.currency,
-                  //     transaction.currency,
-                  //   );
-                  // });
-
-                  return {
-                    usdValue: transaction.usdValue,
-                    timestamp: transaction.timestamp,
-                    incoming: incoming,
-                    hash: transaction.hash,
-                    addresses: addresses,
-                    currency: ticker ? ticker : transaction.currency,
-                    blockchain: focusedAddressData!.blockchain,
-                    expanded: false,
-                  };
-                });
-
-              setTransactionRows(newTransactionRows);
+              return {
+                usdValue: transaction.usdValue,
+                timestamp: transaction.timestamp,
+                incoming: incoming,
+                hash: transaction.hash,
+                addresses: addresses,
+                currency: transaction.tokenSymbol,
+                blockchain: focusedAddressData!.blockchain,
+                expanded: false,
+              };
             },
           );
+
+          setTransactionRows(newTransactionRows);
         },
       },
     },
