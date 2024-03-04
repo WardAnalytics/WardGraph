@@ -24,7 +24,7 @@ interface UnauthenticatedTimeContextProps {
 
 export const UnauthenticatedTimeContext =
   createContext<UnauthenticatedTimeContextProps>({
-    setStartTime: () => { },
+    setStartTime: () => {},
   });
 
 const App: FC = () => {
@@ -89,7 +89,9 @@ const App: FC = () => {
               <BrowserRouter>
                 {/* TODO: Make it so the navbar only opens once the user searches an address. For now it's fine like this. */}
                 {isAuthenticated && <Navbar userID={userID} open />}
-                <UnauthenticatedTimeContext.Provider value={unauthenticatedTimeContext}>
+                <UnauthenticatedTimeContext.Provider
+                  value={unauthenticatedTimeContext}
+                >
                   <Routes>
                     {/* Unsaved graph coming from a link */}
                     <Route
@@ -114,7 +116,10 @@ const App: FC = () => {
                           path={`/saved-graph/:uid`}
                           element={<SavedGraphTemplate />}
                         />
-                        <Route path={`/billing`} element={<BillingTemplate />} />
+                        <Route
+                          path={`/billing`}
+                          element={<BillingTemplate />}
+                        />
                         <Route
                           path={`/graphs`}
                           element={<SavedGraphsTemplate />}
@@ -127,7 +132,7 @@ const App: FC = () => {
       No setter is passed to the AuthDialog because the user can only close it by logging in or creating an account */}
                 <AuthDialog
                   isOpen={showAuthDialog}
-                  setIsOpen={() => { }}
+                  setIsOpen={() => {}}
                   signInText="Sign in to your account to continue using the app"
                 />
               </BrowserRouter>

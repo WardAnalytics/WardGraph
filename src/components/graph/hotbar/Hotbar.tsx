@@ -23,7 +23,7 @@ import ShareDialog from "./components/ShareDialog";
 import { useSearchParams } from "react-router-dom";
 import WithAuth, { WithAuthProps } from "../../auth/WithAuth";
 import { logAnalyticsEvent } from "../../../services/firestore/analytics/analytics";
-import CreateGraphDialog from "./components/CreateGraphDialog";
+import CreateGraphDialog from "../../common/CreateGraphDialog";
 import SettingsDialog from "./components/SettingsDialog";
 
 interface HotbarButton {
