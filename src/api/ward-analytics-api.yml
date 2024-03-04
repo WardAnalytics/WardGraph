@@ -13,22 +13,22 @@ info:
   version: "1.0"
   description: The ward's compliance queires endpoints
 paths:
-  /compliance/analyze-address:
+  /addresses/{address}:
     get:
       operationId: analysis-address-data
       description: Analyze address
       tags:
         - compliance
       parameters:
-        - name: api
-          in: header
-          description: The api key
+        - name: address
+          in: path
+          description: The address to get
           required: true
           schema:
             type: string
-        - name: address
-          in: query
-          description: The address to analyze
+        - name: api
+          in: header
+          description: The api key
           required: true
           schema:
             type: string
@@ -63,68 +63,48 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
-  /transactions/get-transactions-between-addresses:
+  /addresses/{address}/transactions:
     get:
-      operationId: get-transactions-between-addresses
-      description: Get transactions between addresses
+      operationId: get-transactions
+      description: Get transactions for an address
       tags:
         - transactions
       parameters:
-        - name: src
-          in: query
-          description: The source address
+        - name: address
+          in: path
+          description: The address to get transactions for
           required: true
           schema:
             type: string
-        - name: dst
-          in: query
-          description: The destination address
-          required: true
-          schema:
-            type: string
-        - name: page
-          in: query
-          description: The page of transactions to return
-          required: false
-          schema:
-            type: integer
         - name: page_size
           in: query
           description: The number of transactions to return
           required: false
           schema:
             type: integer
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  transactions:
-                    type: array
-                    items:
-                      $ref: "#/components/schemas/Transaction"
-  /transactions/get-combined-transactions:
-    get:
-      operationId: get-combined-transactions
-      description: Get combined transactions
-      tags:
-        - transactions
-      parameters:
-        - name: address
+        - name: page
           in: query
-          description: The address to get transactions for
-          required: true
-          schema:
-            type: string
-        - name: count
-          in: query
-          description: The number of transactions to return
+          description: The page of transactions to return
           required: false
           schema:
             type: integer
+        - name: transaction_type
+          in: query
+          description: The type of transactions to return. Default is "combined"
+          required: false
+          schema:
+            type: string
+            enum:
+              - incoming
+              - outgoing
+              - combined
+              - between
+        - name: destination_address
+          in: query
+          description: The destination address to get transactions for. Only used when transaction_type is "between"
+          required: false
+          schema:
+            type: string
       responses:
         "200":
           description: OK
@@ -169,36 +149,6 @@ paths:
                       $ref: "#/components/schemas/Label"
                     required:
                       - labels
-  /token-metadata:
-    post:
-      operationId: get-token-metadata
-      description: Get token metadata
-      tags:
-        - transactions
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                addresses:
-                  type: array
-                  items:
-                    type: string
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  metadatas:
-                    type: array
-                    items:
-                      $ref: "#/components/schemas/TokenMetadata"
-                    required:
-                      - metadatas
 
 components:
   schemas:
@@ -333,6 +283,10 @@ components:
             $ref: "#/components/schemas/Output"
         usdValue:
           type: number
+        tokenSymbol:
+          type: string
+        tokenName:
+          type: string
       required:
         - hash
         - value
@@ -342,19 +296,8 @@ components:
         - inputs
         - outputs
         - usdValue
-    TokenMetadata:
-      type: object
-      properties:
-        address:
-          type: string
-        name:
-          type: string
-        symbol:
-          type: string
-      required:
-        - address
-        - name
-        - symbol
+        - tokenSymbol
+        - tokenName
 
     # Labels
     Label:
