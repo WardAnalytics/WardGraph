@@ -18,9 +18,6 @@ import type {
   AddressAnalysis
 } from '../model/addressAnalysis'
 import type {
-  AnalysisAddressDataParams
-} from '../model/analysisAddressDataParams'
-import type {
   ErrorResponse
 } from '../model/errorResponse'
 import { instance } from '.././instance';
@@ -31,51 +28,50 @@ import { instance } from '.././instance';
  * Analyze address
  */
 export const analysisAddressData = (
-    params: AnalysisAddressDataParams,
+    address: string,
  signal?: AbortSignal
 ) => {
       
       
       return instance<AddressAnalysis>(
-      {url: `/compliance/analyze-address`, method: 'GET',
-        params, signal
+      {url: `/addresses/${address}`, method: 'GET', signal
     },
       );
     }
   
 
-export const getAnalysisAddressDataQueryKey = (params: AnalysisAddressDataParams,) => {
-    return [`/compliance/analyze-address`, ...(params ? [params]: [])] as const;
+export const getAnalysisAddressDataQueryKey = (address: string,) => {
+    return [`/addresses/${address}`] as const;
     }
 
     
-export const getAnalysisAddressDataQueryOptions = <TData = Awaited<ReturnType<typeof analysisAddressData>>, TError = ErrorResponse>(params: AnalysisAddressDataParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof analysisAddressData>>, TError, TData>, }
+export const getAnalysisAddressDataQueryOptions = <TData = Awaited<ReturnType<typeof analysisAddressData>>, TError = ErrorResponse>(address: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof analysisAddressData>>, TError, TData>, }
 ) => {
 
 const {query: queryOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getAnalysisAddressDataQueryKey(params);
+  const queryKey =  queryOptions?.queryKey ?? getAnalysisAddressDataQueryKey(address);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof analysisAddressData>>> = ({ signal }) => analysisAddressData(params, signal);
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof analysisAddressData>>> = ({ signal }) => analysisAddressData(address, signal);
 
       
 
       
 
-   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof analysisAddressData>>, TError, TData> & { queryKey: QueryKey }
+   return  { queryKey, queryFn, enabled: !!(address), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof analysisAddressData>>, TError, TData> & { queryKey: QueryKey }
 }
 
 export type AnalysisAddressDataQueryResult = NonNullable<Awaited<ReturnType<typeof analysisAddressData>>>
 export type AnalysisAddressDataQueryError = ErrorResponse
 
 export const useAnalysisAddressData = <TData = Awaited<ReturnType<typeof analysisAddressData>>, TError = ErrorResponse>(
- params: AnalysisAddressDataParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof analysisAddressData>>, TError, TData>, }
+ address: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof analysisAddressData>>, TError, TData>, }
 
   ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
 
-  const queryOptions = getAnalysisAddressDataQueryOptions(params,options)
+  const queryOptions = getAnalysisAddressDataQueryOptions(address,options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 

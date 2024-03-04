@@ -3,8 +3,8 @@ import Modal from "../common/Modal";
 import { Transition } from "@headlessui/react";
 import { ArrowUpRightIcon, BarsArrowDownIcon } from "@heroicons/react/16/solid";
 import { FC, useEffect, useState } from "react";
-import { Transaction } from "../../api/model";
-import { useGetTransactionsBetweenAddresses } from "../../api/transactions/transactions";
+import { GetTransactionsTransactionType, Transaction } from "../../api/model";
+import { useGetTransactions } from "../../api/transactions/transactions";
 import { Colors } from "../../utils/colors";
 import formatNumber from "../../utils/formatNumber";
 import Badge from "../common/Badge";
@@ -14,9 +14,6 @@ import {
   BlockExplorerTransactionIcon,
   CopyToClipboardIcon,
 } from "../common/utility_icons";
-
-import { getTokenMetadata } from "../../api/transactions/transactions";
-import { TokenMetadata } from "../../api/model/tokenMetadata";
 
 interface TransactionRowProps {
   usdValue: number;
@@ -82,9 +79,6 @@ const TransactionRow: FC<TransactionRowProps> = ({
 // Max transactions to fetch
 const TRANSACTIONS_LIMIT = 200;
 
-// Native tokens to not fetch from the API
-const NATIVE_TOKENS = ["ETH", "BTC"];
-
 interface TransactionsBetweenAddressesDialogProps {
   show: boolean;
   setShow: (show: boolean) => void;
@@ -100,11 +94,12 @@ const TransactionsBetweenAddressesDialog: FC<
     [],
   );
 
-  const { refetch: getTransactions } = useGetTransactionsBetweenAddresses(
+  const { refetch: getTransactions } = useGetTransactions(
+    src,
     {
-      src,
-      dst,
+      destination_address: dst,
       page_size: TRANSACTIONS_LIMIT,
+      transaction_type: GetTransactionsTransactionType.between,
     },
     {
       query: {
@@ -116,64 +111,25 @@ const TransactionsBetweenAddressesDialog: FC<
         onSuccess: (data) => {
           const transactions: Transaction[] = data.transactions!;
 
-          // Create token address to token ticker map where we'll store the token metadata
-          const tokenAddressToTickerMap: Map<string, string> = new Map();
+          const newTransactionRows: TransactionRowProps[] = transactions.map(
+            (transaction: Transaction) => {
+              const addresses: string[] = transaction.outputs.map(
+                (output) => output.address,
+              );
 
-          // Get token metadata for each transaction's token (create a set of unique tokens)
-          const tokens = new Set(
-            transactions.map((transaction) => transaction.currency),
-          );
-
-          // Remove native tokens from the set and add them to the map
-          NATIVE_TOKENS.forEach((token) => tokens.delete(token));
-          NATIVE_TOKENS.forEach((token) =>
-            tokenAddressToTickerMap.set(token, token),
-          );
-
-          // Get token metadata for each token
-          getTokenMetadata({ addresses: Array.from(tokens) }).then(
-            (response) => {
-              response.metadatas!.forEach((metadata: TokenMetadata) => {
-                console.log("metadata", metadata);
-                tokenAddressToTickerMap.set(metadata.address, metadata.symbol);
-              });
-
-              const newTransactionRows: TransactionRowProps[] =
-                transactions.map((transaction: Transaction) => {
-                  const addresses: string[] = transaction.outputs.map(
-                    (output) => output.address,
-                  );
-
-                  const ticker = tokenAddressToTickerMap.get(
-                    transaction.currency,
-                  );
-                  // console.log("tokenAddressToTickerMap:", tokenAddressToTickerMap);
-                  // console.log("ticker", ticker, transaction.currency);
-
-                  // Go through each key in the map and log the key and value, and the comparison result
-                  // tokenAddressToTickerMap.forEach((value, key) => {
-                  //   console.log(
-                  //     key,
-                  //     value,
-                  //     key === transaction.currency,
-                  //     transaction.currency,
-                  //   );
-                  // });
-
-                  return {
-                    usdValue: transaction.usdValue,
-                    timestamp: transaction.timestamp,
-                    hash: transaction.hash,
-                    addresses: addresses,
-                    currency: ticker ? ticker : transaction.currency,
-                    blockchain: "Ethereum",
-                    expanded: false,
-                  };
-                });
-
-              setTransactionRows(newTransactionRows);
+              return {
+                usdValue: transaction.usdValue,
+                timestamp: transaction.timestamp,
+                hash: transaction.hash,
+                addresses: addresses,
+                currency: transaction.tokenSymbol,
+                blockchain: "Ethereum",
+                expanded: false,
+              };
             },
           );
+
+          setTransactionRows(newTransactionRows);
         },
       },
     },
