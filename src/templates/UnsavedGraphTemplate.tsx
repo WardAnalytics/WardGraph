@@ -13,12 +13,12 @@ import {
 } from "../services/firestore/graph_sharing";
 
 import { Transition } from "@headlessui/react";
-import { UnauthenticatedTimeContext } from "../PublicApp";
 import LoginBanner from "../components/banner/LoginBanner";
 import SEO from "../components/common/SEO";
 import { Graph } from "../components/graph/Graph";
 import LandingPage from "../components/graph/landing_page/LandingPage";
 import useAuthState from "../hooks/useAuthState";
+import { UnauthenticatedTimeContext } from "../App";
 
 interface UnsavedGraphTemplateProps {
   showLandingPage?: boolean;
