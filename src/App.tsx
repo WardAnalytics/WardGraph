@@ -45,9 +45,15 @@ const App: FC = () => {
                     path={`/graph/:uid`}
                     element={<UnsavedGraphTemplate />}
                   />
+                  {/* Keep for legacy reasons */}
+                  <Route
+                    path="/shared/graph/:uid"
+                    element={<UnsavedGraphTemplate />}
+                  />
+
                   {/* Unsaved graph without any link sharing. This is the default landing page. */}
                   <Route
-                    path={`/*`}
+                    path={`*`}
                     element={<UnsavedGraphTemplate showLandingPage />}
                   />
                   {isAuthenticated && (
