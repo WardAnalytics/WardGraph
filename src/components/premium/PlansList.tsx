@@ -36,7 +36,7 @@ const DiscoverPlan: FC<PlanProps> = ({ isPro }) => {
           Graph searching
         </span>
         <span className="flex flex-row items-center gap-x-1">
-          <CheckIcon className="h-4 w-4 text-blue-400" />1 Graph
+          <CheckIcon className="h-4 w-4 text-blue-400" />2 Graphs
         </span>
         <span className="flex flex-row items-center gap-x-1">
           <CheckIcon className="h-4 w-4 text-blue-400" />1 Automation
