@@ -40,15 +40,15 @@ const App: FC = () => {
                 {/* TODO: Make it so the navbar only opens once the user searches an address. For now it's fine like this. */}
                 {isAuthenticated && <Navbar userID={userID} open />}
                 <Routes>
-                  {/* Unsaved graph without any link sharing. This is the default landing page. */}
-                  <Route
-                    path={`/*`}
-                    element={<UnsavedGraphTemplate showLandingPage />}
-                  />
                   {/* Unsaved graph coming from a link */}
                   <Route
                     path={`/graph/:uid`}
                     element={<UnsavedGraphTemplate />}
+                  />
+                  {/* Unsaved graph without any link sharing. This is the default landing page. */}
+                  <Route
+                    path={`/*`}
+                    element={<UnsavedGraphTemplate showLandingPage />}
                   />
                   {isAuthenticated && (
                     <>

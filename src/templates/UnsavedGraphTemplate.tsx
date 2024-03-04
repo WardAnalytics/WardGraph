@@ -119,7 +119,7 @@ const UnsavedGraphTemplate: FC<UnsavedGraphTemplateProps> = ({
         title="Graph"
         description="Creating the next-gen of crypto compliance"
       />
-      <div className="h-full overflow-hidden ">
+      <div className="h-full w-full overflow-hidden ">
         {isAuthenticated ? null : <LoginBanner />}
         <Transition
           show={!showGraph}
@@ -127,7 +127,7 @@ const UnsavedGraphTemplate: FC<UnsavedGraphTemplateProps> = ({
           leave="transition-all duration-500"
           leaveFrom="opacity-100 scale-100"
           leaveTo="opacity-0 scale-50"
-          className="absolute flex h-full w-full flex-col items-center justify-center overflow-x-hidden no-scrollbar"
+          className="flex h-full w-full flex-col items-center justify-center overflow-x-hidden no-scrollbar"
         >
           <LandingPage
             setSearchedAddress={(address: string) => {
