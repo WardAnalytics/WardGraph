@@ -111,7 +111,7 @@ const ProPlan: FC<ProPlanProps> = ({
                         <span className="text-base font-normal text-gray-300">/mo</span>
                     </span>
                     {subscriptionPeriodMode.name === SubscriptionPeriodModes[1].name && (
-                        <Badge color={Colors.BLUE_DARK} text="Save 20%" className="h-fit" />
+                        <Badge color={Colors.BLUE_DARK} text="2 months for free" className="h-fit" />
                     )}
                 </div>
                 <svg
