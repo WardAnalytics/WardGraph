@@ -5,6 +5,7 @@ import BillingTemplate from "./BillingTemplate";
 import SavedGraphsTemplate from "./SavedGraphsTemplate";
 import UnsavedGraphTemplate from "./UnsavedGraphTemplate";
 import SavedGraphTemplate from "./SavedGraphTemplate";
+import RedirectSharedGraph from "./RedirectShortUrl";
 
 export {
   RedirectShortUrl,
@@ -14,4 +15,5 @@ export {
   SavedGraphsTemplate,
   UnsavedGraphTemplate,
   SavedGraphTemplate,
+  RedirectSharedGraph,
 };
