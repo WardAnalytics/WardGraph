@@ -94,7 +94,7 @@ const ShareDialog: FC<ShareDialogProps> = ({
   useEffect(() => {
     if (isOpen) {
       generateSharableLink().then((url) => {
-        setUrl(`${window.location.origin}/shared/graph/${url}`);
+        setUrl(`${window.location.origin}/graph/${url}`);
         logAnalyticsEvent("share_graph_url_generated", { url });
       });
     }
@@ -115,11 +115,7 @@ const ShareDialog: FC<ShareDialogProps> = ({
           Share graph
         </h3>
 
-        <BigButton
-          onClick={closeDialog}
-          text="Close"
-          Icon={XMarkIcon}
-        />
+        <BigButton onClick={closeDialog} text="Close" Icon={XMarkIcon} />
       </div>
       <div className="pt-3">
         <div className="flex flex-row items-center justify-center gap-x-6 divide-x divide-gray-200 text-xs font-semibold text-gray-500">

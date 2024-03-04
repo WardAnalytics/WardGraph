@@ -88,6 +88,7 @@ const AddressNode: FC<AddressNodeProps> = ({
     registerAddressRisk,
     isRiskVision,
     addMultipleDifferentPaths,
+    updateNodeInternalsByID,
   } = useContext(GraphContext);
 
   // Analysis data is fetched into a useState hook from the Ward API using the Orval Hook and then passed into the context
@@ -149,6 +150,10 @@ const AddressNode: FC<AddressNodeProps> = ({
             const paths = getExpandWithAIPaths(data, 2);
             addMultipleDifferentPaths(paths);
           }
+
+          setTimeout(() => {
+            updateNodeInternalsByID(address);
+          }, 1000);
         },
       },
     });

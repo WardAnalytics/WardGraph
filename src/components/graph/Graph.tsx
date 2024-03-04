@@ -117,6 +117,7 @@ interface GraphContextProps {
   setIsTrackPad: (isTrackPad: boolean) => void;
   zoomIn: ZoomInOut;
   zoomOut: ZoomInOut;
+  updateNodeInternalsByID: (id: string) => void;
 }
 
 export const GraphContext = createContext<GraphContextProps>(
@@ -232,41 +233,35 @@ const GraphProvided: FC<GraphProvidedProps> = ({
   initialNodes,
   initialEdges,
   onAutoSave,
-  onLocalSave,
 }) => {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const { fitView, screenToFlowPosition, zoomIn, zoomOut } = useReactFlow();
 
-  // Regularly update the node internals to make sure edges are consistent
-  const updateNodeInternals = useUpdateNodeInternals();
-  const prevNodeWidths = useRef<Map<string, number | null | undefined>>(
-    new Map(),
-  );
-  useEffect(() => {
-    nodes.forEach((node) => {
-      if (prevNodeWidths.current.get(node.id) !== node.width) {
-        prevNodeWidths.current.set(node.id, node.width);
-        updateNodeInternals(node.id);
-      }
-    });
-  }, [nodes]);
+  // Node Internals -----------------------------------------------------------
 
-  // For the first 5 seconds after mounting, we want to updateNodeInternals for all nodes every 100ms
-  const [firstUpdate, setFirstUpdate] = useState<boolean>(true);
-  useEffect(() => {
-    if (firstUpdate) {
-      const interval = setInterval(() => {
-        nodes.forEach((node) => {
-          updateNodeInternals(node.id);
-        });
-      }, 1000);
-      setTimeout(() => {
-        clearInterval(interval);
-        setFirstUpdate(false);
-      }, 5000);
-    }
-  }, [firstUpdate]);
+  const updateNodeInternals = useUpdateNodeInternals();
+
+  /** Tells React Flow to update the handle positions of a node. Because a node's
+   * width and height change when it receives an API response from the server with
+   * the address' labels, it must be updated.
+   *
+   * NOTE: There exists a bug in React Flow that makes it so the node's width has
+   * a non-determinstic delay betweeen rendering the new node width and being able
+   * to update its internals. To go around this, this function should be used with
+   * a timeout of at least 1000ms.
+   *
+   * More info here: https://github.com/xyflow/xyflow/issues/3910
+   *
+   * @param id the id of the node to update
+   *
+   */
+  const updateNodeInternalsByID = useCallback(
+    (id: string) => {
+      updateNodeInternals(id);
+    },
+    [nodes],
+  );
 
   // Record Optimization -------------------------------------------------------
 
@@ -322,24 +317,9 @@ const GraphProvided: FC<GraphProvidedProps> = ({
     [nodes.length, edges.length],
   );
 
-  const saveGraphLocal = useCallback(
-    (graphInfo: SharableGraph) => {
-      if (onLocalSave) {
-        onLocalSave(graphInfo);
-      }
-    },
-    [nodes.length, edges.length],
-  );
-
   const debouncedSave = useRef(
     debounce((graphInfo: PersonalGraphInfo) => {
       saveGraph(graphInfo);
-    }, 1000),
-  );
-
-  const debounceSaveLocal = useRef(
-    debounce((graphInfo: SharableGraph) => {
-      saveGraphLocal(graphInfo);
     }, 1000),
   );
 
@@ -347,16 +327,6 @@ const GraphProvided: FC<GraphProvidedProps> = ({
     if (nodes.length === 0) return;
     debouncedSave.current(personalGraphInfo);
   }, [nodes.length, edges.length]);
-
-  useEffect(() => {
-    if (nodes.length === 0) return;
-
-    const newLocalGraph: SharableGraph = {
-      addresses: personalGraphInfo.addresses,
-      edges: personalGraphInfo.edges,
-    };
-    debounceSaveLocal.current(newLocalGraph);
-  }, [nodes.length]);
 
   // Undo and Redo -------------------------------------------------------------
 
@@ -979,6 +949,7 @@ const GraphProvided: FC<GraphProvidedProps> = ({
     setIsTrackPad,
     zoomIn,
     zoomOut,
+    updateNodeInternalsByID,
   };
 
   const showSearchbar = useMemo(() => {

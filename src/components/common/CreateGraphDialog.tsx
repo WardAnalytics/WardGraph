@@ -48,7 +48,7 @@ const CreateGraphDialog: FC<CreateGraphDialogProps> = ({
       // Reset the graph name and close the dialog
       setGraphName("");
       setOpen(false);
-      navigate(`/${user.uid}/saved-graph/${uid}`);
+      navigate(`/saved-graph/${uid}`);
     });
   }, [graphName]);
 

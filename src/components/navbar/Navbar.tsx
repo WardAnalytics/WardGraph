@@ -32,7 +32,6 @@ import {
 } from "../../services/firestore/user/graph_saving";
 import CreateGraphDialog from "../common/CreateGraphDialog";
 
-
 // To add more tabs, simply add more objects to the navigation array. Href indicates the page to go to
 const navigation = [
   { name: "Risk Feed", href: "risk-feed", icon: ListBulletIcon, isBeta: true },
@@ -112,12 +111,10 @@ const NEW_GRAPH_INFO: PersonalGraphInfo = {
 };
 
 interface SavedGraphsProps {
-  userID: string
+  userID: string;
 }
 
-const SavedGraphs: FC<SavedGraphsProps> = ({
-  userID,
-}) => {
+const SavedGraphs: FC<SavedGraphsProps> = ({ userID }) => {
   const [isCreateGraphDialogOpen, setIsCreateGraphDialogOpen] = useState(false);
 
   const { graphs } = usePersonalGraphs(userID ? userID : "");
@@ -144,7 +141,7 @@ const SavedGraphs: FC<SavedGraphsProps> = ({
           >
             <SavedGraphRow
               name={graph.name}
-              href={getGraphHref(userID, graph)}
+              href={getGraphHref(graph)}
               isLast={index === displayedGraphs.length - 1}
             />
           </Transition>
@@ -216,20 +213,16 @@ const SavedGraphRow: FC<SavedGraphRowProps> = ({ name, href }) => {
 
 interface NavbarProps {
   userID: string;
+  open?: boolean;
 }
 
-const Navbar: FC<NavbarProps> = ({
-  userID
-}) => {
+const Navbar: FC<NavbarProps> = ({ userID, open = false }) => {
   // Sign out functionality
   const navigate = useNavigate();
 
-  const handleSignOut = () => {
-    authService.logout(onLogoutSuccess, onLogoutError);
-  };
   const onLogoutSuccess = () => {
-    localStorage.clear()
-    sessionStorage.clear()
+    localStorage.clear();
+    sessionStorage.clear();
     console.log("Logged out");
     navigate("/");
   };
@@ -237,7 +230,9 @@ const Navbar: FC<NavbarProps> = ({
     console.error(error);
   };
 
-  const [isHidden, setIsHidden] = useState(false);
+  const [isHidden, setIsHidden] = useState(!open);
+
+  // If the current page is
 
   return (
     <>
@@ -273,8 +268,10 @@ const Navbar: FC<NavbarProps> = ({
                           href={item.href}
                           Icon={item.icon}
                           onClick={() => {
-                            logAnalyticsEvent("navbar_option_clicked", { name: item.name });
-                            navigate(`/${userID}/${item.href}`)
+                            logAnalyticsEvent("navbar_option_clicked", {
+                              name: item.name,
+                            });
+                            navigate(`/${item.href}`);
                           }}
                           isBeta={item.isBeta}
                         />
@@ -293,12 +290,16 @@ const Navbar: FC<NavbarProps> = ({
                     Icon={CreditCardIcon}
                     isBeta={false}
                     onClick={() => {
-                      logAnalyticsEvent("navbar_option_clicked", { name: "Plan & Billing" });
-                      navigate(`/${userID}/billing`)
+                      logAnalyticsEvent("navbar_option_clicked", {
+                        name: "Plan & Billing",
+                      });
+                      navigate(`/billing`);
                     }}
                   />
                   <a
-                    onClick={handleSignOut}
+                    onClick={() =>
+                      authService.logout(onLogoutSuccess, onLogoutError)
+                    }
                     className="group flex cursor-pointer gap-x-2 rounded-md p-1.5 text-sm font-semibold leading-6 text-gray-700 hover:bg-gray-100 hover:text-red-600"
                   >
                     <ArrowUturnLeftIcon
