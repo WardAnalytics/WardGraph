@@ -2,7 +2,7 @@ import Axios, { AxiosRequestConfig } from "axios";
 
 export const AXIOS_INSTANCE = Axios.create({
   baseURL: process.env.VITE_WARD_API_BASE_URL,
-  timeout: 5000, // 5 second timeout
+  timeout: 30000, // 30 second timeout
 });
 
 AXIOS_INSTANCE.interceptors.request.use((config) => {
