@@ -10,10 +10,13 @@ import clsx from "clsx";
 import {
   ArrowDownLeftIcon,
   ArrowUpRightIcon,
+  ArrowsPointingInIcon,
   ArrowsRightLeftIcon,
   BuildingLibraryIcon,
+  IdentificationIcon,
+  InformationCircleIcon,
 } from "@heroicons/react/16/solid";
-import { CheckIcon, PlusIcon } from "@heroicons/react/20/solid";
+import { CheckIcon, PlusIcon, SparklesIcon } from "@heroicons/react/20/solid";
 import { Transition } from "@headlessui/react";
 
 import { Category } from "../../../../../api/model";
@@ -30,6 +33,13 @@ import { AnalysisContext } from "../../AnalysisWindow";
 
 import "../../../../common/Scrollbar.css";
 import { logAnalyticsEvent } from "../../../../../services/firestore/analytics/analytics";
+import WithPremium, { WithPremiumProps } from "../../../../premium/WithPremium";
+import { AddressAnalysis } from "../../../../../api/model";
+import { PathExpansionArgs } from "../../../Graph";
+import useAuthState from "../../../../../hooks/useAuthState";
+import { useFreeTierExpandWithAIUsage } from "../../../../../services/firestore/user/free_usage";
+import getExpandWithAIPaths from "../../../expand_with_ai";
+import { addFreeTierExpandWithAIInteraction } from "../../../../../services/firestore/user/free_usage";
 
 /** There can be 3 incoming states for an entity row:
  * - **Outgoing**: The address is sending funds to the entity
@@ -213,7 +223,7 @@ const EntityRow: FC<EntityRowProps> = ({
         </span>
       </span>
       {showExpandButton ? (
-        <BigButton text={expandButtonText} Icon={PlusIcon} onClick={() => { }} />
+        <BigButton text={expandButtonText} Icon={PlusIcon} onClick={() => {}} />
       ) : (
         <h3 className="flex flex-row items-center gap-x-1 text-sm font-semibold tracking-wide text-gray-400">
           <CheckIcon className="h-5 w-5 rounded-full  text-gray-400" />
@@ -223,6 +233,78 @@ const EntityRow: FC<EntityRowProps> = ({
     </div>
   );
 };
+
+interface ExpandWithAIProps extends WithPremiumProps {
+  analysisData: AddressAnalysis;
+  addMultipleDifferentPaths: (args: PathExpansionArgs[]) => void;
+}
+
+const ExpandWithAI: FC<ExpandWithAIProps> = ({
+  analysisData,
+  addMultipleDifferentPaths,
+  handleActionRequiringAuth,
+  handleActionRequiringPremium,
+}) => {
+  const { user } = useAuthState();
+  const userID = useMemo(() => (user ? user.uid : ""), [user]);
+  const { hasReachedUsageLimit } = useFreeTierExpandWithAIUsage(userID);
+
+  const expandWithAI = useCallback((analysisData: AddressAnalysis) => {
+    // Get the paths for the AI to expand
+    const paths = getExpandWithAIPaths(analysisData);
+
+    // Add the paths to the graph
+    addMultipleDifferentPaths(paths);
+  }, []);
+
+  return (
+    <button
+      onClick={async () => {
+        handleActionRequiringAuth({
+          pathname: "graph",
+        });
+        if (hasReachedUsageLimit) {
+          handleActionRequiringPremium({
+            successPath: "graph",
+            cancelPath: "graph",
+          });
+        }
+
+        await addFreeTierExpandWithAIInteraction(userID);
+
+        expandWithAI(analysisData!);
+        logAnalyticsEvent("expand_addresses_with_AI");
+      }}
+      className="group mr-6 flex h-11 flex-row items-center justify-center gap-x-1.5 rounded-md bg-indigo-50 px-3 py-2 text-sm font-semibold text-indigo-900 shadow-md shadow-indigo-500/25 ring-1 ring-inset ring-indigo-300 transition-all ease-in-out hover:bg-indigo-100 hover:shadow-lg hover:shadow-indigo-500/25  focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+    >
+      <SparklesIcon className="h-5 w-5 text-indigo-400" />
+      Expand w/AI
+      <div className="pointer-events-none absolute z-10 mb-0.5 mr-48 mt-48 w-max origin-top scale-50 divide-y divide-gray-700 rounded-lg bg-gray-800 px-3 py-3 text-white opacity-0 shadow-sm transition-all duration-300 ease-in-out group-hover:scale-100 group-hover:opacity-100">
+        <div className="flex flex-row items-center gap-x-1.5 pb-1">
+          <InformationCircleIcon className="h-5 w-5 text-indigo-200" />
+          <h1 className="text-base font-semibold leading-7">Expand w/AI</h1>
+        </div>
+        <div className="flex max-w-xs flex-col gap-y-1.5 pt-1 text-xs font-normal text-gray-400">
+          The AI algorithm will expand based on the following criteria:
+          <ul className="flex flex-col gap-y-2 pl-3 text-white">
+            <li className="flex flex-row items-center gap-x-1">
+              <IdentificationIcon className="h-5 w-5 text-indigo-200" />
+              <span className="font-bold">Highest risk</span>categories of
+              addresses
+            </li>
+            <li className="flex flex-row items-center gap-x-1">
+              <ArrowsPointingInIcon className="h-5 w-5 text-indigo-200" />
+              <span className="font-bold">Most relevant</span> multi-hop paths
+            </li>
+          </ul>
+        </div>
+      </div>
+    </button>
+  );
+};
+
+// Expand with AI with authentication
+const ExpandWithAIWithPremium = WithPremium(ExpandWithAI);
 
 const Overview: FC = () => {
   const focusedAddressData = useContext(GraphContext).focusedAddressData!;
@@ -271,10 +353,18 @@ const Overview: FC = () => {
   // TODO - Add a max height and a scrollbar, maybe a slight fade effect to the bottom and top
   return (
     <div className="flex h-full flex-col gap-y-2">
-      <h3 className="flex h-fit flex-row items-center gap-x-1 text-sm font-semibold tracking-wide text-gray-600">
-        <BuildingLibraryIcon className="h-5 w-5 text-gray-400" />
-        TOP ENTITIES
-      </h3>
+      <span className="flex h-fit w-full flex-row items-end justify-between">
+        <h3 className="flex h-fit flex-row items-center gap-x-1 text-sm font-semibold tracking-wide text-gray-600">
+          <BuildingLibraryIcon className="h-5 w-5 text-gray-400" />
+          TOP ENTITIES
+        </h3>
+        <ExpandWithAIWithPremium
+          analysisData={focusedAddressData}
+          addMultipleDifferentPaths={
+            useContext(GraphContext).addMultipleDifferentPaths
+          }
+        />
+      </span>
       <ul className="scrollbar flex flex-grow scroll-m-28 flex-col gap-y-1.5 overflow-scroll overflow-x-hidden">
         {topEntityRows.map((row, index) => (
           <Transition
@@ -292,9 +382,14 @@ const Overview: FC = () => {
             }}
             key={row.entity + focusedAddressData.address}
           >
-            <div onClick={() => {
-              logAnalyticsEvent("expand_address", { page: "overview", address: focusedAddressData.address })
-            }}>
+            <div
+              onClick={() => {
+                logAnalyticsEvent("expand_address", {
+                  page: "overview",
+                  address: focusedAddressData.address,
+                });
+              }}
+            >
               <EntityRow
                 entity={row.entity}
                 totalIncoming={row.totalIncoming}

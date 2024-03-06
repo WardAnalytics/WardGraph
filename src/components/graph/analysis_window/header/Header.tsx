@@ -1,19 +1,11 @@
-import {
-  ArrowsPointingInIcon,
-  IdentificationIcon,
-  InformationCircleIcon,
-} from "@heroicons/react/20/solid";
-
-import { SparklesIcon, XMarkIcon } from "@heroicons/react/24/solid";
+import { XMarkIcon } from "@heroicons/react/24/solid";
 
 import { TrashIcon } from "@heroicons/react/24/outline";
 
 import { XMarkIcon as XMarkSmallIcon } from "@heroicons/react/16/solid";
 
 import clsx from "clsx";
-import { FC, useCallback, useContext, useMemo } from "react";
-
-import { AddressAnalysis } from "../../../../api/model";
+import { FC, useCallback, useContext } from "react";
 
 import {
   addCustomAddressTag,
@@ -38,19 +30,9 @@ import {
   AnalysisModes,
 } from "../AnalysisWindow";
 
-import { PathExpansionArgs } from "../../Graph";
-
 import WithAuth, { WithAuthProps } from "../../../auth/WithAuth";
 import useAuthState from "../../../../hooks/useAuthState";
-import { logAnalyticsEvent } from "../../../../services/firestore/analytics/analytics";
-import WithPremium, { WithPremiumProps } from "../../../premium/WithPremium";
 import TagInput from "./TagInput";
-import {
-  addFreeTierExpandWithAIInteraction,
-  useFreeTierExpandWithAIUsage,
-} from "../../../../services/firestore/user/free_usage";
-
-import getExpandWithAIPaths from "../../expand_with_ai";
 
 interface ModeButtonProps {
   isActive: boolean;
@@ -84,11 +66,11 @@ const ModeButton: FC<ModeButtonProps> = ({
       />
       <p
         className="w-fit overflow-hidden"
-        style={{
-          maxWidth: isActive ? "5rem" : "0px",
-          opacity: isActive ? 1 : 0,
-          transition: "all 0.3s ease-in-out",
-        }}
+        // style={{
+        //   maxWidth: isActive ? "5rem" : "0px",
+        //   opacity: isActive ? 1 : 0,
+        //   transition: "all 0.3s ease-in-out",
+        // }}
       >
         {analysisMode.name}
       </p>
@@ -201,79 +183,6 @@ const LabelsAndTags: FC<LabelsAndTagsProps> = ({
 // The tag input will only be shown if the user is authenticated
 const LabelsAndTagsWithAuth = WithAuth(LabelsAndTags);
 
-// Expand with AI -------------------------------------------------------------
-interface ExpandWithAIProps extends WithPremiumProps {
-  analysisData: AddressAnalysis;
-  addMultipleDifferentPaths: (args: PathExpansionArgs[]) => void;
-}
-
-const ExpandWithAI: FC<ExpandWithAIProps> = ({
-  analysisData,
-  addMultipleDifferentPaths,
-  handleActionRequiringAuth,
-  handleActionRequiringPremium,
-}) => {
-  const { user } = useAuthState();
-  const userID = useMemo(() => (user ? user.uid : ""), [user]);
-  const { hasReachedUsageLimit } = useFreeTierExpandWithAIUsage(userID);
-
-  const expandWithAI = useCallback((analysisData: AddressAnalysis) => {
-    // Get the paths for the AI to expand
-    const paths = getExpandWithAIPaths(analysisData);
-
-    // Add the paths to the graph
-    addMultipleDifferentPaths(paths);
-  }, []);
-
-  return (
-    <div className="group flex flex-row items-center justify-center">
-      <SparklesIcon
-        onClick={async () => {
-          handleActionRequiringAuth({
-            pathname: "graph",
-          });
-
-          if (hasReachedUsageLimit) {
-            handleActionRequiringPremium({
-              successPath: "graph",
-              cancelPath: "graph",
-            });
-          }
-
-          await addFreeTierExpandWithAIInteraction(userID);
-
-          expandWithAI(analysisData!);
-          logAnalyticsEvent("expand_addresses_with_AI");
-        }}
-        className="h-11 w-11 cursor-pointer rounded-md p-1.5 text-indigo-400 transition-all duration-150 ease-in-out hover:bg-indigo-50 "
-      />
-      <div className="pointer-events-none absolute mb-48 mt-0.5 w-max origin-bottom scale-50 divide-y divide-gray-700 rounded-lg bg-gray-800 px-3 py-3 text-white opacity-0 shadow-sm transition-all duration-300 ease-in-out group-hover:scale-100 group-hover:opacity-100">
-        <div className="flex flex-row items-center gap-x-1.5 pb-1">
-          <InformationCircleIcon className="h-5 w-5 text-indigo-200" />
-          <h1 className="text-base font-semibold leading-7">Expand w/AI</h1>
-        </div>
-        <div className="flex max-w-xs flex-col gap-y-1.5 pt-1 text-xs font-normal text-gray-400">
-          The AI algorithm will expand based on the following criteria:
-          <ul className="flex flex-col gap-y-2 pl-3 text-white">
-            <li className="flex flex-row items-center gap-x-1">
-              <IdentificationIcon className="h-5 w-5 text-indigo-200" />
-              <span className="font-bold">Highest risk</span>categories of
-              addresses
-            </li>
-            <li className="flex flex-row items-center gap-x-1">
-              <ArrowsPointingInIcon className="h-5 w-5 text-indigo-200" />
-              <span className="font-bold">Most relevant</span> multi-hop paths
-            </li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-// Expand with AI with authentication
-const ExpandWithAIWithPremium = WithPremium(ExpandWithAI);
-
 interface HeaderProps {
   onExit: () => void;
   setAnalysisMode: (mode: AnalysisMode) => void;
@@ -286,7 +195,7 @@ const Header: FC<HeaderProps> = ({
   analysisMode,
 }: HeaderProps) => {
   // Extract analysisData from context
-  const { addMultipleDifferentPaths, deleteNodes } = useContext(GraphContext);
+  const { deleteNodes } = useContext(GraphContext);
   const { analysisData, address } = useContext(AnalysisContext);
 
   // When minimized, the address hash should be sliced off
@@ -336,10 +245,6 @@ const Header: FC<HeaderProps> = ({
         />
 
         <span className="flex flex-row">
-          <ExpandWithAIWithPremium
-            analysisData={analysisData!}
-            addMultipleDifferentPaths={addMultipleDifferentPaths}
-          />
           <div className="group flex flex-row items-center justify-center">
             <TrashIcon
               onClick={() => {

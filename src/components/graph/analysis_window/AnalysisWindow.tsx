@@ -145,7 +145,7 @@ const DraggableWindow: FC<DraggableWindowProps> = ({
                 width:
                   analysisMode.name === AnalysisModeNames.Advanced
                     ? "68rem"
-                    : "55rem",
+                    : "61rem",
                 transition: "width 0.5s ease-in-out, opacity 0.2s ease-in-out",
               }}
               onMouseEnter={() => {
