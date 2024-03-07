@@ -108,7 +108,8 @@ const TransactionsBetweenAddressesDialog: FC<
         retry: true,
         cacheTime: 1000, // 1 second
         staleTime: 1000, // 1 second
-        onSuccess: (data) => {
+        onSuccess: (rawData) => {
+          const data = rawData.data!;
           const transactions: Transaction[] = data.transactions!;
 
           const newTransactionRows: TransactionRowProps[] = transactions.map(
