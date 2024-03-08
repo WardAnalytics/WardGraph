@@ -56,9 +56,12 @@ export const useCheckoutSessionUrl = (priceId: string, userId: string, {
       "checkout_sessions",
     );
 
+    // For more info about the cloud function, see:
+    // https://github.com/invertase/stripe-firebase-extensions/blob/next/firestore-stripe-web-sdk/markdown/firestore-stripe-payments.commonsessioncreateparams.md
     addDoc(checkoutSessionRef, {
       price: priceId,
       allow_promotion_codes: true,
+      automatic_tax: true,
       success_url: successRedirectUrl,
       cancel_url: cancelRedirectUrl
     }).then((docRef) => {
