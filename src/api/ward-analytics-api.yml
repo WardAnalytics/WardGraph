@@ -38,7 +38,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/AddressAnalysis"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/AddressAnalysis"
         "400":
           description: Bad Request
           content:
@@ -113,12 +116,19 @@ paths:
               schema:
                 type: object
                 properties:
-                  transactions:
-                    type: array
-                    items:
-                      $ref: "#/components/schemas/Transaction"
-                    required:
-                      - transactions
+                  data:
+                    type: object
+                    properties:
+                      transactions:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/Transaction"
+                      total:
+                        type: integer
+                      page:
+                        type: integer
+                      page_size:
+                        type: integer
   /labels/search-labels:
     post:
       operationId: search-labels

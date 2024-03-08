@@ -15,8 +15,8 @@ import type {
   UseQueryResult
 } from 'react-query'
 import type {
-  AddressAnalysis
-} from '../model/addressAnalysis'
+  AnalysisAddressData200
+} from '../model/analysisAddressData200'
 import type {
   ErrorResponse
 } from '../model/errorResponse'
@@ -33,7 +33,7 @@ export const analysisAddressData = (
 ) => {
       
       
-      return instance<AddressAnalysis>(
+      return instance<AnalysisAddressData200>(
       {url: `/addresses/${address}`, method: 'GET', signal
     },
       );

@@ -5,8 +5,5 @@
  * The ward's compliance queires endpoints
  * OpenAPI spec version: 1.0
  */
-import type { GetTransactions200Data } from './getTransactions200Data';
 
-export type GetTransactions200 = {
-  data?: GetTransactions200Data;
-};
+export type AnalysisAddressData200Data = { [key: string]: any };

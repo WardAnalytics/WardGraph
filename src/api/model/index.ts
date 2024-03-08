@@ -8,6 +8,8 @@
 
 export * from './address';
 export * from './addressAnalysis';
+export * from './analysisAddressData200';
+export * from './analysisAddressData200Data';
 export * from './analysisAddressDataParams';
 export * from './category';
 export * from './entity';
@@ -19,6 +21,7 @@ export * from './getCombinedTransactionsTransactionType';
 export * from './getTokenMetadata200';
 export * from './getTokenMetadataBody';
 export * from './getTransactions200';
+export * from './getTransactions200Data';
 export * from './getTransactionsBetweenAddresses200';
 export * from './getTransactionsBetweenAddressesParams';
 export * from './getTransactionsParams';

@@ -105,7 +105,8 @@ const AddressNode: FC<AddressNodeProps> = ({
         cacheTime: 1000, // 1 second
         staleTime: 1000, // 1 second
 
-        onSuccess: (data) => {
+        onSuccess: (rawData) => {
+          const data = rawData.data!;
           setAnalysisData(data);
           registerAddressRisk(address, data.risk);
 

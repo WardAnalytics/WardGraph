@@ -133,7 +133,8 @@ const Transactions: FC = () => {
         retry: true,
         cacheTime: 1000, // 1 second
         staleTime: 1000, // 1 second
-        onSuccess: (data) => {
+        onSuccess: (rawData) => {
+          const data = rawData.data!;
           // Only get the first TRANSACTIONS_INTERVAL transactions
           const transactions: Transaction[] = data.transactions!.slice(
             0,
