@@ -118,7 +118,7 @@ const LabelsAndTags: FC<LabelsAndTagsProps> = ({
 
   useEffect(() => {
     getCategory({ labels }).then((res) => {
-      setCategories(res.categories!);
+      setCategories(Array.from(new Set(res.categories!)));
     });
   }, [labels]);
 

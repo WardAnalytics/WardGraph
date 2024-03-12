@@ -72,7 +72,8 @@ const LabelsAndTags: FC<LabelsAndTagsProps> = ({ labels, tags }) => {
 
   useEffect(() => {
     getCategory({ labels }).then((res) => {
-      setCategories(res.categories!);
+      // Only set unique categories
+      setCategories(Array.from(new Set(res.categories!)));
     });
   }, [labels]);
 
