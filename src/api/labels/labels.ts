@@ -13,6 +13,12 @@ import type {
   UseMutationOptions
 } from 'react-query'
 import type {
+  GetCategory200
+} from '../model/getCategory200'
+import type {
+  GetCategoryBody
+} from '../model/getCategoryBody'
+import type {
   SearchLabels200
 } from '../model/searchLabels200'
 import type {
@@ -68,6 +74,55 @@ export const getSearchLabelsMutationOptions = <TError = unknown,
 ) => {
 
       const mutationOptions = getSearchLabelsMutationOptions(options);
+
+      return useMutation(mutationOptions);
+    }
+    /**
+ * Get category for a list of labels
+ */
+export const getCategory = (
+    getCategoryBody: GetCategoryBody,
+ ) => {
+      
+      
+      return instance<GetCategory200>(
+      {url: `/labels/get-category`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: getCategoryBody
+    },
+      );
+    }
+  
+
+
+export const getGetCategoryMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof getCategory>>, TError,{data: GetCategoryBody}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof getCategory>>, TError,{data: GetCategoryBody}, TContext> => {
+ const {mutation: mutationOptions} = options ?? {};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof getCategory>>, {data: GetCategoryBody}> = (props) => {
+          const {data} = props ?? {};
+
+          return  getCategory(data,)
+        }
+
+        
+
+
+   return  { mutationFn, ...mutationOptions }}
+
+    export type GetCategoryMutationResult = NonNullable<Awaited<ReturnType<typeof getCategory>>>
+    export type GetCategoryMutationBody = GetCategoryBody
+    export type GetCategoryMutationError = unknown
+
+    export const useGetCategory = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof getCategory>>, TError,{data: GetCategoryBody}, TContext>, }
+) => {
+
+      const mutationOptions = getGetCategoryMutationOptions(options);
 
       return useMutation(mutationOptions);
     }

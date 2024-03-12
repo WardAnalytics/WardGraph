@@ -13,6 +13,7 @@ import { AddressAnalysis } from "../../../../../../api/model";
 import { useAnalysisAddressData } from "../../../../../../api/compliance/compliance";
 
 import { useCustomAddressTags } from "../../../../../../services/firestore/user/custom_tags";
+import { CategoryClasses } from "../../../../../../utils/categories";
 
 import EntityLogo from "../../../../../common/EntityLogo";
 import RiskIndicator from "../../../../../common/RiskIndicator";
@@ -35,6 +36,8 @@ import { Transition } from "@headlessui/react";
 import useAuthState from "../../../../../../hooks/useAuthState";
 
 import getExpandWithAIPaths from "../../../../expand_with_ai";
+import { TagIcon } from "@heroicons/react/16/solid";
+import { getCategory } from "../../../../../../api/labels/labels";
 
 /** Context data for the AddressNode */
 
@@ -64,14 +67,31 @@ interface LabelsAndTagsProps {
 }
 
 const LabelsAndTags: FC<LabelsAndTagsProps> = ({ labels, tags }) => {
+  // Get all categories for this address
+  const [categories, setCategories] = useState<string[]>([]);
+
+  useEffect(() => {
+    getCategory({ labels }).then((res) => {
+      setCategories(res.categories!);
+    });
+  }, [labels]);
+
   // Display everything and user input at the end in a flex-wrap
   return (
     <span className="flex max-w-md flex-wrap items-center gap-x-1.5 gap-y-1">
+      {categories.map((category) => (
+        <Badge
+          key={category}
+          color={Colors.BLUE}
+          text={category}
+          Icon={CategoryClasses[category]?.iconSmall}
+        />
+      ))}
       {labels.map((label) => (
-        <Badge key={label} color={Colors.BLUE} text={label} />
+        <Badge key={label} color={Colors.WHITE} text={label} />
       ))}
       {tags.map((tag) => (
-        <Badge key={tag} color={Colors.PURPLE} text={tag} />
+        <Badge key={tag} color={Colors.GRAY} text={tag} Icon={TagIcon} />
       ))}
     </span>
   );
@@ -262,15 +282,24 @@ const AddressNode: FC<AddressNodeProps> = ({
           <div className="flex flex-col gap-y-0.5">
             <h1
               className={clsx(
-                "flex flex-row font-mono font-semibold tracking-tight",
+                "flex min-w-[10rem] flex-row items-center gap-x-1 font-semibold tracking-tight",
                 riskColor ? riskColor.textColor : "text-gray-800",
               )}
             >
-              {`${address.slice(0, 5)}...${address.slice(-5)}`}
+              {analysisData?.labels && (
+                <>
+                  {analysisData.labels[0]}
+                  <span className="mt-[0.1rem] font-mono font-normal text-opacity-80 ">
+                    {analysisData.labels.length > 0 && "("}
+                    {`${address.slice(0, 5)}...${address.slice(-5)}`}
+                    {analysisData.labels.length > 0 && ")"}
+                  </span>
+                </>
+              )}
               {analysisData && analysisData.labels.length > 0 && (
                 <EntityLogo
                   entity={analysisData!.labels[0]}
-                  className="ml-2 h-7 w-7 rounded-full"
+                  className="h-7 w-7 rounded-full"
                 />
               )}
             </h1>

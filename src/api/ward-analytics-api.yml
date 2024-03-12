@@ -160,6 +160,38 @@ paths:
                     required:
                       - labels
 
+  # Accepts a list of labels and returns a list of categories in {"categories": []} format
+  /labels/get-category:
+    post:
+      operationId: get-category
+      description: Get category for a list of labels
+      tags:
+        - labels
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                labels:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  categories:
+                    type: array
+                    items:
+                      type: string
+                    required:
+                      - categories
+
 components:
   schemas:
     # Address Analysis

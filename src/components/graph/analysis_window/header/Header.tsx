@@ -5,7 +5,7 @@ import { TrashIcon } from "@heroicons/react/24/outline";
 import { XMarkIcon as XMarkSmallIcon } from "@heroicons/react/16/solid";
 
 import clsx from "clsx";
-import { FC, useCallback, useContext } from "react";
+import { FC, useCallback, useContext, useEffect, useState } from "react";
 
 import {
   addCustomAddressTag,
@@ -33,6 +33,8 @@ import {
 import WithAuth, { WithAuthProps } from "../../../auth/WithAuth";
 import useAuthState from "../../../../hooks/useAuthState";
 import TagInput from "./TagInput";
+import { getCategory } from "../../../../api/labels/labels";
+import { CategoryClasses } from "../../../../utils/categories";
 
 interface ModeButtonProps {
   isActive: boolean;
@@ -112,6 +114,13 @@ const LabelsAndTags: FC<LabelsAndTagsProps> = ({
 
   // Labels get displayed first in the flex-wrap
   const labels = analysisData!.labels;
+  const [categories, setCategories] = useState<string[]>([]);
+
+  useEffect(() => {
+    getCategory({ labels }).then((res) => {
+      setCategories(res.categories!);
+    });
+  }, [labels]);
 
   // Get user and address already existing tags from Firestore
   const { tags: userCustomTags } = useCustomUserTags(user ? user.uid : "");
@@ -141,13 +150,21 @@ const LabelsAndTags: FC<LabelsAndTagsProps> = ({
   // Display everything and user input at the end in a flex-wrap
   return (
     <span className="flex w-96 flex-wrap items-center gap-x-1.5 gap-y-1">
+      {categories.map((category) => (
+        <Badge
+          key={category}
+          color={Colors.BLUE}
+          text={category}
+          Icon={CategoryClasses[category]?.iconSmall}
+        />
+      ))}
       {labels.map((label) => (
-        <Badge key={label} color={Colors.BLUE} text={label} />
+        <Badge key={label} color={Colors.WHITE} text={label} />
       ))}
       {addressCustomTags.map((tag) => (
         <Badge
           key={tag}
-          color={Colors.PURPLE}
+          color={Colors.GRAY}
           text={tag}
           Icon={XMarkSmallIcon}
           onClick={() => {
@@ -213,7 +230,9 @@ const Header: FC<HeaderProps> = ({
           <span className="flex flex-row items-center gap-x-1 gap-y-1">
             {/* Address Hash - Sliced when in non-expanded mode*/}
             <h1 className="font-xs flex flex-row font-mono font-semibold tracking-tight text-gray-800">
+              {analysisData?.labels.length && analysisData.labels[0] + " ("}
               {displayedAddress}
+              {analysisData?.labels.length && ")"}
               <EntityLogo
                 entity={analysisData!.labels[0]}
                 className="ml-2 h-7 w-7 rounded-full"
