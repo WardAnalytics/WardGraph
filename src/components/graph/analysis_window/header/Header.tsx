@@ -216,7 +216,10 @@ const Header: FC<HeaderProps> = ({
   const { analysisData, address } = useContext(AnalysisContext);
 
   // When minimized, the address hash should be sliced off
-  const displayedAddress = address.slice(0, 8) + "..." + address.slice(-6);
+  const displayedAddress =
+    address.slice(0, analysisData?.labels.length ? 4 : 8) +
+    ".." +
+    address.slice(-2);
   const risk = analysisData!.risk;
 
   return (
@@ -229,13 +232,17 @@ const Header: FC<HeaderProps> = ({
         <div className="flex flex-col gap-y-0.5">
           <span className="flex flex-row items-center gap-x-1 gap-y-1">
             {/* Address Hash - Sliced when in non-expanded mode*/}
-            <h1 className="font-xs flex flex-row font-mono font-semibold tracking-tight text-gray-800">
-              {analysisData?.labels.length && analysisData.labels[0] + " ("}
-              {displayedAddress}
-              {analysisData?.labels.length && ")"}
+            <h1 className="font-xs flex flex-row gap-1 font-semibold tracking-tight text-gray-800">
+              {analysisData?.labels.length && analysisData.labels[0]}
+              <span className="mt-[0.1rem] font-mono font-normal">
+                {analysisData?.labels.length && "("}
+                {displayedAddress}
+                {analysisData?.labels.length && ")"}
+              </span>
+
               <EntityLogo
                 entity={analysisData!.labels[0]}
-                className="ml-2 h-7 w-7 rounded-full"
+                className="h-7 w-7 rounded-full"
               />
             </h1>
 
