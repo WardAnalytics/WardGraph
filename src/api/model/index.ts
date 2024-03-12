@@ -21,6 +21,8 @@ export * from './getCategoryParams';
 export * from './getCombinedTransactions200';
 export * from './getCombinedTransactionsParams';
 export * from './getCombinedTransactionsTransactionType';
+export * from './getLabels200';
+export * from './getLabels200Data';
 export * from './getTokenMetadata200';
 export * from './getTokenMetadataBody';
 export * from './getTransactions200';

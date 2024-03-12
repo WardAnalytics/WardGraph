@@ -6,11 +6,16 @@
  * OpenAPI spec version: 1.0
  */
 import {
-  useMutation
+  useMutation,
+  useQuery
 } from 'react-query'
 import type {
   MutationFunction,
-  UseMutationOptions
+  QueryFunction,
+  QueryKey,
+  UseMutationOptions,
+  UseQueryOptions,
+  UseQueryResult
 } from 'react-query'
 import type {
   GetCategory200
@@ -19,12 +24,73 @@ import type {
   GetCategoryBody
 } from '../model/getCategoryBody'
 import type {
+  GetLabels200
+} from '../model/getLabels200'
+import type {
   SearchLabels200
 } from '../model/searchLabels200'
 import type {
   SearchLabelsBody
 } from '../model/searchLabelsBody'
 import { instance } from '.././instance';
+
+
+
+/**
+ * Get labels for an address
+ */
+export const getLabels = (
+    address: string,
+ signal?: AbortSignal
+) => {
+      
+      
+      return instance<GetLabels200>(
+      {url: `/addresses/${address}/labels`, method: 'GET', signal
+    },
+      );
+    }
+  
+
+export const getGetLabelsQueryKey = (address: string,) => {
+    return [`/addresses/${address}/labels`] as const;
+    }
+
+    
+export const getGetLabelsQueryOptions = <TData = Awaited<ReturnType<typeof getLabels>>, TError = unknown>(address: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getLabels>>, TError, TData>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetLabelsQueryKey(address);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getLabels>>> = ({ signal }) => getLabels(address, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(address), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getLabels>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetLabelsQueryResult = NonNullable<Awaited<ReturnType<typeof getLabels>>>
+export type GetLabelsQueryError = unknown
+
+export const useGetLabels = <TData = Awaited<ReturnType<typeof getLabels>>, TError = unknown>(
+ address: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getLabels>>, TError, TData>, }
+
+  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
+
+  const queryOptions = getGetLabelsQueryOptions(address,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
 
 
 

@@ -129,6 +129,34 @@ paths:
                         type: integer
                       page_size:
                         type: integer
+  /addresses/{address}/labels:
+    get:
+      operationId: get-labels
+      description: Get labels for an address
+      tags:
+        - labels
+      parameters:
+        - name: address
+          in: path
+          description: The address to get labels for
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      labels:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/Label"
   /labels/search-labels:
     post:
       operationId: search-labels
