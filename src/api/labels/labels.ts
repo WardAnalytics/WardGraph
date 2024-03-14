@@ -6,12 +6,26 @@
  * OpenAPI spec version: 1.0
  */
 import {
-  useMutation
+  useMutation,
+  useQuery
 } from 'react-query'
 import type {
   MutationFunction,
-  UseMutationOptions
+  QueryFunction,
+  QueryKey,
+  UseMutationOptions,
+  UseQueryOptions,
+  UseQueryResult
 } from 'react-query'
+import type {
+  GetCategory200
+} from '../model/getCategory200'
+import type {
+  GetCategoryBody
+} from '../model/getCategoryBody'
+import type {
+  GetLabels200
+} from '../model/getLabels200'
 import type {
   SearchLabels200
 } from '../model/searchLabels200'
@@ -19,6 +33,64 @@ import type {
   SearchLabelsBody
 } from '../model/searchLabelsBody'
 import { instance } from '.././instance';
+
+
+
+/**
+ * Get labels for an address
+ */
+export const getLabels = (
+    address: string,
+ signal?: AbortSignal
+) => {
+      
+      
+      return instance<GetLabels200>(
+      {url: `/addresses/${address}/labels`, method: 'GET', signal
+    },
+      );
+    }
+  
+
+export const getGetLabelsQueryKey = (address: string,) => {
+    return [`/addresses/${address}/labels`] as const;
+    }
+
+    
+export const getGetLabelsQueryOptions = <TData = Awaited<ReturnType<typeof getLabels>>, TError = unknown>(address: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getLabels>>, TError, TData>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetLabelsQueryKey(address);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getLabels>>> = ({ signal }) => getLabels(address, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(address), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getLabels>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetLabelsQueryResult = NonNullable<Awaited<ReturnType<typeof getLabels>>>
+export type GetLabelsQueryError = unknown
+
+export const useGetLabels = <TData = Awaited<ReturnType<typeof getLabels>>, TError = unknown>(
+ address: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getLabels>>, TError, TData>, }
+
+  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
+
+  const queryOptions = getGetLabelsQueryOptions(address,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
 
 
 
@@ -68,6 +140,55 @@ export const getSearchLabelsMutationOptions = <TError = unknown,
 ) => {
 
       const mutationOptions = getSearchLabelsMutationOptions(options);
+
+      return useMutation(mutationOptions);
+    }
+    /**
+ * Get category for a list of labels
+ */
+export const getCategory = (
+    getCategoryBody: GetCategoryBody,
+ ) => {
+      
+      
+      return instance<GetCategory200>(
+      {url: `/labels/get-category`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: getCategoryBody
+    },
+      );
+    }
+  
+
+
+export const getGetCategoryMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof getCategory>>, TError,{data: GetCategoryBody}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof getCategory>>, TError,{data: GetCategoryBody}, TContext> => {
+ const {mutation: mutationOptions} = options ?? {};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof getCategory>>, {data: GetCategoryBody}> = (props) => {
+          const {data} = props ?? {};
+
+          return  getCategory(data,)
+        }
+
+        
+
+
+   return  { mutationFn, ...mutationOptions }}
+
+    export type GetCategoryMutationResult = NonNullable<Awaited<ReturnType<typeof getCategory>>>
+    export type GetCategoryMutationBody = GetCategoryBody
+    export type GetCategoryMutationError = unknown
+
+    export const useGetCategory = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof getCategory>>, TError,{data: GetCategoryBody}, TContext>, }
+) => {
+
+      const mutationOptions = getGetCategoryMutationOptions(options);
 
       return useMutation(mutationOptions);
     }

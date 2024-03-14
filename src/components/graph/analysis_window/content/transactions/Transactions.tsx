@@ -5,6 +5,7 @@ import {
   BarsArrowDownIcon,
   CheckIcon,
   PlusIcon,
+  TagIcon,
 } from "@heroicons/react/16/solid";
 import { FC, useContext, useEffect, useState } from "react";
 import { Output, Transaction } from "../../../../../api/model";
@@ -21,6 +22,7 @@ import {
 import { GraphContext } from "../../../Graph";
 
 import TokenLogo from "../../../../common/TokenLogo";
+import { useGetLabels } from "../../../../../api/labels/labels";
 
 interface TransactionRowProps {
   usdValue: number;
@@ -50,6 +52,27 @@ const TransactionRow: FC<TransactionRowProps> = ({
     day: "numeric",
   });
 
+  const [label, setLabel] = useState<string>();
+  const { refetch } = useGetLabels(addresses[0], {
+    query: {
+      enabled: false,
+      refetchOnWindowFocus: false,
+      retry: true,
+      cacheTime: 1000, // 1 second
+      staleTime: 1000, // 1 second
+      onSuccess: (data) => {
+        const l = data.data!.labels!;
+        if (l.length > 0) {
+          setLabel(l[0].label);
+        }
+      },
+    },
+  });
+
+  useEffect(() => {
+    refetch();
+  }, [addresses]);
+
   const addressText: string =
     addresses.length === 1
       ? addresses[0].slice(0, 8) + "..." + addresses[0].slice(-8)
@@ -76,6 +99,7 @@ const TransactionRow: FC<TransactionRowProps> = ({
             Icon={incoming ? ArrowDownLeftIcon : ArrowUpRightIcon}
             text={incoming ? "IN" : "OUT"}
           />
+          {label && <Badge color={Colors.GRAY} Icon={TagIcon} text={label} />}
         </span>
       </td>
       <td className="text-left text-sm font-normal text-gray-900 group-hover:bg-gray-100">

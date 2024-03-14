@@ -30,7 +30,7 @@ const RiskIndicator: FC<RiskIndicatorProps> = ({
   return (
     <span
       className={clsx(
-        "group my-1 flex h-11 w-11 items-center justify-center rounded-md text-lg font-semibold shadow-sm ring-1",
+        "group my-1 flex h-12 w-12 items-center justify-center rounded-md text-lg font-semibold shadow-sm ring-1",
         color?.textColor,
         color?.backgroundColor,
         color?.hoveredBackgroundColor,
@@ -53,13 +53,13 @@ const RiskIndicator: FC<RiskIndicatorProps> = ({
             </li>
             <li className="flex flex-row items-center gap-x-1">
               <ArrowsPointingInIcon className="h-5 w-5 text-blue-200" />
-              <span className="font-bold">Direct Exposure,</span> both incoming and
-              outgoing
+              <span className="font-bold">Direct Exposure,</span> both incoming
+              and outgoing
             </li>
             <li className="flex flex-row items-center gap-x-1">
               <ChevronDoubleDownIcon className="h-5 w-5 text-blue-200" />
-              <span className="font-bold">Indirect Exposure,</span> both incoming and
-              outgoing
+              <span className="font-bold">Indirect Exposure,</span> both
+              incoming and outgoing
             </li>
           </ul>
         </div>
