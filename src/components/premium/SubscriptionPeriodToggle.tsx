@@ -24,13 +24,13 @@ export const SubscriptionPeriodModes: SubscriptionPeriodMode[] = [
   {
     name: SubscriptionPeriodNames.MONTHLY,
     priceId: import.meta.env.VITE_PRO_PRICE_ID as string,
-    priceValueMonth: 10.00,
+    priceValueMonth: 99.99,
     priceCurrency: "€",
   },
   {
     name: SubscriptionPeriodNames.YEARLY,
     priceId: import.meta.env.VITE_PRO_PRICE_YEARLY_ID as string,
-    priceValueMonth: 8.00,
+    priceValueMonth: 83.33,
     priceCurrency: "€",
   },
 ];
